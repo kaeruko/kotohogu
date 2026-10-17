@@ -112,7 +112,8 @@ Google Driveの kotohogu_api.txt にURLを記載
 既にCloudFormationスタックがある場合の発行例：
 
 ```powershell
-python tools/aws/publish_content.py --stack kotohogu-content --region ap-northeast-1 --profile <AWS-profile>
+$awsProfile = 'kotohogu' # 実際に設定したAWS CLIプロファイル名に変更
+python tools/aws/publish_content.py --stack kotohogu-content --region ap-northeast-1 --profile $awsProfile
 ```
 
 発行後に表示される `Pinned release base URL` を、**同じGoogle Driveファイル**の1行に反映します。URLにはリリースIDと末尾の `/` が必要です。新しいDriveファイルを作るとIDが変わるので、元のファイルを更新します。
