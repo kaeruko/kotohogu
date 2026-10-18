@@ -24,10 +24,12 @@ DEVICES = (
     (
         "ipad_13_inch",
         (
-            "iPad Pro 13-inch (M4)",
-            "iPad Pro 13-inch (M5)",
-            "iPad Air 13-inch (M3)",
-            "iPad Air 13-inch (M2)",
+            # Xcode lists memory configurations as separate exact model names.
+            # iPad Air is 2048x2732 and cannot substitute for Pro 2064x2752.
+            "iPad Pro 13-inch (M4) (16GB)",
+            "iPad Pro 13-inch (M4) (8GB)",
+            "iPad Pro 13-inch (M5) (16GB)",
+            "iPad Pro 13-inch (M5) (12GB)",
         ),
         (2064, 2752),
     ),
