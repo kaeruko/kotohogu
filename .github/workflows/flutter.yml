@@ -19,8 +19,8 @@ jobs:
       - run: python -m unittest discover -s tools/android -p 'test_*.py'
       - run: python -m unittest discover -s tools/aws -p 'test_*.py'
       - run: flutter pub get
-      # Android/Web icons use pubspec.yaml explicitly: the iOS flavor file
-      # otherwise gets selected automatically on this Linux runner.
+      # Android/Web icons use pubspec.yaml; the iOS config is deliberately
+      # named ios_app_icon_config.yaml to avoid automatic flavor discovery.
       - run: dart run flutter_launcher_icons -f pubspec.yaml
       - run: flutter analyze
       - run: flutter test

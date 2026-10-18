@@ -2,7 +2,7 @@ name: Sync launcher icons
 
 # Regenerate the checked-in Android/Web launcher images from one source.
 # iOS sources are created only for releases; the IPA workflow applies the
-# separate flutter_launcher_icons-ios.yaml config after flutter create.
+# separate ios_app_icon_config.yaml after flutter create.
 on:
   push:
     branches: [main]

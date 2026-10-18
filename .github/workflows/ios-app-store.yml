@@ -33,7 +33,7 @@ jobs:
             flutter create --platforms=ios --project-name future_lift --org jp.cloxs .
           fi
           # iOS is generated on the runner, so generate icons afterwards.
-          dart run flutter_launcher_icons -f flutter_launcher_icons-ios.yaml
+          dart run flutter_launcher_icons -f ios_app_icon_config.yaml
           xcodebuild -version
 
       - name: Install Apple distribution signing materials

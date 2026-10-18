@@ -58,7 +58,7 @@ flutter run -t lib/main.dart
 
 ### アプリアイコン
 
-**元画像は `assets/icon/icon.png` の1枚**です。Android・Web用の生成設定は `pubspec.yaml` の `flutter_launcher_icons`、iOS用は `flutter_launcher_icons-ios.yaml` にあります。
+**元画像は `assets/icon/icon.png` の1枚**です。Android・Web用の生成設定は `pubspec.yaml` の `flutter_launcher_icons`、iOS用は `ios_app_icon_config.yaml` にあります。
 
 ローカルでAndroid/Webのアイコンを再生成したい場合は、リポジトリのルートで次を実行してください。
 
@@ -69,7 +69,7 @@ dart run flutter_launcher_icons -f pubspec.yaml
 
 `main` の画像・設定変更時には GitHub Actions の **Sync launcher icons** が Android の `mipmap-*/ic_launcher.png` と Web のアイコン／favicon を生成し、差分があればコミットします。これにより開発中のAndroidアプリも生成済みのアイコンを使えます。
 
-iOSの `ios/` プロジェクトはリポジトリに含まず、**iOS App Store IPA** の実行時に `flutter create` で作成してから `dart run flutter_launcher_icons -f flutter_launcher_icons-ios.yaml` を実行します。したがって、iOS用画像をGitへ保存する必要はありません。既に端末にインストール済みのアイコンが古い場合は、新しいビルドを再インストールして確認してください。
+iOSの `ios/` プロジェクトはリポジトリに含まず、**iOS App Store IPA** の実行時に `flutter create` で作成してから `dart run flutter_launcher_icons -f ios_app_icon_config.yaml` を実行します。したがって、iOS用画像をGitへ保存する必要はありません。既に端末にインストール済みのアイコンが古い場合は、新しいビルドを再インストールして確認してください。
 
 ### ローカルCMSを起動する
 

@@ -47,7 +47,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
 
 # Single source of truth: assets/icon/icon.png.
-# The iOS runner is generated at release time. See flutter_launcher_icons-ios.yaml.
+# The iOS runner is generated at release time. See ios_app_icon_config.yaml.
 flutter_launcher_icons:
   android: true
   ios: false
