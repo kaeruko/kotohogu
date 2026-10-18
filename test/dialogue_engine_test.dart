@@ -128,6 +128,44 @@ void main() {
     }
   });
 
+  test('guide rumors react to salon ownership, not dialogue history', () async {
+    final live = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 10, 19);
+    final before = Progress.empty(now).markDialogueSeen('035_beaty_001');
+    DialogueEntry pick(String id, Progress progress) => live.selectById(
+      id: id, resident: TownResident.penguin, progress: progress, now: now);
+    expect(pick('03_penguin_002', before).id, '03_penguin_002');
+    expect(() => pick('03_penguin_003', before), throwsStateError);
+    expect(() => pick('03_penguin_004', before), throwsStateError);
+
+    final after = before.grantTicketsForDebug(1)
+        .acquireResident(TownResident.c035_beaty);
+    expect(() => pick('03_penguin_002', after), throwsStateError);
+    expect(pick('03_penguin_003', after).id, '03_penguin_003');
+    expect(pick('03_penguin_004', after).id, '03_penguin_004');
+    expect(() => pick('03_penguin_009', after), throwsStateError);
+    expect(() => pick('03_penguin_010', after), throwsStateError);
+
+    final withArtist = after.grantTicketsForDebug(1)
+        .acquireResident(TownResident.c034_artist);
+    expect(pick('03_penguin_009', withArtist).id, '03_penguin_009');
+    expect(pick('03_penguin_010',
+        withArtist.markDialogueSeen('041_pig_middle_033')).id,
+        '03_penguin_010');
+  });
+
+  test('ownership condition rejects unknown resident and nonbool status', () {
+    for (final fields in [
+      <String, Object>{'type':'residentOwned','residentId':'unknown','owned':true},
+      <String, Object>{'type':'residentOwned','residentId':'035_beaty','owned':'yes'},
+    ]) {
+      expect(() => catalog([
+        row('bad_owner', '03_penguin', '不正な所持条件',
+            conditions: [fields]),
+      ]), throwsFormatException);
+    }
+  });
+
   test('weighted repeatable selection includes greetings and allows repeats', () {
     final c = catalog([row('tip', '01_shiba', '豆知識', priority: 20)]);
     final p = completed([]);

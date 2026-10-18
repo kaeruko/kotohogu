@@ -234,6 +234,14 @@ class DialogueCondition {
           !RegExp(r'^[A-Za-z0-9_-]{1,80}$').hasMatch(prerequisite)) {
         throw const FormatException('Invalid prerequisite dialogue ID');
       }
+    } else if (data['type'] == 'residentOwned') {
+      _keys(data, {'type', 'residentId', 'owned'}, 'resident ownership');
+      final resident = data['residentId'];
+      if (resident is! String ||
+          !TownResident.values.any((item) => item.id == resident) ||
+          data['owned'] is! bool) {
+        throw const FormatException('Invalid resident ownership condition');
+      }
     } else if (data['type'] == 'townTogether') {
       _keys(data, {'type', 'otherResidentId'}, 'town companion');
       final companion = data['otherResidentId'];
@@ -286,6 +294,10 @@ class DialogueCondition {
     final kind = fields['type'];
     if (kind == 'seenDialogue') {
       return progress.seenDialogues.contains(fields['dialogueId']);
+    }
+    if (kind == 'residentOwned') {
+      final owned = (progress.residents.counts[fields['residentId']] ?? 0) > 0;
+      return owned == fields['owned'];
     }
     if (kind == 'townTogether') {
       return townResidentIds.contains(speakerId) &&

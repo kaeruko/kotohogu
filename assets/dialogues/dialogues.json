@@ -2920,6 +2920,116 @@
       "conditions": []
     },
     {
+      "id": "03_penguin_002",
+      "residentId": "03_penguin",
+      "text": "里山に『桜の美容室』があるって、知ってる？ つやこさんっていうおしゃれな人がやってるんだって。ぼくもまだ詳しくないから、もっと調べておくね！",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "035_beaty",
+          "owned": false
+        }
+      ]
+    },
+    {
+      "id": "03_penguin_003",
+      "residentId": "03_penguin",
+      "text": "桜の美容室、もう行ってみた？ つやこさんに髪を整えてもらうと、帰り道までうきうきするって評判だよ！",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "035_beaty",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "03_penguin_004",
+      "residentId": "03_penguin",
+      "text": "桜の美容室には、着物がよく似合うきつねさんもいるんだって。ぼくもお店の案内を覚えなくちゃ！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "035_beaty",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "03_penguin_005",
+      "residentId": "03_penguin",
+      "text": "商店街のお店の人たち、朝が早いんだよ。ぼくが巡回するころには、もう準備が始まってるんだ！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "03_penguin_006",
+      "residentId": "03_penguin",
+      "text": "道案内をしているとね、ぼくの知らない近道を教えてもらうこともあるんだ。案内係なのにね！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "03_penguin_007",
+      "residentId": "03_penguin",
+      "text": "ふれあい公園は、のんびり歩くのにぴったりだよ。疲れたらベンチでひと休みしてね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "03_penguin_008",
+      "residentId": "03_penguin",
+      "text": "里山は、まちとはちょっと違う静けさがあるんだ。お散歩していると、新しい景色が見つかるかも！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "03_penguin_009",
+      "residentId": "03_penguin",
+      "text": "絵を描くのが好きなくまりんちゃん、知ってる？ いつもの景色も、あの子の目にはちがって見えるみたい。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "034_artist",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "03_penguin_010",
+      "residentId": "03_penguin",
+      "text": "中央ひろばのとんこさん、お茶の屋台を開いたんだって。お茶の香りが道しるべになりそうだね！",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_033"
+        }
+      ]
+    },
+    {
       "id": "04_cat_001",
       "residentId": "04_cat",
       "text": "やあ、ねこだよ。気ままに歩いたり、ひなたで休んだりしてるんだ。見かけたら声をかけてね。",

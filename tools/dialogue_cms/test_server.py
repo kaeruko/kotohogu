@@ -19,6 +19,28 @@ def sample():
 
 
 class CmsTests(unittest.TestCase):
+    def test_resident_ownership_conditions_validate_strictly(self):
+        current = sample()
+        self.assertIs(validate(current), current)
+        entry = next(row for row in current["dialogues"]
+                     if row["id"] == "03_penguin_002")
+        self.assertEqual(entry["conditions"], [
+            {"type": "residentOwned", "residentId": "035_beaty", "owned": False},
+        ])
+        for value in ("no", 0, None):
+            invalid = copy.deepcopy(current)
+            target = next(row for row in invalid["dialogues"]
+                          if row["id"] == "03_penguin_002")
+            target["conditions"][0]["owned"] = value
+            with self.subTest(value=value), self.assertRaisesRegex(
+                    ValueError, "Invalid resident ownership"):
+                validate(invalid)
+        unknown = copy.deepcopy(current)
+        next(row for row in unknown["dialogues"]
+             if row["id"] == "03_penguin_002")["conditions"][0]["residentId"] = "does_not_exist"
+        with self.assertRaisesRegex(ValueError, "Invalid resident ownership"):
+            validate(unknown)
+
     def test_character_portrait_resolves_idle_png_only(self):
         catalog = load_catalog()
         folder = next(row["artFolder"] for row in catalog["characters"]

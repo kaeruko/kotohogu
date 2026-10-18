@@ -83,6 +83,10 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
   <h2>表示プレビュー</h2>
   <p class="hint">仮の今日・ミッション達成数を入力して、どのセリフになるか確認できます。アプリの実データは変更しません。</p>
   <label>プレビューするキャラ</label><select id="previewResident"></select>
+  <details><summary>所持している住民（仮設定）</summary>
+    <p class="hint">美容室の開放条件などを検証します。実際のガチャ所持状況は変更しません。</p>
+    <div id="previewOwned"></div>
+  </details>
   <details><summary>まちにいる住民（仮設定・最大8人）</summary>
     <p class="hint">所持状況を変更せず、チェックを付けた住民だけが「まちで2人そろう」の条件に数えられます。</p>
     <div id="previewTown"></div>
@@ -159,6 +163,7 @@ let data=null,selected=null,dirty=false,registry=null,characterSelected=null,sav
 let areaDoc=null,activeArea="plaza";
 let areaPreviewDestinations=new Map(),areaPreviewUnlockedKey="";
 let previewTownIds=new Set();
+let previewOwnedIds=new Set();
 let previewSeenIds=new Set();
 let previewRecentMissions=new Set();
 function node(tag,text){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el}
@@ -281,12 +286,17 @@ function renderCondition(area,entry,condition,index){
   const top=append(box,"div");top.className="top";
   const kind=append(top,"select");
   opts(kind,{"mission":"ミッション累計","date":"日付","kotohogi":"ことほぎ累計",
-    "townTogether":"まちで2人そろう","seenDialogue":"指定セリフを見たことがある"},condition.type);
+    "townTogether":"まちで2人そろう","seenDialogue":"指定セリフを見たことがある",
+    "residentOwned":"キャラの所持状況"},condition.type);
   kind.onchange=()=>{
     if(kind.value==="townTogether"){
       const other=registry.characters.find(row=>row.id!==entry.residentId);
       if(!other){kind.value=condition.type;setStatus("相手キャラを先に登録してください",true);return}
       entry.conditions[index]={type:"townTogether",otherResidentId:other.id};
+    }else if(kind.value==="residentOwned"){
+      const target=registry.characters[0];
+      if(!target)throw Error("所持条件に指定できるキャラがいません");
+      entry.conditions[index]={type:"residentOwned",residentId:target.id,owned:true};
     }else if(kind.value==="seenDialogue"){
       const target=data.dialogues.find(row=>row.id!==entry.id);
       if(!target){kind.value=condition.type;setStatus("参照できる他のセリフがありません",true);return}
@@ -300,7 +310,12 @@ function renderCondition(area,entry,condition,index){
   const remove=append(top,"button","削除");remove.className="danger";
   remove.onclick=()=>{entry.conditions.splice(index,1);dirty=true;refresh()};
   const change=(field,convert)=>(v)=>{condition[field]=convert?convert(v):v};
-  if(condition.type==="seenDialogue"){
+  if(condition.type==="residentOwned"){
+    const options=Object.fromEntries(registry.characters.map(row=>[row.id,row.label]));
+    labelControl(box,"対象キャラ","select",condition.residentId,change("residentId"),{options});
+    labelControl(box,"条件","select",String(condition.owned),v=>{condition.owned=v==="true";runPreview()},
+      {options:{"true":"所持している","false":"所持していない"}});
+  }else if(condition.type==="seenDialogue"){
     const options=Object.fromEntries(data.dialogues
       .filter(row=>row.id!==entry.id)
       .map(row=>[row.id,(residents[row.residentId]||row.residentId)+"｜"+row.id+"｜"+row.text.slice(0,35)]));
@@ -349,6 +364,7 @@ function renderCondition(area,entry,condition,index){
   }
 }
 function match(condition,context){
+  if(condition.type==="residentOwned")return context.ownedIds.has(condition.residentId)===condition.owned;
   if(condition.type==="seenDialogue")return context.seenIds.has(condition.dialogueId);
   if(condition.type==="townTogether")return context.townIds.has(context.speakerId)&&context.townIds.has(condition.otherResidentId);
   if(condition.type==="mission"){
@@ -394,7 +410,7 @@ function runPreview(){
     for(const k of Object.keys(missions))if(k!=="all")missionsValues[k]=Number(byId("m_"+k).value);
     const context={day:byId("previewDay").value,total:Number(byId("previewTotal").value),
       points:Number(byId("previewPoints").value),missions:missionsValues,
-      townIds:previewTownIds,seenIds:previewSeenIds,speakerId:byId("previewResident").value,
+      townIds:previewTownIds,ownedIds:previewOwnedIds,seenIds:previewSeenIds,speakerId:byId("previewResident").value,
       recentDay:byId("previewRecentDay").value,recentMissions:previewRecentMissions};
     if(!context.day||!context.recentDay)throw Error("日付と直近の達成日を入力してください");
     const candidates=data.dialogues.filter(entry=>entry.residentId===byId("previewResident").value&&
@@ -428,6 +444,22 @@ function renderPreviewSeen(){
     checkbox.onchange=()=>{
       if(checkbox.checked)previewSeenIds.add(entry.id);
       else previewSeenIds.delete(entry.id);
+      runPreview();
+    };
+  }
+}
+function renderPreviewOwned(){
+  const area=byId("previewOwned");area.replaceChildren();
+  const valid=new Set(registry.characters.map(row=>row.id));
+  previewOwnedIds=new Set([...previewOwnedIds].filter(id=>valid.has(id)));
+  for(const row of registry.characters){
+    const label=append(area,"label");label.className="controls";
+    const input=append(label,"input");input.type="checkbox";
+    input.checked=previewOwnedIds.has(row.id);
+    append(label,"span",row.label);
+    input.onchange=()=>{
+      if(input.checked)previewOwnedIds.add(row.id);
+      else previewOwnedIds.delete(row.id);
       runPreview();
     };
   }
@@ -466,6 +498,7 @@ function rebuildResidentOptions(){
          previous==="all"&&id==="filter"?"all":residents[previous]?previous:(id==="filter"?"all":registry.characters[0].id));
   }
   renderPreviewTown();
+  renderPreviewOwned();
 }
 function activeCharacter(){
   return registry.characters.find(row=>row.id===characterSelected)||null;
@@ -720,6 +753,7 @@ async function load(){
     updateAreaLabels();
     savedCount=registry.characters.length;
     previewSeenIds=new Set();
+    previewOwnedIds=new Set(["01_shiba","02_rabbit"]);
     previewTownIds=new Set(registry.characters
       .filter(row=>row.walkInTown&&row.homeAreaId!=="salon").slice(0,8).map(row=>row.id));
     characterSelected=registry.characters[0].id;
