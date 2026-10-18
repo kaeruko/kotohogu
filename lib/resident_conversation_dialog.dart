@@ -193,8 +193,10 @@ class _ResidentConversationDialogState
                 ),
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 16,
+                runSpacing: 4,
                 children: [
                   if (turns.length > 1)
                     Text(
@@ -202,8 +204,6 @@ class _ResidentConversationDialogState
                       key: const ValueKey('dialogue-turn-count'),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                  if (turns.length > 1 && pages.length > 1)
-                    const SizedBox(width: 16),
                   if (pages.length > 1)
                     Text(
                       '${currentPage + 1} / ${pages.length} ページ',
