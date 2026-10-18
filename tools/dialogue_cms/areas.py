@@ -87,4 +87,4 @@ def generate_town_areas(source, doc):
         )
     before, rest = source.split(START, 1)
     _, after = rest.split(END, 1)
-    return before + START + "\n" + ",\n".join(lines) + ";\n  " + END + after
+    return before + START + "\n" + ",\n".join(lines) + ";\n" + END + after
