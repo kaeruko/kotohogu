@@ -102,7 +102,7 @@ def await_rendered_page(marker: Path, page: str) -> None:
                 print(f"Simulator {page} startup: {last_status}", flush=True)
             if last_status == f"ready:{page}":
                 return
-            if last_status != f"booting:{page}":
+            if last_status not in ("", "waiting", f"booting:{page}"):
                 raise RuntimeError(
                     f"Unexpected screenshot status for {page!r}: {last_status!r}"
                 )
@@ -168,19 +168,21 @@ def capture(
         cmd("xcrun", "simctl", "get_app_container", udid, bundle_id, "data")
     )
     marker = app_data / "tmp" / MARKER
+    request_file = app_data / "tmp" / "kotohogu-capture-page.txt"
     output.mkdir(parents=True, exist_ok=True)
+    # iOS 26 discards SIMCTL_CHILD_* variables in the Flutter Dart isolate.
+    # Write to the application's sandbox instead, then let the app render
+    # each requested tab without requiring an expensive new build or launch.
+    launch_result = cmd("xcrun", "simctl", "launch", udid, bundle_id)
+    print(f"Launched screenshot host: {launch_result}", flush=True)
     metadata = []
     for index, page in enumerate(PAGES, start=1):
         marker.unlink(missing_ok=True)
-        env = dict(os.environ)
-        # Runtime setting means the *same installed app* renders all four pages.
-        env["SIMCTL_CHILD_KOTOHOGU_CAPTURE_SCREEN"] = page
+        temporary = request_file.with_suffix(".pending")
+        temporary.write_text(page + "\n", encoding="utf-8")
+        os.replace(temporary, request_file)
+        print(f"Requested simulator page: {page}", flush=True)
         try:
-            launch_result = cmd(
-                "xcrun", "simctl", "launch", "--terminate-running-process",
-                udid, bundle_id, env=env,
-            )
-            print(f"Launched {page}: {launch_result}; awaiting UI...", flush=True)
             await_rendered_page(marker, page)
         except Exception as error:
             save_diagnostics(udid, output, marker, page, error)
