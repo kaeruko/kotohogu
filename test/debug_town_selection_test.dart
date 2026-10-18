@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/debug_menu_screen.dart';
+import 'package:future_lift/google_drive_content_source.dart';
+import 'package:future_lift/local_content_preview.dart';
 import 'package:future_lift/dialogue_engine.dart';
 import 'package:future_lift/game_home.dart';
 import 'package:future_lift/main.dart';
@@ -279,6 +281,112 @@ void main() {
     expect(tester.widget<DebugMenuScreen>(find.byType(DebugMenuScreen))
         .salonUnlockMode, SalonUnlockDebugMode.normal);
     expect(store.raw, originalRaw);
+    expect(store.writes, originalWrites);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+
+  testWidgets('unowned remote residents need an explicit debug toggle', (tester) async {
+    tester.view.physicalSize = const Size(430, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final store = MemoryStore();
+    final progress = ProgressController(
+      store, clock: () => DateTime(2026, 10, 18, 12),
+    );
+    final bundled = DialogueCatalog.fromJson(jsonEncode({
+      'version': 1,
+      'dialogues': [
+        for (final resident in TownResident.values)
+          {
+            'id': 'fallback_remote_gate_${resident.id}',
+            'residentId': resident.id,
+            'text': 'こんにちは！',
+            'priority': 0,
+            'once': false,
+            'logic': 'all',
+            'conditions': [],
+          }
+      ],
+    }));
+    final remote = RemoteContentCatalog.fromJson(jsonEncode({
+      'version': 1,
+      'characters': [
+        {
+          'key': 'c038_owl',
+          'id': '038_owl',
+          'label': 'ふくろう',
+          'artFolder': '038_owl',
+          'homeAreaId': 'plaza',
+          'nextDialogueNumber': 2,
+          'walkInTown': true,
+          'inGacha': true,
+          'profile': '',
+        },
+      ],
+      'dialogues': [
+        {
+          'id': '038_owl_001',
+          'residentId': '038_owl',
+          'text': 'こんにちは',
+          'priority': 0,
+          'once': false,
+          'logic': 'all',
+          'conditions': [],
+        },
+      ],
+    }));
+    await tester.pumpWidget(FutureLiftApp(
+      controller: progress,
+      dialogueCatalog: bundled,
+      enableTutorial: false,
+      remoteContentLoader: () async => HostedTownContent(
+        baseUri: localServerUri('http://10.0.2.2:8765'),
+        catalog: remote,
+      ),
+    ));
+    await tester.pumpAndSettle();
+    final originalSave = store.raw;
+    final originalWrites = store.writes;
+
+    // Live remote data is loaded, but it is not a license to spawn visitors.
+    await tester.tap(find.byKey(const ValueKey('footer-town')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<TownAreaNavigator>(
+      find.byType(TownAreaNavigator)).remoteVisitors, isEmpty);
+
+    await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    final toggle = find.byKey(const ValueKey('debug-unowned-preview-enable'));
+    await tester.scrollUntilVisible(toggle, 160);
+    await tester.pumpAndSettle();
+    expect(tester.widget<DebugMenuScreen>(
+      find.byType(DebugMenuScreen)).showUnownedPreviewVisitors, isFalse);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    expect(tester.widget<DebugMenuScreen>(
+      find.byType(DebugMenuScreen)).showUnownedPreviewVisitors, isTrue);
+
+    await tester.tap(find.byKey(const ValueKey('footer-town')));
+    await tester.pumpAndSettle();
+    final preview = tester.widget<TownAreaNavigator>(
+      find.byType(TownAreaNavigator));
+    expect(preview.remoteVisitors.map((visitor) => visitor.id), ['038_owl']);
+    expect(preview.residents, [TownResident.shiba, TownResident.rabbit]);
+
+    await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(toggle, 160);
+    await tester.pumpAndSettle();
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('footer-town')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<TownAreaNavigator>(
+      find.byType(TownAreaNavigator)).remoteVisitors, isEmpty);
+    expect(store.raw, originalSave);
     expect(store.writes, originalWrites);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());

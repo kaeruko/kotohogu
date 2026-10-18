@@ -137,6 +137,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   bool _marcheConversationOpen = false;
   /// Debug-only town cast kept in memory; never written to the save file.
   List<TownResident>? _debugTownResidents;
+  /// Debug-only, opt-in showcase of not-yet-owned remote residents.
+  bool _showUnownedPreviewVisitors = false;
   /// In-memory only; recreated as normal whenever the app restarts.
   SalonUnlockDebugMode _salonUnlockMode = SalonUnlockDebugMode.normal;
   static Future<DialogueCatalog>? _cachedDialogueCatalog;
@@ -305,6 +307,19 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       _debugTownResidents = enabled
           ? visibleTownResidents(controller.progress!.residents.owned)
           : null;
+      if (enabled) _showUnownedPreviewVisitors = false;
+      _returnToUnlockedTownArea();
+    });
+  }
+
+  void _setUnownedPreviewVisitors(bool enabled) {
+    if (!kDebugMode || controller.busy || controller.failure != null ||
+        controller.progress == null) {
+      return;
+    }
+    setState(() {
+      _showUnownedPreviewVisitors = enabled;
+      if (enabled) _debugTownResidents = null;
       _returnToUnlockedTownArea();
     });
   }
@@ -672,6 +687,9 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                         debugTownResidents: _debugTownResidents,
                         onDebugTownEnabled: _setDebugTownEnabled,
                         onDebugTownResidentChanged: _setDebugTownResident,
+                        showUnownedPreviewVisitors: _showUnownedPreviewVisitors,
+                        onUnownedPreviewVisitorsChanged: widget.remoteContentLoader == null
+                            ? null : _setUnownedPreviewVisitors,
                         salonUnlockMode: _salonUnlockMode,
                         onSalonUnlockModeChanged: _setSalonUnlockMode,
                         busy: controller.busy || _celebrating,
@@ -827,6 +845,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             visit: _townVisit,
             owned: progress.residents.owned,
             debugTownSelectionActive: _debugTownResidents != null,
+            debugRemotePreviewEnabled: kDebugMode && _showUnownedPreviewVisitors,
           );
     return Stack(
       fit: StackFit.expand,
@@ -842,7 +861,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           debugTownResidents: _debugTownResidents,
           remoteVisitors: visitors,
           remoteContentBaseUri: hosted?.baseUri,
-          onRemoteVisitor: hosted == null
+          onRemoteVisitor: hosted == null ||
+                  !kDebugMode || !_showUnownedPreviewVisitors
               ? null
               : (resident) => _showLocalVisitor(hosted, resident),
           salonUnlockMode: kDebugMode

@@ -19,6 +19,8 @@ class DebugMenuScreen extends StatelessWidget {
     required this.debugTownResidents,
     required this.onDebugTownEnabled,
     required this.onDebugTownResidentChanged,
+    this.showUnownedPreviewVisitors = false,
+    this.onUnownedPreviewVisitorsChanged,
     required this.salonUnlockMode,
     required this.onSalonUnlockModeChanged,
     required this.busy,
@@ -37,6 +39,9 @@ class DebugMenuScreen extends StatelessWidget {
   final List<TownResident>? debugTownResidents;
   final ValueChanged<bool> onDebugTownEnabled;
   final void Function(TownResident, bool) onDebugTownResidentChanged;
+  /// Debug-only, off by default; never affects saved collection.
+  final bool showUnownedPreviewVisitors;
+  final ValueChanged<bool>? onUnownedPreviewVisitorsChanged;
   final SalonUnlockDebugMode salonUnlockMode;
   final ValueChanged<SalonUnlockDebugMode> onSalonUnlockModeChanged;
   final bool busy;
@@ -278,6 +283,22 @@ class DebugMenuScreen extends StatelessWidget {
                               }
                             },
                     ),
+                ],
+                if (kDebugMode &&
+                    onUnownedPreviewVisitorsChanged != null) ...[
+                  const SizedBox(height: 14),
+                  SwitchListTile(
+                    key: const ValueKey('debug-unowned-preview-enable'),
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('未所持の配信住民をお試し表示'),
+                    subtitle: const Text(
+                      'OFFが通常表示（仲間だけ）。ONは開発テスト専用で、'
+                      'ガチャの所持状況は変わりません。'
+                      '\n「好きな住民を表示する」とは同時に使えません。',
+                    ),
+                    value: showUnownedPreviewVisitors,
+                    onChanged: busy ? null : onUnownedPreviewVisitorsChanged,
+                  ),
                 ],
                 const SizedBox(height: 20),
                 const Divider(),

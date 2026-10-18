@@ -27,6 +27,41 @@ RemoteContentCatalog catalog(List<Object> characters, List<Object> lines) =>
   }));
 
 void main() {
+  test('normal play never shows unowned CMS visitors, even with live data', () {
+    final content = catalog([
+      character('01_shiba', 'plaza'),
+      character('038_owl', 'park'),
+      character('039_new', 'shopping'),
+    ], [
+      line('01_shiba'), line('038_owl'), line('039_new'),
+    ]);
+    final random = ScriptedTownRandom([0, 0]);
+    final visit = TownVisit(random: random);
+
+    // The default is deliberately disabled, including for never-before-seen
+    // remote-only characters. No random positions should even be assigned.
+    for (final points in [0, 90, 300]) {
+      for (final area in TownArea.values) {
+        final visitors = localVisitorsForArea(
+          content, area,
+          lifetimePoints: points, visit: visit,
+          owned: const [TownResident.shiba, TownResident.rabbit],
+        );
+        expect(visitors, isEmpty, reason: 'Normal town: ${area.name}');
+      }
+    }
+    expect(random.calls, 0);
+
+    // An explicit preview remains possible for developer testing.
+    final preview = localVisitorsForArea(
+      content, TownArea.plaza, lifetimePoints: 0,
+      visit: visit, owned: const [TownResident.shiba, TownResident.rabbit],
+      debugRemotePreviewEnabled: true,
+    );
+    expect(preview.map((resident) => resident.id), ['039_new', '038_owl']);
+    expect(random.calls, 2);
+  });
+
   test('unknown CMS resident visits only unlocked areas without duplicates', () {
     final content = catalog([
       character('01_shiba', 'plaza'),
@@ -36,25 +71,23 @@ void main() {
     ], [
       line('01_shiba'), line('037_tora'), line('038_owl'), line('039_cat'),
     ]);
-    final before = localVisitorsForArea(
-      content, TownArea.plaza, lifetimePoints: 0, visit: TownVisit(),
+    final before = localVisitorsForArea(content, TownArea.plaza, debugRemotePreviewEnabled: true, lifetimePoints: 0, visit: TownVisit(),
       owned: const [TownResident.shiba, TownResident.rabbit],
     );
     expect(before.map((row) => row.id), ['038_owl', '037_tora']);
-    expect(localVisitorsForArea(content, TownArea.park,
+    expect(localVisitorsForArea(content, TownArea.park, debugRemotePreviewEnabled: true,
       lifetimePoints: 0, visit: TownVisit(),
       owned: const [TownResident.shiba]), isEmpty);
-    final after = localVisitorsForArea(
-      content, TownArea.park, lifetimePoints: 90,
+    final after = localVisitorsForArea(content, TownArea.park, debugRemotePreviewEnabled: true, lifetimePoints: 90,
       visit: TownVisit(random: ScriptedTownRandom([1, 1])),
       owned: const [TownResident.shiba, TownResident.rabbit],
     );
     expect(after.map((row) => row.id), ['038_owl', '037_tora']);
-    expect(localVisitorsForArea(content, TownArea.plaza,
+    expect(localVisitorsForArea(content, TownArea.plaza, debugRemotePreviewEnabled: true,
       lifetimePoints: 90,
       visit: TownVisit(random: ScriptedTownRandom([1, 1])),
       owned: const [TownResident.shiba]), isEmpty);
-    expect(localVisitorsForArea(content, TownArea.park,
+    expect(localVisitorsForArea(content, TownArea.park, debugRemotePreviewEnabled: true,
       lifetimePoints: 90, visit: TownVisit(), owned: const [],
       debugTownSelectionActive: true), isEmpty);
   });
@@ -69,7 +102,7 @@ void main() {
     ]);
     for (final points in [0, 90, 300]) {
       for (final area in TownArea.values) {
-        final visitors = localVisitorsForArea(content, area,
+        final visitors = localVisitorsForArea(content, area, debugRemotePreviewEnabled: true,
             lifetimePoints: points, visit: TownVisit(), owned: const []);
         expect(visitors.map((resident) => resident.id),
             isNot(contains('038_lion_lady')));
@@ -77,7 +110,7 @@ void main() {
             isNot(contains('039_new')));
       }
     }
-    expect(localVisitorsForArea(content, TownArea.plaza,
+    expect(localVisitorsForArea(content, TownArea.plaza, debugRemotePreviewEnabled: true,
         lifetimePoints: 0, visit: TownVisit(), owned: const []).map((row) => row.id),
         ['040_new']);
   });
@@ -89,7 +122,7 @@ void main() {
     final lines = [
       for (var i = 40; i < 51; i++) line('${i}_new'),
     ];
-    expect(localVisitorsForArea(catalog(chars, lines), TownArea.plaza,
+    expect(localVisitorsForArea(catalog(chars, lines), TownArea.plaza, debugRemotePreviewEnabled: true,
       lifetimePoints: 0, visit: TownVisit(), owned: const []).length, 11);
   });
 
@@ -102,11 +135,11 @@ void main() {
     for (var pass = 0; pass < 3; pass++) {
       final all = [
         for (final area in TownArea.values)
-          ...localVisitorsForArea(content, area, lifetimePoints: 90,
+          ...localVisitorsForArea(content, area, debugRemotePreviewEnabled: true, lifetimePoints: 90,
               visit: visit, owned: const []),
       ];
       expect(all.map((resident) => resident.id), ['040_new', '041_new']);
-      expect(localVisitorsForArea(content, TownArea.park, lifetimePoints: 90,
+      expect(localVisitorsForArea(content, TownArea.park, debugRemotePreviewEnabled: true, lifetimePoints: 90,
           visit: visit, owned: const []).length, 2);
       expect(random.calls, 2);
     }

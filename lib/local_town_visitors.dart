@@ -2,7 +2,8 @@ import 'local_content_preview.dart';
 import 'resident_collection.dart';
 import 'town_areas.dart';
 
-/// HTTP visitors are session-only and excluded from gacha and saves.
+/// Preview-only HTTP visitors. Never add unowned characters to normal play.
+/// The caller must opt in explicitly from a debug-only control.
 List<RemoteResident> localVisitorsForArea(
   RemoteContentCatalog catalog,
   TownArea area, {
@@ -10,8 +11,10 @@ List<RemoteResident> localVisitorsForArea(
   required TownVisit visit,
   required Iterable<TownResident> owned,
   bool debugTownSelectionActive = false,
+  bool debugRemotePreviewEnabled = false,
 }) {
-  if (debugTownSelectionActive) return const [];
+  // Fail closed: even live CMS content must not make unowned visitors appear.
+  if (!debugRemotePreviewEnabled || debugTownSelectionActive) return const [];
   final ownedIds = owned.map((resident) => resident.id).toSet();
   final builtInIds = TownResident.values.map((resident) => resident.id).toSet();
   final candidates = catalog.characters.where((resident) {
