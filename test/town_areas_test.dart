@@ -398,6 +398,42 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('shopping residents match plaza visual size after image fitting',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    Future<double> spriteWidth(TownArea area) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: MediaQuery(
+            data: const MediaQueryData(disableAnimations: true),
+            child: TownScene(
+              level: 2,
+              area: area,
+              lifetimePoints: 300,
+              residents: const [],
+              debugTownResidents: const [TownResident.shiba],
+              fillViewport: true,
+            ),
+          ),
+        ),
+      ));
+      await tester.pump();
+      final sprite = find.byKey(const ValueKey('resident-sprite-0'));
+      expect(sprite, findsOneWidget);
+      expect(tester.takeException(), isNull);
+      return tester.getSize(sprite).width;
+    }
+
+    final plazaWidth = await spriteWidth(TownArea.plaza);
+    final shoppingWidth = await spriteWidth(TownArea.shopping);
+    expect(shoppingWidth, closeTo(plazaWidth, 1.0),
+        reason: 'street background is wider but walkers should not shrink');
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('navigation hides locked destinations and blocks swipes',
       (tester) async {
     tester.view.physicalSize = const Size(430, 930);
