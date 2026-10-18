@@ -84,14 +84,12 @@ File get _captureStatusFile {
 Future<void> _writeCaptureStatus(String message) async {
   final target = _captureStatusFile;
   await target.parent.create(recursive: true);
-  await target.writeAsString('$message\n', flush: true);
+  // An atomic rename prevents the host from reading an empty file midway
+  // through writeAsString (observed on iOS 26 Simulator).
+  final pending = File('${target.path}.pending');
+  await pending.writeAsString('$message\n', flush: true);
+  await pending.rename(target.path);
   debugPrint('Kotohogu screenshot: $message; marker=${target.path}');
-}
-
-Future<void> _writeReadyFile(String page) async {
-  // Wait for assets and the first frame to settle, not just process launch.
-  await Future<void>.delayed(const Duration(seconds: 4));
-  await _writeCaptureStatus('ready:$page');
 }
 
 Future<void> main() async {
@@ -101,10 +99,11 @@ Future<void> main() async {
         '--dart-define=KOTOHOGU_STORE_SCREENSHOTS=true');
   }
 
-  // simctl launch passes child environment variables without recompiling.
-  final page = Platform.environment['KOTOHOGU_CAPTURE_SCREEN'];
-  await _writeCaptureStatus('booting:${page ?? "<missing>"}');
-  final selectedPage = screenshotPageIndex(page);
+  // iOS 26 Simulator did not pass SIMCTL_CHILD_* variables to Dart.
+  // Instead, the host writes the requested page in the app's data container.
+  // This works without a debug connection or rebuilding between screens.
+  final requests = File('${_captureStatusFile.parent.path}/kotohogu-capture-page.txt');
+  await _writeCaptureStatus('waiting');
   final now = DateTime.now().toLocal();
   final controller = ProgressController(
     _ScreenshotStore(buildStoreScreenshotProgress(now)),
@@ -113,15 +112,33 @@ Future<void> main() async {
   );
   await controller.initialize();
 
-  runApp(application.FutureLiftApp(
-    controller: controller,
-    enableTutorial: false,
-    initialPage: selectedPage,
-    townRandom: math.Random(7),
-    // No network loader: screenshots work offline and never include errors
-    // from Google Drive / CloudFront or the user's private save file.
-  ));
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    unawaited(_writeReadyFile(page!));
-  });
+  String? previousPage;
+  while (true) {
+    final requested = await requests.exists() ?
+        (await requests.readAsString()).trim() : '';
+    if (requested.isNotEmpty && requested != previousPage) {
+      try {
+        final pageNumber = screenshotPageIndex(requested);
+        previousPage = requested;
+        await _writeCaptureStatus('booting:$requested');
+        // Replacing the keyed root recreates the home state with exactly the
+        // requested tab selected. No screenshots or state are persisted.
+        runApp(application.FutureLiftApp(
+          key: ValueKey('store-screenshot-$requested'),
+          controller: controller,
+          enableTutorial: false,
+          initialPage: pageNumber,
+          townRandom: math.Random(7),
+        ));
+        await WidgetsBinding.instance.endOfFrame;
+        await Future<void>.delayed(const Duration(seconds: 4));
+        await _writeCaptureStatus('ready:$requested');
+      } catch (error, stack) {
+        await _writeCaptureStatus('error:$error');
+        debugPrint('Screenshot render failed: $error\n$stack');
+        rethrow;
+      }
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+  }
 }
