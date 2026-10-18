@@ -41,6 +41,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 -m unittest discover -s tools/ios -p 'test_*.py'
           flutter analyze
           flutter test test/store_screenshots_test.dart
 
