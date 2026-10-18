@@ -15,6 +15,16 @@ void main() {
     )), isTrue);
   });
 
+  test('slow repeated taps never unlock when the total time exceeds eight seconds', () {
+    final sequence = DeveloperMenuUnlockSequence();
+    final start = DateTime(2026, 10, 19);
+    for (var tap = 0; tap < 7; tap++) {
+      expect(sequence.registerHistoryTap(
+        start.add(Duration(seconds: tap * 2)),
+      ), isFalse);
+    }
+  });
+
   test('a long pause or leaving History resets the gesture', () {
     final sequence = DeveloperMenuUnlockSequence();
     final start = DateTime(2026, 10, 19);
@@ -24,7 +34,7 @@ void main() {
       ), isFalse);
     }
 
-    // More than eight seconds after the last tap starts a new sequence.
+    // More than eight seconds from the first tap starts a new sequence.
     expect(sequence.registerHistoryTap(start.add(
       const Duration(seconds: 11),
     )), isFalse);
