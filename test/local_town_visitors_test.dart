@@ -58,7 +58,7 @@ void main() {
       visit: visit, owned: const [TownResident.shiba, TownResident.rabbit],
       debugRemotePreviewEnabled: true,
     );
-    expect(preview.map((resident) => resident.id), ['039_new', '038_owl']);
+    expect(preview.map((resident) => resident.id), ['038_owl', '039_new']);
     expect(random.calls, 2);
   });
 
