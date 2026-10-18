@@ -39,13 +39,13 @@ class ScreenshotWorkflowTests(unittest.TestCase):
         types = {
             "devicetypes": [
                 {"name": "iPhone 16 Pro", "identifier": "iphone-type"},
-                {"name": "iPad Pro 13-inch (M4)", "identifier": "ipad-type"},
+                {"name": "iPad Pro 13-inch (M4) (16GB)", "identifier": "ipad-type"},
             ]
         }
         with patch.object(capture, "cmd", return_value=json.dumps(types)):
             for name, identifier in (
                 ("iPhone 16 Pro", "iphone-type"),
-                ("iPad Pro 13-inch (M4)", "ipad-type"),
+                ("iPad Pro 13-inch (M4) (16GB)", "ipad-type"),
             ):
                 self.assertEqual(
                     capture.device_type((name,)), (identifier, name)
