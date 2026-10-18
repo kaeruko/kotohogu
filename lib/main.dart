@@ -758,49 +758,16 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
 
   Future<void> _showLocalVisitor(
       HostedTownContent hosted, RemoteResident resident) async {
-    // This visitor is not owned. Never touch saved seenDialogues or tickets.
+    // Debug preview only. Reading a remote line must never update ownership
+    // or mark anything as seen in the user's saved dialogue history.
     final line = visitorGreeting(hosted.catalog, resident.id);
-    final baseUri = hosted.baseUri;
     if (!mounted) return;
     await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            SizedBox(
-              width: 52,
-              height: 52,
-              child: Image.network(
-                remoteSpriteUri(
-                  baseUri, resident, 'idle_front_01.png',
-                ).toString(),
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => Tooltip(
-                  message: '画像の取得に失敗しました: $error',
-                  child: const Icon(Icons.broken_image, color: Colors.red),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(child: Text(resident.label)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('配信テストの来訪者',
-                style: TextStyle(fontSize: 12, color: teal)),
-            const SizedBox(height: 10),
-            Text(line.text),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('また話そう'),
-          ),
-        ],
+      builder: (context) => RemoteVisitorConversationDialog(
+        speaker: resident,
+        dialogue: line,
+        baseUri: hosted.baseUri,
       ),
     );
   }

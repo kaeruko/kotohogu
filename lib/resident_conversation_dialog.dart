@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'dialogue_engine.dart';
 import 'resident_collection.dart';
+import 'local_content_preview.dart';
 
 /// Splits long dialogue using its measured layout, not a character limit.
 /// Prefer sentence/paragraph boundaries without changing the CMS source text.
@@ -70,25 +71,38 @@ List<String> paginateResidentDialogue(
   return pages;
 }
 
-/// Shows one readable page at a time, across both dialogue and reply.
-/// Page advances never select a new line or modify saved progress.
-class ResidentConversationDialog extends StatefulWidget {
-  const ResidentConversationDialog({
-    super.key,
-    required this.speaker,
-    required this.dialogue,
+/// One speaker turn in the shared, paginated dialogue viewer.
+class ConversationTurn {
+  const ConversationTurn({
+    required this.label,
+    required this.avatar,
+    required this.text,
   });
 
-  final TownResident speaker;
-  final DialogueEntry dialogue;
-
-  @override
-  State<ResidentConversationDialog> createState() =>
-      _ResidentConversationDialogState();
+  final String label;
+  final Widget avatar;
+  final String text;
 }
 
-class _ResidentConversationDialogState
-    extends State<ResidentConversationDialog> {
+/// Shared dialogue presentation for acquired residents and remote CMS previews.
+/// Paging and font scaling must remain identical in both entry points.
+class PagedConversationDialog extends StatefulWidget {
+  const PagedConversationDialog({
+    super.key,
+    required this.conversationId,
+    required this.turns,
+    this.badge,
+  });
+
+  final String conversationId;
+  final List<ConversationTurn> turns;
+  final String? badge;
+
+  @override
+  State<PagedConversationDialog> createState() => _PagedConversationDialogState();
+}
+
+class _PagedConversationDialogState extends State<PagedConversationDialog> {
   int _turnIndex = 0;
   int _pageIndex = 0;
 
@@ -106,10 +120,9 @@ class _ResidentConversationDialogState
   }
 
   @override
-  void didUpdateWidget(covariant ResidentConversationDialog oldWidget) {
+  void didUpdateWidget(covariant PagedConversationDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.dialogue.id != widget.dialogue.id ||
-        oldWidget.speaker != widget.speaker) {
+    if (oldWidget.conversationId != widget.conversationId) {
       _turnIndex = 0;
       _pageIndex = 0;
     }
@@ -117,14 +130,7 @@ class _ResidentConversationDialogState
 
   @override
   Widget build(BuildContext context) {
-    final reply = widget.dialogue.reply;
-    final turns = [
-      (speaker: widget.speaker, text: widget.dialogue.text),
-      if (reply != null)
-        (speaker: TownResident.fromId(reply.residentId), text: reply.text),
-    ];
-    final turn = turns[_turnIndex];
-
+    final turn = widget.turns[_turnIndex];
     final screen = MediaQuery.of(context);
     final scaler = screen.textScaler;
     final direction = Directionality.of(context);
@@ -137,9 +143,11 @@ class _ResidentConversationDialogState
           height: 1.55,
         );
     final lineHeight = scaler.scale(20) * 1.55;
+    // Reserve additional space when a preview-specific label is present.
+    final footerAndBadge = widget.badge == null ? 36.0 : 70.0;
     final pageLines = math.max(
       1,
-      math.min(5, ((bodyHeight - 36) / lineHeight).floor()),
+      math.min(5, ((bodyHeight - footerAndBadge) / lineHeight).floor()),
     );
     final pages = paginateResidentDialogue(
       turn.text,
@@ -151,11 +159,14 @@ class _ResidentConversationDialogState
     );
     final currentPage = math.min(_pageIndex, pages.length - 1);
     final isLast = currentPage == pages.length - 1 &&
-        _turnIndex == turns.length - 1;
+        _turnIndex == widget.turns.length - 1;
 
-    // Keep tapping the dialogue itself as an alternate way to advance.
+    // The body itself may be tapped to advance, not only the button.
     return GestureDetector(
-      onTap: () => _advance(turnCount: turns.length, pageCount: pages.length),
+      onTap: () => _advance(
+        turnCount: widget.turns.length,
+        pageCount: pages.length,
+      ),
       child: AlertDialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
@@ -166,11 +177,11 @@ class _ResidentConversationDialogState
         ),
         title: Row(
           children: [
-            TownResidentAvatar(resident: turn.speaker, size: 48),
+            turn.avatar,
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                turn.speaker.label,
+                turn.label,
                 style: const TextStyle(fontSize: 21),
               ),
             ),
@@ -182,9 +193,20 @@ class _ResidentConversationDialogState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (widget.badge != null) ...[
+                Text(
+                  widget.badge!,
+                  key: const ValueKey('dialogue-source-badge'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
               Expanded(
                 child: SingleChildScrollView(
-                  // Scroll only as a safety net for extreme accessibility fonts.
+                  // Only a safety net for extreme accessibility text sizes.
                   child: Text(
                     pages[currentPage],
                     key: const ValueKey('dialogue-visible-line'),
@@ -198,9 +220,9 @@ class _ResidentConversationDialogState
                 spacing: 16,
                 runSpacing: 4,
                 children: [
-                  if (turns.length > 1)
+                  if (widget.turns.length > 1)
                     Text(
-                      '${_turnIndex + 1} / ${turns.length}',
+                      '${_turnIndex + 1} / ${widget.turns.length}',
                       key: const ValueKey('dialogue-turn-count'),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
@@ -222,12 +244,93 @@ class _ResidentConversationDialogState
               minimumSize: const Size(104, 52),
               textStyle: const TextStyle(fontSize: 18),
             ),
-            onPressed: () =>
-                _advance(turnCount: turns.length, pageCount: pages.length),
+            onPressed: () => _advance(
+              turnCount: widget.turns.length,
+              pageCount: pages.length,
+            ),
             child: Text(isLast ? 'また話そう' : 'つぎへ'),
           ),
         ],
       ),
     );
   }
+}
+
+/// Acquired residents and their replies use the shared pager.
+class ResidentConversationDialog extends StatelessWidget {
+  const ResidentConversationDialog({
+    super.key,
+    required this.speaker,
+    required this.dialogue,
+  });
+
+  final TownResident speaker;
+  final DialogueEntry dialogue;
+
+  @override
+  Widget build(BuildContext context) {
+    final reply = dialogue.reply;
+    return PagedConversationDialog(
+      conversationId: 'resident:${speaker.id}:${dialogue.id}',
+      turns: [
+        ConversationTurn(
+          label: speaker.label,
+          avatar: TownResidentAvatar(resident: speaker, size: 48),
+          text: dialogue.text,
+        ),
+        if (reply != null)
+          ConversationTurn(
+            label: TownResident.fromId(reply.residentId).label,
+            avatar: TownResidentAvatar(
+              resident: TownResident.fromId(reply.residentId),
+              size: 48,
+            ),
+            text: reply.text,
+          ),
+      ],
+    );
+  }
+}
+
+/// Unowned remote visitors are only shown from a debug preview and do not
+/// update the user's collected characters or dialogue history.
+class RemoteVisitorConversationDialog extends StatelessWidget {
+  const RemoteVisitorConversationDialog({
+    super.key,
+    required this.speaker,
+    required this.dialogue,
+    required this.baseUri,
+  });
+
+  final RemoteResident speaker;
+  final RemoteDialogue dialogue;
+  final Uri baseUri;
+
+  @override
+  Widget build(BuildContext context) => PagedConversationDialog(
+        conversationId: 'remote:${speaker.id}:${dialogue.id}',
+        badge: '配信テストの来訪者',
+        turns: [
+          ConversationTurn(
+            label: speaker.label,
+            avatar: SizedBox(
+              width: 48,
+              height: 48,
+              child: Image.network(
+                remoteSpriteUri(
+                  baseUri,
+                  speaker,
+                  'idle_front_01.png',
+                ).toString(),
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Tooltip(
+                  message: '画像の取得に失敗しました: $error',
+                  child: const Icon(Icons.broken_image, color: Colors.red),
+                ),
+              ),
+            ),
+            text: dialogue.text,
+          ),
+        ],
+      );
 }
