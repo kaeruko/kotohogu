@@ -72,12 +72,26 @@ class _ScreenshotStore implements ProgressStore {
   }
 }
 
+File get _captureStatusFile {
+  // On iOS, HOME is the application's data container. Directory.systemTemp
+  // can point to a different simulator-wide temporary directory, which the
+  // Mac host cannot find with simctl get_app_container.
+  final home = Platform.environment['HOME'];
+  final root = home == null || home.isEmpty ? Directory.systemTemp.path : '$home/tmp';
+  return File('$root/kotohogu-store-ready.txt');
+}
+
+Future<void> _writeCaptureStatus(String message) async {
+  final target = _captureStatusFile;
+  await target.parent.create(recursive: true);
+  await target.writeAsString('$message\n', flush: true);
+  debugPrint('Kotohogu screenshot: $message; marker=${target.path}');
+}
+
 Future<void> _writeReadyFile(String page) async {
-  // The app itself confirms the requested page and allows images to resolve.
-  // The host waits for this marker instead of taking screenshots of the splash.
+  // Wait for assets and the first frame to settle, not just process launch.
   await Future<void>.delayed(const Duration(seconds: 4));
-  await File('${Directory.systemTemp.path}/kotohogu-store-ready.txt')
-      .writeAsString('$page\n', flush: true);
+  await _writeCaptureStatus('ready:$page');
 }
 
 Future<void> main() async {
@@ -89,6 +103,7 @@ Future<void> main() async {
 
   // simctl launch passes child environment variables without recompiling.
   final page = Platform.environment['KOTOHOGU_CAPTURE_SCREEN'];
+  await _writeCaptureStatus('booting:${page ?? "<missing>"}');
   final selectedPage = screenshotPageIndex(page);
   final now = DateTime.now().toLocal();
   final controller = ProgressController(
