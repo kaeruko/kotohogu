@@ -47,16 +47,21 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
 .character-portrait.compact img{width:110px;height:110px;flex:none}
 .character-portrait.load-error{border-color:#bb6d6d;background:#fff7f5}
 .character-portrait.load-error figcaption{color:#9c3030}
-#characterMain[hidden],#dialogueMain[hidden]{display:none}
+#characterMain[hidden],#dialogueMain[hidden],#areaMain[hidden]{display:none}
+#areaMain{grid-template-columns:280px minmax(0,1fr)}
+.area-art{max-width:260px;width:100%;max-height:320px;object-fit:contain;border:1px solid #ddc9a8;border-radius:12px;background:#fcf1df}
+.placement{padding:10px 0;border-bottom:1px solid #eee1cb;display:grid;grid-template-columns:minmax(100px,1fr) minmax(145px,1.4fr);align-items:center;gap:12px}
+.placement select{margin:0}.placement .hint{margin:2px 0}.area-result{padding:10px;background:#fff8ec;border:1px solid #ead7b5;border-radius:10px;margin:8px 0}
 @media(max-width:1120px){main{grid-template-columns:250px minmax(0,1fr)}main>.panel:last-child{grid-column:1/-1}}
 @media(max-width:700px){main{display:block}main>.panel{margin-bottom:16px}#entries{max-height:230px}}
 </style>
 </head>
 <body>
-<header><h1>🌸 コトホグ 管理CMS</h1><p>ローカル専用｜キャラ登録・画像設定・セリフ条件を編集</p></header>
+<header><h1>🌸 コトホグ 管理CMS</h1><p>ローカル専用｜キャラ・セリフ・エリア・住民配置を編集</p></header>
 <nav aria-label="管理画面">
   <button id="showCharacters" aria-selected="true">🐾 キャラクター管理</button>
   <button id="showDialogues" aria-selected="false">💬 セリフ管理</button>
+  <button id="showAreas" aria-selected="false">🗺️ エリア・出現場所</button>
 </nav>
 <main id="dialogueMain" hidden>
 <section class="panel">
@@ -117,6 +122,35 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
     <p class="status" id="characterStatus" role="status"></p>
   </section>
 </main>
+<main id="areaMain" hidden>
+  <section class="panel">
+    <h2>エリア一覧</h2>
+    <div id="areaEntries"></div>
+    <p class="hint">4エリアのIDと順序は固定です。桜の美容室は「のんびり里」から入る室内扱いです。</p>
+    <h3>特別な出現ルール（固定）</h3>
+    <p class="hint">とんこ：ガチャで取得し、開店の会話（041_pig_middle_033）を見た後は中央ひろばで店番。通常の居住エリアより優先します。</p>
+    <p class="hint">つやこ：所持すると美容室が開放。美容室の住民は屋外を歩きません。きものぎつねだけでは開放しません。</p>
+    <p class="hint">未開放エリアの屋外住民は中央ひろばに一時集合。デバッグ選択中は本来のエリアを表示します。</p>
+  </section>
+  <section class="panel">
+    <h2>エリア設定</h2>
+    <div id="areaEditor"></div>
+    <h3>住民の通常の出現場所</h3>
+    <p class="hint">ガチャで取得した住民が普段現れる場所です。変更はキャラクター管理の「住むエリア」にも反映します。施設イベント中の固定配置は優先されます。</p>
+    <label for="placementFilter">住民を絞る</label>
+    <select id="placementFilter"><option value="all">すべての住民</option></select>
+    <div id="areaPlacements"></div>
+    <h3>出現プレビュー</h3>
+    <p class="hint">全員を取得済みと仮定した配置例。実際の所持データは変更しません。</p>
+    <label for="areaPreviewPoints">仮の累計ことほぎ</label>
+    <input id="areaPreviewPoints" type="number" min="0" value="0">
+    <label class="controls"><input id="areaPreviewMarche" type="checkbox"> とんこのマルシェ開店後を仮表示</label>
+    <div id="areaPlacementPreview"></div>
+    <div class="actions"><button id="saveAreas">💾 エリア・配置を保存</button><button id="reloadAreas" class="secondary">保存済みを再読込</button></div>
+    <p class="hint">エリア設定・住民配置・セリフはまとめて保存します。背景の差し替えとマルシェ等の特殊条件はこの画面では変更しません。公開アプリへはGitコミットと再ビルドが必要です。</p>
+    <p class="status" id="areaStatus" role="status"></p>
+  </section>
+</main>
 <script>
 "use strict";
 let residents={};
@@ -125,6 +159,7 @@ const missions={"all":"全ミッション合計","strength":"筋力を使った"
 const modes={"exact":"指定日","range":"指定期間","annual":"毎年の指定日","annual_range":"毎年の期間","weekday":"毎週の曜日"};
 const byId=id=>document.getElementById(id);
 let data=null,selected=null,dirty=false,registry=null,characterSelected=null,savedCount=0;
+let areaDoc=null,activeArea="plaza";
 let previewTownIds=new Set();
 let previewSeenIds=new Set();
 let previewRecentMissions=new Set();
@@ -140,6 +175,7 @@ function labelControl(parent,title,tag,value,onChange,attributes={}){
   return control;
 }
 function setStatus(message,error=false){const e=byId("status");e.textContent=message;e.className="status"+(error?" error":"")}
+function setAreaStatus(message,error=false){const e=byId("areaStatus");e.textContent=message;e.className="status"+(error?" error":"")}
 function updatePortrait(figure,row){
   const picture=figure.querySelector("img");
   const caption=figure.querySelector("figcaption");
@@ -504,7 +540,8 @@ function renderCharacterEditor(){
   const isSalonOwner=row.id==="035_beaty";
   const homeSelect=labelControl(box,"住むエリア","select",row.homeAreaId,value=>{
     row.homeAreaId=value;
-    renderCharacterList();setCharacterStatus("未保存の変更があります");
+    renderCharacterList();renderAreaPlacements();renderAreaPreview();
+    setCharacterStatus("未保存の変更があります");setAreaStatus("未保存の変更があります");
   },{options:areaLabels});
   homeSelect.disabled=isSalonOwner;
   if(row.homeAreaId==="salon")append(box,"p",
@@ -523,22 +560,122 @@ function renderCharacterEditor(){
     append(label,"span",title);
     input.onchange=()=>{
       row[field]=input.checked;dirty=true;renderCharacterList();
-      renderPreviewTown();runPreview();setCharacterStatus("未保存の変更があります");
+      renderPreviewTown();runPreview();renderAreaPlacements();renderAreaPreview();setCharacterStatus("未保存の変更があります");
     };
   }
   if(!locked)append(box,"p","最初のセリフはセリフ管理タブで編集できます。条件なしセリフを1件以上残してください。").className="hint";
   byId("cancelNewCharacter").disabled=locked;
 }
+
+function updateAreaLabels(){
+  for(const area of areaDoc.areas)areaLabels[area.id]=area.label;
+  areaLabels.salon="桜の美容室（室内）";
+  const filter=byId("placementFilter"),current=filter.value||"all";
+  filter.replaceChildren();
+  opts(filter,{"all":"すべての住民",...areaLabels},current);
+}
+function renderAreaList(){
+  if(!areaDoc)return;
+  const container=byId("areaEntries");container.replaceChildren();
+  for(const area of areaDoc.areas){
+    const button=append(container,"button",area.label);
+    button.className="entry"+(activeArea===area.id?" active":"");
+    button.style.marginBottom="7px";
+    append(button,"small",area.id+" ｜ 最低 "+area.unlockAt+" ことほぎ");
+    button.onclick=()=>{activeArea=area.id;renderAreaList();renderAreaEditor()};
+  }
+}
+function renderAreaEditor(){
+  if(!areaDoc)return;
+  const container=byId("areaEditor");container.replaceChildren();
+  const area=areaDoc.areas.find(item=>item.id===activeArea);
+  if(!area)return;
+  append(container,"p","エリアID: "+area.id+"（変更不可）").className="hint";
+  const picture=append(container,"img");
+  picture.className="area-art";
+  picture.alt=area.label+"の背景";
+  picture.src="/api/area-background?id="+encodeURIComponent(area.id);
+  labelControl(container,"エリア名","input",area.label,value=>{
+    area.label=value;updateAreaLabels();renderAreaList();renderCharacterList();renderAreaPlacements();
+    setAreaStatus("未保存の変更があります");
+  }).maxLength=40;
+  labelControl(container,"説明","textarea",area.description,value=>{
+    area.description=value;setAreaStatus("未保存の変更があります");
+  }).maxLength=300;
+  const threshold=labelControl(container,"開放に必要な累計ことほぎ","input",area.unlockAt,value=>{
+    area.unlockAt=value.trim()===""?null:Number(value);
+    renderAreaList();renderAreaPreview();setAreaStatus("未保存の変更があります");
+  },{type:"number",min:0});
+  threshold.step="1";
+  threshold.disabled=area.id==="plaza";
+  append(container,"p","背景: "+area.backgroundAsset+"（"+area.sourceWidth+"×"+area.sourceHeight+"）").className="hint";
+  append(container,"p","背景画像のパス・サイズ、エリアID・順序はこの画面では固定です。").className="hint";
+}
+function renderAreaPlacements(){
+  if(!registry||!areaDoc)return;
+  const container=byId("areaPlacements");container.replaceChildren();
+  const filter=byId("placementFilter").value||"all";
+  const list=registry.characters.filter(row=>filter==="all"||row.homeAreaId===filter);
+  if(!list.length){append(container,"p","このエリアに登録された住民はいません。").className="hint";return;}
+  for(const row of list){
+    const group=append(container,"div");group.className="placement";
+    const name=append(group,"div");
+    append(name,"strong",row.label);
+    append(name,"p",row.id+(row.walkInTown?" ｜ 屋外表示ON":" ｜ 屋外表示OFF")).className="hint";
+    const select=append(group,"select");select.setAttribute("aria-label",row.label+"の通常の出現場所");
+    opts(select,areaLabels,row.homeAreaId);
+    select.disabled=row.id==="035_beaty";
+    select.onchange=()=>{
+      row.homeAreaId=select.value;dirty=true;
+      renderCharacterList();renderAreaPlacements();renderAreaPreview();
+      setAreaStatus("未保存の変更があります");setCharacterStatus("未保存の変更があります");
+    };
+  }
+}
+function renderAreaPreview(){
+  if(!registry||!areaDoc)return;
+  const root=byId("areaPlacementPreview");root.replaceChildren();
+  const points=Number(byId("areaPreviewPoints").value);
+  if(!Number.isFinite(points)||points<0){append(root,"p","0以上のことほぎを入力してください。");return;}
+  const marche=byId("areaPreviewMarche").checked;
+  const areaOpen=id=>points>=areaDoc.areas.find(a=>a.id===id).unlockAt;
+  const groups=Object.fromEntries(areaDoc.areas.map(a=>[a.id,[]]));
+  groups.salon=[];const hidden=[];
+  for(const resident of registry.characters){
+    if(resident.homeAreaId==="salon"){
+      groups.salon.push(resident.label);continue;
+    }
+    if(!resident.walkInTown){hidden.push(resident.label);continue;}
+    let dest=resident.homeAreaId;
+    if(marche&&resident.id==="041_pig_middle")dest="plaza";
+    else if(!areaOpen(dest))dest="plaza";
+    groups[dest].push(resident.label+(dest!==resident.homeAreaId?"（一時滞在）":""));
+  }
+  for(const area of areaDoc.areas){
+    const line=append(root,"div");line.className="area-result";
+    append(line,"strong",area.label+(areaOpen(area.id)?"":"（未開放）"));
+    append(line,"p",areaOpen(area.id)?(groups[area.id].join("、")||"住民なし"):"入場不可").className="hint";
+  }
+  const salon=append(root,"div");salon.className="area-result";
+  append(salon,"strong","桜の美容室（つやこさんの所持で開放）");
+  append(salon,"p",groups.salon.join("、")||"住民なし").className="hint";
+  if(hidden.length)append(root,"p","屋外表示OFF: "+hidden.join("、")).className="hint";
+}
+
 async function load(){
   try{
-    const [dialogResponse,characterResponse]=await Promise.all([
+    const [dialogResponse,characterResponse,areaResponse]=await Promise.all([
       fetch("/api/dialogues",{cache:"no-store"}),
-      fetch("/api/characters",{cache:"no-store"})
+      fetch("/api/characters",{cache:"no-store"}),
+      fetch("/api/areas",{cache:"no-store"})
     ]);
-    const [dialogBody,characterBody]=await Promise.all([dialogResponse.json(),characterResponse.json()]);
+    const [dialogBody,characterBody,areaBody]=await Promise.all([
+      dialogResponse.json(),characterResponse.json(),areaResponse.json()]);
     if(!characterResponse.ok)throw Error(characterBody.error||"キャラ読込失敗");
     if(!dialogResponse.ok)throw Error(dialogBody.error||"セリフ読込失敗");
-    data=dialogBody;registry=characterBody;
+    if(!areaResponse.ok)throw Error(areaBody.error||"エリア読込失敗");
+    data=dialogBody;registry=characterBody;areaDoc=areaBody;
+    updateAreaLabels();
     savedCount=registry.characters.length;
     previewSeenIds=new Set();
     previewTownIds=new Set(registry.characters
@@ -546,16 +683,25 @@ async function load(){
     characterSelected=registry.characters[0].id;
     selected=data.dialogues[0].id;dirty=false;
     rebuildResidentOptions();renderCharacterList();renderCharacterEditor();
-    refresh();runPreview();setStatus("読込成功");setCharacterStatus("読込成功");
-  }catch(err){setStatus("読込エラー: "+err.message,true);setCharacterStatus("読込エラー: "+err.message,true)}
+    refresh();runPreview();renderAreaList();renderAreaEditor();renderAreaPlacements();renderAreaPreview();
+    setStatus("読込成功");setCharacterStatus("読込成功");setAreaStatus("読込成功");
+  }catch(err){setStatus("読込エラー: "+err.message,true);setCharacterStatus("読込エラー: "+err.message,true);setAreaStatus("読込エラー: "+err.message,true)}
 }
 function setTab(tab){
   byId("characterMain").hidden=tab!=="characters";
   byId("dialogueMain").hidden=tab!=="dialogues";
+  byId("areaMain").hidden=tab!=="areas";
   byId("showCharacters").setAttribute("aria-selected",tab==="characters");
   byId("showDialogues").setAttribute("aria-selected",tab==="dialogues");
+  byId("showAreas").setAttribute("aria-selected",tab==="areas");
 }
 byId("showCharacters").onclick=()=>setTab("characters");
+byId("showAreas").onclick=()=>{setTab("areas");renderAreaList();renderAreaEditor();renderAreaPlacements();renderAreaPreview()};
+byId("placementFilter").onchange=renderAreaPlacements;
+byId("areaPreviewPoints").oninput=renderAreaPreview;
+byId("areaPreviewMarche").onchange=renderAreaPreview;
+byId("saveAreas").onclick=()=>saveAll();
+byId("reloadAreas").onclick=()=>{if(!dirty||confirm("未保存の変更を破棄しますか？"))load()};
 byId("showDialogues").onclick=()=>{
   setTab("dialogues");
   if(registry&&residents[characterSelected]){
@@ -594,13 +740,14 @@ async function saveAll(){
     if(!registry||!data)throw Error("データが読込まれていません");
     const response=await fetch("/api/cms",{method:"PUT",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({characters:registry,dialogues:data})});
+      body:JSON.stringify({characters:registry,dialogues:data,areas:areaDoc})});
     const payload=await response.json();
     if(!response.ok)throw Error(payload.error||"保存失敗");
     await load();
     setStatus("保存成功：セリフ "+payload.dialogues+"件");
     setCharacterStatus("保存成功：キャラ "+payload.characters+"匹。Gitにコミットして再ビルドしてください。");
-  }catch(err){setStatus("保存エラー: "+err.message,true);setCharacterStatus("保存エラー: "+err.message,true)}
+    setAreaStatus("保存成功：エリア "+payload.areas+"件。Gitにコミットして再ビルドしてください。");
+  }catch(err){setStatus("保存エラー: "+err.message,true);setCharacterStatus("保存エラー: "+err.message,true);setAreaStatus("保存エラー: "+err.message,true)}
 }
 byId("saveCharacters").onclick=saveAll;
 byId("add").onclick=()=>{

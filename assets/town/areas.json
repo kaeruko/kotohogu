@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "areas": [
+    {
+      "id": "plaza",
+      "label": "中央ひろば",
+      "description": "みんなが集まるまちの中心。",
+      "unlockAt": 0,
+      "backgroundAsset": "assets/kotohogu/town_background_001.jpg",
+      "sourceWidth": 768,
+      "sourceHeight": 1376
+    },
+    {
+      "id": "park",
+      "label": "ふれあい公園",
+      "description": "お散歩やおしゃべりを楽しむ場所。",
+      "unlockAt": 90,
+      "backgroundAsset": "assets/kotohogu/park_background_001.png",
+      "sourceWidth": 937,
+      "sourceHeight": 1679
+    },
+    {
+      "id": "shopping",
+      "label": "ことほぎ商店街",
+      "description": "お店と仕事の話が聞こえてくる通り。",
+      "unlockAt": 180,
+      "backgroundAsset": "assets/kotohogu/street_background_001.png",
+      "sourceWidth": 937,
+      "sourceHeight": 1679
+    },
+    {
+      "id": "village",
+      "label": "のんびり里",
+      "description": "畑とおうちで、それぞれのペースで暮らす場所。",
+      "unlockAt": 300,
+      "backgroundAsset": "assets/kotohogu/village_background_001.png",
+      "sourceWidth": 941,
+      "sourceHeight": 1672
+    }
+  ]
+}

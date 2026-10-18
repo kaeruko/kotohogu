@@ -10,6 +10,8 @@ import os
 import re
 import tempfile
 from pathlib import Path
+from areas import (load_areas, validate_areas, generate_town_areas,
+                   AREAS as AREA_DATA, DART as AREA_DART)
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "assets" / "characters" / "characters.json"
@@ -226,8 +228,12 @@ def commit_files(contents):
 
 
 def save_catalog_and_dialogues(payload, validate_dialogues):
-    if not isinstance(payload, dict) or set(payload) != {"characters", "dialogues"}:
-        raise ValueError("Expected character catalog and dialogue document")
+    if (not isinstance(payload, dict) or
+            set(payload) not in ({"characters", "dialogues"},
+                                 {"characters", "dialogues", "areas"})):
+        raise ValueError("Expected character, dialogue and optional area documents")
+    previous_areas = validate_areas(load_areas())
+    area_doc = validate_areas(payload.get("areas", previous_areas), previous=previous_areas)
     previous = load_catalog()
     catalog = validate_catalog(payload["characters"], previous=previous)
     ids = {row["id"] for row in catalog["characters"]}
@@ -237,11 +243,15 @@ def save_catalog_and_dialogues(payload, validate_dialogues):
     validate_dialogue_ids(catalog, dialogues, previous, previous_dialogues)
     dart = generate_dart(DART.read_text(encoding="utf-8"), catalog["characters"])
     pubspec = generate_pubspec(PUBSPEC.read_text(encoding="utf-8"), catalog["characters"])
+    town_dart = generate_town_areas(AREA_DART.read_text(encoding="utf-8"), area_doc)
     commit_files({
         CATALOG: json.dumps(catalog, ensure_ascii=False, indent=2) + "\n",
         DIALOGUES: json.dumps(dialogues, ensure_ascii=False, indent=2) + "\n",
         DART: dart,
         PUBSPEC: pubspec,
+        AREA_DATA: json.dumps(area_doc, ensure_ascii=False, indent=2) + "\n",
+        AREA_DART: town_dart,
     })
     return {"ok": True, "characters": len(catalog["characters"]),
-            "dialogues": len(dialogues["dialogues"])}
+            "dialogues": len(dialogues["dialogues"]),
+            "areas": len(area_doc["areas"])}

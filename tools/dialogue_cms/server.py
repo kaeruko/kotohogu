@@ -10,6 +10,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 from characters import load_catalog, validate_catalog, save_catalog_and_dialogues
+from areas import load_areas, validate_areas, AREAS as AREA_DATA
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "assets" / "dialogues" / "dialogues.json"
@@ -326,6 +327,34 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, document)
             except (OSError, ValueError, TypeError) as exc:
                 self._send(500, {"error": str(exc)})
+        elif path == "/api/areas":
+            if url.query:
+                return self._send(400, {"error": "Areas endpoint takes no query parameters"})
+            try:
+                self._send(200, validate_areas(load_areas()))
+            except (OSError, ValueError, TypeError) as exc:
+                self._send(500, {"error": str(exc)})
+        elif path == "/api/area-background":
+            try:
+                args = parse_qs(url.query, strict_parsing=True,
+                                keep_blank_values=True, max_num_fields=1)
+                if set(args) != {"id"} or len(args["id"]) != 1:
+                    raise ValueError("Exactly one area ID is required")
+                areas = validate_areas(load_areas())["areas"]
+                selected = next((area for area in areas if area["id"] == args["id"][0]), None)
+                if selected is None:
+                    raise ValueError("Unknown town area")
+                background = (ROOT / selected["backgroundAsset"]).resolve()
+                if not background.is_relative_to(ROOT.resolve()):
+                    raise ValueError("Background path escapes the repository")
+                raw = background.read_bytes()
+                mime = "image/png" if background.suffix.lower() == ".png" else "image/jpeg"
+                self._headers(200, mime, len(raw))
+                self.wfile.write(raw)
+            except ValueError as exc:
+                self._send(400, {"error": str(exc)})
+            except OSError as exc:
+                self._send(500, {"error": str(exc)})
         elif path == "/api/dialogues":
             try:
                 document = json.loads(DATA.read_text(encoding="utf-8"))
@@ -374,7 +403,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if not 1 <= args.port <= 65535:
         parser.error("Invalid port")
-    if not INDEX.exists() or not DATA.exists() or not (ROOT / "assets/characters/characters.json").exists():
+    if not INDEX.exists() or not DATA.exists() or not AREA_DATA.exists() or not (ROOT / "assets/characters/characters.json").exists():
         raise SystemExit("CMS HTML or dialogues.json not found")
     with ThreadingHTTPServer(("127.0.0.1", args.port), Handler) as server:
         print(f"Open http://127.0.0.1:{args.port} (Ctrl+C to stop)", flush=True)

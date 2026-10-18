@@ -8,7 +8,7 @@
 | 判断したいこと | 判定する場所 | データの出どころ |
 | --- | --- | --- |
 | 住民を迎えたか | `Progress.residents.owned` | ガチャ／保存データ |
-| エリアが開いたか | `TownArea.isUnlocked` | 累計ことほぎ（`Progress.points`） |
+| エリアが開いたか | `TownArea.isUnlocked` | CMSの `assets/town/areas.json` の `unlockAt` と累計ことほぎ（`Progress.points`） |
 | 住民のいまの居場所 | `residentCurrentArea` / `areaResidents` | CMSの `homeAreaId`、エリア開放、店番 |
 | 会話相手が一緒にいるか | `TownRules.conversationPeers` | 上記の配置・会話を始めた画面 |
 | どのセリフが有効か | `DialogueCatalog.select` / `DialogueCondition` | CMSの `dialogues.json` と `Progress` |
@@ -48,10 +48,11 @@
 
 ### 編集するとき
 
-- 名前・通常の住まい・スプライト：`assets/characters/characters.json`（CMSを使う）。
+- 名前・通常の住まい・スプライト：`assets/characters/characters.json`（CMSを使う）。エリア・出現場所タブからも通常の住まいを一括編集できる。
+- エリア名・説明・開放しきい値：`assets/town/areas.json`（CMSを使う）。保存時に `lib/town_areas.dart` のエリアenum定義を同期する。ID・順番・背景パスと画像寸法はCMSでは編集不可。
 - 会話文・既読条件・掛け合い：`assets/dialogues/dialogues.json`（CMSを使う）。
 - 施設開放トリガー（とんこ）：`lib/marche.dart`。開放条件を変えるなら物語IDの参照先も合わせてテストする。
-- 住民の行き先・未開放エリア時の扱い：`lib/town_areas.dart`。
+- 住民の行き先・未開放エリア時の扱い：`lib/town_areas.dart`。特別な配置ルールはCMSでは説明とプレビューのみで、未編集のまま保持する。
 - 会話画面ごとの参加者の範囲：`lib/town_rules.dart`。
 - 屋台の絵と店番位置：`lib/town.dart`。
 - 美容室の取得条件：`lib/resident_collection.dart`。
