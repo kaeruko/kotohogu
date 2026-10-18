@@ -199,6 +199,9 @@ void main() {
     Widget scene(SalonUnlockDebugMode mode, {
       List<TownResident> owned = const [TownResident.c031_kimono_fox],
     }) => MaterialApp(
+      // A debug-mode change starts a fresh route tree after returning from
+      // the salon, so an outgoing route cannot intercept the next door tap.
+      key: ValueKey(mode),
       home: Scaffold(
         body: TownAreaNavigator(
           area: TownArea.village,
@@ -271,7 +274,8 @@ void main() {
     final entrance = find.byKey(const ValueKey('village-salon-entrance'));
     final marker = find.byKey(const ValueKey('village-salon-open-marker'));
     expect(entrance, findsOneWidget);
-    expect(marker, findsNothing, reason: 'The employee alone does not open the salon');
+    expect(marker, findsNothing,
+        reason: 'The employee alone does not open the salon');
     await tester.tap(entrance);
     await tester.pump();
     expect(find.textContaining('つやこさんをガチャでお迎えすると'),
