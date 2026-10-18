@@ -28,14 +28,6 @@ double _townResidentScale(double homeY) {
   return 1.5; // Foreground.
 }
 
-/// Street artwork is wider than the plaza (937 vs 768 source pixels).
-/// The shared 76px sprite cap otherwise shrinks street walkers after the
-/// entire scene is fitted to the same viewport. Correct just their visual
-/// footprint, keeping walking coordinates and foot anchors unchanged.
-double _townAreaResidentVisualScale(TownArea area) {
-  if (area != TownArea.shopping) return 1.0;
-  return area.sourceWidth! / TownArea.plaza.sourceWidth!;
-}
 
 const townDescriptions = [
   'いつものまちで、みんなが暮らしています。',
@@ -457,8 +449,7 @@ class _TownSceneState extends State<TownScene> {
             : resident.idleAsset;
     // Keep the original bottom-center of the walking sprite as its foot
     // anchor while increasing visual size and its matching tap target.
-    final scaledSize = size * _townResidentScale(origin.$2) *
-        _townAreaResidentVisualScale(widget.area);
+    final scaledSize = size * _townResidentScale(origin.$2);
     final footX = width * pose.x + size / 2;
     final footY = height * pose.y + size;
     final sprite = Image.asset(
@@ -533,8 +524,7 @@ class _TownSceneState extends State<TownScene> {
         ? 'walk_${pose.direction!.name}_0${pose.frame + 1}.png'
         : 'idle_front_01.png';
     final uri = remoteSpriteUri(baseUri, resident, filename);
-    final scale = size * _townResidentScale(origin.$2) *
-        _townAreaResidentVisualScale(widget.area);
+    final scale = size * _townResidentScale(origin.$2);
     final footX = width * pose.x + size / 2;
     final footY = height * pose.y + size;
     final sprite = Image.network(
