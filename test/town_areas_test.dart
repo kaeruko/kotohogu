@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:future_lift/gacha_hud.dart';
 import 'package:future_lift/resident_collection.dart';
 import 'package:future_lift/town.dart';
 import 'package:future_lift/salon_room.dart';
@@ -309,6 +310,44 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+
+  testWidgets('town area name and counter clear the pinned HUD at every width',
+      (tester) async {
+    addTearDown(tester.view.reset);
+    for (final width in [320.0, 390.0, 680.0]) {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1;
+      for (final area in [TownArea.plaza, TownArea.park, TownArea.village]) {
+        await tester.pumpWidget(MaterialApp(
+          home: Scaffold(
+            body: PinnedGachaHud(
+              points: 20,
+              contentBehindHud: true,
+              contentBuilder: (context, height) => TownAreaNavigator(
+                area: area,
+                onAreaChanged: (_) {},
+                level: 2,
+                lifetimePoints: 300,
+                residents: const [],
+              ),
+            ),
+          ),
+        ));
+        await tester.pump();
+
+        final hud = tester.getRect(find.byKey(const ValueKey('kotohogi-bar-art')));
+        final name = tester.getRect(find.byKey(const ValueKey('town-area-name')));
+        final counter = tester.getRect(find.text(
+            '${area.index + 1} / ${TownArea.values.length}'));
+        expect(name.top, greaterThan(hud.bottom + 8),
+            reason: '$area at width $width overlaps the pinned currency HUD');
+        expect(counter.top, greaterThanOrEqualTo(name.bottom),
+            reason: '$area at width $width overlaps its page counter');
+        expect(tester.takeException(), isNull);
+      }
+    }
+    await tester.pumpWidget(const SizedBox());
+  });
 
   testWidgets('shopping area label hangs in the lantern gap', (tester) async {
     tester.view.physicalSize = const Size(320, 780);
