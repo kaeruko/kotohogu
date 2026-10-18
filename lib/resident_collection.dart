@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'dev_tools.dart';
 import 'package:flutter/material.dart';
+
+import 'dev_tools.dart';
 
 int get ownedResidentLimit => TownResident.values.length > 8 ? TownResident.values.length : 8;
 /// All enabled residents can appear in their assigned town area.
