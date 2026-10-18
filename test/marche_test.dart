@@ -39,6 +39,67 @@ void main() {
     expect(isMarcheOpen(open.onDay(DateTime(2026, 10, 18))), isTrue);
   });
 
+  test('marche story persists across days, then rotates daily remarks', () {
+    final catalog = DialogueCatalog.fromJson(
+        File('assets/dialogues/dialogues.json').readAsStringSync());
+    var progress = tonkoProgress().markDialogueSeen(
+        tonkoMarcheOpeningDialogueId);
+    expect(isMarcheStoryComplete(progress), isFalse);
+    for (final id in tonkoMarcheStoryDialogueIds) {
+      final line = selectMarcheDialogue(
+        catalog: catalog, progress: progress,
+        now: DateTime.utc(2026, 10, 17));
+      expect(line.id, id);
+      expect(line.once, id != tonkoMarcheGreetingDialogueId);
+      progress = progress.markDialogueSeen(line.id);
+      // Save/reload mid-story and roll over into a new calendar day.
+      progress = Progress.decode(progress.encode(), expectedVersion: 5)
+          .onDay(DateTime(2026, 10, 18));
+    }
+    expect(isMarcheStoryComplete(progress), isTrue);
+    for (var i = 0; i < tonkoMarcheDailyDialogueIds.length * 2; i++) {
+      final line = selectMarcheDialogue(
+        catalog: catalog, progress: progress,
+        now: DateTime.utc(2026, 10, 20), dailyRotation: i);
+      expect(line.id, tonkoMarcheDailyDialogueIds[
+          i % tonkoMarcheDailyDialogueIds.length]);
+      expect(line.once, isFalse);
+      progress = progress.markDialogueSeen(line.id);
+    }
+    expect(isMarcheStoryComplete(
+        Progress.decode(progress.encode(), expectedVersion: 5)), isTrue);
+    expect(() => selectMarcheDialogue(
+        catalog: catalog, progress: progress,
+        now: DateTime.utc(2026, 10, 20), dailyRotation: -1),
+        throwsRangeError);
+    expect(() => selectMarcheDialogue(
+        catalog: catalog, progress: tonkoProgress(),
+        now: DateTime.utc(2026, 10, 20)),
+        throwsStateError);
+  });
+
+  test('marche exclusive conversation IDs stay out of normal rotation', () {
+    final catalog = DialogueCatalog.fromJson(
+        File('assets/dialogues/dialogues.json').readAsStringSync());
+    var progress = tonkoProgress().markDialogueSeen(
+        tonkoMarcheOpeningDialogueId);
+    for (final id in tonkoMarcheStoryDialogueIds) {
+      progress = progress.markDialogueSeen(id);
+    }
+    final exclusive = {
+      ...tonkoMarcheStoryDialogueIds,
+      ...tonkoMarcheDailyDialogueIds,
+    };
+    for (var rotation = 0; rotation < 30; rotation++) {
+      expect(catalog.select(
+        resident: tonkoMarcheOwner,
+        progress: progress,
+        now: DateTime.utc(2026, 10, 17),
+        rotation: rotation,
+      ).id, isNot(isIn(exclusive)));
+    }
+  });
+
   test('shopkeeper moves to plaza without ever being duplicated', () {
     const owner = TownResident.c041_pig_middle;
     const residents = [TownResident.shiba, owner, TownResident.rabbit];

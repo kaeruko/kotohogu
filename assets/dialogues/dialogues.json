@@ -2491,6 +2491,160 @@
       ]
     },
     {
+      "id": "041_pig_middle_035",
+      "residentId": "041_pig_middle",
+      "text": "お店を開いたら、もっと自信がつくと思ってたの。でもねぇ、今もずっとどきどきしてるのよぉ。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_034"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_036",
+      "residentId": "041_pig_middle",
+      "text": "初めてお茶が売れたときねぇ、お釣りを渡す手が震えちゃったの。ちゃんと笑えてたかしら。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_035"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_037",
+      "residentId": "041_pig_middle",
+      "text": "試飲はたくさんしてもらえたんだけどねぇ、買ってくれた人は少なくて。おいしいって思うのと、買いたいって思うのは違うのねぇ。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_036"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_038",
+      "residentId": "041_pig_middle",
+      "text": "今日はねぇ、材料費を引いたら、あんまり残らなかったの。でも、また飲みたいって言ってくれた人がいたのよぉ。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_037"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_039",
+      "residentId": "041_pig_middle",
+      "text": "お茶の値段を決めるのって、難しいのねぇ。安くしたいけど、それじゃ続けられないものね。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_038"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_040",
+      "residentId": "041_pig_middle",
+      "text": "この前のお客さんが、また来てくれたの！ あのねぇ、私のこと覚えててくれたのよ。うれしかったなぁ。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_039"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_041",
+      "residentId": "041_pig_middle",
+      "text": "お店に立つ時間より、準備してる時間のほうが長いのよぉ。小さなお店でも、やることってたくさんあるのね。",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_040"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_042",
+      "residentId": "041_pig_middle",
+      "text": "今日はねぇ、お客さんがあんまり来なくて……。でも、暇なうちに新しいお茶を考えてみようかなぁ。",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_040"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_043",
+      "residentId": "041_pig_middle",
+      "text": "最初はお茶を売るだけで精一杯だったけど、最近はお客さんとお話しするのも楽しくなってきたの。",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_040"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_044",
+      "residentId": "041_pig_middle",
+      "text": "いつか、小さくてもいいから、毎日お茶をいれられるお店が持てたらいいなぁ。でも、まずはこの屋台を続けてみるわね。",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_040"
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_045",
+      "residentId": "041_pig_middle",
+      "text": "今朝もお湯を沸かして、お店の準備をしたの。いつのまにか、これが私の楽しみになってたのねぇ。",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_040"
+        }
+      ]
+    },
+    {
       "id": "042_senior_dog_001",
       "residentId": "042_senior_dog",
       "text": "おや、こんにちは。わしはごんすけ。今日はのんびりしていくかのう。",

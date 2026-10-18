@@ -126,6 +126,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   static const _tutorialSeenId = 'tutorial_kotohogisu_v1';
   Timer? _midnight;
   final _dialogueIndex = <TownResident, int>{};
+  int _marcheDailyDialogueRotation = 0;
+  bool _marcheConversationOpen = false;
   /// Debug-only town cast kept in memory; never written to the save file.
   List<TownResident>? _debugTownResidents;
   /// In-memory only; recreated as normal whenever the app restarts.
@@ -371,36 +373,49 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     );
   }
 
-  /// The tea stall uses one CMS entry, not the ordinary outdoor dialogue
-  /// rotation. Check saved state again after loading content.
+  /// The stall has its own sequential story and daily conversation rotation.
+  /// Reloading the app restarts only the everyday order, not the read story.
   Future<void> _visitMarche() async {
     final progress = controller.progress;
-    if (controller.busy || controller.failure != null ||
+    if (_marcheConversationOpen || controller.busy ||
+        controller.failure != null ||
         progress == null || !isMarcheOpen(progress)) {
       return;
     }
-    final catalog = await _dialoguesFuture;
-    if (!mounted || controller.busy || controller.failure != null ||
-        controller.progress == null || !isMarcheOpen(controller.progress!)) {
-      return;
+    _marcheConversationOpen = true;
+    try {
+      final catalog = await _dialoguesFuture;
+      if (!mounted || controller.busy || controller.failure != null ||
+          controller.progress == null ||
+          !isMarcheOpen(controller.progress!)) {
+        return;
+      }
+      final current = controller.progress!;
+      final daily = isMarcheStoryComplete(current);
+      final line = selectMarcheDialogue(
+        catalog: catalog,
+        progress: current,
+        now: controller.clock(),
+        dailyRotation: _marcheDailyDialogueRotation,
+      );
+      // Debug-only resident previews never alter real saved read history.
+      if (_debugTownResidents == null &&
+          !current.seenDialogues.contains(line.id)) {
+        final persisted = await controller.recordDialogueSeen(line.id);
+        if (!persisted || !mounted) return;
+      }
+      if (daily) _marcheDailyDialogueRotation++;
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (context) => ResidentConversationDialog(
+          speaker: tonkoMarcheOwner,
+          dialogue: line,
+        ),
+      );
+    } finally {
+      _marcheConversationOpen = false;
     }
-    final line = catalog.selectById(
-      id: tonkoMarcheGreetingDialogueId,
-      resident: tonkoMarcheOwner,
-      progress: controller.progress!,
-      now: controller.clock(),
-      townResidentIds: {tonkoMarcheOwner.id},
-    );
-    if (line.once) {
-      throw StateError('Tonko marche greeting must be repeatable');
-    }
-    await showDialog<void>(
-      context: context,
-      builder: (context) => ResidentConversationDialog(
-        speaker: tonkoMarcheOwner,
-        dialogue: line,
-      ),
-    );
   }
 
   @override
