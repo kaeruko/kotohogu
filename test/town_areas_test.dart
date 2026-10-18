@@ -424,7 +424,7 @@ void main() {
       final sprite = find.byKey(const ValueKey('resident-sprite-0'));
       expect(sprite, findsOneWidget);
       expect(tester.takeException(), isNull);
-      return tester.getSize(sprite).width;
+      return tester.getRect(sprite).width;
     }
 
     final plazaWidth = await spriteWidth(TownArea.plaza);
