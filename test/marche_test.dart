@@ -140,7 +140,8 @@ void main() {
   test('the checked-in story progresses into the opening in six chats', () {
     final catalog = DialogueCatalog.fromJson(
         File('assets/dialogues/dialogues.json').readAsStringSync());
-    var progress = tonkoProgress();
+    // The initial hello appears before the six-step market story.
+    var progress = tonkoProgress().markDialogueSeen('041_pig_middle_046');
     final milestones = [
       '041_pig_middle_011', '041_pig_middle_012',
       '041_pig_middle_021', '041_pig_middle_022',
