@@ -130,21 +130,22 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
     <h3>特別な出現ルール（固定）</h3>
     <p class="hint">とんこ：ガチャで取得し、開店の会話（041_pig_middle_033）を見た後は中央ひろばで店番。通常の居住エリアより優先します。</p>
     <p class="hint">つやこ：所持すると美容室が開放。美容室の住民は屋外を歩きません。きものぎつねだけでは開放しません。</p>
-    <p class="hint">未開放エリアの屋外住民は中央ひろばに一時集合。デバッグ選択中は本来のエリアを表示します。</p>
+    <p class="hint">屋外住民は、まちを開いたときに開放済みエリアへランダムにお出かけします。エリア移動や会話中は行き先を保ちます。デバッグ選択中は本来の居住エリアを表示します。</p>
   </section>
   <section class="panel">
     <h2>エリア設定</h2>
     <div id="areaEditor"></div>
-    <h3>住民の通常の出現場所</h3>
-    <p class="hint">ガチャで取得した住民が普段現れる場所です。変更はキャラクター管理の「住むエリア」にも反映します。施設イベント中の固定配置は優先されます。</p>
+    <h3>住民の居住エリア</h3>
+    <p class="hint">住まいの設定です。屋外のお出かけ先は開放済みエリアからランダムに決まり、住まいには固定されません。美容室所属・屋外表示OFF・開店後の店番が優先されます。</p>
     <label for="placementFilter">住民を絞る</label>
     <select id="placementFilter"><option value="all">すべての住民</option></select>
     <div id="areaPlacements"></div>
     <h3>出現プレビュー</h3>
-    <p class="hint">全員を取得済みと仮定した配置例。実際の所持データは変更しません。</p>
+    <p class="hint">全員を取得済みと仮定したお出かけの配置例。決め直すまで行き先を保ちます。開放エリアの数を変えた場合は新しい配置例を作ります。実際の所持データは変更しません。</p>
     <label for="areaPreviewPoints">仮の累計ことほぎ</label>
     <input id="areaPreviewPoints" type="number" min="0" value="0">
     <label class="controls"><input id="areaPreviewMarche" type="checkbox"> とんこのマルシェ開店後を仮表示</label>
+    <button id="rerollAreaPreview" class="secondary">お出かけ先を決め直す</button>
     <div id="areaPlacementPreview"></div>
     <div class="actions"><button id="saveAreas">💾 エリア・配置を保存</button><button id="reloadAreas" class="secondary">保存済みを再読込</button></div>
     <p class="hint">エリア設定・住民配置・セリフはまとめて保存します。背景の差し替えとマルシェ等の特殊条件はこの画面では変更しません。公開アプリへはGitコミットと再ビルドが必要です。</p>
@@ -160,6 +161,7 @@ const modes={"exact":"指定日","range":"指定期間","annual":"毎年の指�
 const byId=id=>document.getElementById(id);
 let data=null,selected=null,dirty=false,registry=null,characterSelected=null,savedCount=0;
 let areaDoc=null,activeArea="plaza";
+let areaPreviewDestinations=new Map(),areaPreviewUnlockedKey="";
 let previewTownIds=new Set();
 let previewSeenIds=new Set();
 let previewRecentMissions=new Set();
@@ -622,7 +624,7 @@ function renderAreaPlacements(){
     const name=append(group,"div");
     append(name,"strong",row.label);
     append(name,"p",row.id+(row.walkInTown?" ｜ 屋外表示ON":" ｜ 屋外表示OFF")).className="hint";
-    const select=append(group,"select");select.setAttribute("aria-label",row.label+"の通常の出現場所");
+    const select=append(group,"select");select.setAttribute("aria-label",row.label+"の居住エリア");
     opts(select,areaLabels,row.homeAreaId);
     select.disabled=row.id==="035_beaty";
     select.onchange=()=>{
@@ -632,6 +634,19 @@ function renderAreaPlacements(){
     };
   }
 }
+function previewOutingArea(resident,unlockedIds,destinations,marcheOpen,random=Math.random){
+  if(resident.homeAreaId==="salon"||!resident.walkInTown)return null;
+  if(marcheOpen&&resident.id==="041_pig_middle")return "plaza";
+  if(!unlockedIds.length)throw Error("開放済みエリアがありません");
+  if(!destinations.has(resident.id)){
+    const value=random();
+    if(!Number.isFinite(value)||value<0||value>=1)throw Error("配置抽選値が範囲外です");
+    destinations.set(resident.id,unlockedIds[Math.floor(value*unlockedIds.length)]);
+  }
+  const area=destinations.get(resident.id);
+  if(!unlockedIds.includes(area))throw Error("お出かけ先が未開放です: "+resident.id+" / "+area);
+  return area;
+}
 function renderAreaPreview(){
   if(!registry||!areaDoc)return;
   const root=byId("areaPlacementPreview");root.replaceChildren();
@@ -639,6 +654,11 @@ function renderAreaPreview(){
   if(!Number.isFinite(points)||points<0){append(root,"p","0以上のことほぎを入力してください。");return;}
   const marche=byId("areaPreviewMarche").checked;
   const areaOpen=id=>points>=areaDoc.areas.find(a=>a.id===id).unlockAt;
+  const unlockedIds=areaDoc.areas.filter(a=>areaOpen(a.id)).map(a=>a.id);
+  const unlockedKey=unlockedIds.join(",");
+  if(unlockedKey!==areaPreviewUnlockedKey){
+    areaPreviewDestinations=new Map();areaPreviewUnlockedKey=unlockedKey;
+  }
   const groups=Object.fromEntries(areaDoc.areas.map(a=>[a.id,[]]));
   groups.salon=[];const hidden=[];
   for(const resident of registry.characters){
@@ -646,10 +666,8 @@ function renderAreaPreview(){
       groups.salon.push(resident.label);continue;
     }
     if(!resident.walkInTown){hidden.push(resident.label);continue;}
-    let dest=resident.homeAreaId;
-    if(marche&&resident.id==="041_pig_middle")dest="plaza";
-    else if(!areaOpen(dest))dest="plaza";
-    groups[dest].push(resident.label+(dest!==resident.homeAreaId?"（一時滞在）":""));
+    const dest=previewOutingArea(resident,unlockedIds,areaPreviewDestinations,marche);
+    groups[dest].push(resident.label+(marche&&resident.id==="041_pig_middle"?"（店番）":"（お出かけ）"));
   }
   for(const area of areaDoc.areas){
     const line=append(root,"div");line.className="area-result";
@@ -779,6 +797,7 @@ byId("save").onclick=saveAll;
 byId("reload").onclick=()=>{if(!dirty||confirm("未保存の変更を破棄しますか？"))load()};
 byId("filter").onchange=refresh;
 byId("runPreview").onclick=runPreview;
+byId("rerollAreaPreview").onclick=()=>{areaPreviewDestinations=new Map();renderAreaPreview()};
 for(const e of [byId("previewDay"),byId("previewRecentDay"),byId("previewResident"),byId("previewTotal"),byId("previewPoints")])e.addEventListener("change",runPreview);
 // Character options are loaded from the resident catalog at startup.
 for(const [key,title] of Object.entries(missions)){

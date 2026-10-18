@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kDebugMode, SynchronousFuture;
 import 'package:flutter/material.dart';
@@ -50,8 +51,11 @@ class FutureLiftApp extends StatelessWidget {
     this.dialogueCatalog,
     this.enableTutorial = true,
     this.remoteContentLoader,
+    this.townRandom,
   });
   final ProgressController controller;
+  /// Optional random stream for reproducible outings in tests.
+  final math.Random? townRandom;
   final bool enableTutorial;
   /// Production entrypoint resolves the URL from Google Drive.
   /// Null keeps deterministic legacy widget tests network-independent.
@@ -89,6 +93,7 @@ class FutureLiftApp extends StatelessWidget {
       dialogueCatalog: dialogueCatalog,
       enableTutorial: enableTutorial,
       remoteContentLoader: remoteContentLoader,
+      townRandom: townRandom,
     ),
   );
 }
@@ -100,8 +105,10 @@ class FutureLiftHome extends StatefulWidget {
     this.dialogueCatalog,
     this.enableTutorial = true,
     this.remoteContentLoader,
+    this.townRandom,
   });
   final ProgressController controller;
+  final math.Random? townRandom;
   final DialogueCatalog? dialogueCatalog;
   final bool enableTutorial;
   final Future<HostedTownContent> Function()? remoteContentLoader;
@@ -119,6 +126,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   Mission _previewMission = Mission.strength;
   int _homeVisit = 0;
   TownArea _townArea = TownArea.plaza;
+  late TownVisit _townVisit;
   bool _celebrating = false;
   bool _tutorialSaving = false;
   // Replaying is UI-only; it must not modify persisted tutorial or mission state.
@@ -140,6 +148,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   @override
   void initState() {
     super.initState();
+    _townVisit = TownVisit(random: widget.townRandom);
     WidgetsBinding.instance.addObserver(this);
     _dialoguesFuture = widget.dialogueCatalog != null
         ? SynchronousFuture(widget.dialogueCatalog!)
@@ -327,6 +336,16 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     });
   }
 
+  void _selectPage(int index) {
+    setState(() {
+      if (index == 2 && _page != 2) {
+        _townVisit = TownVisit(random: widget.townRandom);
+      }
+      _page = index;
+      if (index == 0) _homeVisit++;
+    });
+  }
+
   Future<void> _showDialogue(TownResident resident, {bool inSalon = false}) async {
     if (controller.busy || controller.failure != null ||
         controller.progress == null) {
@@ -335,7 +354,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     final catalog = await _dialoguesFuture;
     if (!mounted || controller.failure != null) return;
     final rules = TownRules(
-      controller.progress!, debugTownResidents: _debugTownResidents);
+      controller.progress!, visit: _townVisit,
+      debugTownResidents: _debugTownResidents);
     final visibleIds = rules.conversationPeers(
       inSalon
           ? ConversationSite.salon
@@ -576,8 +596,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                         GameHome(
                           key: ValueKey(_homeVisit),
                           progress: progress,
-                          onMissions: () => setState(() => _page = 1),
-                          onTown: () => setState(() => _page = 2),
+                          onMissions: () => _selectPage(1),
+                          onTown: () => _selectPage(2),
                           onResident: _showDialogue,
                           debugTownResidents: _debugTownResidents,
                         ),
@@ -673,10 +693,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                     !progress.seenDialogues.contains(_tutorialSeenId))) {
               return;
             }
-            setState(() {
-              _page = index;
-              if (index == 0) _homeVisit++;
-            });
+            _selectPage(index);
           },
           destinations: [
             NavigationDestination(
@@ -800,13 +817,14 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   Widget _townNavigator(
       Progress progress, HostedTownContent? hosted) {
     final rules = TownRules(
-      progress, debugTownResidents: _debugTownResidents);
+      progress, visit: _townVisit, debugTownResidents: _debugTownResidents);
     final visitors = hosted == null
         ? const <RemoteResident>[]
         : localVisitorsForArea(
             hosted.catalog,
             _townArea,
             lifetimePoints: progress.points,
+            visit: _townVisit,
             owned: progress.residents.owned,
             debugTownSelectionActive: _debugTownResidents != null,
           );
@@ -816,6 +834,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         TownAreaNavigator(
           sceneKey: _townSceneKey,
           area: _townArea,
+          visit: _townVisit,
           onAreaChanged: (area) => setState(() => _townArea = area),
           level: progress.townLevel,
           lifetimePoints: progress.points,

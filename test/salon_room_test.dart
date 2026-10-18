@@ -27,14 +27,14 @@ void main() {
     expect(TownResident.gachaPool, contains(TownResident.c035_beaty));
     expect(TownResident.gachaPool, contains(SalonRoom.host));
     expect(areaResidents(TownResident.values, TownArea.village,
-        lifetimePoints: 300),
+        lifetimePoints: 300, visit: TownVisit()),
         isNot(contains(SalonRoom.host)));
     expect(visibleTownResidents(TownResident.values),
         isNot(contains(SalonRoom.host)));
     expect(visibleTownResidents(TownResident.values),
         isNot(contains(TownResident.c035_beaty)));
     expect(areaResidents(TownResident.values, TownArea.shopping,
-        lifetimePoints: 300),
+        lifetimePoints: 300, visit: TownVisit()),
         isNot(contains(TownResident.c035_beaty)));
   });
 

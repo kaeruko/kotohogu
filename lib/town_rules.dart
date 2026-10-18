@@ -9,13 +9,17 @@ enum ConversationSite { town, salon, roster }
 
 /// One view of the saved game state shared by town rendering and dialogue.
 ///
-/// No mutable unlock flags or new save fields: facility availability and
-/// placement are calculated from Progress each time they are needed.
+/// No new save fields: facilities are derived from Progress, and outdoor
+/// destinations come from the same in-memory visit used by the painted town.
 /// A debug cast affects previews only, not the permanent facility unlock.
 class TownRules {
-  const TownRules(this.progress, {this.debugTownResidents});
+  const TownRules(this.progress, {
+    required this.visit,
+    this.debugTownResidents,
+  });
 
   final Progress progress;
+  final TownVisit visit;
   final List<TownResident>? debugTownResidents;
 
   bool get marcheOpen => isMarcheOpen(progress);
@@ -25,6 +29,7 @@ class TownRules {
     progress.residents.owned,
     area,
     lifetimePoints: progress.points,
+    visit: visit,
     debugOverride: debugTownResidents,
     marcheOpen: marcheOpen,
   );

@@ -12,6 +12,7 @@ class TownAreaNavigator extends StatefulWidget {
   const TownAreaNavigator({
     super.key,
     required this.area,
+    this.visit,
     this.sceneKey,
     required this.onAreaChanged,
     required this.level,
@@ -29,6 +30,8 @@ class TownAreaNavigator extends StatefulWidget {
   });
 
   final TownArea area;
+  /// Shared across area changes and with town conversation conditions.
+  final TownVisit? visit;
   /// Preserve the painted scene and its semantics when the long town page scrolls.
   final GlobalKey? sceneKey;
   final ValueChanged<TownArea> onAreaChanged;
@@ -50,6 +53,8 @@ class TownAreaNavigator extends StatefulWidget {
 }
 
 class _TownAreaNavigatorState extends State<TownAreaNavigator> {
+  late final _standaloneVisit = TownVisit();
+  TownVisit get _visit => widget.visit ?? _standaloneVisit;
   int? _activePointer;
   Offset? _swipeStart;
 
@@ -129,6 +134,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
               key: widget.sceneKey,
               level: widget.level,
               area: area,
+              visit: _visit,
               lifetimePoints: widget.lifetimePoints,
               residents: widget.residents,
               debugTownResidents: widget.debugTownResidents,
@@ -183,6 +189,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                 widget.residents,
                 area,
                 lifetimePoints: widget.lifetimePoints,
+                visit: _visit,
                 debugOverride: widget.debugTownResidents,
               ),
               onResident: widget.onResident,

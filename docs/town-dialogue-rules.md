@@ -9,22 +9,34 @@
 | --- | --- | --- |
 | 住民を迎えたか | `Progress.residents.owned` | ガチャ／保存データ |
 | エリアが開いたか | `TownArea.isUnlocked` | CMSの `assets/town/areas.json` の `unlockAt` と累計ことほぎ（`Progress.points`） |
-| 住民のいまの居場所 | `residentCurrentArea` / `areaResidents` | CMSの `homeAreaId`、エリア開放、店番 |
+| 住民のいまの居場所 | `TownVisit` / `residentCurrentArea` / `areaResidents` | まちを開いたときのランダムなお出かけ先、エリア開放、店番 |
 | 会話相手が一緒にいるか | `TownRules.conversationPeers` | 上記の配置・会話を始めた画面 |
 | どのセリフが有効か | `DialogueCatalog.select` / `DialogueCondition` | CMSの `dialogues.json` と `Progress` |
 | 店を開放したか | `isMarcheOpen` / `isSalonUnlocked` | 本当の所有権・既読 |
 | 屋台での接客セリフ | `selectMarcheDialogue` → `DialogueCatalog.selectById` | CMSセリフの固定ID、既読、屋台での会話回数 |
 
-`TownRules` は **進行状況から計算した読み取り専用の窓口**。アプリの会話画面と広場描画から同じ規則を利用する。状態フラグを別途保存しない。
+`TownRules` は **進行状況と同じ `TownVisit` を見る会話・施設の窓口**。アプリの会話画面と広場描画は同じ行き先を利用する。配置や施設の状態フラグをセーブへ追加しない。
 
 ### 居場所の優先順位
 
 1. `walkInTown=false`、または `homeAreaId=salon`：屋外には出ない。
 2. とんこを取得済みで、開店セリフを既読：中央ひろばで店番（のんびり里には同時出現しない）。
-3. それ以外：CMS登録の `homeAreaId` に住む。ただしエリア未開放なら中央ひろばに一時集合。
+3. それ以外：所有する屋外住民を、実際に開放済みのエリアから等確率で1か所へ配置する。`homeAreaId` は住まいの設定として残すが、お出かけ先を固定しない。
 4. **デバッグ住民プレビューは例外**：本来のCMS登録エリアを表示するが、実際の住民取得や施設開放には影響しない。
 
 ※ 店番の **配置座標・足踏みアニメーション**は `lib/town.dart`。居場所の論理判定は `lib/town_areas.dart`。セリフの進行は別。
+
+### お出かけ先を決めるタイミング
+
+- ホームや他のページから「みんなのまち」を開くと、新しい `TownVisit` を作る。現在のまちボタンを再度押しても引き直さない。
+- 同じ滞在中は、エリア移動、画面の再描画、会話と既読の保存、日付更新、配信データの再読み込みでも既存住民の行き先を保つ。
+- 滞在中に新しい住民を迎えた場合は、その住民の行き先だけを決める。新しいエリアが開いても、すでに配置済みの住民は移動せず、次のまち訪問で新しいエリアも抽選対象になる。
+- とんこは開店条件が成立したら広場の店番を優先する。美容室の住民は引き続き屋内だけに登場する。
+- 配信された一時訪問住民も同じ `TownVisit` から行き先を得る。所持住民と同じIDは訪問者として重複表示しない。
+- まちの描画と `townTogether` の判定には、同じ `TownVisit` を渡す。配置関数を呼ぶたびに抽選したり、会話側で別の配置を作ったりしない。
+- 配置はメモリ内だけで保持し、再起動時は新しい訪問になる。不正な居住IDや、保持した行き先が未開放になった場合はエラーにし、別エリアへ自動で置き換えない。
+
+このため、もぐたとおやすみくんは累計90以上でも、同じ開放済みエリアへお出かけしたときに掛け合いが成立する。毎回の同席や会話の当選を保証するものではない。
 
 ### 施設の開放
 
@@ -48,13 +60,13 @@
 
 ### 編集するとき
 
-- 名前・通常の住まい・スプライト：`assets/characters/characters.json`（CMSを使う）。エリア・出現場所タブからも通常の住まいを一括編集できる。
+- 名前・住まい・スプライト：`assets/characters/characters.json`（CMSを使う）。エリア・出現場所タブからも住まいを一括編集できる。通常のお出かけ先は住まいと独立したランダム配置。
 - エリア名・説明・開放しきい値：`assets/town/areas.json`（CMSを使う）。保存時に `lib/town_areas.dart` のエリアenum定義を同期する。ID・順番・背景パスと画像寸法はCMSでは編集不可。
 - 会話文・既読条件・掛け合い：`assets/dialogues/dialogues.json`（CMSを使う）。
 - 施設開放トリガー（とんこ）：`lib/marche.dart`。開放条件を変えるなら物語IDの参照先も合わせてテストする。
-- 住民の行き先・未開放エリア時の扱い：`lib/town_areas.dart`。特別な配置ルールはCMSでは説明とプレビューのみで、未編集のまま保持する。
+- 住民の行き先・開放済みエリアからの抽選：`lib/town_areas.dart`。訪問の作成は `lib/main.dart`。CMSの出現プレビューも同じ対象エリア・固定配置の規則を使い、「お出かけ先を決め直す」で別の配置例を確認する。
 - 会話画面ごとの参加者の範囲：`lib/town_rules.dart`。
 - 屋台の絵と店番位置：`lib/town.dart`。
 - 美容室の取得条件：`lib/resident_collection.dart`。
 
-変更したら `flutter analyze` と `flutter test`、CMSの `python -m unittest discover -s tools/dialogue_cms -p 'test_*.py'` を通す。特に開放前後、再起動後、デバッグプレビューでの居場所、屋台タップ、セリフの既読連鎖を確認すること。
+変更したら `flutter analyze` と `flutter test`、CMSの `python -m unittest discover -s tools/dialogue_cms -p 'test_*.py'` と `node --test tools/dialogue_cms/test_town_visits.mjs` を通す。特に開放前後、再入場、エリア移動・会話中の配置保持、表示と掛け合いの一致、デバッグプレビューでの居場所、屋台タップ、セリフの既読連鎖を確認すること。

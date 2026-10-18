@@ -5,6 +5,8 @@ import 'package:future_lift/town_areas.dart';
 import 'package:future_lift/town_rules.dart';
 import 'package:future_lift/marche.dart';
 
+import 'support/town_random.dart';
+
 Progress fixture({bool tonkoOwned = true, int points = 300}) => Progress(
   day: '2026-10-17',
   lastCompletedDay: points == 0 ? null : '2026-10-16',
@@ -23,7 +25,8 @@ Progress fixture({bool tonkoOwned = true, int points = 300}) => Progress(
 void main() {
   test('one progress snapshot drives facility state and outdoor placement', () {
     var progress = fixture();
-    var rules = TownRules(progress);
+    final visit = TownVisit(random: ScriptedTownRandom([0, 1, 3]));
+    var rules = TownRules(progress, visit: visit);
     expect(rules.marcheOpen, isFalse);
     expect(rules.salonUnlocked, isFalse);
     expect(rules.outdoors(TownArea.village),
@@ -33,7 +36,7 @@ void main() {
       {'041_pig_middle'});
 
     progress = progress.markDialogueSeen(tonkoMarcheOpeningDialogueId);
-    rules = TownRules(progress);
+    rules = TownRules(progress, visit: visit);
     expect(rules.marcheOpen, isTrue);
     expect(rules.outdoors(TownArea.village), isEmpty);
     expect(rules.outdoors(TownArea.plaza),
@@ -60,6 +63,7 @@ void main() {
     final saved = fixture(tonkoOwned: false)
         .markDialogueSeen(tonkoMarcheOpeningDialogueId);
     final rules = TownRules(saved,
+        visit: TownVisit(random: ScriptedTownRandom([])),
         debugTownResidents: [TownResident.c041_pig_middle]);
     expect(rules.marcheOpen, isFalse);
     expect(rules.outdoors(TownArea.plaza), isEmpty);
@@ -83,7 +87,8 @@ void main() {
       ),
       completed: {},
     );
-    final rules = TownRules(withSalon);
+    final rules = TownRules(withSalon,
+        visit: TownVisit(random: ScriptedTownRandom([0, 0])));
     expect(rules.salonUnlocked, isTrue);
     expect(rules.conversationPeers(ConversationSite.salon),
         {'035_beaty'});

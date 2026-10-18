@@ -42,6 +42,7 @@ class TownScene extends StatefulWidget {
     required this.level,
     required this.residents,
     this.area = TownArea.plaza,
+    this.visit,
     required this.lifetimePoints,
     this.debugTownResidents,
     this.onResident,
@@ -58,6 +59,8 @@ class TownScene extends StatefulWidget {
   final int level;
   final List<TownResident> residents;
   final TownArea area;
+  /// Main navigation supplies its shared visit. A standalone scene owns one.
+  final TownVisit? visit;
   /// Lifetime mission points, not the spendable kotohogi balance.
   final int lifetimePoints;
   /// A temporary debug-only cast; null uses the owned residents.
@@ -81,6 +84,7 @@ class TownScene extends StatefulWidget {
 }
 
 class _TownSceneState extends State<TownScene> {
+  late final _standaloneVisit = TownVisit();
   static const _frameDuration = Duration(milliseconds: 150);
   Timer? _ticker;
   int _ticks = 0;
@@ -204,6 +208,7 @@ class _TownSceneState extends State<TownScene> {
       widget.residents,
       widget.area,
       lifetimePoints: widget.lifetimePoints,
+      visit: widget.visit ?? _standaloneVisit,
       debugOverride: widget.debugTownResidents,
       marcheOpen: widget.marcheOpen,
     );

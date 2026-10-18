@@ -6,6 +6,8 @@ import 'package:future_lift/local_town_visitors.dart';
 import 'package:future_lift/resident_collection.dart';
 import 'package:future_lift/town_areas.dart';
 
+import 'support/town_random.dart';
+
 Map<String, Object?> character(String id, String area,
     {bool walk = true}) => {
   'key': 'c$id', 'id': id, 'label': id,
@@ -25,7 +27,7 @@ RemoteContentCatalog catalog(List<Object> characters, List<Object> lines) =>
   }));
 
 void main() {
-  test('unknown CMS resident joins plaza before home unlock, without duplicates', () {
+  test('unknown CMS resident visits only unlocked areas without duplicates', () {
     final content = catalog([
       character('01_shiba', 'plaza'),
       character('037_tora', 'park'),
@@ -35,21 +37,25 @@ void main() {
       line('01_shiba'), line('037_tora'), line('038_owl'), line('039_cat'),
     ]);
     final before = localVisitorsForArea(
-      content, TownArea.plaza, lifetimePoints: 0,
+      content, TownArea.plaza, lifetimePoints: 0, visit: TownVisit(),
       owned: const [TownResident.shiba, TownResident.rabbit],
     );
     expect(before.map((row) => row.id), ['038_owl', '037_tora']);
     expect(localVisitorsForArea(content, TownArea.park,
-      lifetimePoints: 0, owned: const [TownResident.shiba]), isEmpty);
+      lifetimePoints: 0, visit: TownVisit(),
+      owned: const [TownResident.shiba]), isEmpty);
     final after = localVisitorsForArea(
       content, TownArea.park, lifetimePoints: 90,
+      visit: TownVisit(random: ScriptedTownRandom([1, 1])),
       owned: const [TownResident.shiba, TownResident.rabbit],
     );
     expect(after.map((row) => row.id), ['038_owl', '037_tora']);
     expect(localVisitorsForArea(content, TownArea.plaza,
-      lifetimePoints: 90, owned: const [TownResident.shiba]), isEmpty);
+      lifetimePoints: 90,
+      visit: TownVisit(random: ScriptedTownRandom([1, 1])),
+      owned: const [TownResident.shiba]), isEmpty);
     expect(localVisitorsForArea(content, TownArea.park,
-      lifetimePoints: 90, owned: const [],
+      lifetimePoints: 90, visit: TownVisit(), owned: const [],
       debugTownSelectionActive: true), isEmpty);
   });
 
@@ -64,7 +70,7 @@ void main() {
     for (final points in [0, 90, 300]) {
       for (final area in TownArea.values) {
         final visitors = localVisitorsForArea(content, area,
-            lifetimePoints: points, owned: const []);
+            lifetimePoints: points, visit: TownVisit(), owned: const []);
         expect(visitors.map((resident) => resident.id),
             isNot(contains('038_lion_lady')));
         expect(visitors.map((resident) => resident.id),
@@ -72,7 +78,7 @@ void main() {
       }
     }
     expect(localVisitorsForArea(content, TownArea.plaza,
-        lifetimePoints: 0, owned: const []).map((row) => row.id),
+        lifetimePoints: 0, visit: TownVisit(), owned: const []).map((row) => row.id),
         ['040_new']);
   });
 
@@ -84,7 +90,26 @@ void main() {
       for (var i = 40; i < 51; i++) line('${i}_new'),
     ];
     expect(localVisitorsForArea(catalog(chars, lines), TownArea.plaza,
-      lifetimePoints: 0, owned: const []).length, 11);
+      lifetimePoints: 0, visit: TownVisit(), owned: const []).length, 11);
+  });
+
+  test('remote visitors share one stable outing across area changes', () {
+    final content = catalog([
+      character('040_new', 'village'), character('041_new', 'shopping'),
+    ], [line('040_new'), line('041_new')]);
+    final random = ScriptedTownRandom([1, 1]);
+    final visit = TownVisit(random: random);
+    for (var pass = 0; pass < 3; pass++) {
+      final all = [
+        for (final area in TownArea.values)
+          ...localVisitorsForArea(content, area, lifetimePoints: 90,
+              visit: visit, owned: const []),
+      ];
+      expect(all.map((resident) => resident.id), ['040_new', '041_new']);
+      expect(localVisitorsForArea(content, TownArea.park, lifetimePoints: 90,
+          visit: visit, owned: const []).length, 2);
+      expect(random.calls, 2);
+    }
   });
 
   test('visitor greeting picks unconditional non-once highest priority', () {

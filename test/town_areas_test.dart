@@ -9,6 +9,8 @@ import 'package:future_lift/salon_room.dart';
 import 'package:future_lift/town_area_navigator.dart';
 import 'package:future_lift/town_areas.dart';
 
+import 'support/town_random.dart';
+
 void main() {
   test('stable area IDs and lifetime unlock thresholds', () {
     expect(TownArea.fromId('plaza'), TownArea.plaza);
@@ -57,138 +59,75 @@ void main() {
     }
   });
 
-  test('residents are sorted into homes without a global eight-person cap', () {
-    expect(TownResident.c026_farmer.homeAreaId, 'park');
-    expect(TownResident.c027_daydreamer.homeAreaId, 'park');
-    expect(TownResident.c009_chef.homeAreaId, 'shopping');
+  test('one outing allocates every outdoor resident without a global cap', () {
     final all = TownResident.values.toList();
+    final walkers = visibleTownResidents(all);
+    final visit = TownVisit(random: ScriptedTownRandom([
+      for (var i = 0; i < walkers.length; i++) i % 4,
+    ]));
     final together = [
       for (final area in TownArea.values)
-        ...areaResidents(all, area, lifetimePoints: 300),
+        ...areaResidents(all, area, lifetimePoints: 300, visit: visit),
     ];
-    // Salon-only NPCs are registered residents but do not walk outside.
-    final walkers = all.where((resident) =>
-        resident.walkInTown && resident.homeAreaId != 'salon').toSet();
+    expect(together.toSet(), walkers.toSet());
     expect(together.length, walkers.length);
-    expect(together.toSet(), walkers);
-    expect(areaResidents(all, TownArea.plaza, lifetimePoints: 300),
-        [TownResident.shiba, TownResident.penguin,
-         TownResident.c036_mosa, TownResident.c029_office_worker,
-         TownResident.c015_office_worker]);
-    expect(areaResidents(all, TownArea.park, lifetimePoints: 300),
-        [TownResident.rabbit, TownResident.squirrel,
-         TownResident.c026_farmer, TownResident.c027_daydreamer,
-         TownResident.c037_tora, TownResident.c042_senior_dog]);
-    expect(areaResidents(all, TownArea.shopping, lifetimePoints: 300),
-        [TownResident.cat, TownResident.c009_chef, TownResident.c032_miner,
-         TownResident.c028_caregiver]);
-    expect(areaResidents(all, TownArea.village, lifetimePoints: 300),
-        [TownResident.bear, TownResident.c034_artist,
-         TownResident.c041_pig_middle]);
-    expect(areaResidents(all, TownArea.village,
-        lifetimePoints: 300, debugOverride: [TownResident.shiba, TownResident.c034_artist]),
+    expect(areaResidents(all, TownArea.village, lifetimePoints: 300,
+        visit: visit, debugOverride: [TownResident.shiba, TownResident.c034_artist]),
         [TownResident.c034_artist]);
-    expect(() => areaResidents(all, TownArea.plaza,
-        lifetimePoints: 300, debugOverride: [TownResident.shiba, TownResident.shiba]),
+    expect(() => areaResidents(all, TownArea.plaza, lifetimePoints: 300,
+        visit: visit, debugOverride: [TownResident.shiba, TownResident.shiba]),
         throwsArgumentError);
   });
 
-
   test('salon walking flag does not put an indoor resident outdoors', () {
     const rio = TownResident.c038_lion_lady;
+    final visit = TownVisit(random: ScriptedTownRandom([]));
     expect(rio.homeAreaId, 'salon');
     expect(rio.walkInTown, isTrue);
     for (final points in [0, 90, 300]) {
-      expect(residentCurrentArea(rio, points), isNull);
+      expect(residentCurrentArea(rio, points, visit: visit), isNull);
       for (final area in TownArea.values) {
-        expect(areaResidents([rio], area, lifetimePoints: points), isEmpty);
+        expect(areaResidents([rio], area,
+            lifetimePoints: points, visit: visit), isEmpty);
         expect(areaResidents(const [], area, lifetimePoints: points,
-            debugOverride: [rio]), isEmpty);
+            visit: visit, debugOverride: [rio]), isEmpty);
       }
     }
     expect(visibleTownResidents([rio]), isEmpty);
     expect(salonResidents([rio]), contains(rio));
   });
 
-  test('residents stay at plaza until their homes open', () {
+  test('all outings use plaza while it is the only unlocked area', () {
     const owned = [
-      TownResident.shiba,
-      TownResident.rabbit,
-      TownResident.cat,
-      TownResident.bear,
-      TownResident.c035_beaty,
-      TownResident.c031_kimono_fox,
+      TownResident.shiba, TownResident.rabbit, TownResident.cat,
+      TownResident.bear, TownResident.c035_beaty, TownResident.c031_kimono_fox,
     ];
     const outdoors = [
-      TownResident.shiba,
-      TownResident.rabbit,
-      TownResident.cat,
-      TownResident.bear,
+      TownResident.shiba, TownResident.rabbit, TownResident.cat, TownResident.bear,
     ];
-
     for (final points in [0, 10, 89]) {
+      final visit = TownVisit(random: ScriptedTownRandom([0, 0, 0, 0]));
       expect(areaResidents(owned, TownArea.plaza,
-          lifetimePoints: points), outdoors);
+          lifetimePoints: points, visit: visit), outdoors);
       for (final area in TownArea.values.skip(1)) {
-        expect(areaResidents(owned, area, lifetimePoints: points), isEmpty);
+        expect(areaResidents(owned, area,
+            lifetimePoints: points, visit: visit), isEmpty);
       }
-    }
-
-    expect(areaResidents(owned, TownArea.plaza, lifetimePoints: 90),
-        [TownResident.shiba, TownResident.cat, TownResident.bear]);
-    expect(areaResidents(owned, TownArea.park, lifetimePoints: 90),
-        [TownResident.rabbit]);
-    expect(areaResidents(owned, TownArea.plaza, lifetimePoints: 179),
-        [TownResident.shiba, TownResident.cat, TownResident.bear]);
-
-    expect(areaResidents(owned, TownArea.plaza, lifetimePoints: 180),
-        [TownResident.shiba, TownResident.bear]);
-    expect(areaResidents(owned, TownArea.shopping, lifetimePoints: 180),
-        [TownResident.cat]);
-    expect(areaResidents(owned, TownArea.plaza, lifetimePoints: 299),
-        [TownResident.shiba, TownResident.bear]);
-
-    expect(areaResidents(owned, TownArea.plaza, lifetimePoints: 300),
-        [TownResident.shiba]);
-    expect(areaResidents(owned, TownArea.village, lifetimePoints: 300),
-        [TownResident.bear]);
-
-    // No resident is cloned into another area at any threshold.
-    for (final points in [0, 89, 90, 179, 180, 299, 300, 500]) {
-      final roster = [
-        for (final area in TownArea.values)
-          ...areaResidents(owned, area, lifetimePoints: points),
-      ];
-      expect(roster, containsAll(outdoors));
-      expect(roster.length, outdoors.length);
-      expect(roster.toSet().length, outdoors.length);
-      expect(roster, isNot(contains(TownResident.c035_beaty)));
-      expect(roster, isNot(contains(TownResident.c031_kimono_fox)));
     }
     expect(salonResidents(owned),
         [TownResident.c035_beaty, TownResident.c031_kimono_fox]);
-    expect(() => residentCurrentArea(TownResident.c035_beaty, 0),
-        returnsNormally);
-    expect(residentCurrentArea(TownResident.c035_beaty, 0), isNull);
   });
 
   test('debug preview keeps CMS homes even before area unlock', () {
     const preview = [
-      TownResident.shiba, TownResident.rabbit,
-      TownResident.cat, TownResident.bear,
+      TownResident.shiba, TownResident.rabbit, TownResident.cat, TownResident.bear,
     ];
-    expect(areaResidents(const [], TownArea.plaza,
-        lifetimePoints: 0, debugOverride: preview),
-        [TownResident.shiba]);
-    expect(areaResidents(const [], TownArea.park,
-        lifetimePoints: 0, debugOverride: preview),
-        [TownResident.rabbit]);
-    expect(areaResidents(const [], TownArea.shopping,
-        lifetimePoints: 0, debugOverride: preview),
-        [TownResident.cat]);
-    expect(areaResidents(const [], TownArea.village,
-        lifetimePoints: 0, debugOverride: preview),
-        [TownResident.bear]);
+    final visit = TownVisit(random: ScriptedTownRandom([]));
+    for (final area in TownArea.values) {
+      expect(areaResidents(const [], area, lifetimePoints: 0,
+          visit: visit, debugOverride: preview),
+          preview.where((resident) => resident.homeAreaId == area.id).toList());
+    }
   });
 
   testWidgets('facility debug modes override only salon entry temporarily',
@@ -457,8 +396,9 @@ void main() {
     expect(area, TownArea.park);
     expect(find.text('2 / 2'), findsOneWidget);
     expect(find.byKey(const ValueKey('town-background')), findsOneWidget);
-    expect(find.byKey(const ValueKey('resident-0')), findsOneWidget);
-    expect(find.byKey(const ValueKey('resident-1')), findsOneWidget);
+    // This visit began before the unlock, so its residents stay at the plaza.
+    expect(find.byKey(const ValueKey('resident-0')), findsNothing);
+    expect(find.byKey(const ValueKey('resident-1')), findsNothing);
     expect(find.byKey(const ValueKey('town-area-next')), findsNothing);
     expect(find.byKey(const ValueKey('town-area-previous')), findsOneWidget);
     await tester.drag(

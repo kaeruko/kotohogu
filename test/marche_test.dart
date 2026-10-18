@@ -9,6 +9,8 @@ import 'package:future_lift/resident_collection.dart';
 import 'package:future_lift/town.dart';
 import 'package:future_lift/town_areas.dart';
 
+import 'support/town_random.dart';
+
 Progress tonkoProgress({bool owned = true}) => Progress(
   day: '2026-10-17',
   lastCompletedDay: '2026-10-16',
@@ -102,35 +104,37 @@ void main() {
   test('shopkeeper moves to plaza without ever being duplicated', () {
     const owner = TownResident.c041_pig_middle;
     const residents = [TownResident.shiba, owner, TownResident.rabbit];
+    final visit = TownVisit(random: ScriptedTownRandom([0, 3, 1]));
     expect(areaResidents(residents, TownArea.village,
-        lifetimePoints: 300), [owner]);
+        lifetimePoints: 300, visit: visit), [owner]);
     expect(areaResidents(residents, TownArea.plaza,
-        lifetimePoints: 300), [TownResident.shiba]);
+        lifetimePoints: 300, visit: visit), [TownResident.shiba]);
 
     expect(areaResidents(residents, TownArea.plaza,
-        lifetimePoints: 300, marcheOpen: true),
+        lifetimePoints: 300, visit: visit, marcheOpen: true),
         [TownResident.shiba, owner]);
     expect(areaResidents(residents, TownArea.village,
-        lifetimePoints: 300, marcheOpen: true), isEmpty);
+        lifetimePoints: 300, visit: visit, marcheOpen: true), isEmpty);
     final all = [
       for (final area in TownArea.values)
         ...areaResidents(residents, area,
-            lifetimePoints: 300, marcheOpen: true),
+            lifetimePoints: 300, visit: visit, marcheOpen: true),
     ];
     expect(all.length, residents.length);
     expect(all.toSet().length, residents.length);
 
     // Debug-only cast residents stay in their assigned neighborhood.
     expect(areaResidents(residents, TownArea.plaza,
-        lifetimePoints: 300, marcheOpen: true,
+        lifetimePoints: 300, visit: visit, marcheOpen: true,
         debugOverride: [owner]), isEmpty);
     expect(areaResidents(residents, TownArea.village,
-        lifetimePoints: 300, marcheOpen: true,
+        lifetimePoints: 300, visit: visit, marcheOpen: true,
         debugOverride: [owner]), [owner]);
 
-    // Pre-unlock behavior is unchanged: the village resident meets at plaza.
+    // Before any other area opens, every outing destination is the plaza.
     expect(areaResidents(residents, TownArea.plaza,
-        lifetimePoints: 0), contains(owner));
+        lifetimePoints: 0,
+        visit: TownVisit(random: ScriptedTownRandom([0, 0, 0]))), contains(owner));
   });
 
   test('the checked-in story progresses into the opening in six chats', () {

@@ -5,7 +5,7 @@ import subprocess
 import unittest
 from pathlib import Path
 
-from areas import AREA_IDS, DART, ROOT, generate_town_areas, load_areas, validate_areas
+from areas import AREA_IDS, DART, END, ROOT, generate_town_areas, load_areas, validate_areas
 
 class TownAreaCmsTests(unittest.TestCase):
     def test_bundled_areas_match_generated_flutter_definition(self):
@@ -19,11 +19,12 @@ class TownAreaCmsTests(unittest.TestCase):
         modified["areas"][1]["label"] = "新しい森の公園"
         modified["areas"][1]["description"] = "季節のお花と おさんぽ。"
         modified["areas"][1]["unlockAt"] = 120
-        result = generate_town_areas(DART.read_text(encoding="utf-8"), modified)
+        original = DART.read_text(encoding="utf-8")
+        result = generate_town_areas(original, modified)
         self.assertIn('park("park", "新しい森の公園", "季節のお花と おさんぽ。", 120,', result)
         # Keep existing business rules and resident-placement functions untouched.
         self.assertIn("residentCurrentArea(", result)
-        self.assertIn("marcheOpen && resident == tonkoMarcheOwner", result)
+        self.assertEqual(result.split(END, 1)[1], original.split(END, 1)[1])
 
     def test_invalid_area_settings_fail_before_writing(self):
         baseline = load_areas()
@@ -59,6 +60,13 @@ class TownAreaCmsTests(unittest.TestCase):
         self.assertIn(r'風の\"\$\"ひろば', generated)
         with self.assertRaisesRegex(ValueError, "markers"):
             generate_town_areas("enum TownArea { plaza; }", edited)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is optional for local Python-only CMS")
+    def test_outing_preview_matches_runtime_placement_contract(self):
+        process = subprocess.run(
+            ["node", "--test", str(ROOT / "tools/dialogue_cms/test_town_visits.mjs")],
+            text=True, capture_output=True, timeout=15, check=False)
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
 
     @unittest.skipUnless(shutil.which("node"), "Node.js is optional for local Python-only CMS")
     def test_inline_editor_javascript_is_syntactically_valid(self):

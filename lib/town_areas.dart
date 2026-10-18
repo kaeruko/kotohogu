@@ -1,7 +1,9 @@
+import 'dart:math' as math;
+
 import 'marche.dart';
 import 'resident_collection.dart';
 
-/// Each neighborhood owns its residents and its independently sourced artwork.
+/// Each neighborhood owns its independently sourced artwork.
 /// The user's selected area is UI-only; no progress save migration is required.
 enum TownArea {
   // BEGIN CMS TOWN AREAS
@@ -41,21 +43,62 @@ List<TownArea> unlockedTownAreas(int lifetimePoints) =>
       TownArea.values.where((area) => area.isUnlocked(lifetimePoints)),
     );
 
-/// Outdoor residents temporarily meet at the plaza until their assigned
-/// neighborhood opens. Indoor residents (including salon staff) never move
-/// outdoors. Unknown outdoor area IDs are errors, not implicit fallbacks.
+/// One in-memory outing, shared by rendering and conversation conditions.
+/// Each walker draws once from the actually unlocked areas. New walkers can
+/// join without redrawing existing destinations. Re-entering town creates a
+/// new visit; area navigation, rebuilds and conversations keep this instance.
+class TownVisit {
+  TownVisit({math.Random? random}) : _random = random ?? math.Random();
+
+  final math.Random _random;
+  final Map<String, TownArea> _destinations = {};
+
+  TownArea? destinationFor({
+    required String residentId,
+    required bool walkInTown,
+    required String homeAreaId,
+    required int lifetimePoints,
+    bool marcheOpen = false,
+  }) {
+    if (residentId.isEmpty) throw ArgumentError('Resident ID must not be empty');
+    if (lifetimePoints < 0) {
+      throw RangeError.value(lifetimePoints, 'lifetimePoints', 'Must be >= 0');
+    }
+    if (homeAreaId == 'salon') return null;
+    // Home remains a validated character setting, not an outing destination.
+    TownArea.fromId(homeAreaId);
+    if (!walkInTown) return null;
+    if (marcheOpen && residentId == tonkoMarcheOwner.id) {
+      return TownArea.plaza;
+    }
+    final destination = _destinations.putIfAbsent(residentId, () {
+      final unlocked = unlockedTownAreas(lifetimePoints);
+      if (unlocked.isEmpty) throw StateError('No unlocked town area');
+      return unlocked[_random.nextInt(unlocked.length)];
+    });
+    if (!destination.isUnlocked(lifetimePoints)) {
+      throw StateError(
+        'Town visit destination is locked: $residentId, '
+        '${destination.id}, lifetimePoints=$lifetimePoints',
+      );
+    }
+    return destination;
+  }
+}
+
+/// Indoor residents never move outdoors; an open stall fixes Tonko at work.
 TownArea? residentCurrentArea(
   TownResident resident,
   int lifetimePoints, {
+  required TownVisit visit,
   bool marcheOpen = false,
-}) {
-  // Indoor residents never participate in outdoor placement.
-  if (!resident.walkInTown || resident.homeAreaId == 'salon') return null;
-  // A story-triggered work location overrides Tonko's ordinary CMS home.
-  if (marcheOpen && resident == tonkoMarcheOwner) return TownArea.plaza;
-  final home = TownArea.fromId(resident.homeAreaId);
-  return home.isUnlocked(lifetimePoints) ? home : TownArea.plaza;
-}
+}) => visit.destinationFor(
+  residentId: resident.id,
+  walkInTown: resident.walkInTown,
+  homeAreaId: resident.homeAreaId,
+  lifetimePoints: lifetimePoints,
+  marcheOpen: marcheOpen,
+);
 
 /// Allocate each owned walker to exactly one currently accessible area.
 /// The debug cast is deliberately different: it previews residents in their
@@ -64,6 +107,7 @@ List<TownResident> areaResidents(
   Iterable<TownResident> owned,
   TownArea area, {
   required int lifetimePoints,
+  required TownVisit visit,
   List<TownResident>? debugOverride,
   bool marcheOpen = false,
 }) {
@@ -75,7 +119,7 @@ List<TownResident> areaResidents(
         return resident.walkInTown && resident.homeAreaId == area.id;
       }
       return residentCurrentArea(
-        resident, lifetimePoints, marcheOpen: marcheOpen) == area;
+        resident, lifetimePoints, visit: visit, marcheOpen: marcheOpen) == area;
     }),
   );
 }

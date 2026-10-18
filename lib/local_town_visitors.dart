@@ -7,6 +7,7 @@ List<RemoteResident> localVisitorsForArea(
   RemoteContentCatalog catalog,
   TownArea area, {
   required int lifetimePoints,
+  required TownVisit visit,
   required Iterable<TownResident> owned,
   bool debugTownSelectionActive = false,
 }) {
@@ -19,8 +20,12 @@ List<RemoteResident> localVisitorsForArea(
         ownedIds.contains(resident.id)) {
       return false;
     }
-    final home = TownArea.fromId(resident.homeAreaId);
-    final current = home.isUnlocked(lifetimePoints) ? home : TownArea.plaza;
+    final current = visit.destinationFor(
+      residentId: resident.id,
+      walkInTown: resident.walkInTown,
+      homeAreaId: resident.homeAreaId,
+      lifetimePoints: lifetimePoints,
+    );
     return current == area;
   }).toList();
 

@@ -8,6 +8,8 @@ import 'package:future_lift/town.dart';
 import 'package:future_lift/town_areas.dart';
 import 'package:future_lift/town_walk.dart';
 
+import 'support/town_random.dart';
+
 void main() {
   test('every stroll stays inside the plaza and cycles through all directions', () {
     for (var index = 0; index < townWalkSlots.length; index++) {
@@ -390,6 +392,9 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final residents = TownResident.values.toList();
+    final visit = TownVisit(random: ScriptedTownRandom([
+      for (var i = 0; i < visibleTownResidents(residents).length; i++) i % 4,
+    ]));
     for (final area in TownArea.values) {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
@@ -398,6 +403,7 @@ void main() {
             child: TownScene(
               level: 0,
               area: area,
+              visit: visit,
               lifetimePoints: 300,
               residents: residents,
               fillViewport: true,
@@ -405,7 +411,8 @@ void main() {
           ),
         ),
       ));
-      final active = areaResidents(residents, area, lifetimePoints: 300);
+      final active = areaResidents(residents, area,
+          lifetimePoints: 300, visit: visit);
       expect(active, isNotEmpty);
       final base =
           (area.sourceWidth!.toDouble() * .14).clamp(22.0, 76.0).toDouble();
