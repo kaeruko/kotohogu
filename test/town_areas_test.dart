@@ -398,7 +398,7 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('shopping residents match plaza visual size after image fitting',
+  testWidgets('shopping and plaza sprites use matching source-size scale',
       (tester) async {
     tester.view.physicalSize = const Size(390, 700);
     tester.view.devicePixelRatio = 1;
