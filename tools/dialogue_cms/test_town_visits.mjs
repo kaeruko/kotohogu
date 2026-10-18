@@ -40,3 +40,38 @@ test('locked destinations and invalid random values fail without substitution',(
   assert.throws(()=>destination(resident('new'),[],new Map(),false),/開放済み/);
   assert.throws(()=>destination(resident('new'),['plaza'],new Map(),false,()=>1),/範囲外/);
 });
+
+test('area selection synchronizes the residence list, while all-residents remains available',()=>{
+  const start=html.indexOf('function chooseArea(');
+  const end=html.indexOf('function renderAreaEditor(',start);
+  assert(start>=0&&end>start,'CMS area-selection helpers must exist');
+  const filter={value:'all'};
+  const updated=[];
+  const ctx=vm.createContext({
+    areaDoc:{areas:[{id:'plaza'},{id:'village'}]},
+    activeArea:'plaza',
+    byId:id=>{assert.equal(id,'placementFilter');return filter},
+    renderAreaList:()=>updated.push('list'),
+    renderAreaEditor:()=>updated.push('editor'),
+    renderAreaPlacements:()=>updated.push('residents'),
+    renderAreaPreview:()=>updated.push('preview'),
+  });
+  vm.runInContext(html.slice(start,end),ctx);
+  ctx.chooseArea('village');
+  assert.equal(ctx.activeArea,'village');
+  assert.equal(filter.value,'village');
+  assert.deepEqual(updated,['list','editor','residents','preview']);
+  const characters=[
+    {id:'shiba',homeAreaId:'plaza'},
+    {id:'rabbit',homeAreaId:'park'},
+    {id:'bear',homeAreaId:'village'},
+  ];
+  assert.deepEqual(Array.from(ctx.homeResidentsForFilter(characters,filter.value),r=>r.id),['bear']);
+  filter.value='all';
+  assert.deepEqual(Array.from(ctx.homeResidentsForFilter(characters,filter.value),r=>r.id),
+    ['shiba','rabbit','bear']);
+  ctx.chooseArea('plaza');
+  assert.equal(filter.value,'plaza');
+  assert.deepEqual(Array.from(ctx.homeResidentsForFilter(characters,filter.value),r=>r.id),['shiba']);
+  assert.throws(()=>ctx.chooseArea('unknown'),/存在しないエリア/);
+});
