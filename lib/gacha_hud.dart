@@ -156,20 +156,29 @@ class PinnedGachaHud extends StatelessWidget {
   static const double bottomGap = 10;
   static const double maxHudWidth = 570;
 
+  /// Vertical space covered by the decorative HUD, based on its rendered size.
+  /// Full-bleed pages use this same measurement to position their controls
+  /// underneath the artwork rather than relying on a fixed offset.
+  static double reservedHeightForWidth(double viewportWidth) {
+    final width =
+        math.min(maxHudWidth, math.max(0.0, viewportWidth - edge * 2));
+    if (width <= 6) return top + bottomGap;
+    final leftWidth =
+        (width - GachaHud.horizontalGap) * GachaHud.nameplateShare;
+    final rightWidth =
+        (width - GachaHud.horizontalGap) * GachaHud.balanceShare;
+    final leftHeight = leftWidth * 209 / 788;
+    final rightHeight =
+        rightWidth * GachaHud.kotohogiBarScale * 314 / 982;
+    return top + math.max(leftHeight, rightHeight) + bottomGap;
+  }
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final width =
           math.min(maxHudWidth, math.max(0.0, constraints.maxWidth - edge * 2));
-      final leftWidth =
-          (width - GachaHud.horizontalGap) * GachaHud.nameplateShare;
-      final rightWidth =
-          (width - GachaHud.horizontalGap) * GachaHud.balanceShare;
-      final leftHeight = leftWidth * 209 / 788;
-      final rightHeight =
-          rightWidth * GachaHud.kotohogiBarScale * 314 / 982;
-      final reservedHeight =
-          top + math.max(leftHeight, rightHeight) + bottomGap;
+      final reservedHeight = reservedHeightForWidth(constraints.maxWidth);
       final remainingHeight = math.max(0.0, constraints.maxHeight - reservedHeight);
       // When nested in Center > ConstrainedBox > Stack, the parent can
       // provide loose constraints. A Stack with only Positioned children
