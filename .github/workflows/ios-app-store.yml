@@ -1,4 +1,4 @@
-name: iOS App Store IPA
+name: iOS TestFlight (Build and Upload)
 
 # Signed builds must never run for forked pull requests.
 on:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: kotohogu-ios-app-store
+  group: kotohogu-ios-testflight
   cancel-in-progress: false
 
 jobs:
@@ -16,6 +16,19 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 60
     steps:
+      - name: Check release branch and prevent build-number reuse
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || {
+            echo "::error::TestFlight releases must run from main"
+            exit 1
+          }
+          [[ "$GITHUB_RUN_ATTEMPT" == "1" ]] || {
+            echo "::error::Re-running uses the same iOS build number. Start a new workflow run instead."
+            exit 1
+          }
+
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
@@ -92,6 +105,7 @@ jobs:
             --build-number "$GITHUB_RUN_NUMBER" \
             --export-options-plist "$RUNNER_TEMP/ExportOptions.plist"
           test -n "$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)"
+          echo "Built IPA version 1.0.0 ($GITHUB_RUN_NUMBER)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep signed IPA for download
         uses: actions/upload-artifact@v4
@@ -101,7 +115,107 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Remove temporary signing assets
+
+      - name: Verify IPA identity and Apple signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          ipas=(build/ios/ipa/*.ipa)
+          [[ "${#ipas[@]}" -eq 1 ]] || {
+            echo "::error::Expected exactly one built IPA"
+            exit 1
+          }
+          ipa="${ipas[0]}"
+          mkdir -p "$RUNNER_TEMP/verify-ipa"
+          unzip -q "$ipa" -d "$RUNNER_TEMP/verify-ipa"
+          apps=("$RUNNER_TEMP"/verify-ipa/Payload/*.app)
+          [[ "${#apps[@]}" -eq 1 && -d "${apps[0]}" ]] || {
+            echo "::error::Expected exactly one app in IPA"
+            exit 1
+          }
+          app="${apps[0]}"
+          info="$app/Info.plist"
+          bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")
+          display_name=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$info")
+          build_name=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")
+          build_number=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info")
+          [[ "$bundle_id" == "jp.cloxs.kotohogu" ]] || {
+            echo "::error::Unexpected IPA bundle ID: $bundle_id"
+            exit 1
+          }
+          [[ "$display_name" == "ことほぐ" ]] || {
+            echo "::error::Unexpected IPA display name: $display_name"
+            exit 1
+          }
+          [[ "$build_name" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]] || {
+            echo "::error::Invalid IPA release version: $build_name"
+            exit 1
+          }
+          [[ "$build_number" == "$GITHUB_RUN_NUMBER" ]] || {
+            echo "::error::IPA build number $build_number differs from workflow build number $GITHUB_RUN_NUMBER"
+            exit 1
+          }
+          codesign --verify --deep --strict "$app"
+          signature="$(codesign -dv --verbose=4 "$app" 2>&1)"
+          grep -Fq 'Authority=Apple Distribution: CLOXS LLC' <<< "$signature" || {
+            echo "::error::Unexpected IPA distribution certificate"
+            exit 1
+          }
+          grep -Fq 'TeamIdentifier=H5B52RL9R2' <<< "$signature" || {
+            echo "::error::IPA was not signed by the expected Apple team"
+            exit 1
+          }
+          echo "VERIFIED_IPA=$ipa" >> "$GITHUB_ENV"
+          {
+            echo "- Verified bundle: $bundle_id"
+            echo "- Verified version: $build_name ($build_number)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install App Store Connect API key
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+        run: |
+          set -euo pipefail
+          [[ "$ASC_KEY_ID" =~ ^[A-Z0-9]{10}$ ]] || {
+            echo "::error::Missing or invalid APP_STORE_CONNECT_API_KEY_ID"
+            exit 1
+          }
+          [[ -n "$ASC_ISSUER_ID" && -n "$ASC_KEY_BASE64" ]] || {
+            echo "::error::Missing APP_STORE_CONNECT_ISSUER_ID or APP_STORE_CONNECT_API_KEY_P8_BASE64"
+            exit 1
+          }
+          umask 077
+          key_dir="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$key_dir"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          printf '%s' "$ASC_KEY_BASE64" | base64 -D > "$key_path"
+          test -s "$key_path"
+          grep -q 'BEGIN PRIVATE KEY' "$key_path" || {
+            echo "::error::Invalid App Store Connect .p8 secret"
+            exit 1
+          }
+          chmod 600 "$key_path"
+
+      - name: Validate and upload to TestFlight
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          xcrun altool --validate-app \
+            --file "$VERIFIED_IPA" --type ios \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          xcrun altool --upload-app \
+            --file "$VERIFIED_IPA" --type ios \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          echo "- Uploaded to App Store Connect; Apple processing may still be pending." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove temporary signing materials and API key
         if: always()
         shell: bash
         run: |
@@ -112,3 +226,4 @@ jobs:
                 "$RUNNER_TEMP/distribution.mobileprovision" \
                 "$RUNNER_TEMP/distribution-profile.plist" \
                 "$RUNNER_TEMP/ExportOptions.plist"
+          rm -rf "$HOME/.appstoreconnect/private_keys" "$RUNNER_TEMP/verify-ipa"
