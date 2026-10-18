@@ -25,7 +25,7 @@ class TownAreaNavigator extends StatefulWidget {
     this.remoteVisitors = const [],
     this.remoteContentBaseUri,
     this.onRemoteVisitor,
-    this.salonUnlockMode = SalonUnlocdeveloperToolsAvailable.normal,
+    this.salonUnlockMode = SalonUnlockDebugMode.normal,
     this.onResident,
     this.onSalonResident,
     this.marcheOpen = false,
@@ -45,7 +45,7 @@ class TownAreaNavigator extends StatefulWidget {
   final List<RemoteResident> remoteVisitors;
   final Uri? remoteContentBaseUri;
   final Future<void> Function(RemoteResident)? onRemoteVisitor;
-  final SalonUnlocdeveloperToolsAvailable salonUnlockMode;
+  final SalonUnlockDebugMode salonUnlockMode;
   final Future<void> Function(TownResident)? onResident;
   final Future<void> Function(TownResident)? onSalonResident;
   final bool marcheOpen;
@@ -67,7 +67,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
       area.isUnlocked(widget.lifetimePoints) ||
       widget.debugTownResidents != null ||
       (developerToolsAvailable &&
-          widget.salonUnlockMode != SalonUnlocdeveloperToolsAvailable.normal);
+          widget.salonUnlockMode != SalonUnlockDebugMode.normal);
 
   void _move(int direction) {
     final next = widget.area.index + direction;
@@ -84,7 +84,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
     final unlocked = area.isUnlocked(widget.lifetimePoints);
     // Facility debug modes also allow traversing intermediate neighborhoods.
     final salonOverride = developerToolsAvailable &&
-        widget.salonUnlockMode != SalonUnlocdeveloperToolsAvailable.normal;
+        widget.salonUnlockMode != SalonUnlockDebugMode.normal;
     final accessible = _canVisit(area);
     final canGoPrevious =
         area.index > 0 && _canVisit(TownArea.values[area.index - 1]);
@@ -158,7 +158,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                 )) {
                   final forcedClosed = developerToolsAvailable &&
                       widget.salonUnlockMode ==
-                          SalonUnlocdeveloperToolsAvailable.forceClosed;
+                          SalonUnlockDebugMode.forceClosed;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(forcedClosed
@@ -174,7 +174,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                     builder: (_) => SalonRoom(
                       ownedResidents: widget.residents,
                       previewUnownedResidents: developerToolsAvailable &&
-                          widget.salonUnlockMode == SalonUnlocdeveloperToolsAvailable.forceOpen,
+                          widget.salonUnlockMode == SalonUnlockDebugMode.forceOpen,
                       onResident: widget.onSalonResident,
                     ),
                   ),
