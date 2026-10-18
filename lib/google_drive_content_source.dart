@@ -61,7 +61,73 @@ Uri parseCurrentReleasePointer(Uri pointerUri, String body) {
     'manifestSha256',
   }, 'current.json');
 
-  const digestPattern = r'^[0-9a-f]{64}
+  bool validDigest(Object? value) {
+    return value is String &&
+        value.length == 64 &&
+        RegExp(r'^[0-9a-f]{64}').hasMatch(value);
+  }
+
+  final id = json['releaseId'];
+  final manifestHash = json['manifestSha256'];
+  if (json['schemaVersion'] is! int ||
+      json['schemaVersion'] != 1 ||
+      !validDigest(id) ||
+      json['basePath'] != '/releases/$id/' ||
+      json['manifestPath'] != '/releases/$id/manifest.json' ||
+      !validDigest(manifestHash)) {
+    throw const FormatException(
+        'Invalid or inconsistent current.json release pointer');
+  }
+  return contentPreviewUri(pointerUri.resolve('/releases/$id/').toString());
+}
+
+Future<String> _downloadCurrentReleasePointer(Uri uri) async {
+  final client = HttpClient()..connectionTimeout = const Duration(seconds: 8);
+  try {
+    final request = await client.getUrl(uri);
+    request.headers.set(HttpHeaders.cacheControlHeader, 'no-cache');
+    final response = await request.close();
+    if (response.statusCode != HttpStatus.ok) {
+      throw HttpException('CloudFront current.json returned HTTP ' +
+          response.statusCode.toString(), uri: uri);
+    }
+    if (response.headers.contentType?.mimeType != 'application/json') {
+      throw FormatException('Expected application/json for current.json');
+    }
+    final bytes = <int>[];
+    await for (final chunk in response.timeout(const Duration(seconds: 10))) {
+      if (bytes.length + chunk.length > 4096) {
+        throw FormatException('CloudFront current.json is too large');
+      }
+      bytes.addAll(chunk);
+    }
+    return utf8.decode(bytes, allowMalformed: false);
+  } finally {
+    client.close(force: true);
+  }
+}
+
+/// The Drive file is deliberately not changed when a new release is published.
+/// Old app versions can still read the pinned Drive URL directly, while the
+/// current app uses that URL to identify the CDN and loads /current.json.
+Future<Uri> resolveDriveReleaseBaseUri(
+  Uri configuredEndpoint, {
+  Future<String> Function(Uri uri)? fetchPointer,
+}) async {
+  final Uri pointerUri;
+  if (isCurrentReleasePointerUri(configuredEndpoint)) {
+    pointerUri = configuredEndpoint;
+  } else {
+    final pinned = contentPreviewUri(configuredEndpoint.toString());
+    if (pinned.scheme != 'https') {
+      throw FormatException('Drive release origin must be HTTPS');
+    }
+    pointerUri = pinned.resolve('/current.json');
+  }
+  final pointerBody =
+      await (fetchPointer ?? _downloadCurrentReleasePointer)(pointerUri);
+  return parseCurrentReleasePointer(pointerUri, pointerBody);
+}
 
 Future<String> _downloadDriveFile(Uri uri) async {
   final client = HttpClient()..connectionTimeout = const Duration(seconds: 8);
@@ -278,6 +344,11 @@ Future<HostedTownContent> loadAppTownContent() async {
     isRelease: kReleaseMode,
     loadDriveEndpoint: loadGoogleDriveContentEndpoint,
   );
-  final catalog = await fetchLocalContent(endpoint);
-  return HostedTownContent(baseUri: endpoint, catalog: catalog);
+  // Preserve explicit local debug overrides. In ordinary app launches,
+  // resolve one current pointer and use its immutable release for all data.
+  final baseUri = override.isNotEmpty
+      ? endpoint
+      : await resolveDriveReleaseBaseUri(endpoint);
+  final catalog = await fetchLocalContent(baseUri);
+  return HostedTownContent(baseUri: baseUri, catalog: catalog);
 }
