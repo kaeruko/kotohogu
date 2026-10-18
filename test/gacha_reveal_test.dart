@@ -480,6 +480,50 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('consultation fee stays at 30 while the wallet changes',
+      (tester) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    for (final balance in [10, 30, 60]) {
+      final controller = ProgressController(
+        MemoryStore()..raw = funded(points: balance).encode(),
+        clock: () => DateTime(2026, 10, 11),
+        random: FixedRandom(2),
+      );
+      await controller.initialize();
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ResidentGacha(controller: controller),
+          ),
+        ),
+      ));
+      await tester.pump();
+
+      final cost = tester.widget<Text>(
+        find.byKey(const ValueKey('consultation-cost')),
+      );
+      expect(cost.data, '30ことほぎ', reason: 'wallet = $balance');
+      if (balance < 30) {
+        expect(find.text('あと${30 - balance}ことほぎで移住相談会を開けます。'),
+            findsOneWidget);
+      } else {
+        expect(find.text('30ことほぎで移住相談会を1回開けます。'),
+            findsOneWidget);
+      }
+      expect(
+        tester.widget<TextButton>(
+          find.byKey(const ValueKey('draw-resident')),
+        ).onPressed == null,
+        balance < 30,
+      );
+      expect(tester.takeException(), isNull);
+    }
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('welcome requires enough kotohogi before starting a draw',
       (tester) async {
     tester.view.physicalSize = const Size(360, 640);
