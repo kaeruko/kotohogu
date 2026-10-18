@@ -94,7 +94,10 @@ def await_rendered_page(marker: Path, page: str) -> None:
     last_status = "<not written>"
     while time.monotonic() < deadline:
         if marker.exists():
-            last_status = marker.read_text(encoding="utf-8").strip()
+            current = marker.read_text(encoding="utf-8").strip()
+            if current != last_status:
+                last_status = current
+                print(f"Simulator {page} startup: {last_status}", flush=True)
             if last_status == f"ready:{page}":
                 return
             if last_status != f"booting:{page}":
