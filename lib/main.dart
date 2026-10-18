@@ -126,8 +126,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   // In an opted-in signed build the tools stay hidden until the local gesture.
   // A regular debug run retains its familiar visible fifth tab.
   bool _developerMenuUnlocked = kDebugMode;
-  int _historyTapCount = 0;
-  DateTime? _lastHistoryTap;
+  final _developerUnlockSequence = DeveloperMenuUnlockSequence();
   MissionPeriod _missionPeriod = MissionPeriod.daily;
   Mission _previewMission = Mission.strength;
   int _homeVisit = 0;
@@ -364,21 +363,13 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     // the developer tab until this app session ends.
     if (developerToolsAvailable && !kDebugMode &&
         !_developerMenuUnlocked && index == 3) {
-      final now = DateTime.now();
-      final previous = _lastHistoryTap;
-      _historyTapCount = previous != null &&
-              now.difference(previous) <= const Duration(seconds: 8)
-          ? _historyTapCount + 1
-          : 1;
-      _lastHistoryTap = now;
-      if (_historyTapCount >= 7) {
+      if (_developerUnlockSequence.registerHistoryTap(DateTime.now())) {
         setState(() => _developerMenuUnlocked = true);
         _selectPage(4);
         return;
       }
     } else if (index != 3) {
-      _historyTapCount = 0;
-      _lastHistoryTap = null;
+      _developerUnlockSequence.reset();
     }
     _selectPage(index);
   }
