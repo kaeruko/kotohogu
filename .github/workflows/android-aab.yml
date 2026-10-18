@@ -85,7 +85,7 @@ jobs:
           set -euo pipefail
           python3 -m unittest discover -s tools/android -p 'test_*.py'
           flutter pub get
-          dart run flutter_launcher_icons
+          dart run flutter_launcher_icons -f pubspec.yaml
           flutter build appbundle --release \
             --build-name "$BUILD_NAME" \
             --build-number "$NEXT_BUILD_NUMBER"

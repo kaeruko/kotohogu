@@ -64,7 +64,7 @@ flutter run -t lib/main.dart
 
 ```powershell
 flutter pub get
-dart run flutter_launcher_icons
+dart run flutter_launcher_icons -f pubspec.yaml
 ```
 
 `main` の画像・設定変更時には GitHub Actions の **Sync launcher icons** が Android の `mipmap-*/ic_launcher.png` と Web のアイコン／favicon を生成し、差分があればコミットします。これにより開発中のAndroidアプリも生成済みのアイコンを使えます。

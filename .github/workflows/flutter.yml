@@ -19,9 +19,9 @@ jobs:
       - run: python -m unittest discover -s tools/android -p 'test_*.py'
       - run: python -m unittest discover -s tools/aws -p 'test_*.py'
       - run: flutter pub get
-      # Run quality checks before the icon task: the latter currently fails
-      # because the iOS project is not checked in. Keep its failure visible.
+      # Android/Web icons use pubspec.yaml explicitly: the iOS flavor file
+      # otherwise gets selected automatically on this Linux runner.
+      - run: dart run flutter_launcher_icons -f pubspec.yaml
       - run: flutter analyze
       - run: flutter test
       - run: flutter build web
-      - run: dart run flutter_launcher_icons

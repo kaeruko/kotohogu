@@ -21,6 +21,8 @@ try {
 
     flutter pub get
     if ($LASTEXITCODE -ne 0) { throw 'flutter pub get failed.' }
+    dart run flutter_launcher_icons -f pubspec.yaml
+    if ($LASTEXITCODE -ne 0) { throw 'Launcher icon generation failed.' }
     flutter build appbundle --release --build-name $plan.build_name --build-number $plan.next_build_number
     if ($LASTEXITCODE -ne 0) { throw 'AAB build failed; pubspec.yaml was not changed.' }
 

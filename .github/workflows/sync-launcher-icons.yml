@@ -40,7 +40,7 @@ jobs:
           set -euo pipefail
           test -s assets/icon/icon.png
           flutter pub get
-          dart run flutter_launcher_icons
+          dart run flutter_launcher_icons -f pubspec.yaml
 
           for dir in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
             test -s "android/app/src/main/res/mipmap-$dir/ic_launcher.png"
