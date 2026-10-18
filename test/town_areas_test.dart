@@ -398,6 +398,15 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  test('shopping PNG uses its declared 768x1376 source dimensions', () {
+    final file = File('assets/kotohogu/street_background_001.png');
+    expect(file.existsSync(), isTrue);
+    final dims = _imageDimensions(file.readAsBytesSync());
+    expect(dims.$1, TownArea.shopping.sourceWidth);
+    expect(dims.$2, TownArea.shopping.sourceHeight);
+    expect(dims, (768, 1376));
+  });
+
   testWidgets('shopping and plaza sprites use matching source-size scale',
       (tester) async {
     tester.view.physicalSize = const Size(390, 700);
@@ -414,7 +423,9 @@ void main() {
               area: area,
               lifetimePoints: 300,
               residents: const [],
-              debugTownResidents: const [TownResident.shiba],
+              debugTownResidents: area == TownArea.shopping
+                  ? const [TownResident.cat]
+                  : const [TownResident.shiba],
               fillViewport: true,
             ),
           ),
