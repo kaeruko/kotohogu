@@ -9,6 +9,7 @@ import 'package:future_lift/main.dart';
 import 'package:future_lift/gacha_hud.dart';
 import 'package:future_lift/home_skin.dart';
 import 'package:future_lift/missions_screen.dart';
+import 'package:future_lift/history_screen.dart';
 import 'package:future_lift/kotohogisu_tutorial.dart';
 import 'package:future_lift/dialogue_engine.dart';
 import 'package:future_lift/progress.dart';
@@ -188,7 +189,7 @@ void main() {
   });
 
 
-  testWidgets('mission list uses the park artwork, other shared pages do not',
+  testWidgets('missions and history use the park artwork, developer page retains its own',
       (tester) async {
     tester.view.physicalSize = const Size(400, 850);
     tester.view.devicePixelRatio = 1;
@@ -204,14 +205,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(MissionsScreen), findsOneWidget);
     expect(displayedAsset(), MissionsScreen.backgroundAsset);
-    expect(tester.getRect(wallpaper),
-        contains(tester.getCenter(find.byType(GachaHud))));
+    expect(tester.getRect(wallpaper).contains(
+        tester.getCenter(find.byType(GachaHud))), isTrue);
 
-    for (final page in ['footer-history', 'footer-menu']) {
-      await tester.tap(find.byKey(ValueKey(page)));
-      await tester.pumpAndSettle();
-      expect(displayedAsset(), 'assets/kotohogu/town_background.png');
-    }
+    await tester.tap(find.byKey(const ValueKey('footer-history')));
+    await tester.pumpAndSettle();
+    expect(find.byType(HistoryScreen), findsOneWidget);
+    expect(displayedAsset(), MissionsScreen.backgroundAsset);
+    expect(tester.getRect(wallpaper).contains(
+        tester.getCenter(find.byType(GachaHud))), isTrue);
+
+    await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    expect(displayedAsset(), 'assets/kotohogu/town_background.png');
     await tester.tap(find.byKey(const ValueKey('footer-missions')));
     await tester.pumpAndSettle();
     expect(displayedAsset(), MissionsScreen.backgroundAsset);
@@ -238,6 +244,30 @@ void main() {
     ));
     final background = tester.widget<Image>(
         find.byKey(const ValueKey('mission-background')));
+    expect((background.image as AssetImage).assetName,
+        MissionsScreen.backgroundAsset);
+    expect(background.fit, BoxFit.cover);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('standalone history also uses the mission park wallpaper',
+      (tester) async {
+    tester.view.physicalSize = const Size(400, 850);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: HistoryScreen(
+          progress: Progress.empty(DateTime(2026, 10, 16)),
+          busy: false,
+          onClear: () async {},
+        ),
+      ),
+    ));
+    final background = tester.widget<Image>(
+        find.byKey(const ValueKey('history-background')));
     expect((background.image as AssetImage).assetName,
         MissionsScreen.backgroundAsset);
     expect(background.fit, BoxFit.cover);
