@@ -70,7 +70,7 @@ void main() {
     expect(calls, 1);
     expect(resolved.toString(), url);
     expect(resolved.resolve('api/runtime/catalog').toString(),
-        url + 'api/runtime/catalog');
+        '${url}api/runtime/catalog');
 
     // When Drive explicitly contains /current.json it uses the same flow.
     final direct = await resolveDriveReleaseBaseUri(
