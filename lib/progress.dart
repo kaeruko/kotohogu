@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'dev_tools.dart';
 import 'resident_collection.dart';
 
 import 'package:flutter/foundation.dart';
@@ -708,7 +709,7 @@ class ProgressController extends ChangeNotifier {
 
   /// Grant extra tickets only in debug builds. Commit before publishing.
   Future<bool> grantTicketsForDebug(int amount) async {
-    if (!kDebugMode) {
+    if (!developerToolsAvailable) {
       throw StateError('Ticket grants are available only in debug builds.');
     }
     if (amount <= 0) {
@@ -733,7 +734,7 @@ class ProgressController extends ChangeNotifier {
 
   /// Debug-only persistence of reset mission buttons. Never delete history.
   Future<bool> resetAllMissionsForDebug() async {
-    if (!kDebugMode) {
+    if (!developerToolsAvailable) {
       throw StateError('Mission reset is available only in debug builds.');
     }
     if (busy || failure != null || progress == null) return false;
