@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'gacha_hud.dart';
 import 'resident_collection.dart';
 import 'local_content_preview.dart';
 import 'salon_room.dart';
@@ -196,7 +199,12 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
             ),
           if (showNavigation)
             Positioned(
-            top: 92,
+            // The pinned currency HUD grows on wide screens (e.g. iPads).
+            // Keep the area name and page counter fully below that artwork.
+            top: math.max(
+              92.0,
+              PinnedGachaHud.reservedHeightForWidth(constraints.maxWidth) + 12,
+            ),
             left: 12,
             right: 12,
             child: Row(
