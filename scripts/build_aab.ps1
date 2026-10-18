@@ -35,10 +35,24 @@ try {
     }
     $jarsigner = Get-Command jarsigner -ErrorAction SilentlyContinue
     if (-not $jarsigner) { throw 'jarsigner (JDK) not found: signature verification required.' }
-    $verification = & $jarsigner.Source -verify -verbose $aab
-    if ($LASTEXITCODE -ne 0) { throw 'AAB signing verification failed; pubspec.yaml was not changed.' }
+    # jarsigner localizes its output. Pin English only for this verification
+    # so the strict jar verified / sm checks work on non-English Windows.
+    $previousJavaToolOptions = [Environment]::GetEnvironmentVariable('JAVA_TOOL_OPTIONS', 'Process')
+    try {
+        $env:JAVA_TOOL_OPTIONS = ("$previousJavaToolOptions -Duser.language=en -Duser.country=US").Trim()
+        $verification = & $jarsigner.Source -verify -verbose $aab
+        $verificationExitCode = $LASTEXITCODE
+    }
+    finally {
+        [Environment]::SetEnvironmentVariable('JAVA_TOOL_OPTIONS', $previousJavaToolOptions, 'Process')
+    }
+    if ($verificationExitCode -ne 0) {
+        $verification | Select-Object -Last 30 | ForEach-Object { Write-Host $_ }
+        throw "AAB signing verification failed (jarsigner exit code $verificationExitCode); pubspec.yaml was not changed."
+    }
     $signedOutput = $verification -join "`n"
     if ($signedOutput -notmatch 'jar verified[.]' -or $signedOutput -notmatch '(?m)^\s*sm\s+') {
+        $verification | Select-Object -Last 30 | ForEach-Object { Write-Host $_ }
         throw 'AAB is not verified as signed; pubspec.yaml was not changed.'
     }
 
