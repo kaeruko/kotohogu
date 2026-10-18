@@ -53,7 +53,7 @@ python tools/aws/publish_content.py --stack kotohogu-content --region ap-northea
 
 S3への転送後はキーとサイズを照合し、最新版ポインタを更新するまで以前の配信を維持します。同じ内容の再実行では同じリリースIDになります。アップロード失敗時は例外と診断情報を出して停止し、自動の経路切り替えはしません。
 
-**重要**：`current.json` はS3が公開した最新リリースを示します。一方、アプリはGoogle Driveの `kotohogu_api.txt` にある固定リリースURLを読みます。新しいリリースを反映するには **同じDriveファイルの内容を更新**してください。S3公開だけではアプリの参照先は自動変更されません。
+**重要**：新しいアプリはGoogle Driveの `kotohogu_api.txt` に記載されたURLからCloudFrontドメインを特定し、そのドメインの `/current.json` を毎回取得して最新版リリースを確定します。新しいCMSデータを公開するときは、上記 `publish_content.py` だけでよく、**Google Driveファイルは書き換えないでください**。更新されたリリースは次回の起動・再読み込み時に反映されます。古いアプリは従来の固定リリースURLを直接使うため、最新版への自動追従にはアプリの更新が必要です。
 
 ## 4. 配信確認
 
@@ -84,15 +84,15 @@ flutter analyze
 ```
 
 
-## Google DriveからURLを管理する（tobus_go方式）
+## Google DriveからCloudFrontの接続先を管理する（固定URL方式）
 
-コトホグの接続先はGoogle Driveの公開テキスト `kotohogu_api.txt` に記載した**1行の固定リリースURL**で管理します。URLそのものはアプリにハードコードしません。
+ことほぐのCloudFront接続先はGoogle Driveの公開テキスト `kotohogu_api.txt` に記載した1行のURLで管理します。新しいアプリはそのURLを**CloudFrontの接続先情報**として扱い、AWSの `/current.json` で最新版を確定します。アプリにCloudFrontのURLはハードコードしていません。
 
 - DriveのファイルIDはアプリに登録します。ファイル共有は「リンクを知っている全員：閲覧者」を設定します。アクセストークン・AWS認証情報を入れないでください。
-- 通常のアプリ起動ではDriveの `/uc?export=download&id=...&t=...` を取得し、その1行を検証後、CloudFrontからキャラ・セリフ・PNGを読みます。
-- URLは `https://<CloudFrontドメイン>/releases/<SHA-256>/` の形式（ハッシュと最後のスラッシュの間に空白なし）です。`current.json` はDriveファイルに書かず、固定版のベースURLを書きます。
-- CMSを更新してAWSにアップロードしたら、Publisherの `Pinned release base URL` をコピーし、**元の同じGoogle Driveファイルを編集・上書き**します。新しいファイルを作るとDriveのIDが変わり、アプリが古いファイルを参照します。
-- 起動時とフォアグラウンドへの復帰時にDriveを読み直します。まちの再読み込みボタンでも確認できます。Drive/CloudFront/JSONが失敗したらエラーと再試行を表示し、バンドル済みのキャラへ暗黙には切り替えません。
+- 通常起動ではDriveの `/uc?export=download&id=...&t=...` を取得し、その1行を検証後、CloudFrontの `/current.json` を1回取得してリリースIDを確定します。続いてその不変リリースのキャラ・セリフ・PNGのみを読みます。`current.json` の取得・検証に失敗した場合は、古いデータへの自動切り替えをせず停止します。
+- 現在のDriveファイルは `https://<CloudFrontドメイン>/releases/<SHA-256>/` の形式です。新しいアプリはこのURLの**ドメイン部分を利用して `/current.json` を読む**ため、Driveの値を変更する必要はありません。将来 `https://<CloudFrontドメイン>/current.json` と直接書く形式も新しいアプリで認識できますが、古いアプリとの互換性のため、今は変更しないでください。
+- CMS更新時には `python tools/aws/publish_content.py --stack kotohogu-content --region ap-northeast-1 --profile new-aws` を実行するだけで、新しいリリースと `/current.json` が更新されます。`Pinned release base URL` のコピーやGoogle Driveの編集は不要です。リリース成功の表示とCloudFrontの `/current.json` の取得確認をしてください。
+- アプリがDriveを再取得する場面では、CloudFrontの `/current.json` も改めて読んで最新リリースを確定します。Drive/CloudFront/JSONが失敗したらエラーを表示し、バンドル済みのキャラへ暗黙には切り替えません。切り替わったリリースの画像とセリフは同じハッシュの場所から読みます。
 - `--dart-define=KOTOHOGU_LOCAL_CONTENT_URL=http://10.0.2.2:8765` のデバッグ上書きは維持します。リリースビルドでこの上書きを指定するとエラーで停止します。
 
 Google Drive経由の本編起動（URLを直接指定する必要なし）：
