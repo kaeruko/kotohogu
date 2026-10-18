@@ -25,6 +25,12 @@ class DialogueCatalog {
       if (!ids.add(entry.id)) throw FormatException('Duplicate dialogue id: ${entry.id}');
       entries.add(entry);
     }
+    final introductions = <String>{};
+    for (final entry in entries.where((entry) => entry.firstGreeting)) {
+      if (!introductions.add(entry.residentId)) {
+        throw FormatException('Duplicate first greeting for: ${entry.residentId}');
+      }
+    }
     // Dialogue IDs are global, regardless of who speaks them.
     for (final entry in entries) {
       for (final condition in entry.conditions) {
@@ -60,6 +66,10 @@ class DialogueCatalog {
       (!entry.once || !progress.seenDialogues.contains(entry.id)) &&
       entry.matches(progress, now, townResidentIds)).toList();
     if (available.isEmpty) throw StateError('No dialogue: ${resident.id}');
+
+    // A first greeting outranks achievements, stories and weighted chatter.
+    final greetings = available.where((entry) => entry.firstGreeting).toList();
+    if (greetings.isNotEmpty) return greetings.single;
 
     final generator = random ?? math.Random();
     // Keep first-time stories and achievements ahead of repeatable chatter,
@@ -112,7 +122,7 @@ class DialogueCatalog {
 
 class DialogueEntry {
   DialogueEntry._(this.id, this.residentId, this.text, this.priority,
-      this.once, this.logic, this.conditions, this.reply);
+      this.once, this.logic, this.conditions, this.reply, this.firstGreeting);
   final String id;
   final String residentId;
   final String text;
@@ -121,11 +131,12 @@ class DialogueEntry {
   final String logic;
   final List<DialogueCondition> conditions;
   final DialogueReply? reply;
+  final bool firstGreeting;
 
   factory DialogueEntry.parse(Object? source) {
     final data = _object(source, 'dialogue');
     _keys(data, {'id', 'residentId', 'text', 'priority', 'once', 'logic',
-      'conditions'}, 'dialogue', optional: {'reply'});
+      'conditions'}, 'dialogue', optional: {'reply', 'firstGreeting'});
     final id = data['id'];
     final resident = data['residentId'];
     final message = data['text'];
@@ -133,14 +144,19 @@ class DialogueEntry {
     final once = data['once'];
     final logic = data['logic'];
     final conditions = data['conditions'];
+    final greeting = data['firstGreeting'] ?? false;
     if (id is! String || !RegExp(r'^[A-Za-z0-9_-]{1,80}$').hasMatch(id) ||
         resident is! String ||
         !TownResident.values.any((r) => r.id == resident) ||
         message is! String || message.trim().isEmpty || message.length > 500 ||
         priority is! int || priority < -1000 || priority > 1000 ||
-        once is! bool || !{'all', 'any'}.contains(logic) ||
+        once is! bool || greeting is! bool || !{'all', 'any'}.contains(logic) ||
         conditions is! List || conditions.length > 8) {
       throw const FormatException('Invalid dialogue entry');
+    }
+    if (greeting && (!once || priority == -1000 || conditions.isNotEmpty ||
+        data.containsKey('reply'))) {
+      throw FormatException('First greeting must be unconditional, once-only and without a reply: $id');
     }
     final parsedConditions = List<DialogueCondition>.unmodifiable(
       conditions.map(DialogueCondition.parse));
@@ -162,7 +178,7 @@ class DialogueEntry {
       }
     }
     return DialogueEntry._(id, resident, message, priority, once, logic,
-      parsedConditions, reply);
+      parsedConditions, reply, greeting);
   }
 
   bool matches(Progress progress, DateTime now, Set<String> townResidentIds) {

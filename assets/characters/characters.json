@@ -8,7 +8,7 @@
       "artFolder": "001_shiba",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 1,
+      "nextDialogueNumber": 2,
       "profile": "",
       "homeAreaId": "plaza"
     },
@@ -19,7 +19,7 @@
       "artFolder": "002_usagi",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 1,
+      "nextDialogueNumber": 2,
       "profile": "",
       "homeAreaId": "park"
     },
@@ -30,7 +30,7 @@
       "artFolder": "003_penguin",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 1,
+      "nextDialogueNumber": 2,
       "profile": "",
       "homeAreaId": "plaza"
     },
@@ -41,7 +41,7 @@
       "artFolder": "004_neko",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 1,
+      "nextDialogueNumber": 2,
       "profile": "",
       "homeAreaId": "shopping"
     },
@@ -52,7 +52,7 @@
       "artFolder": "005_risu",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 1,
+      "nextDialogueNumber": 2,
       "profile": "",
       "homeAreaId": "park"
     },
@@ -63,7 +63,7 @@
       "artFolder": "006_kuma",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 1,
+      "nextDialogueNumber": 2,
       "profile": "",
       "homeAreaId": "village"
     },
@@ -72,7 +72,7 @@
       "id": "009_chef",
       "label": "シェフ",
       "artFolder": "009_chef",
-      "nextDialogueNumber": 5,
+      "nextDialogueNumber": 6,
       "inGacha": true,
       "walkInTown": true,
       "profile": "",
@@ -84,7 +84,7 @@
       "label": "やすぞう",
       "profile": "本名：多賀　康三。健康を意識している中年男性。",
       "artFolder": "026_farmer",
-      "nextDialogueNumber": 3,
+      "nextDialogueNumber": 4,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"
@@ -95,7 +95,7 @@
       "label": "おやすみくん",
       "profile": "おしごともべんきょうもおやすみ中の子。ぼくはまだまだこれからなんだ～",
       "artFolder": "027_daydreamer",
-      "nextDialogueNumber": 3,
+      "nextDialogueNumber": 4,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"
@@ -106,7 +106,7 @@
       "label": "もぐた",
       "profile": "工事現場ではたらく子",
       "artFolder": "032_miner",
-      "nextDialogueNumber": 6,
+      "nextDialogueNumber": 7,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "shopping"
@@ -117,7 +117,7 @@
       "label": "モサエド",
       "profile": "拙者、猛者江戸（モサエド）と申す！",
       "artFolder": "036_mosa",
-      "nextDialogueNumber": 19,
+      "nextDialogueNumber": 20,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
@@ -128,7 +128,7 @@
       "label": "つやこ",
       "profile": "美容家",
       "artFolder": "035_beaty",
-      "nextDialogueNumber": 14,
+      "nextDialogueNumber": 15,
       "inGacha": true,
       "walkInTown": false,
       "homeAreaId": "salon"
@@ -139,7 +139,7 @@
       "label": "きものぎつね",
       "profile": "桜の美容室の看板娘。和装が好きで、みんなを笑顔で迎える。",
       "artFolder": "031_kimono_fox",
-      "nextDialogueNumber": 2,
+      "nextDialogueNumber": 3,
       "inGacha": true,
       "walkInTown": false,
       "homeAreaId": "salon"
@@ -150,7 +150,7 @@
       "label": "とらお",
       "profile": "",
       "artFolder": "037_tora",
-      "nextDialogueNumber": 12,
+      "nextDialogueNumber": 13,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"
@@ -161,7 +161,7 @@
       "label": "かえる",
       "profile": "",
       "artFolder": "029_office_worker",
-      "nextDialogueNumber": 12,
+      "nextDialogueNumber": 13,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
@@ -172,7 +172,7 @@
       "label": "リオコ",
       "profile": "",
       "artFolder": "038_lion_lady",
-      "nextDialogueNumber": 21,
+      "nextDialogueNumber": 22,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "salon"
@@ -183,7 +183,7 @@
       "label": "くまりん",
       "profile": "絵を描くのが大好きな女の子。自分の描きたい絵と、みんなに喜んでもらえる絵の間で悩みながら、少しずつ自分らしい表現を探している。",
       "artFolder": "034_artist",
-      "nextDialogueNumber": 21,
+      "nextDialogueNumber": 22,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "village"
@@ -194,7 +194,7 @@
       "label": "ぶちょう",
       "profile": "",
       "artFolder": "015_office_worker",
-      "nextDialogueNumber": 28,
+      "nextDialogueNumber": 29,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
@@ -205,7 +205,7 @@
       "label": "ぱんこ先生",
       "profile": "",
       "artFolder": "028_caregiver",
-      "nextDialogueNumber": 28,
+      "nextDialogueNumber": 29,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "shopping"
@@ -216,7 +216,7 @@
       "label": "とんこ",
       "profile": "",
       "artFolder": "041_pig_middle",
-      "nextDialogueNumber": 46,
+      "nextDialogueNumber": 47,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "village"
@@ -227,7 +227,7 @@
       "label": "ごんすけ",
       "profile": "",
       "artFolder": "042_senior_dog",
-      "nextDialogueNumber": 22,
+      "nextDialogueNumber": 23,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"

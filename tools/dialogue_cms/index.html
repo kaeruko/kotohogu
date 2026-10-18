@@ -223,7 +223,7 @@ function refresh(){
     const btn=append(list,"button",residents[entry.residentId]+"｜"+entry.text.substring(0,32));
     btn.className="entry"+(entry.id===selected?" active":"");
     append(btn,"small",entry.id+" ｜ 優先 "+entry.priority+
-      (entry.conditions.length?" ｜ 条件 "+entry.conditions.length:" ｜ 通常"));
+      (entry.firstGreeting?" ｜ 🌸 初対面":entry.conditions.length?" ｜ 条件 "+entry.conditions.length:" ｜ 通常"));
     btn.onclick=()=>{selected=entry.id;renderEditor();refresh()};
   }
   renderEditor();
@@ -239,17 +239,21 @@ function renderEditor(){
   if(!speaker)throw Error("セリフに対応するキャラがいません: "+entry.residentId);
   renderPortrait(area,speaker,true);
   labelControl(area,"セリフ","textarea",entry.text,v=>{entry.text=v;});
+  if(entry.firstGreeting)append(area,"p","🌸 初対面に必ず表示。1回だけ・条件なしで固定されます。内容はキャラ管理からも編集できます。").className="hint";
   const line=append(area,"div");line.className="row";
-  labelControl(line,"優先順位（通常は10ごとに抽選重み＋1）","input",entry.priority,v=>{entry.priority=Number(v)},{type:"number"});
-  labelControl(line,"条件の組み合わせ","select",entry.logic,v=>{entry.logic=v;refresh()},{options:{"all":"すべて満たす AND","any":"いずれかを満たす OR"}});
+  const priorityInput=labelControl(line,"優先順位（通常は10ごとに抽選重み＋1）","input",entry.priority,v=>{entry.priority=Number(v)},{type:"number"});
+  priorityInput.disabled=!!entry.firstGreeting;
+  const logicSelect=labelControl(line,"条件の組み合わせ","select",entry.logic,v=>{entry.logic=v;refresh()},{options:{"all":"すべて満たす AND","any":"いずれかを満たす OR"}});
+  logicSelect.disabled=!!entry.firstGreeting;
   const wrapper=append(area,"label");wrapper.className="controls";
-  const once=append(wrapper,"input");once.type="checkbox";once.checked=entry.once;
+  const once=append(wrapper,"input");once.type="checkbox";once.checked=entry.once;once.disabled=!!entry.firstGreeting;
   append(wrapper,"span","1回だけ表示（保存済みの閲覧記録で判定）");
   once.onchange=()=>{entry.once=once.checked;dirty=true;setStatus("未保存の変更があります")};
   append(area,"h3","表示条件");
   append(area,"p","条件が0件なら常に表示。日付判定は日本時間で、開始日・終了日も含みます。").className="hint";
   for(const [index,condition] of entry.conditions.entries())renderCondition(area,entry,condition,index);
   const add=append(area,"button","＋ 条件を追加");add.className="secondary";
+  add.disabled=!!entry.firstGreeting;
   add.onclick=()=>{entry.conditions.push({type:"mission",missionId:"all",minCount:5});dirty=true;refresh()};
   append(area,"h3","2人の掛け合い（任意）");
   const companions=entry.conditions.filter(c=>c.type==="townTogether").map(c=>c.otherResidentId);
@@ -368,9 +372,10 @@ function match(condition,context){
 function drawPreviewDialogue(candidates){
   const available=candidates.filter(entry=>entry.priority!==-1000);
   if(!available.length)return null;
+  const greeting=available.filter(entry=>entry.firstGreeting);
   const firstTime=available.filter(entry=>entry.once);
   const highest=firstTime.length?Math.max(...firstTime.map(entry=>entry.priority)):null;
-  const pool=firstTime.length?
+  const pool=greeting.length?greeting:firstTime.length?
     firstTime.filter(entry=>entry.priority===highest):available;
   const weights=pool.map(entry=>firstTime.length?1:1+Math.floor(Math.max(0,entry.priority)/10));
   const total=weights.reduce((sum,weight)=>sum+weight,0);
@@ -402,7 +407,7 @@ function runPreview(){
       (selected.reply?"\n"+(residents[selected.reply.residentId]||selected.reply.residentId)+"「"+selected.reply.text+"」":"")+
       "\nID: "+selected.id+"\n抽選対象: "+result.poolCount+"件"+
       "\nこのセリフの確率: "+(result.probability*100).toFixed(1)+"%"+
-      (selected.once?"\n※初回のみ。表示すると閲覧済みになります。":""):
+      (selected.firstGreeting?"\n🌸 初対面のあいさつ（必ず先に表示）":selected.once?"\n※初回のみ。表示すると閲覧済みになります。":""):
       "表示できるセリフがありません。条件と通常セリフを確認してください。";
   }catch(err){byId("previewBox").textContent="プレビューエラー: "+err.message}
 }
@@ -535,6 +540,25 @@ function renderCharacterEditor(){
   profileInput.rows=5;
   profileInput.maxLength=1000;
   append(box,"p","自由文・改行OK。1000文字以内、空欄でも保存できます。").className="hint";
+  const firstGreeting=data.dialogues.find(e=>e.residentId===row.id&&e.firstGreeting===true);
+  if(firstGreeting){
+    const input=labelControl(box,"🌸 初対面のあいさつ（1回のみ）","textarea",firstGreeting.text,value=>{
+      firstGreeting.text=value;dirty=true;setCharacterStatus("未保存の変更があります");
+    });
+    input.rows=4;input.maxLength=500;
+    append(box,"p","最初に話しかけたとき、ほかの条件付きセリフより優先して表示します。既読後は通常の確率抽選に戻ります。").className="hint";
+  }else{
+    append(box,"p","初対面のあいさつは未登録です。未登録なら従来どおり通常会話になります。").className="hint";
+    const create=append(box,"button","＋ 初対面のあいさつを登録");create.className="secondary";
+    create.onclick=()=>{
+      const intro=fresh(row);
+      intro.text="はじめまして！よろしくね。";intro.priority=0;
+      intro.once=true;intro.firstGreeting=true;
+      data.dialogues.push(intro);dirty=true;
+      renderCharacterEditor();refresh();runPreview();
+      setCharacterStatus("初対面のあいさつを追加しました。文章を編集して保存してください。");
+    };
+  }
   const isSalonOwner=row.id==="035_beaty";
   const salonLabel=append(box,"label");salonLabel.className="controls";
   const salonToggle=append(salonLabel,"input");salonToggle.type="checkbox";

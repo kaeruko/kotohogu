@@ -9,6 +9,7 @@ import 'package:future_lift/resident_collection.dart';
 Map<String, Object> row(String id, String resident, String text, {
   int priority = 0,
   bool once = false,
+  bool firstGreeting = false,
   String logic = 'all',
   List<Map<String, Object>> conditions = const [],
   Map<String, Object>? reply,
@@ -18,6 +19,7 @@ Map<String, Object> row(String id, String resident, String text, {
   'text': text,
   'priority': priority,
   'once': once,
+  if (firstGreeting) 'firstGreeting': true,
   'logic': logic,
   'conditions': conditions,
   'reply': ?reply,
@@ -70,6 +72,59 @@ void main() {
     for (final resident in TownResident.values) {
       expect(live.select(resident: resident, progress: p,
         now: DateTime.utc(2026, 10, 12, 15)), isA<DialogueEntry>());
+    }
+  });
+
+  test('designated introductions always come before one-time stories', () {
+    final c = catalog([
+      row('intro', '01_shiba', 'はじめまして！',
+          once: true, firstGreeting: true, priority: 0),
+      row('special', '01_shiba', 'ミッションおめでとう',
+          once: true, priority: 900),
+      row('tip', '01_shiba', '普段のお話', priority: 500),
+    ]);
+    final now = DateTime.utc(2026, 10, 13);
+    final progress = completed([]);
+    for (final roll in [const FixedRoll(last: false), const FixedRoll()]) {
+      expect(c.select(resident: TownResident.shiba,
+          progress: progress, now: now, random: roll).id, 'intro');
+    }
+    final greeted = progress.markDialogueSeen('intro');
+    expect(c.select(resident: TownResident.shiba, progress: greeted,
+        now: now, random: const FixedRoll()).id, 'special');
+    final seenBoth = greeted.markDialogueSeen('special');
+    expect(c.select(resident: TownResident.shiba, progress: seenBoth,
+        now: now, random: const FixedRoll()).id, 'tip');
+  });
+
+  test('invalid or duplicate first introductions are rejected', () {
+    expect(() => catalog([
+      row('first1', '01_shiba', '初回1', once: true, firstGreeting: true),
+      row('first2', '01_shiba', '初回2', once: true, firstGreeting: true),
+    ]), throwsFormatException);
+    expect(() => catalog([
+      row('bad', '01_shiba', '何度も出る初対面', firstGreeting: true),
+    ]), throwsFormatException);
+    expect(() => catalog([
+      row('bad', '01_shiba', '条件つき初対面',
+          once: true, firstGreeting: true,
+          conditions: [{'type': 'mission', 'missionId': 'all', 'minCount': 1}]),
+    ]), throwsFormatException);
+  });
+
+  test('bundled first introductions are available once for every resident', () async {
+    final live = await DialogueCatalog.load();
+    final p = completed([]);
+    for (final resident in TownResident.values) {
+      final selected = live.select(
+        resident: resident, progress: p, now: DateTime.utc(2026, 10, 18),
+        random: const FixedRoll(last: false),
+      );
+      expect(selected.firstGreeting, isTrue, reason: resident.id);
+      expect(selected.once, isTrue);
+      final seen = p.markDialogueSeen(selected.id);
+      expect(live.select(resident: resident, progress: seen,
+          now: DateTime.utc(2026, 10, 18)).id, isNot(selected.id));
     }
   });
 

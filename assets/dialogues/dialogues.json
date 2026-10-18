@@ -2888,6 +2888,216 @@
           "withinDays": 1
         }
       ]
+    },
+    {
+      "id": "01_shiba_001",
+      "residentId": "01_shiba",
+      "text": "わんわん！ぼくはしばいぬ！おさんぽがだいすきなんだ。きみに会えてうれしいワン！",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "02_rabbit_001",
+      "residentId": "02_rabbit",
+      "text": "こんにちは、うさぎだよ。新しいことを知るのが好きなんだ。これからいろんなお話ができたらうれしいな。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "03_penguin_001",
+      "residentId": "03_penguin",
+      "text": "こんにちは！ぼくはまちの案内係。道に迷ったら声をかけてね。ぼくもまだ知らない場所があるんだけど！",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "04_cat_001",
+      "residentId": "04_cat",
+      "text": "やあ、ねこだよ。気ままに歩いたり、ひなたで休んだりしてるんだ。見かけたら声をかけてね。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "05_squirrel_001",
+      "residentId": "05_squirrel",
+      "text": "こんにちは！りすだよ。ちょこちょこ動くのが好きだけど、のんびりする日もあるよ。よろしくね！",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "06_bear_001",
+      "residentId": "06_bear",
+      "text": "こんにちは、くまだよ。急がずに、自分のペースで暮らしてるんだ。よかったら、ときどき話そうね。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "009_chef_005",
+      "residentId": "009_chef",
+      "text": "いらっしゃいにゃ！ぼくはシェフだにゃ。おいしいものを考えると、しっぽがうずくにゃ〜！また食べもののお話をしようにゃ。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "026_farmer_003",
+      "residentId": "026_farmer",
+      "text": "わしは多賀康三。みんなには、やすぞうと呼ばれとる。畑で土に触ってる時間が好きなんじゃ。よろしくのう。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "027_daydreamer_003",
+      "residentId": "027_daydreamer",
+      "text": "ぼくはおやすみくん。いまは、おしごともおべんきょうもおやすみ中。なんにもしないをしてるんだ。えへへ。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "032_miner_006",
+      "residentId": "032_miner",
+      "text": "もぐもぐ！ぼくはもぐた。まちの工事現場ではたらいてるもぐ。あの公園も、つくるのを手伝ったんだもぐ！",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "036_mosa_019",
+      "residentId": "036_mosa",
+      "text": "あおんあおん！拙者、猛者江戸（モサエド）と申す！よろしく頼むでござる！……なでなでも歓迎でござる。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "035_beaty_014",
+      "residentId": "035_beaty",
+      "text": "あら、はじめまして。桜の美容室のつやこよ♡ おしゃれは誰かのためじゃなくて、自分が心地よくいるためのもの。気軽におしゃべりしてね。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_002",
+      "residentId": "031_kimono_fox",
+      "text": "いらっしゃいませ♪ わたしはきものぎつね。桜の美容室でお手伝いしているの。着物を見るのが大好きなのよ。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "037_tora_012",
+      "residentId": "037_tora",
+      "text": "よーし！とらおコーチだ！体を動かすのが好きなんだ。だけど無理は禁物。きみに合ったペースを一緒に見つけよう！",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "029_office_worker_012",
+      "residentId": "029_office_worker",
+      "text": "はじめまして、かえるだよ。ぼく、ふだんは会社で働いてるんだ。考えすぎちゃうこともあるけど、おしゃべりすると少しほっとするね。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "038_lion_lady_021",
+      "residentId": "038_lion_lady",
+      "text": "ごきげんよう、リオコよ。劇団のお仕事をしているの。舞台の上も好きだけど、こうしてのんびりお話する時間も好きなのよ。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "034_artist_021",
+      "residentId": "034_artist",
+      "text": "こんにちは、わたしはくまりん。絵を描くのが大好きなんだ。まだ自分らしい色を探してるところ。よかったら、絵を見にきてね。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "015_office_worker_028",
+      "residentId": "015_office_worker",
+      "text": "おう、はじめまして！俺はぶちょうだ。仕事のことはつい熱くなっちまうが、ここでは肩の力を抜いていこうな！",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "028_caregiver_028",
+      "residentId": "028_caregiver",
+      "text": "こんにちは、ぱんこ先生だよ。食べものや毎日のごはんについて、みんなと話すのが好きなんだ。気になることがあったら気軽に声をかけてね。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "041_pig_middle_046",
+      "residentId": "041_pig_middle",
+      "text": "あら、はじめましてぇ。とんこっていうの。最近、お茶をいれる時間が楽しみでねぇ。よかったら、またおしゃべりしましょう。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "042_senior_dog_022",
+      "residentId": "042_senior_dog",
+      "text": "おや、はじめまして。わしはごんすけじゃ。杖をついてゆっくり歩いておるよ。おしゃべりするなら、わしも一休みしようかのう。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }

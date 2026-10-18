@@ -120,10 +120,11 @@ def validate(doc, residents=None):
         raise ValueError("Dialogues must be a nonempty list")
     ids = set()
     defaults = set()
+    introductions = set()
     for i, entry in enumerate(rows):
         require_keys(entry, {"id", "residentId", "text", "priority",
                               "once", "logic", "conditions"}, f"dialogues[{i}]",
-                     optional={"reply"})
+                     optional={"reply", "firstGreeting"})
         identifier = entry["id"]
         if not isinstance(identifier, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", identifier):
             raise ValueError(f"Invalid id at row {i}")
@@ -138,6 +139,15 @@ def validate(doc, residents=None):
             raise ValueError(f"Invalid priority: {identifier}")
         if type(entry["once"]) is not bool or entry["logic"] not in {"all", "any"}:
             raise ValueError(f"Invalid once/logic: {identifier}")
+        if "firstGreeting" in entry:
+            if entry["firstGreeting"] is not True:
+                raise ValueError(f"firstGreeting must be true when present: {identifier}")
+            if (not entry["once"] or entry["priority"] == -1000 or
+                    entry["conditions"] or "reply" in entry):
+                raise ValueError(f"Invalid first greeting: {identifier}")
+            if entry["residentId"] in introductions:
+                raise ValueError(f"Duplicate first greeting: {entry['residentId']}")
+            introductions.add(entry["residentId"])
         conditions = entry["conditions"]
         if not isinstance(conditions, list) or len(conditions) > 8:
             raise ValueError(f"Invalid conditions: {identifier}")

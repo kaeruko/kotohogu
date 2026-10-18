@@ -296,6 +296,36 @@ class CmsTests(unittest.TestCase):
                 r"dialogues\[0\]: invalid fields; missing=\['logic'\], unexpected=\[\]"):
             validate(missing)
 
+    def test_first_greetings_are_once_only_and_unique(self):
+        data = sample()
+        introductions = [row for row in data["dialogues"]
+                         if row.get("firstGreeting") is True]
+        resident_ids = {row["id"] for row in load_catalog()["characters"]}
+        self.assertEqual({row["residentId"] for row in introductions}, resident_ids)
+        self.assertEqual(len(introductions), len(resident_ids))
+        validate(data)
+        for row in introductions:
+            self.assertTrue(row["once"])
+            self.assertEqual(row["conditions"], [])
+            self.assertGreater(row["priority"], -1000)
+
+        duplicate = copy.deepcopy(data)
+        extra = copy.deepcopy(introductions[0])
+        extra["id"] = "test_extra_introduction"
+        duplicate["dialogues"].append(extra)
+        with self.assertRaisesRegex(ValueError, "Duplicate first greeting"):
+            validate(duplicate)
+
+        for change in ({"once": False}, {"conditions": [
+                {"type": "mission", "missionId": "all", "minCount": 1}
+                ]}, {"priority": -1000}, {"firstGreeting": False}):
+            invalid = copy.deepcopy(data)
+            edited = next(row for row in invalid["dialogues"]
+                          if row.get("firstGreeting") is True)
+            edited.update(change)
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                validate(invalid)
+
     def test_valid_bundled_content(self):
         validate(sample())
         frog = [entry for entry in sample()["dialogues"]
