@@ -114,7 +114,7 @@ class RemoteResident {
 class RemoteDialogue {
   const RemoteDialogue(
     this.id, this.residentId, this.text, this.conditionCount,
-    this.priority, this.once, {this.firstGreeting = false},
+    this.priority, this.once, {this.firstGreeting = false}
   );
   final String id, residentId, text;
   final int conditionCount;
