@@ -49,6 +49,7 @@ class TownScene extends StatefulWidget {
     this.remoteContentBaseUri,
     this.onRemoteVisitor,
     this.onEnterSalon,
+    this.showSalonEntranceMarker = false,
     this.marcheOpen = false,
     this.onVisitMarche,
     this.fillViewport = false,
@@ -66,6 +67,8 @@ class TownScene extends StatefulWidget {
   final Uri? remoteContentBaseUri;
   final Future<void> Function(RemoteResident)? onRemoteVisitor;
   final VoidCallback? onEnterSalon;
+  /// Show the salon entrance sign only when entry is currently permitted.
+  final bool showSalonEntranceMarker;
   final bool marcheOpen;
   final VoidCallback? onVisitMarche;
 
@@ -294,6 +297,79 @@ class _TownSceneState extends State<TownScene> {
             height,
             size,
             reduced,
+          ),
+        if (widget.area == TownArea.village &&
+            widget.showSalonEntranceMarker && widget.onEnterSalon != null)
+          Positioned(
+            // Source-image coordinates, just above and left of the blue
+            // doorway; both the sign and its tap area follow BoxFit.cover.
+            left: width * 635 / 941,
+            top: height * 635 / 1672,
+            width: width * 245 / 941,
+            height: height * 84 / 1672,
+            child: Semantics(
+              button: true,
+              label: '桜の美容室の入口はこちら',
+              child: Tooltip(
+                message: '桜の美容室に入る',
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    key: const ValueKey('village-salon-open-marker'),
+                    onTap: widget.onEnterSalon,
+                    borderRadius: BorderRadius.circular(18),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF3E8),
+                          border: Border.all(
+                            color: const Color(0xFFBB6887), width: 3),
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x55703E38),
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.content_cut,
+                                    size: 24, color: Color(0xFFAC5377)),
+                                SizedBox(width: 5),
+                                Text(
+                                  '桜の美容室',
+                                  style: TextStyle(
+                                    color: Color(0xFF773B52),
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              '入口はこちら ↘',
+                              style: TextStyle(
+                                color: Color(0xFF773B52),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 19,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         if (widget.area == TownArea.village && widget.onEnterSalon != null)
           Positioned(
