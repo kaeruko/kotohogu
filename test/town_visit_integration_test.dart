@@ -7,7 +7,6 @@ import 'package:future_lift/main.dart';
 import 'package:future_lift/progress.dart';
 import 'package:future_lift/resident_collection.dart';
 import 'package:future_lift/town.dart';
-import 'package:future_lift/town_areas.dart';
 
 import 'progress_test.dart' show MemoryStore;
 import 'support/town_random.dart';
