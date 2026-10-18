@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'missions_screen.dart';
 import 'progress.dart';
 
 /// A celebration journal, never an attendance or streak tracker.
 class HistoryScreen extends StatefulWidget {
+  /// Keep the standalone journal and the shared-header version in sync.
+  static const backgroundAsset = MissionsScreen.backgroundAsset;
+
   const HistoryScreen({
     super.key,
     required this.progress,
@@ -130,7 +134,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         if (widget.drawBackground)
           Positioned.fill(
             child: Image.asset(
-              'assets/kotohogu/town_background.png',
+              HistoryScreen.backgroundAsset,
+              key: const ValueKey('history-background'),
               fit: BoxFit.cover,
               excludeFromSemantics: true,
             ),

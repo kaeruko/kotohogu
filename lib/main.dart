@@ -695,6 +695,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                           await controller.clearHistory();
                         },
                       ),
+                      backgroundAsset: HistoryScreen.backgroundAsset,
                     )
                   : _pageWithSharedHeader(
                       progress,
