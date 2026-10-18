@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: kotohogu-store-screenshots
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   screenshots:
