@@ -114,25 +114,32 @@ class RemoteResident {
 class RemoteDialogue {
   const RemoteDialogue(
     this.id, this.residentId, this.text, this.conditionCount,
-    this.priority, this.once,
+    this.priority, this.once, {this.firstGreeting = false},
   );
   final String id, residentId, text;
   final int conditionCount;
   final int priority;
   final bool once;
+  /// Initial hello, shown once before any other eligible resident dialogue.
+  final bool firstGreeting;
 
   factory RemoteDialogue.fromJson(Object? raw) {
     final row = objectOf(raw, 'dialogue');
     requireFields(row, {
       'id', 'residentId', 'text', 'priority', 'once', 'logic', 'conditions',
-    }, 'dialogue', optional: {'reply'});
+    }, 'dialogue', optional: {'reply', 'firstGreeting'});
     final id = nonempty(row['id'], 'dialogue.id');
     final conditions = arrayOf(row['conditions'], 'dialogue.conditions');
+    final firstGreeting = row['firstGreeting'] == true;
     if (!RegExp(r'^[A-Za-z0-9_-]{1,80}$').hasMatch(id) ||
         row['priority'] is! int || row['once'] is! bool ||
         !{'all', 'any'}.contains(row['logic']) ||
         conditions.length > 8 ||
-        conditions.any((row) => row is! Map<String, dynamic>)) {
+        conditions.any((row) => row is! Map<String, dynamic>) ||
+        (row.containsKey('firstGreeting') && row['firstGreeting'] != true) ||
+        (firstGreeting && (row['once'] != true ||
+            row['priority'] == -1000 || conditions.isNotEmpty ||
+            row.containsKey('reply')))) {
       throw FormatException('Invalid dialogue data: $id');
     }
     return RemoteDialogue(
@@ -142,6 +149,7 @@ class RemoteDialogue {
       conditions.length,
       row['priority'] as int,
       row['once'] as bool,
+      firstGreeting: firstGreeting,
     );
   }
 }
@@ -171,12 +179,16 @@ class RemoteContentCatalog {
       }
     }
     final defaultSpeakerIds = <String>{};
+    final introductionSpeakerIds = <String>{};
     for (final row in dialogues) {
       if (!dialogueIds.add(row.id) || !ids.contains(row.residentId)) {
         throw FormatException('Duplicate or unknown-speaker dialogue: ${row.id}');
       }
       if (row.conditionCount == 0 && !row.once) {
         defaultSpeakerIds.add(row.residentId);
+      }
+      if (row.firstGreeting && !introductionSpeakerIds.add(row.residentId)) {
+        throw FormatException('Duplicate first greeting: ${row.residentId}');
       }
     }
     if (!defaultSpeakerIds.containsAll(ids)) {
@@ -359,7 +371,7 @@ class _LocalContentPreviewScreenState extends State<LocalContentPreviewScreen> {
         for (final line in lines)
           ListTile(
             title: Text(line.text),
-            subtitle: Text('${line.id}｜条件 ${line.conditionCount}件'),
+            subtitle: Text('${line.id}｜${line.firstGreeting ? '🌸 初対面・1回のみ' : '条件 ${line.conditionCount}件'}'),
           ),
         const SizedBox(height: 16),
         const Text(

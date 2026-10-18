@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/local_content_preview.dart';
@@ -37,6 +38,63 @@ void main() {
       localServerUri('http://10.0.2.2:8765'),
       result.residentById('038_owl'), 'walk_front_04.png',
     ).toString(), 'http://10.0.2.2:8765/api/runtime/sprites/038_owl/walk_front_04.png');
+  });
+
+  test('checked-in CMS catalog with 21 first greetings loads for app startup', () {
+    final registry = jsonDecode(
+      File('assets/characters/characters.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    final dialogues = jsonDecode(
+      File('assets/dialogues/dialogues.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    final parsed = RemoteContentCatalog.fromJson(jsonEncode({
+      'version': 1,
+      'characters': registry['characters'],
+      'dialogues': dialogues['dialogues'],
+    }));
+    expect(parsed.characters.length, greaterThanOrEqualTo(21));
+    expect(parsed.dialogues.length, greaterThan(250));
+    final introductions = parsed.dialogues.where((row) => row.firstGreeting).toList();
+    expect(introductions.length, parsed.characters.length);
+    for (final intro in introductions) {
+      expect(intro.once, isTrue);
+      expect(intro.conditionCount, 0);
+    }
+    expect(parsed.linesFor('01_shiba').where((row) => row.firstGreeting),
+        hasLength(1));
+  });
+
+  test('optional firstGreeting validates without relaxing dialogue schema', () {
+    final shiba = resident('01_shiba', '001_shiba');
+    final normal = dialogue('normal', '01_shiba');
+    final first = {...dialogue('intro', '01_shiba'),
+      'once': true, 'firstGreeting': true};
+    final valid = RemoteContentCatalog.fromJson(catalog([shiba], [
+      normal, first,
+    ]));
+    expect(valid.linesFor('01_shiba').first.firstGreeting, isFalse);
+    expect(valid.linesFor('01_shiba').last.firstGreeting, isTrue);
+
+    for (final invalid in [
+      {...first, 'firstGreeting': false},
+      {...first, 'firstGreeting': null},
+      {...first, 'once': false},
+      {...first, 'priority': -1000},
+      {...first, 'conditions': [{'type': 'mission'}]},
+      {...first, 'reply': {'residentId': '02_rabbit', 'text': 'hi'}},
+      {...first, 'unsupportedField': 'unexpected'},
+    ]) {
+      expect(
+        () => RemoteContentCatalog.fromJson(catalog([shiba], [
+          normal, invalid,
+        ])),
+        throwsFormatException,
+        reason: invalid.toString(),
+      );
+    }
+    expect(() => RemoteContentCatalog.fromJson(catalog([shiba], [
+      normal, first, {...first, 'id': 'another_intro'},
+    ])), throwsFormatException);
   });
 
   test('invalid host or URL cannot silently change the backend', () {
