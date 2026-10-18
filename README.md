@@ -54,7 +54,7 @@ flutter run -t lib/main.dart
 
 複数デバイスがある場合は `flutter run -d <device-id> -t lib/main.dart` で指定してください。Flutter SDKやAndroid SDK／Xcodeのセットアップは利用する環境に応じて事前に行います。
 
-**現在の通常起動はネットワーク接続が必要です。** アプリは起動時にGoogle Drive上の公開テキストからコンテンツの固定リリースURLを読み、CloudFrontから配信データを取得します。Drive・配信先・JSONの取得や検証に失敗した場合はエラーを表示して止まり、別のデータへ暗黙に切り替えません。
+**現在の通常起動はネットワーク接続が必要です。** アプリは起動時にGoogle Driveの公開テキストからCloudFrontの接続先を特定し、そのCloudFrontの `current.json` から最新の不変リリースを確定して配信データを取得します。Drive・`current.json`・JSONの取得や検証に失敗した場合はエラーを表示して止まり、別のデータへ暗黙に切り替えません。
 
 ### アプリアイコン
 
@@ -117,12 +117,12 @@ tools/aws/publish_content.py
           ↓
 非公開S3 → CloudFront（固定リリースURL）
           ↑
-Google Driveの kotohogu_api.txt にURLを記載
+Google Driveの kotohogu_api.txt に接続先URLを記載
           ↑
-アプリが起動時にURLを取得
+アプリがDriveの接続先からCloudFront /current.jsonを読み、最新リリースを取得
 ```
 
-配信するJSON・スプライトは検証後に**内容に基づく不変のリリースパス**へアップロードされます。`current.json` は配信側の最新版を指しますが、**アプリが参照するのはGoogle Driveに書いた固定リリースURL**です。したがってAWSへアップロードしただけでは、アプリの参照先は変わりません。
+配信するJSON・スプライトは検証後に**内容に基づく不変のリリースパス**へアップロードされます。`current.json` は最新版を指し、新しいアプリはGoogle Driveに保存した接続先URLからこのポインタを取得して参照するリリースを決めます。これにより、**普段のCMS更新ではAWSへのアップロードだけでよく、Google Driveの変更は不要**です。旧アプリは従来の固定リリースを参照し続けるため、最新版に追従するにはアプリ更新が必要です。
 
 既にCloudFormationスタックがある場合の発行例：
 
@@ -131,7 +131,7 @@ $awsProfile = 'kotohogu' # 実際に設定したAWS CLIプロファイル名に�
 python tools/aws/publish_content.py --stack kotohogu-content --region ap-northeast-1 --profile $awsProfile
 ```
 
-発行後に表示される `Pinned release base URL` を、**同じGoogle Driveファイル**の1行に反映します。URLにはリリースIDと末尾の `/` が必要です。新しいDriveファイルを作るとIDが変わるので、元のファイルを更新します。
+発行後、CloudFrontの `/current.json` が更新されます。**既存の `kotohogu_api.txt` は書き換えないでください**。新しいアプリではそこに記載されたURLのCloudFrontドメインから最新版を取得します。発行時に出る `Pinned release base URL` は特定のリリースを手動確認するためにも利用できます。
 
 初回のインフラ構築、AWS権限、公開内容の検証、Drive共有設定については [AWS配信の手順](tools/aws/README.md) を参照してください。認証情報、署名鍵、パスワードはGitへコミットしないでください。
 
