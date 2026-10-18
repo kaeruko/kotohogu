@@ -211,10 +211,12 @@ void main() {
       ),
     );
 
+    const markerKey = ValueKey('village-salon-open-marker');
     await tester.pumpWidget(scene(SalonUnlockDebugMode.forceOpen));
     expect(find.byKey(const ValueKey('village-salon-entrance')),
         findsOneWidget, reason: 'Debug override reaches locked village door');
-    await tester.tap(find.byKey(const ValueKey('village-salon-entrance')));
+    expect(find.byKey(markerKey), findsOneWidget);
+    await tester.tap(find.byKey(markerKey));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(SalonRoom), findsOneWidget);
@@ -231,6 +233,7 @@ void main() {
       owned: const [TownResident.c035_beaty],
     ));
     await tester.pump();
+    expect(find.byKey(markerKey), findsNothing);
     await tester.tap(find.byKey(const ValueKey('village-salon-entrance')));
     await tester.pump();
     expect(find.text('デバッグ設定で桜の美容室を未開放にしています'),
@@ -241,6 +244,7 @@ void main() {
     await tester.pump();
     expect(find.text('まだ行けないエリアだよ'), findsOneWidget);
     expect(find.byKey(const ValueKey('village-salon-entrance')), findsNothing);
+    expect(find.byKey(markerKey), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -265,16 +269,19 @@ void main() {
     // The fox can live in the salon without ever unlocking its entrance.
     await tester.pumpWidget(app(const [TownResident.c031_kimono_fox]));
     final entrance = find.byKey(const ValueKey('village-salon-entrance'));
+    final marker = find.byKey(const ValueKey('village-salon-open-marker'));
     expect(entrance, findsOneWidget);
+    expect(marker, findsNothing, reason: 'The employee alone does not open the salon');
     await tester.tap(entrance);
     await tester.pump();
     expect(find.textContaining('つやこさんをガチャでお迎えすると'),
         findsOneWidget);
     expect(find.byType(SalonRoom), findsNothing);
 
-    // Once the owner is acquired, the same door opens for both residents.
+    // Once the owner is acquired, the sign appears and also opens the door.
     await tester.pumpWidget(app(const [TownResident.c035_beaty]));
-    await tester.tap(entrance);
+    expect(marker, findsOneWidget);
+    await tester.tap(marker);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
     expect(find.byType(SalonRoom), findsOneWidget);
@@ -300,6 +307,7 @@ void main() {
             lifetimePoints: 300,
             residents: const [],
             fillViewport: true,
+            showSalonEntranceMarker: area == TownArea.village && visits == 1,
             onEnterSalon: () => visits++,
           ),
         ),
@@ -307,15 +315,29 @@ void main() {
       await tester.pump();
     }
 
+    const markerKey = ValueKey('village-salon-open-marker');
     await show(TownArea.plaza);
     expect(find.byKey(const ValueKey('village-salon-entrance')), findsNothing);
+    expect(find.byKey(markerKey), findsNothing);
 
     await show(TownArea.village);
     final door = find.byKey(const ValueKey('village-salon-entrance'));
     expect(door, findsOneWidget);
+    expect(find.byKey(markerKey), findsNothing);
     await tester.tap(door);
     await tester.pump();
     expect(visits, 1);
+
+    await show(TownArea.village);
+    final marker = find.byKey(markerKey);
+    expect(marker, findsOneWidget);
+    final doorRect = tester.getRect(door);
+    final markerRect = tester.getRect(marker);
+    expect(markerRect.bottom, lessThan(doorRect.top));
+    expect(markerRect.center.dx, lessThan(doorRect.center.dx));
+    await tester.tap(marker);
+    await tester.pump();
+    expect(visits, 2);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
