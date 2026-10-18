@@ -125,7 +125,6 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   bool _tutorialReplay = false;
   static const _tutorialSeenId = 'tutorial_kotohogisu_v1';
   Timer? _midnight;
-  final _dialogueIndex = <TownResident, int>{};
   int _marcheDailyDialogueRotation = 0;
   bool _marcheConversationOpen = false;
   /// Debug-only town cast kept in memory; never written to the save file.
@@ -335,7 +334,6 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     }
     final catalog = await _dialoguesFuture;
     if (!mounted || controller.failure != null) return;
-    final index = _dialogueIndex[resident] ?? 0;
     final rules = TownRules(
       controller.progress!, debugTownResidents: _debugTownResidents);
     final visibleIds = rules.conversationPeers(
@@ -353,7 +351,6 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       progress: controller.progress!,
       now: controller.clock(),
       townResidentIds: visibleIds,
-      rotation: index,
     );
     // Conversations in the debug-only cast must not alter saved seen IDs.
     if (_debugTownResidents == null &&
@@ -363,7 +360,6 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       final persisted = await controller.recordDialogueSeen(line.id);
       if (!persisted || !mounted) return;
     }
-    _dialogueIndex[resident] = index + 1;
     await showDialog<void>(
       context: context,
       builder: (context) => ResidentConversationDialog(

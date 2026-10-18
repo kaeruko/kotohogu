@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'progress.dart';
 import 'resident_collection.dart';
@@ -50,20 +51,43 @@ class DialogueCatalog {
     required Progress progress,
     required DateTime now,
     Set<String> townResidentIds = const {},
-    int rotation = 0,
+    math.Random? random,
   }) {
+    // -1000 is reserved for explicit facility conversations, never a random draw.
     final available = entries.where((entry) =>
       entry.residentId == resident.id &&
+      entry.priority != -1000 &&
       (!entry.once || !progress.seenDialogues.contains(entry.id)) &&
       entry.matches(progress, now, townResidentIds)).toList();
     if (available.isEmpty) throw StateError('No dialogue: ${resident.id}');
-    available.sort((a, b) => b.priority.compareTo(a.priority));
-    final top = available.where((e) => e.priority == available.first.priority).toList();
-    return top[rotation % top.length];
+
+    final generator = random ?? math.Random();
+    // Keep first-time stories and achievements ahead of repeatable chatter,
+    // and preserve the author's priority order for these one-time events.
+    final firstTime = available.where((entry) => entry.once).toList();
+    if (firstTime.isNotEmpty) {
+      final highest = firstTime.map((entry) => entry.priority).reduce(math.max);
+      final top = firstTime.where((entry) => entry.priority == highest).toList();
+      return top[generator.nextInt(top.length)];
+    }
+
+    // Every eligible repeatable line retains a nonzero chance to be selected.
+    // Priority adds one ticket per ten points; consecutive repeats are allowed.
+    final weights = [
+      for (final entry in available)
+        1 + (math.max(0, entry.priority) ~/ 10),
+    ];
+    final total = weights.fold<int>(0, (sum, weight) => sum + weight);
+    var ticket = generator.nextInt(total);
+    for (var i = 0; i < available.length; i++) {
+      if (ticket < weights[i]) return available[i];
+      ticket -= weights[i];
+    }
+    throw StateError('Dialogue draw exceeded total weight: ${resident.id}');
   }
 
   /// Explicit conversation target (e.g. a facility counter), independent of
-  /// the priority-based strolling dialogue selector.
+  /// the probability-based strolling dialogue selector.
   /// A missing, mismatched, or ineligible entry is an error, not a fallback.
   DialogueEntry selectById({
     required String id,

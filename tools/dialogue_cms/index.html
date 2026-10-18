@@ -96,7 +96,7 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
   </details>
   <div class="actions"><button id="runPreview" class="secondary">条件を確認</button></div>
   <div id="previewBox" aria-live="polite"></div>
-  <p class="hint">優先順位の数値が大きいセリフを優先。同順位はタップごとに切り替わります。全セリフの既読IDが保存され、「1回のみ」のセリフは閲覧済みなら候補から外れます。</p>
+  <p class="hint">未読の「1回のみ」セリフを優先（同順位は抽選）。それ以外は条件に合う全セリフから確率抽選し、優先順位10ごとに抽選の重みが1増えます。優先0も抽選対象です。優先-1000は施設専用のため対象外。同じセリフが連続することもあります。</p>
 </section>
 </main>
 <main id="characterMain">
@@ -206,7 +206,7 @@ function renderEditor(){
   renderPortrait(area,speaker,true);
   labelControl(area,"セリフ","textarea",entry.text,v=>{entry.text=v;});
   const line=append(area,"div");line.className="row";
-  labelControl(line,"優先順位（大きいほど優先）","input",entry.priority,v=>{entry.priority=Number(v)},{type:"number"});
+  labelControl(line,"優先順位（通常は10ごとに抽選重み＋1）","input",entry.priority,v=>{entry.priority=Number(v)},{type:"number"});
   labelControl(line,"条件の組み合わせ","select",entry.logic,v=>{entry.logic=v;refresh()},{options:{"all":"すべて満たす AND","any":"いずれかを満たす OR"}});
   const wrapper=append(area,"label");wrapper.className="controls";
   const once=append(wrapper,"input");once.type="checkbox";once.checked=entry.once;
@@ -331,6 +331,24 @@ function match(condition,context){
   if(condition.mode==="weekday"){const d=new Date(day+"T00:00:00Z").getUTCDay();return condition.days.includes(d===0?7:d)}
   throw Error("日付条件の形式が不明");
 }
+function drawPreviewDialogue(candidates){
+  const available=candidates.filter(entry=>entry.priority!==-1000);
+  if(!available.length)return null;
+  const firstTime=available.filter(entry=>entry.once);
+  const highest=firstTime.length?Math.max(...firstTime.map(entry=>entry.priority)):null;
+  const pool=firstTime.length?
+    firstTime.filter(entry=>entry.priority===highest):available;
+  const weights=pool.map(entry=>firstTime.length?1:1+Math.floor(Math.max(0,entry.priority)/10));
+  const total=weights.reduce((sum,weight)=>sum+weight,0);
+  let ticket=Math.floor(Math.random()*total);
+  for(let i=0;i<pool.length;i++){
+    if(ticket<weights[i])return {
+      entry:pool[i],probability:weights[i]/total,poolCount:pool.length,
+    };
+    ticket-=weights[i];
+  }
+  throw Error("抽選番号が範囲外です");
+}
 function runPreview(){
   try{
     const missionsValues={};
@@ -343,12 +361,14 @@ function runPreview(){
     const candidates=data.dialogues.filter(entry=>entry.residentId===byId("previewResident").value&&
       (!entry.once||!previewSeenIds.has(entry.id))&&
       (entry.conditions.length===0||(entry.logic==="all"?entry.conditions.every(c=>match(c,context)):entry.conditions.some(c=>match(c,context)))));
-    candidates.sort((a,b)=>b.priority-a.priority);
-    byId("previewBox").textContent=candidates.length?
-      "選ばれるセリフ｜"+residents[candidates[0].residentId]+"\n"+candidates[0].text+
-      (candidates[0].reply?"\n"+(residents[candidates[0].reply.residentId]||candidates[0].reply.residentId)+"「"+candidates[0].reply.text+"」":"")+
-      "\nID: "+candidates[0].id+"\n候補: "+candidates.length+"件"+
-      (candidates[0].once?"\n※初回のみ。表示すると閲覧済みになります。":""):
+    const result=drawPreviewDialogue(candidates);
+    const selected=result?.entry;
+    byId("previewBox").textContent=selected?
+      "抽選されたセリフ｜"+residents[selected.residentId]+"\n"+selected.text+
+      (selected.reply?"\n"+(residents[selected.reply.residentId]||selected.reply.residentId)+"「"+selected.reply.text+"」":"")+
+      "\nID: "+selected.id+"\n抽選対象: "+result.poolCount+"件"+
+      "\nこのセリフの確率: "+(result.probability*100).toFixed(1)+"%"+
+      (selected.once?"\n※初回のみ。表示すると閲覧済みになります。":""):
       "表示できるセリフがありません。条件と通常セリフを確認してください。";
   }catch(err){byId("previewBox").textContent="プレビューエラー: "+err.message}
 }

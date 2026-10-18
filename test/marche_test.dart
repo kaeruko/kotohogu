@@ -95,7 +95,6 @@ void main() {
         resident: tonkoMarcheOwner,
         progress: progress,
         now: DateTime.utc(2026, 10, 17),
-        rotation: rotation,
       ).id, isNot(isIn(exclusive)));
     }
   });
@@ -166,7 +165,6 @@ void main() {
         resident: tonkoMarcheOwner,
         progress: progress,
         now: DateTime.utc(2026, 10, 17),
-        rotation: rotation,
       ).id, isNot(tonkoMarcheGreetingDialogueId));
     }
   });

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/dialogue_engine.dart';
 import 'package:future_lift/progress.dart';
@@ -41,6 +42,23 @@ Progress completed(List<Mission> missions) {
   return p;
 }
 
+// Inject boundary draws so selection tests remain deterministic.
+class FixedRoll implements math.Random {
+  const FixedRoll({this.last = true});
+  final bool last;
+
+  @override
+  int nextInt(int max) {
+    if (max <= 0) throw RangeError.value(max, 'max');
+    return last ? max - 1 : 0;
+  }
+
+  @override
+  bool nextBool() => throw UnimplementedError('Only nextInt is used');
+  @override
+  double nextDouble() => throw UnimplementedError('Only nextInt is used');
+}
+
 void main() {
   // rootBundle in an ordinary async test requires an initialized binding.
   // A widget test would run in fake async and leave this load pending.
@@ -53,6 +71,53 @@ void main() {
       expect(live.select(resident: resident, progress: p,
         now: DateTime.utc(2026, 10, 12, 15)), isA<DialogueEntry>());
     }
+  });
+
+  test('weighted repeatable selection includes greetings and allows repeats', () {
+    final c = catalog([row('tip', '01_shiba', '豆知識', priority: 20)]);
+    final p = completed([]);
+    DialogueEntry pick(math.Random random) => c.select(
+      resident: TownResident.shiba, progress: p,
+      now: DateTime.utc(2026, 10, 13), random: random,
+    );
+    expect(pick(const FixedRoll(last: false)).id, '01_shiba_default');
+    expect(pick(const FixedRoll()).id, 'tip');
+    // There is no consecutive-repeat exclusion.
+    expect(pick(const FixedRoll()).id, 'tip');
+  });
+
+  test('one-time stories precede random everyday lines in reading order', () {
+    final c = catalog([
+      row('first', '01_shiba', '第一話', priority: 35, once: true),
+      row('second', '01_shiba', '第二話', priority: 36, once: true,
+        conditions: [{'type': 'seenDialogue', 'dialogueId': 'first'}]),
+      row('tip', '01_shiba', '豆知識', priority: 100),
+    ]);
+    final now = DateTime.utc(2026, 10, 13);
+    var p = completed([]);
+    DialogueEntry pick(math.Random random) => c.select(
+      resident: TownResident.shiba, progress: p, now: now, random: random,
+    );
+    expect(pick(const FixedRoll(last: false)).id, 'first');
+    p = p.markDialogueSeen('first');
+    expect(pick(const FixedRoll(last: false)).id, 'second');
+    p = p.markDialogueSeen('second');
+    expect(pick(const FixedRoll(last: false)).id, '01_shiba_default');
+    expect(pick(const FixedRoll()).id, 'tip');
+  });
+
+  test('facility-only dialogue is excluded from everyday draws', () {
+    final c = catalog([
+      row('facility', '01_shiba', '施設会話', priority: -1000),
+    ]);
+    final p = completed([]);
+    final now = DateTime.utc(2026, 10, 13);
+    for (final random in [const FixedRoll(last: false), const FixedRoll()]) {
+      expect(c.select(resident: TownResident.shiba,
+        progress: p, now: now, random: random).id, '01_shiba_default');
+    }
+    expect(c.selectById(id: 'facility', resident: TownResident.shiba,
+      progress: p, now: now).id, 'facility');
   });
 
   test('explicit facility dialogue respects owner, conditions and once', () {
@@ -95,7 +160,7 @@ void main() {
     ]);
     final p = completed([]);
     DialogueEntry pick(TownResident r, DateTime utc) =>
-      c.select(resident:r,progress:p,now:utc);
+      c.select(resident:r,progress:p,now:utc,random:const FixedRoll());
     expect(pick(TownResident.shiba,DateTime.utc(2026,12,24,15)).id, 'winter');
     expect(pick(TownResident.shiba,DateTime.utc(2027,1,4,15)).id, 'winter');
     expect(pick(TownResident.shiba,DateTime.utc(2027,1,6,15)).text, '通常の雑談');
@@ -120,11 +185,11 @@ void main() {
     expect(date, isNotEmpty);
     final now=DateTime.utc(2026,10,12,15);
     var p=completed([Mission.outside]);
-    expect(c.select(resident:TownResident.shiba,progress:p,now:now).id,'or');
+    expect(c.select(resident:TownResident.shiba,progress:p,now:now,random:const FixedRoll()).id,'or');
     p=p.complete(Mission.hobby);
-    expect(c.select(resident:TownResident.shiba,progress:p,now:now).id,'and');
+    expect(c.select(resident:TownResident.shiba,progress:p,now:now,random:const FixedRoll()).id,'and');
     p=p.markDialogueSeen('and');
-    expect(c.select(resident:TownResident.shiba,progress:p,now:now).id,'or');
+    expect(c.select(resident:TownResident.shiba,progress:p,now:now,random:const FixedRoll()).id,'or');
     final restored=Progress.decode(p.encode(), expectedVersion:5);
     expect(restored.seenDialogues,contains('and'));
     expect(restored.countFor('outside'),1);
@@ -168,7 +233,7 @@ void main() {
     final progress = completed([]);
     DialogueEntry pick(Set<String> town) =>
         c.select(resident: TownResident.shiba, progress: progress,
-          now: now, townResidentIds: town);
+          now: now, townResidentIds: town, random: const FixedRoll());
     expect(pick({}).text, '通常の雑談');
     expect(pick({'01_shiba'}).text, '通常の雑談');
     expect(pick({'02_rabbit'}).text, '通常の雑談');
@@ -191,6 +256,7 @@ void main() {
       progress: progress,
       now: now,
       townResidentIds: town,
+      random: const FixedRoll(),
     );
 
     expect(pick({'026_farmer'}).id, '026_farmer_001');
@@ -217,7 +283,7 @@ void main() {
       now: DateTime.utc(2026, 10, 15), townResidentIds: {'01_shiba'}).text,
       '通常の雑談');
     expect(c.select(resident: TownResident.shiba, progress: progress,
-      now: jstChristmas, townResidentIds: {}).id, 'pair_or_date');
+      now: jstChristmas, townResidentIds: {}, random: const FixedRoll()).id, 'pair_or_date');
   });
 
   test('invalid town pair and reply definitions fail fast', () {
@@ -266,7 +332,8 @@ void main() {
       before.markDialogueSeen('01_shiba_997').encode(), expectedVersion: 5);
     expect(restored.seenDialogues, contains('01_shiba_997'));
     final followup = c.select(resident: TownResident.penguin,
-      progress: restored, now: now, townResidentIds: visible);
+      progress: restored, now: now, townResidentIds: visible,
+      random: const FixedRoll());
     expect(followup.id, '03_penguin_998');
     expect(followup.reply?.text, '聞かせて！');
     expect(c.select(resident: TownResident.penguin,
