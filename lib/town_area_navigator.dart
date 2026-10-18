@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'dev_tools.dart';
 import 'gacha_hud.dart';
 import 'resident_collection.dart';
 import 'local_content_preview.dart';
@@ -25,7 +25,7 @@ class TownAreaNavigator extends StatefulWidget {
     this.remoteVisitors = const [],
     this.remoteContentBaseUri,
     this.onRemoteVisitor,
-    this.salonUnlockMode = SalonUnlockDebugMode.normal,
+    this.salonUnlockMode = SalonUnlocdeveloperToolsAvailable.normal,
     this.onResident,
     this.onSalonResident,
     this.marcheOpen = false,
@@ -45,7 +45,7 @@ class TownAreaNavigator extends StatefulWidget {
   final List<RemoteResident> remoteVisitors;
   final Uri? remoteContentBaseUri;
   final Future<void> Function(RemoteResident)? onRemoteVisitor;
-  final SalonUnlockDebugMode salonUnlockMode;
+  final SalonUnlocdeveloperToolsAvailable salonUnlockMode;
   final Future<void> Function(TownResident)? onResident;
   final Future<void> Function(TownResident)? onSalonResident;
   final bool marcheOpen;
@@ -66,8 +66,8 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
   bool _canVisit(TownArea area) =>
       area.isUnlocked(widget.lifetimePoints) ||
       widget.debugTownResidents != null ||
-      (kDebugMode &&
-          widget.salonUnlockMode != SalonUnlockDebugMode.normal);
+      (developerToolsAvailable &&
+          widget.salonUnlockMode != SalonUnlocdeveloperToolsAvailable.normal);
 
   void _move(int direction) {
     final next = widget.area.index + direction;
@@ -83,8 +83,8 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
     final debugPreview = widget.debugTownResidents != null;
     final unlocked = area.isUnlocked(widget.lifetimePoints);
     // Facility debug modes also allow traversing intermediate neighborhoods.
-    final salonOverride = kDebugMode &&
-        widget.salonUnlockMode != SalonUnlockDebugMode.normal;
+    final salonOverride = developerToolsAvailable &&
+        widget.salonUnlockMode != SalonUnlocdeveloperToolsAvailable.normal;
     final accessible = _canVisit(area);
     final canGoPrevious =
         area.index > 0 && _canVisit(TownArea.values[area.index - 1]);
@@ -156,9 +156,9 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                   widget.residents,
                   debugMode: widget.salonUnlockMode,
                 )) {
-                  final forcedClosed = kDebugMode &&
+                  final forcedClosed = developerToolsAvailable &&
                       widget.salonUnlockMode ==
-                          SalonUnlockDebugMode.forceClosed;
+                          SalonUnlocdeveloperToolsAvailable.forceClosed;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(forcedClosed
@@ -173,8 +173,8 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                     settings: const RouteSettings(name: '/village/salon'),
                     builder: (_) => SalonRoom(
                       ownedResidents: widget.residents,
-                      previewUnownedResidents: kDebugMode &&
-                          widget.salonUnlockMode == SalonUnlockDebugMode.forceOpen,
+                      previewUnownedResidents: developerToolsAvailable &&
+                          widget.salonUnlockMode == SalonUnlocdeveloperToolsAvailable.forceOpen,
                       onResident: widget.onSalonResident,
                     ),
                   ),
