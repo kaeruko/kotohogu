@@ -232,7 +232,7 @@ void main() {
   });
 
 
-  testWidgets('owned walkers appear together, then move home when unlocked',
+  testWidgets('walkers keep their outing until a new town visit',
       (tester) async {
     tester.view.physicalSize = const Size(430, 1000);
     tester.view.devicePixelRatio = 1;
@@ -245,6 +245,7 @@ void main() {
       TownResident.c035_beaty,
       TownResident.c031_kimono_fox,
     ];
+    var visit = TownVisit(random: ScriptedTownRandom([0, 0, 0, 0]));
 
     Future<void> show(TownArea area, int points,
         List<TownResident> expected) async {
@@ -256,6 +257,7 @@ void main() {
               level: 0,
               area: area,
               lifetimePoints: points,
+              visit: visit,
               residents: owned,
               fillViewport: true,
             ),
@@ -280,15 +282,23 @@ void main() {
       TownResident.cat, TownResident.bear,
     ]);
     await show(TownArea.plaza, 90, const [
-      TownResident.shiba, TownResident.cat, TownResident.bear,
+      TownResident.shiba, TownResident.rabbit,
+      TownResident.cat, TownResident.bear,
     ]);
-    await show(TownArea.park, 90, const [TownResident.rabbit]);
+    await show(TownArea.park, 90, const []);
     await show(TownArea.plaza, 180, const [
-      TownResident.shiba, TownResident.bear,
+      TownResident.shiba, TownResident.rabbit,
+      TownResident.cat, TownResident.bear,
     ]);
-    await show(TownArea.shopping, 180, const [TownResident.cat]);
-    await show(TownArea.plaza, 300, const [TownResident.shiba]);
-    await show(TownArea.village, 300, const [TownResident.bear]);
+    await show(TownArea.shopping, 180, const []);
+    await show(TownArea.village, 300, const []);
+
+    // On a new visit everyone may travel away from their registered home.
+    visit = TownVisit(random: ScriptedTownRandom([3, 2, 1, 0]));
+    await show(TownArea.plaza, 300, const [TownResident.bear]);
+    await show(TownArea.park, 300, const [TownResident.cat]);
+    await show(TownArea.shopping, 300, const [TownResident.rabbit]);
+    await show(TownArea.village, 300, const [TownResident.shiba]);
     await tester.pumpWidget(const SizedBox());
   });
 
@@ -314,6 +324,7 @@ void main() {
                 level: 0,
                 area: TownArea.shopping,
                 lifetimePoints: 300,
+                visit: TownVisit(random: ScriptedTownRandom([2, 2, 2])),
                 residents: residents,
               ),
             ),
@@ -364,6 +375,7 @@ void main() {
                 level: 0,
                 area: TownArea.park,
                 lifetimePoints: 90,
+                visit: TownVisit(random: ScriptedTownRandom([1, 1])),
                 residents: residents,
               ),
             ),

@@ -213,6 +213,7 @@ void main() {
     addTearDown(tester.view.reset);
     var marketGreetings = 0;
     var ordinaryConversations = 0;
+    final visit = TownVisit(random: ScriptedTownRandom([3]));
     Widget town(TownArea area, bool open, {
       List<TownResident>? preview,
     }) => MaterialApp(
@@ -221,6 +222,7 @@ void main() {
           level: 0,
           area: area,
           lifetimePoints: 300,
+          visit: visit,
           residents: const [TownResident.c041_pig_middle],
           debugTownResidents: preview,
           fillViewport: true,
