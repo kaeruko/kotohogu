@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'dev_tools.dart';
 import 'package:flutter/material.dart';
 
 int get ownedResidentLimit => TownResident.values.length > 8 ? TownResident.values.length : 8;
@@ -29,18 +30,18 @@ bool isSalonUnlocked(Iterable<TownResident> owned) =>
     owned.contains(TownResident.c035_beaty);
 
 /// Temporary debug preview, never part of saved progress.
-enum SalonUnlockDebugMode { normal, forceOpen, forceClosed }
+enum SalonUnlocdeveloperToolsAvailable { normal, forceOpen, forceClosed }
 
 bool isSalonAccessible(
   Iterable<TownResident> owned, {
-  SalonUnlockDebugMode debugMode = SalonUnlockDebugMode.normal,
+  SalonUnlocdeveloperToolsAvailable debugMode = SalonUnlocdeveloperToolsAvailable.normal,
 }) {
   final ownedOwner = isSalonUnlocked(owned);
-  if (!kDebugMode) return ownedOwner;
+  if (!developerToolsAvailable) return ownedOwner;
   return switch (debugMode) {
-    SalonUnlockDebugMode.normal => ownedOwner,
-    SalonUnlockDebugMode.forceOpen => true,
-    SalonUnlockDebugMode.forceClosed => false,
+    SalonUnlocdeveloperToolsAvailable.normal => ownedOwner,
+    SalonUnlocdeveloperToolsAvailable.forceOpen => true,
+    SalonUnlocdeveloperToolsAvailable.forceClosed => false,
   };
 }
 
@@ -50,7 +51,7 @@ List<TownResident> salonResidents(
   Iterable<TownResident> owned, {
   bool previewUnowned = false,
 }) {
-  if (previewUnowned && !kDebugMode) {
+  if (previewUnowned && !developerToolsAvailable) {
     throw StateError('Salon preview of unowned residents requires debug mode');
   }
   final ownedSet = owned.toSet();
