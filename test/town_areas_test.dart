@@ -375,10 +375,25 @@ void main() {
     expect(find.text('ことほぎ商店街'), findsWidgets);
     expect(find.text('3 / 3'), findsOneWidget);
     final signRect = tester.getRect(sign);
-    expect(signRect.top, closeTo(frame.top + frame.width * .50, 1));
+    // Phone width: the sign must clear the arrow/counter rather than
+    // overlapping the navigation row.
+    expect(signRect.top, closeTo(frame.top + 148, 1));
     expect(signRect.center.dx, closeTo(frame.center.dx, 1));
     expect(signRect.top, greaterThan(
-        tester.getRect(find.byKey(const ValueKey('town-area-next'))).bottom));
+        tester.getRect(find.text('3 / 3')).bottom + 8));
+    expect(tester.takeException(), isNull);
+
+    // Wide iPad layout: the sign stays in the sky above the shrine roof,
+    // not halfway down the background as it did at 50% of scene width.
+    tester.view.physicalSize = const Size(968, 1250);
+    await tester.pumpWidget(scene(180, TownArea.shopping));
+    await tester.pump();
+    final wideFrame = tester.getRect(find.byType(TownAreaNavigator));
+    final wideSign = tester.getRect(sign);
+    expect(wideSign.top, closeTo(wideFrame.top + wideFrame.width * .23, 1));
+    expect(wideSign.center.dx, closeTo(wideFrame.center.dx, 1));
+    expect(wideSign.top, greaterThan(
+        tester.getRect(find.text('3 / 3')).bottom + 8));
     expect(tester.takeException(), isNull);
 
     // A locked shopping area has no lantern art to attach a sign to.
