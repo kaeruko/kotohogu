@@ -125,11 +125,14 @@ def save_diagnostics(
         f"Status: {status}",
     ]
     screenshot = target / f"{page}_on_failure.png"
-    proc = subprocess.run(
-        ["xcrun", "simctl", "io", udid, "screenshot", "--type=png", str(screenshot)],
-        capture_output=True, text=True, timeout=25, check=False,
-    )
-    text.append(f"Screenshot: {proc.returncode}: {proc.stdout} {proc.stderr}")
+    try:
+        proc = subprocess.run(
+            ["xcrun", "simctl", "io", udid, "screenshot", "--type=png", str(screenshot)],
+            capture_output=True, text=True, timeout=25, check=False,
+        )
+        text.append(f"Screenshot: {proc.returncode}: {proc.stdout} {proc.stderr}")
+    except (subprocess.TimeoutExpired, OSError) as error:
+        text.append(f"Could not capture diagnostic screenshot: {error}")
     # These are simulator's own logs, not Apple private signing artifacts.
     try:
         log = subprocess.run(
