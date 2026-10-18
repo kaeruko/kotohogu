@@ -177,30 +177,36 @@ class CmsTests(unittest.TestCase):
         })
         with self.assertRaisesRegex(ValueError, "Sprite folder"):
             validate_catalog(modified, previous=original)
-        modified["characters"][-1].update({
-            "key": "c007_hitsuji", "id": "007_hitsuji",
-            "label": "ひつじ", "artFolder": "007_hitsuji"
-        })
-        validate_catalog(modified, previous=original)
+        # A new ID still needs an unconditional line, irrespective of art files.
         with self.assertRaisesRegex(ValueError, "Missing"):
-            validate(sample(), residents={row["id"] for row in modified["characters"]})
+            validate(sample(), residents={
+                row["id"] for row in original["characters"]
+            } | {"999_owl"})
 
     def test_three_digit_id_generates_dart_key_and_folder(self):
         original = load_catalog()
+        validate_catalog(original)
+        # This formerly synthetic character is now a real resident. Do not
+        # append its ID again and accidentally test a duplicate.
+        self.assertIn("007_hitsuji",
+                      {row["id"] for row in original["characters"]})
+        dart = generate_dart(DART.read_text("utf-8"), original["characters"])
+        self.assertIn('c007_hitsuji("007_hitsuji", "ひつじ", "007_hitsuji"', dart)
+
         modified = copy.deepcopy(original)
         modified["characters"].append({
-            "key": "c007_hitsuji", "id": "007_hitsuji", "label": "ひつじ",
-            "artFolder": "007_hitsuji", "nextDialogueNumber": 2,
+            "key": "c999_testowl", "id": "999_testowl", "label": "テストふくろう",
+            "artFolder": "999_testowl", "nextDialogueNumber": 2,
             "profile": "",
             "inGacha": True, "walkInTown": True, "homeAreaId": "plaza"
         })
-        validate_catalog(modified, previous=original)
-        dart = generate_dart(DART.read_text("utf-8"), modified["characters"])
-        self.assertIn('c007_hitsuji("007_hitsuji", "ひつじ", "007_hitsuji"', dart)
+        with self.assertRaisesRegex(ValueError, "Sprite folder"):
+            validate_catalog(modified, previous=original)
         for field, value in (("key", "chef"), ("artFolder", "009_wrong")):
             mismatched = copy.deepcopy(modified)
             mismatched["characters"][-1][field] = value
-            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "derived from ID"):
+            with self.subTest(field=field), self.assertRaisesRegex(
+                    ValueError, "derived from ID"):
                 validate_catalog(mismatched, previous=original)
 
     def test_dialogue_serials_preserve_existing_ids_and_retired_numbers(self):
