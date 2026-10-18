@@ -146,7 +146,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   /// Debug-only, opt-in showcase of not-yet-owned remote residents.
   bool _showUnownedPreviewVisitors = false;
   /// In-memory only; recreated as normal whenever the app restarts.
-  SalonUnlocdeveloperToolsAvailable _salonUnlockMode = SalonUnlocdeveloperToolsAvailable.normal;
+  SalonUnlockDebugMode _salonUnlockMode = SalonUnlockDebugMode.normal;
   static Future<DialogueCatalog>? _cachedDialogueCatalog;
   late final Future<DialogueCatalog> _dialoguesFuture;
   // A single future carries both the pinned CDN URL and matching catalog.
@@ -292,7 +292,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   /// with all its navigation controls hidden.
   void _returnToUnlockedTownArea() {
     if (_debugTownResidents != null ||
-        _salonUnlockMode != SalonUnlocdeveloperToolsAvailable.normal ||
+        _salonUnlockMode != SalonUnlockDebugMode.normal ||
         controller.progress == null) {
       return;
     }
@@ -346,7 +346,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     });
   }
 
-  void _setSalonUnlockMode(SalonUnlocdeveloperToolsAvailable mode) {
+  void _setSalonUnlockMode(SalonUnlockDebugMode mode) {
     if (!developerToolsAvailable || controller.busy || controller.failure != null ||
         controller.progress == null) {
       return;
@@ -411,7 +411,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
               : ConversationSite.roster,
       area: !inSalon && _page == 2 ? _townArea : null,
       previewSalonUnowned: inSalon && developerToolsAvailable &&
-          _salonUnlockMode == SalonUnlocdeveloperToolsAvailable.forceOpen,
+          _salonUnlockMode == SalonUnlockDebugMode.forceOpen,
     );
     final line = catalog.select(
       resident: resident,
@@ -422,7 +422,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     // Conversations in the debug-only cast must not alter saved seen IDs.
     if (_debugTownResidents == null &&
         !(inSalon && developerToolsAvailable &&
-            _salonUnlockMode == SalonUnlocdeveloperToolsAvailable.forceOpen) &&
+            _salonUnlockMode == SalonUnlockDebugMode.forceOpen) &&
         !controller.progress!.seenDialogues.contains(line.id)) {
       final persisted = await controller.recordDialogueSeen(line.id);
       if (!persisted || !mounted) return;
@@ -865,7 +865,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
               ? null
               : (resident) => _showLocalVisitor(hosted, resident),
           salonUnlockMode: developerToolsAvailable
-              ? _salonUnlockMode : SalonUnlocdeveloperToolsAvailable.normal,
+              ? _salonUnlockMode : SalonUnlockDebugMode.normal,
           onResident: _showDialogue,
           onSalonResident: (resident) =>
               _showDialogue(resident, inSalon: true),
