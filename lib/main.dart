@@ -18,6 +18,7 @@ import 'game_home.dart';
 import 'missions_screen.dart';
 import 'history_screen.dart';
 import 'debug_menu_screen.dart';
+import 'dev_tools.dart';
 import 'resident_collection.dart';
 import 'resident_conversation_dialog.dart';
 import 'resident_gacha.dart';
@@ -122,6 +123,11 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   final _townSceneKey = GlobalKey();
   final ScrollController _townScrollController = ScrollController();
   int _page = 0;
+  // In an opted-in signed build the tools stay hidden until the local gesture.
+  // A regular debug run retains its familiar visible fifth tab.
+  bool _developerMenuUnlocked = kDebugMode;
+  int _historyTapCount = 0;
+  DateTime? _lastHistoryTap;
   MissionPeriod _missionPeriod = MissionPeriod.daily;
   Mission _previewMission = Mission.strength;
   int _homeVisit = 0;
@@ -140,7 +146,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   /// Debug-only, opt-in showcase of not-yet-owned remote residents.
   bool _showUnownedPreviewVisitors = false;
   /// In-memory only; recreated as normal whenever the app restarts.
-  SalonUnlockDebugMode _salonUnlockMode = SalonUnlockDebugMode.normal;
+  SalonUnlocdeveloperToolsAvailable _salonUnlockMode = SalonUnlocdeveloperToolsAvailable.normal;
   static Future<DialogueCatalog>? _cachedDialogueCatalog;
   late final Future<DialogueCatalog> _dialoguesFuture;
   // A single future carries both the pinned CDN URL and matching catalog.
@@ -217,7 +223,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
 
   /// Replays the celebration without touching the progress store.
   Future<void> _previewCelebration() async {
-    if (!kDebugMode ||
+    if (!developerToolsAvailable ||
         _celebrating ||
         controller.busy ||
         controller.failure != null ||
@@ -246,7 +252,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   }
 
   void _replayTutorial() {
-    if (!kDebugMode ||
+    if (!developerToolsAvailable ||
         _tutorialSaving ||
         _tutorialReplay ||
         _celebrating ||
@@ -286,7 +292,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   /// with all its navigation controls hidden.
   void _returnToUnlockedTownArea() {
     if (_debugTownResidents != null ||
-        _salonUnlockMode != SalonUnlockDebugMode.normal ||
+        _salonUnlockMode != SalonUnlocdeveloperToolsAvailable.normal ||
         controller.progress == null) {
       return;
     }
@@ -299,7 +305,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   }
 
   void _setDebugTownEnabled(bool enabled) {
-    if (!kDebugMode || controller.busy || controller.progress == null ||
+    if (!developerToolsAvailable || controller.busy || controller.progress == null ||
         controller.failure != null) {
       return;
     }
@@ -313,7 +319,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   }
 
   void _setUnownedPreviewVisitors(bool enabled) {
-    if (!kDebugMode || controller.busy || controller.failure != null ||
+    if (!developerToolsAvailable || controller.busy || controller.failure != null ||
         controller.progress == null) {
       return;
     }
@@ -325,7 +331,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   }
 
   void _setDebugTownResident(TownResident resident, bool selected) {
-    if (!kDebugMode || controller.busy || controller.failure != null) return;
+    if (!developerToolsAvailable || controller.busy || controller.failure != null) return;
     final current = _debugTownResidents;
     if (current == null) {
       throw StateError('Enable the debug town selection first.');
@@ -340,8 +346,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     });
   }
 
-  void _setSalonUnlockMode(SalonUnlockDebugMode mode) {
-    if (!kDebugMode || controller.busy || controller.failure != null ||
+  void _setSalonUnlockMode(SalonUnlocdeveloperToolsAvailable mode) {
+    if (!developerToolsAvailable || controller.busy || controller.failure != null ||
         controller.progress == null) {
       return;
     }
@@ -349,6 +355,32 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       _salonUnlockMode = mode;
       _returnToUnlockedTownArea();
     });
+  }
+
+  void _onNavigationDestinationSelected(int index) {
+    if (index == 4 && !_developerMenuUnlocked) return;
+    // Hidden gesture for explicitly flagged TestFlight builds only; not a
+    // password or authentication. Seven quick taps on the History tab reveal
+    // the developer tab until this app session ends.
+    if (developerToolsAvailable && !kDebugMode &&
+        !_developerMenuUnlocked && index == 3) {
+      final now = DateTime.now();
+      final previous = _lastHistoryTap;
+      _historyTapCount = previous != null &&
+              now.difference(previous) <= const Duration(seconds: 8)
+          ? _historyTapCount + 1
+          : 1;
+      _lastHistoryTap = now;
+      if (_historyTapCount >= 7) {
+        setState(() => _developerMenuUnlocked = true);
+        _selectPage(4);
+        return;
+      }
+    } else if (index != 3) {
+      _historyTapCount = 0;
+      _lastHistoryTap = null;
+    }
+    _selectPage(index);
   }
 
   void _selectPage(int index) {
@@ -378,8 +410,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
               ? ConversationSite.town
               : ConversationSite.roster,
       area: !inSalon && _page == 2 ? _townArea : null,
-      previewSalonUnowned: inSalon && kDebugMode &&
-          _salonUnlockMode == SalonUnlockDebugMode.forceOpen,
+      previewSalonUnowned: inSalon && developerToolsAvailable &&
+          _salonUnlockMode == SalonUnlocdeveloperToolsAvailable.forceOpen,
     );
     final line = catalog.select(
       resident: resident,
@@ -389,8 +421,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     );
     // Conversations in the debug-only cast must not alter saved seen IDs.
     if (_debugTownResidents == null &&
-        !(inSalon && kDebugMode &&
-            _salonUnlockMode == SalonUnlockDebugMode.forceOpen) &&
+        !(inSalon && developerToolsAvailable &&
+            _salonUnlockMode == SalonUnlocdeveloperToolsAvailable.forceOpen) &&
         !controller.progress!.seenDialogues.contains(line.id)) {
       final persisted = await controller.recordDialogueSeen(line.id);
       if (!persisted || !mounted) return;
@@ -711,7 +743,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                     !progress.seenDialogues.contains(_tutorialSeenId))) {
               return;
             }
-            _selectPage(index);
+            _onNavigationDestinationSelected(index);
           },
           destinations: [
             NavigationDestination(
@@ -734,7 +766,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
               icon: uiPart('12_nav_history', width: 54, height: 58),
               label: '履歴',
             ),
-            if (kDebugMode)
+            if (developerToolsAvailable && _developerMenuUnlocked)
               NavigationDestination(
                 key: const ValueKey('footer-menu'),
                 icon: uiPart('21_nav_menu', width: 54, height: 58),
@@ -812,7 +844,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             visit: _townVisit,
             owned: progress.residents.owned,
             debugTownSelectionActive: _debugTownResidents != null,
-            debugRemotePreviewEnabled: kDebugMode && _showUnownedPreviewVisitors,
+            debugRemotePreviewEnabled: developerToolsAvailable && _showUnownedPreviewVisitors,
           );
     return Stack(
       fit: StackFit.expand,
@@ -829,11 +861,11 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           remoteVisitors: visitors,
           remoteContentBaseUri: hosted?.baseUri,
           onRemoteVisitor: hosted == null ||
-                  !kDebugMode || !_showUnownedPreviewVisitors
+                  !developerToolsAvailable || !_showUnownedPreviewVisitors
               ? null
               : (resident) => _showLocalVisitor(hosted, resident),
-          salonUnlockMode: kDebugMode
-              ? _salonUnlockMode : SalonUnlockDebugMode.normal,
+          salonUnlockMode: developerToolsAvailable
+              ? _salonUnlockMode : SalonUnlocdeveloperToolsAvailable.normal,
           onResident: _showDialogue,
           onSalonResident: (resident) =>
               _showDialogue(resident, inSalon: true),
