@@ -15,6 +15,7 @@ class ResidentGacha extends StatefulWidget {
 }
 
 class _ResidentGachaState extends State<ResidentGacha> {
+  static const int _consultationCost = 30;
   bool _revealing = false;
 
   Future<void> _openShrine() async {
@@ -22,7 +23,7 @@ class _ResidentGachaState extends State<ResidentGacha> {
     if (_revealing ||
         widget.controller.busy ||
         progress == null ||
-        progress.residents.availableKotohogi(progress.points) < 30) {
+        progress.residents.availableKotohogi(progress.points) < _consultationCost) {
       return;
     }
     setState(() => _revealing = true);
@@ -68,8 +69,8 @@ class _ResidentGachaState extends State<ResidentGacha> {
                 ),
               ),
               Text(
-                'ことほぎ $balance',
-                key: const ValueKey('consultation-balance'),
+                '$_consultationCostことほぎ',
+                key: const ValueKey('consultation-cost'),
                 style: const TextStyle(
                   color: Color(0xFF63351F),
                   fontWeight: FontWeight.w900,
@@ -78,22 +79,22 @@ class _ResidentGachaState extends State<ResidentGacha> {
             ],
           ),
           Text(
-            balance >= 30
-                ? '30ことほぎで移住相談会を1回開けます。'
-                : 'あと${30 - balance}ことほぎで移住相談会を開けます。',
+            balance >= _consultationCost
+                ? '$_consultationCostことほぎで移住相談会を1回開けます。'
+                : 'あと${_consultationCost - balance}ことほぎで移住相談会を開けます。',
           ),
           const SizedBox(height: 12),
           Center(
             child: Semantics(
               button: true,
-              enabled: !_revealing && !widget.controller.busy && balance >= 30,
+              enabled: !_revealing && !widget.controller.busy && balance >= _consultationCost,
               label: '移住相談会へ',
               child: Tooltip(
                 message: '移住相談会へ',
                 child: TextButton(
                   key: const ValueKey('draw-resident'),
                   onPressed:
-                      _revealing || widget.controller.busy || balance < 30
+                      _revealing || widget.controller.busy || balance < _consultationCost
                       ? null
                       : _openShrine,
                   style: TextButton.styleFrom(
@@ -102,7 +103,7 @@ class _ResidentGachaState extends State<ResidentGacha> {
                   ),
                   child: Opacity(
                     opacity:
-                        _revealing || widget.controller.busy || balance < 30
+                        _revealing || widget.controller.busy || balance < _consultationCost
                         ? .45
                         : 1,
                     child: Image.asset(
