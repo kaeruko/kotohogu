@@ -403,7 +403,9 @@ void main() {
           'residentId': '01_shiba',
           'text': '今日は雲を眺めようよ',
           'priority': 20,
-          'once': false,
+          // Make this two-turn fixture a first-time event so the widget test
+          // verifies dialogue advance, not the separate random draw behavior.
+          'once': true,
           'logic': 'all',
           'conditions': [
             {'type': 'townTogether', 'otherResidentId': '02_rabbit'},
