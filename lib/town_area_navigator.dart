@@ -138,6 +138,10 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
               onResident: widget.onResident,
               marcheOpen: widget.marcheOpen,
               onVisitMarche: widget.onVisitMarche,
+              showSalonEntranceMarker: isSalonAccessible(
+                widget.residents,
+                debugMode: widget.salonUnlockMode,
+              ),
               onEnterSalon: () {
                 if (!isSalonAccessible(
                   widget.residents,
