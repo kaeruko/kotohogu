@@ -252,6 +252,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                             fontWeight: FontWeight.w900,
                           ),
                         ),
+                        const SizedBox(height: 4),
                         Text(
                           areaCounter,
                           style: const TextStyle(
