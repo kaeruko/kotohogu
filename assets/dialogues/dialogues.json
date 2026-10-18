@@ -3098,6 +3098,25 @@
       "firstGreeting": true,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "007_hitsuji_001",
+      "residentId": "007_hitsuji",
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "007_hitsuji_002",
+      "residentId": "007_hitsuji",
+      "text": "自分の年齢が、むかしから0.8掛けくらいに感じるのよ。\nハタチの頃は高校生くらいに思えてたし、40の頃は30くらいに感じてたし、今はようやく円熟味が出てきた頃のように思うの。",
+      "priority": 0,
+      "once": true,
+      "logic": "all",
+      "conditions": [],
+      "firstGreeting": true
     }
   ]
 }

@@ -231,6 +231,17 @@
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"
+    },
+    {
+      "key": "c007_hitsuji",
+      "id": "007_hitsuji",
+      "label": "めりぃ",
+      "profile": "",
+      "artFolder": "007_hitsuji",
+      "nextDialogueNumber": 3,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
     }
   ]
 }

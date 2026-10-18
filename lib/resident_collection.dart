@@ -111,7 +111,9 @@ enum TownResident {
   // ignore: constant_identifier_names
   c041_pig_middle("041_pig_middle", "とんこ", "041_pig_middle", true, true, "", "village"),
   // ignore: constant_identifier_names
-  c042_senior_dog("042_senior_dog", "ごんすけ", "042_senior_dog", true, true, "", "park")
+  c042_senior_dog("042_senior_dog", "ごんすけ", "042_senior_dog", true, true, "", "park"),
+  // ignore: constant_identifier_names
+  c007_hitsuji("007_hitsuji", "めりぃ", "007_hitsuji", true, true, "", "plaza")
   // END CMS RESIDENTS
   ;
 
