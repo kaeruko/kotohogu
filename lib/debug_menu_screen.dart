@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'dev_tools.dart';
 import 'home_skin.dart';
 import 'progress.dart';
 import 'resident_collection.dart';
@@ -42,8 +42,8 @@ class DebugMenuScreen extends StatelessWidget {
   /// Debug-only, off by default; never affects saved collection.
   final bool showUnownedPreviewVisitors;
   final ValueChanged<bool>? onUnownedPreviewVisitorsChanged;
-  final SalonUnlockDebugMode salonUnlockMode;
-  final ValueChanged<SalonUnlockDebugMode> onSalonUnlockModeChanged;
+  final SalonUnlocdeveloperToolsAvailable salonUnlockMode;
+  final ValueChanged<SalonUnlocdeveloperToolsAvailable> onSalonUnlockModeChanged;
   final bool busy;
 
   Future<void> _addTickets(BuildContext context, int amount) async {
@@ -284,7 +284,7 @@ class DebugMenuScreen extends StatelessWidget {
                             },
                     ),
                 ],
-                if (kDebugMode &&
+                if (developerToolsAvailable &&
                     onUnownedPreviewVisitorsChanged != null) ...[
                   const SizedBox(height: 14),
                   SwitchListTile(
@@ -303,7 +303,7 @@ class DebugMenuScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 const Divider(),
                 const SizedBox(height: 8),
-                if (kDebugMode) ...[
+                if (developerToolsAvailable) ...[
                   const Text('施設の開放テスト',
                       style: TextStyle(color: wood, fontSize: 20,
                           fontWeight: FontWeight.bold)),
@@ -317,7 +317,7 @@ class DebugMenuScreen extends StatelessWidget {
                     key: const ValueKey('debug-salon-actual-status'),
                     style: const TextStyle(color: wood),
                   ),
-                  RadioGroup<SalonUnlockDebugMode>(
+                  RadioGroup<SalonUnlocdeveloperToolsAvailable>(
                     groupValue: salonUnlockMode,
                     onChanged: (value) {
                       if (value != null && !busy) {
@@ -327,11 +327,11 @@ class DebugMenuScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         for (final (mode, title) in [
-                          (SalonUnlockDebugMode.normal, '通常の開放条件で判定'),
-                          (SalonUnlockDebugMode.forceOpen, '強制開放してテスト'),
-                          (SalonUnlockDebugMode.forceClosed, '強制未開放でテスト'),
+                          (SalonUnlocdeveloperToolsAvailable.normal, '通常の開放条件で判定'),
+                          (SalonUnlocdeveloperToolsAvailable.forceOpen, '強制開放してテスト'),
+                          (SalonUnlocdeveloperToolsAvailable.forceClosed, '強制未開放でテスト'),
                         ])
-                          RadioListTile<SalonUnlockDebugMode>(
+                          RadioListTile<SalonUnlocdeveloperToolsAvailable>(
                             key: ValueKey('debug-salon-mode-${mode.name}'),
                             contentPadding: EdgeInsets.zero,
                             title: Text(title),
