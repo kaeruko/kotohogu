@@ -169,6 +169,7 @@ def capture(
     )
     marker = app_data / "tmp" / MARKER
     request_file = app_data / "tmp" / "kotohogu-capture-page.txt"
+    print(f"Simulator application sandbox: {app_data}", flush=True)
     output.mkdir(parents=True, exist_ok=True)
     # iOS 26 discards SIMCTL_CHILD_* variables in the Flutter Dart isolate.
     # Write to the application's sandbox instead, then let the app render
