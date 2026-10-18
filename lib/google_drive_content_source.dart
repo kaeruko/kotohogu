@@ -88,8 +88,10 @@ Future<String> _downloadCurrentReleasePointer(Uri uri) async {
     request.headers.set(HttpHeaders.cacheControlHeader, 'no-cache');
     final response = await request.close();
     if (response.statusCode != HttpStatus.ok) {
-      throw HttpException('CloudFront current.json returned HTTP ' +
-          response.statusCode.toString(), uri: uri);
+      throw HttpException(
+        'CloudFront current.json returned HTTP ${response.statusCode}',
+        uri: uri,
+      );
     }
     if (response.headers.contentType?.mimeType != 'application/json') {
       throw FormatException('Expected application/json for current.json');
