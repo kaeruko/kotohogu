@@ -206,15 +206,15 @@ class CmsTests(unittest.TestCase):
     def test_dialogue_serials_preserve_existing_ids_and_retired_numbers(self):
         original = load_catalog()
         modified = copy.deepcopy(original)
-        modified["characters"][0]["nextDialogueNumber"] = 3
+        modified["characters"][0]["nextDialogueNumber"] = 4
         dialogues = sample()
         dialogues["dialogues"].append({
-            "id": "01_shiba_001", "residentId": "01_shiba",
+            "id": "01_shiba_002", "residentId": "01_shiba",
             "text": "新しい話", "priority": 0, "once": False,
             "logic": "all", "conditions": [],
         })
         dialogues["dialogues"].append({
-            "id": "01_shiba_002", "residentId": "01_shiba",
+            "id": "01_shiba_003", "residentId": "01_shiba",
             "text": "次の話", "priority": 0, "once": False,
             "logic": "all", "conditions": [],
         })
@@ -223,17 +223,17 @@ class CmsTests(unittest.TestCase):
         validate_dialogue_ids(modified, dialogues, original, sample())
 
         not_reserved = copy.deepcopy(modified)
-        not_reserved["characters"][0]["nextDialogueNumber"] = 2
+        not_reserved["characters"][0]["nextDialogueNumber"] = 3
         with self.assertRaisesRegex(ValueError, "not reserved"):
             validate_dialogue_ids(not_reserved, dialogues, original, sample())
 
         previously_reserved = copy.deepcopy(original)
-        previously_reserved["characters"][0]["nextDialogueNumber"] = 3
+        previously_reserved["characters"][0]["nextDialogueNumber"] = 4
         future = copy.deepcopy(previously_reserved)
-        future["characters"][0]["nextDialogueNumber"] = 4
+        future["characters"][0]["nextDialogueNumber"] = 5
         new_dialogues = sample()
         new_dialogues["dialogues"].append({
-            "id": "01_shiba_002", "residentId": "01_shiba",
+            "id": "01_shiba_003", "residentId": "01_shiba",
             "text": "削除済み番号の再利用", "priority": 0, "once": False,
             "logic": "all", "conditions": [],
         })
@@ -251,7 +251,7 @@ class CmsTests(unittest.TestCase):
             validate_dialogue_ids(modified, invalid, original, sample())
 
         rollback_counter = copy.deepcopy(original)
-        rollback_counter["characters"][0]["nextDialogueNumber"] = 3
+        rollback_counter["characters"][0]["nextDialogueNumber"] = 4
         with self.assertRaisesRegex(ValueError, "cannot decrease"):
             validate_catalog(original, previous=rollback_counter)
 
@@ -329,7 +329,7 @@ class CmsTests(unittest.TestCase):
     def test_valid_bundled_content(self):
         validate(sample())
         frog = [entry for entry in sample()["dialogues"]
-                if entry["residentId"] == "029_office_worker"]
+                if entry["residentId"] == "029_office_worker" and not entry.get("firstGreeting")]
         self.assertEqual(len(frog), 11)
         self.assertEqual([row["id"] for row in frog],
                          [f"029_office_worker_{number:03d}" for number in range(1, 12)])
@@ -444,7 +444,7 @@ class CmsTests(unittest.TestCase):
                 before = target.read_bytes()
                 modified = sample()
                 modified["dialogues"].append({
-                    "id": "01_shiba_001", "residentId": "01_shiba",
+                    "id": "01_shiba_002", "residentId": "01_shiba",
                     "text": "新しい話", "priority": 0, "once": False,
                     "logic": "all", "conditions": [],
                 })
