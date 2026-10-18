@@ -3,6 +3,11 @@ name: App Store screenshots (iPhone + 13-inch iPad)
 # No Apple signing certificate or TestFlight upload is necessary.
 on:
   workflow_dispatch:
+  # Validate capture changes on a Mac even when no one has run it manually.
+  push:
+    branches: [main]
+    paths:
+      - 'tools/ios/capture_store_screenshots.py'
 
 permissions:
   contents: read
@@ -64,6 +69,15 @@ jobs:
           echo "### App Store screenshots" >> "$GITHUB_STEP_SUMMARY"
           echo "4 iPhone (1206×2622) + 4 iPad 13-inch (2064×2752)." >> "$GITHUB_STEP_SUMMARY"
           echo "Download artifact **kotohogu-app-store-screenshots** and inspect each image before submission." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep simulator screenshot and logs if capture fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kotohogu-simulator-diagnostics
+          path: store_screenshots/**/diagnostics/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Downloadable screenshots (two device folders)
         uses: actions/upload-artifact@v4
