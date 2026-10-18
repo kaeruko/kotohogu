@@ -276,11 +276,16 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
           ),
           if (hangingShoppingSign)
             Positioned(
-              // At the 937px shopping-art width, this sits between the two
-              // lantern strings, immediately above the distant shrine roof.
-              // Use scene width rather than screen height so the sign tracks
-              // the illustration as the phone width changes.
-              top: constraints.maxWidth * .50,
+              // Keep the sign above the distant shrine roof, rather than
+              // halfway down the street scene on tablets. On narrow phones,
+              // clear the navigation row and its page counter as well.
+              top: math.max(
+                constraints.maxWidth * .23,
+                math.max(
+                  92.0,
+                  PinnedGachaHud.reservedHeightForWidth(constraints.maxWidth) + 12,
+                ) + 56,
+              ),
               left: 0,
               right: 0,
               child: Center(
