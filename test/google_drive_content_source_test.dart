@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/google_drive_content_source.dart';
 
@@ -29,13 +31,124 @@ void main() {
       '', ' \n ', '$url\n$url',
       '<html>Google Drive sign in</html>',
       'http://10.0.2.2:8765/',
-      'https://example.com/current.json',
+      'https://example.com/current.json?tracking=1',
+      'https://example.com/current.json/',
+      'https://user@example.com/current.json',
       'https://example.com/releases/latest/',
       'https://example.com/releases/$sha',
     ]) {
       expect(() => parseGoogleDriveContentEndpoint(raw),
           throwsFormatException, reason: raw);
     }
+  });
+
+  test('current.json URL is an explicitly valid Drive endpoint', () {
+    const pointer = 'https://d2aowvb1pjx3w2.cloudfront.net/current.json';
+    expect(parseGoogleDriveContentEndpoint(' $pointer\n').toString(), pointer);
+  });
+
+  test('existing pinned Drive file resolves latest release from current.json',
+      () async {
+    const pointer = 'https://d2aowvb1pjx3w2.cloudfront.net/current.json';
+    const manifestHash =
+        'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+    var calls = 0;
+    final resolved = await resolveDriveReleaseBaseUri(
+      Uri.parse(url),
+      fetchPointer: (uri) async {
+        calls++;
+        expect(uri.toString(), pointer);
+        return jsonEncode({
+          'schemaVersion': 1,
+          'releaseId': sha,
+          'basePath': '/releases/$sha/',
+          'manifestPath': '/releases/$sha/manifest.json',
+          'manifestSha256': manifestHash,
+        });
+      },
+    );
+    expect(calls, 1);
+    expect(resolved.toString(), url);
+    expect(resolved.resolve('api/runtime/catalog').toString(),
+        url + 'api/runtime/catalog');
+
+    // When Drive explicitly contains /current.json it uses the same flow.
+    final direct = await resolveDriveReleaseBaseUri(
+      Uri.parse(pointer),
+      fetchPointer: (uri) async {
+        expect(uri.toString(), pointer);
+        return jsonEncode({
+          'schemaVersion': 1,
+          'releaseId': sha,
+          'basePath': '/releases/$sha/',
+          'manifestPath': '/releases/$sha/manifest.json',
+          'manifestSha256': manifestHash,
+        });
+      },
+    );
+    expect(direct, resolved);
+  });
+
+  test('a new current.json release replaces the prior pinned seed URL', () async {
+    const nextSha =
+        'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
+    final result = await resolveDriveReleaseBaseUri(
+      Uri.parse(url),
+      fetchPointer: (uri) async => jsonEncode({
+        'schemaVersion': 1,
+        'releaseId': nextSha,
+        'basePath': '/releases/$nextSha/',
+        'manifestPath': '/releases/$nextSha/manifest.json',
+        'manifestSha256': nextSha,
+      }),
+    );
+    expect(result.toString(),
+        'https://d2aowvb1pjx3w2.cloudfront.net/releases/$nextSha/');
+  });
+
+  test('current.json rejects corrupt, inconsistent or changed schemas', () {
+    const pointer = 'https://d2aowvb1pjx3w2.cloudfront.net/current.json';
+    final uri = Uri.parse(pointer);
+    final valid = <String, Object>{
+      'schemaVersion': 1,
+      'releaseId': sha,
+      'basePath': '/releases/$sha/',
+      'manifestPath': '/releases/$sha/manifest.json',
+      'manifestSha256': List.filled(64, 'b').join(),
+    };
+    for (final invalid in <String>[
+      '',
+      '[]',
+      '{}',
+      '{bad json}',
+      jsonEncode({...valid, 'schemaVersion': 2}),
+      jsonEncode({...valid, 'schemaVersion': '1'}),
+      jsonEncode({...valid, 'releaseId': 'latest'}),
+      jsonEncode({...valid, 'basePath': '/releases/other/'}),
+      jsonEncode({...valid, 'manifestPath': '/releases/other/manifest.json'}),
+      jsonEncode({...valid, 'manifestSha256': 'bad'}),
+      jsonEncode({...valid, 'newField': true}),
+    ]) {
+      expect(() => parseCurrentReleasePointer(uri, invalid),
+          throwsFormatException, reason: invalid);
+    }
+    expect(() => parseCurrentReleasePointer(
+        Uri.parse('http://d2aowvb1pjx3w2.cloudfront.net/current.json'),
+        jsonEncode(valid)), throwsFormatException);
+  });
+
+  test('broken current.json fails; pinned Drive version is never a fallback',
+      () async {
+    var attempts = 0;
+    await expectLater(
+      resolveDriveReleaseBaseUri(Uri.parse(url),
+          fetchPointer: (uri) async {
+        attempts++;
+        throw const FormatException('Corrupt current pointer');
+      }),
+      throwsFormatException,
+    );
+    expect(attempts, 1);
   });
 
   test('download error propagates without fallback', () async {
