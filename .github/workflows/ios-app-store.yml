@@ -105,7 +105,6 @@ jobs:
             --build-number "$GITHUB_RUN_NUMBER" \
             --export-options-plist "$RUNNER_TEMP/ExportOptions.plist"
           test -n "$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)"
-          echo "Built IPA version 1.0.0 ($GITHUB_RUN_NUMBER)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep signed IPA for download
         uses: actions/upload-artifact@v4
@@ -148,7 +147,7 @@ jobs:
             echo "::error::Unexpected IPA display name: $display_name"
             exit 1
           }
-          [[ "$build_name" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]] || {
+          [[ "$build_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
             echo "::error::Invalid IPA release version: $build_name"
             exit 1
           }
