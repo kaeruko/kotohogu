@@ -122,7 +122,8 @@ enum TownResident {
   final bool inGacha;
   final bool walkInTown;
   final String profile;
-  /// Assigned by the local character CMS, not the save file.
+  /// Legacy catalog field: 'salon' means indoor-only. Other values are kept
+  /// for compatibility and debug views, but do not affect random outings.
   final String homeAreaId;
   static List<TownResident> get gachaPool =>
       values.where((resident) => resident.inGacha).toList(growable: false);

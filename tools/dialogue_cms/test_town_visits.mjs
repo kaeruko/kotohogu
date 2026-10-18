@@ -41,37 +41,46 @@ test('locked destinations and invalid random values fail without substitution',(
   assert.throws(()=>destination(resident('new'),['plaza'],new Map(),false,()=>1),/範囲外/);
 });
 
-test('area selection synchronizes the residence list, while all-residents remains available',()=>{
+test('area selection changes the area preview without exposing legacy homes',()=>{
   const start=html.indexOf('function chooseArea(');
   const end=html.indexOf('function renderAreaEditor(',start);
-  assert(start>=0&&end>start,'CMS area-selection helpers must exist');
-  const filter={value:'all'};
+  assert(start>=0&&end>start,'CMS area-selection handler must exist');
   const updated=[];
   const ctx=vm.createContext({
     areaDoc:{areas:[{id:'plaza'},{id:'village'}]},
     activeArea:'plaza',
-    byId:id=>{assert.equal(id,'placementFilter');return filter},
     renderAreaList:()=>updated.push('list'),
     renderAreaEditor:()=>updated.push('editor'),
-    renderAreaPlacements:()=>updated.push('residents'),
     renderAreaPreview:()=>updated.push('preview'),
   });
   vm.runInContext(html.slice(start,end),ctx);
   ctx.chooseArea('village');
   assert.equal(ctx.activeArea,'village');
-  assert.equal(filter.value,'village');
-  assert.deepEqual(updated,['list','editor','residents','preview']);
-  const characters=[
-    {id:'shiba',homeAreaId:'plaza'},
-    {id:'rabbit',homeAreaId:'park'},
-    {id:'bear',homeAreaId:'village'},
-  ];
-  assert.deepEqual(Array.from(ctx.homeResidentsForFilter(characters,filter.value),r=>r.id),['bear']);
-  filter.value='all';
-  assert.deepEqual(Array.from(ctx.homeResidentsForFilter(characters,filter.value),r=>r.id),
-    ['shiba','rabbit','bear']);
+  assert.deepEqual(updated,['list','editor','preview']);
   ctx.chooseArea('plaza');
-  assert.equal(filter.value,'plaza');
-  assert.deepEqual(Array.from(ctx.homeResidentsForFilter(characters,filter.value),r=>r.id),['shiba']);
+  assert.equal(ctx.activeArea,'plaza');
   assert.throws(()=>ctx.chooseArea('unknown'),/存在しないエリア/);
+  assert(!html.includes('id="placementFilter"'));
+  assert(!html.includes('id="areaPlacements"'));
+  assert(!html.includes('住むエリア'));
+  assert(!html.includes('居住エリア'));
+  assert(html.includes('桜の美容室の住民（室内だけに登場）'));
+});
+
+test('salon membership is the only editable resident placement exception',()=>{
+  const start=html.indexOf('function setSalonMembership(');
+  const end=html.indexOf('function updateAreaLabels(',start);
+  assert(start>=0&&end>start,'Salon membership helper must exist');
+  const ctx=vm.createContext({});
+  vm.runInContext(html.slice(start,end),ctx);
+  const outdoor={id:'02_rabbit',homeAreaId:'park'};
+  ctx.setSalonMembership(outdoor,false);
+  assert.equal(outdoor.homeAreaId,'park','old outdoor value is preserved');
+  ctx.setSalonMembership(outdoor,true);
+  assert.equal(outdoor.homeAreaId,'salon');
+  ctx.setSalonMembership(outdoor,false);
+  assert.equal(outdoor.homeAreaId,'plaza','neutral legacy default is not a spawn rule');
+  const owner={id:'035_beaty',homeAreaId:'salon'};
+  assert.throws(()=>ctx.setSalonMembership(owner,false),/固定/);
+  assert.equal(owner.homeAreaId,'salon');
 });

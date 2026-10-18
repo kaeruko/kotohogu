@@ -79,6 +79,30 @@ void main() {
         throwsArgumentError);
   });
 
+  test('outdoor outing destination ignores legacy home metadata', () {
+    // Outdoor homeAreaId values remain in old catalogs for compatibility,
+    // but every walker can visit every opened area with equal chance.
+    for (final legacy in ['plaza', 'park', 'shopping', 'village']) {
+      final rng = ScriptedTownRandom([2]);
+      final visit = TownVisit(random: rng);
+      final first = visit.destinationFor(
+        residentId: 'outdoor_test_resident',
+        walkInTown: true,
+        homeAreaId: legacy,
+        lifetimePoints: 300,
+      );
+      expect(first, TownArea.shopping, reason: legacy);
+      final repeat = visit.destinationFor(
+        residentId: 'outdoor_test_resident',
+        walkInTown: true,
+        homeAreaId: legacy,
+        lifetimePoints: 300,
+      );
+      expect(repeat, first);
+      expect(rng.calls, 1, reason: 'Do not redraw while in the same town visit');
+    }
+  });
+
   test('salon walking flag does not put an indoor resident outdoors', () {
     const rio = TownResident.c038_lion_lady;
     final visit = TownVisit(random: ScriptedTownRandom([]));

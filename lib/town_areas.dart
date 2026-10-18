@@ -65,7 +65,8 @@ class TownVisit {
       throw RangeError.value(lifetimePoints, 'lifetimePoints', 'Must be >= 0');
     }
     if (homeAreaId == 'salon') return null;
-    // Home remains a validated character setting, not an outing destination.
+    // Legacy outdoor home IDs are validated for compatibility, but do not
+    // constrain or weight random outings. Only 'salon' means indoor-only.
     TownArea.fromId(homeAreaId);
     if (!walkInTown) return null;
     if (marcheOpen && residentId == tonkoMarcheOwner.id) {
@@ -102,7 +103,7 @@ TownArea? residentCurrentArea(
 
 /// Allocate each owned walker to exactly one currently accessible area.
 /// The debug cast is deliberately different: it previews residents in their
-/// original CMS-assigned area, even if that area has not opened yet.
+/// legacy catalog area for deterministic manual preview, even when locked.
 List<TownResident> areaResidents(
   Iterable<TownResident> owned,
   TownArea area, {
@@ -114,7 +115,7 @@ List<TownResident> areaResidents(
   final candidates = visibleTownResidents(owned, debugOverride: debugOverride);
   return List<TownResident>.unmodifiable(
     candidates.where((resident) {
-      // Temporary preview selections keep the CMS-assigned home.
+      // Debug-only selections retain legacy area assignments for old tests.
       if (debugOverride != null) {
         return resident.walkInTown && resident.homeAreaId == area.id;
       }
