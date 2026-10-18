@@ -91,19 +91,63 @@ def dimensions(image: Path) -> tuple[int, int]:
 
 def await_rendered_page(marker: Path, page: str) -> None:
     deadline = time.monotonic() + 65
+    last_status = "<not written>"
     while time.monotonic() < deadline:
         if marker.exists():
-            actual = marker.read_text(encoding="utf-8").strip()
-            if actual != page:
+            last_status = marker.read_text(encoding="utf-8").strip()
+            if last_status == f"ready:{page}":
+                return
+            if last_status != f"booting:{page}":
                 raise RuntimeError(
-                    f"Simulator opened the wrong screen: expected {page}, got {actual!r}"
+                    f"Unexpected screenshot status for {page!r}: {last_status!r}"
                 )
-            return
         time.sleep(0.5)
     raise TimeoutError(
-        f"App never confirmed {page!r} screen at {marker}. "
-        "Inspect Simulator crash logs and screenshot entrypoint."
+        f"App never rendered {page!r}: last status={last_status!r}; "
+        f"expected marker {marker}. Check diagnostics artifact."
     )
+
+
+def save_diagnostics(
+    udid: str, output: Path, marker: Path, page: str, reason: Exception
+) -> None:
+    """Always save the visible Simulator frame and device logs on failure."""
+    target = output / "diagnostics"
+    target.mkdir(parents=True, exist_ok=True)
+    status = marker.read_text(encoding="utf-8") if marker.exists() else "<absent>"
+    text = [
+        f"Page: {page}",
+        f"Failure: {type(reason).__name__}: {reason}",
+        f"Marker: {marker}",
+        f"Status: {status}",
+    ]
+    screenshot = target / f"{page}_on_failure.png"
+    proc = subprocess.run(
+        ["xcrun", "simctl", "io", udid, "screenshot", "--type=png", str(screenshot)],
+        capture_output=True, text=True, timeout=25, check=False,
+    )
+    text.append(f"Screenshot: {proc.returncode}: {proc.stdout} {proc.stderr}")
+    # These are simulator's own logs, not Apple private signing artifacts.
+    try:
+        log = subprocess.run(
+            [
+                "xcrun", "simctl", "spawn", udid, "log", "show", "--last", "2m",
+                "--style", "compact", "--predicate", 'process == "Runner"',
+            ],
+            capture_output=True, text=True, timeout=30, check=False,
+        )
+        (target / f"{page}_runner_log.txt").write_text(
+            log.stdout[-150000:] + "\n" + log.stderr[-12000:],
+            encoding="utf-8",
+        )
+        text.append(f"Simulator logs: exit={log.returncode}")
+        print(log.stdout[-3500:], flush=True)
+    except (subprocess.TimeoutExpired, OSError) as error:
+        text.append(f"Could not read Simulator logs: {error}")
+    (target / f"{page}_failure.txt").write_text(
+        "\n".join(text) + "\n", encoding="utf-8"
+    )
+    print("\n".join(text), flush=True)
 
 
 def capture(
@@ -123,11 +167,16 @@ def capture(
         env = dict(os.environ)
         # Runtime setting means the *same installed app* renders all four pages.
         env["SIMCTL_CHILD_KOTOHOGU_CAPTURE_SCREEN"] = page
-        cmd(
-            "xcrun", "simctl", "launch", "--terminate-running-process",
-            udid, bundle_id, env=env,
-        )
-        await_rendered_page(marker, page)
+        try:
+            launch_result = cmd(
+                "xcrun", "simctl", "launch", "--terminate-running-process",
+                udid, bundle_id, env=env,
+            )
+            print(f"Launched {page}: {launch_result}; awaiting UI...", flush=True)
+            await_rendered_page(marker, page)
+        except Exception as error:
+            save_diagnostics(udid, output, marker, page, error)
+            raise
         time.sleep(0.8)
 
         # Native Simulator screenshot includes its genuine status bar.
