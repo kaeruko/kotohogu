@@ -1,0 +1,73 @@
+name: App Store screenshots (iPhone + 13-inch iPad)
+
+# No Apple signing certificate or TestFlight upload is necessary.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kotohogu-store-screenshots
+  cancel-in-progress: false
+
+jobs:
+  screenshots:
+    name: Capture iPhone and iPad screens
+    runs-on: macos-26
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+
+      - name: Create local iOS Simulator Runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter pub get
+          if [[ ! -d ios/Runner.xcodeproj ]]; then
+            flutter create --platforms=ios --project-name future_lift --org jp.cloxs .
+          fi
+          xcodebuild -version
+          xcrun simctl list runtimes
+          xcrun simctl list devicetypes
+
+      - name: Verify screenshot fixture and Dart source
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter analyze
+          flutter test test/store_screenshots_test.dart
+
+      - name: Build isolated, unsigned simulator app
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter build ios --simulator --debug \
+            --target=lib/store_screenshots.dart \
+            --dart-define=KOTOHOGU_STORE_SCREENSHOTS=true
+          test -d build/ios/iphonesimulator/Runner.app
+
+      - name: Capture and validate 8 App Store screenshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/ios/capture_store_screenshots.py \
+            --app build/ios/iphonesimulator/Runner.app \
+            --output store_screenshots
+          echo "### App Store screenshots" >> "$GITHUB_STEP_SUMMARY"
+          echo "4 iPhone (1206×2622) + 4 iPad 13-inch (2064×2752)." >> "$GITHUB_STEP_SUMMARY"
+          echo "Download artifact **kotohogu-app-store-screenshots** and inspect each image before submission." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Downloadable screenshots (two device folders)
+        uses: actions/upload-artifact@v4
+        with:
+          name: kotohogu-app-store-screenshots
+          path: store_screenshots/
+          if-no-files-found: error
+          retention-days: 14
