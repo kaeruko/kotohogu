@@ -55,6 +55,13 @@ jobs:
           dart run flutter_launcher_icons -f ios_app_icon_config.yaml
           xcodebuild -version
 
+      - name: Validate Dart source before signing and archiving
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter analyze
+          flutter test test/google_drive_content_source_test.dart test/developer_menu_unlock_test.dart
+
       - name: Install Apple distribution signing materials
         shell: bash
         env:
