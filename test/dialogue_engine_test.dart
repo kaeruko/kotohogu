@@ -304,7 +304,9 @@ void main() {
     final live = DialogueCatalog.fromJson(
       File('assets/dialogues/dialogues.json').readAsStringSync(),
     );
-    final progress = Progress.empty(DateTime(2026, 10, 15));
+    // First meeting has already happened; verify subsequent companionship.
+    final progress = Progress.empty(DateTime(2026, 10, 15))
+        .markDialogueSeen('026_farmer_003');
     final now = DateTime.utc(2026, 10, 15, 0);
     DialogueEntry pick(Set<String> town) => live.select(
       resident: TownResident.c026_farmer,
