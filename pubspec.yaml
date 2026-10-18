@@ -46,12 +46,17 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
 
-# The checked-in repo has Android sources but generates iOS sources in CI.
-# Keep local/default icon generation Android-only; iOS uses a separate config.
+# Single source of truth: assets/icon/icon.png.
+# The iOS runner is generated at release time. See flutter_launcher_icons-ios.yaml.
 flutter_launcher_icons:
   android: true
   ios: false
   image_path: assets/icon/icon.png
+  web:
+    generate: true
+    image_path: assets/icon/icon.png
+    background_color: "#FFFAF0"
+    theme_color: "#277A70"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

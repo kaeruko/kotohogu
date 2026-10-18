@@ -1,0 +1,71 @@
+name: Sync launcher icons
+
+# Regenerate the checked-in Android/Web launcher images from one source.
+# iOS sources are created only for releases; the IPA workflow applies the
+# separate flutter_launcher_icons-ios.yaml config after flutter create.
+on:
+  push:
+    branches: [main]
+    paths:
+      - assets/icon/icon.png
+      - pubspec.yaml
+      - .github/workflows/sync-launcher-icons.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kotohogu-launcher-icons
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+      - name: Generate Android and Web launcher icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s assets/icon/icon.png
+          flutter pub get
+          dart run flutter_launcher_icons
+
+          for dir in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            test -s "android/app/src/main/res/mipmap-$dir/ic_launcher.png"
+          done
+          test -s web/favicon.png
+          test -s web/icons/Icon-192.png
+          test -s web/icons/Icon-512.png
+          test -s web/icons/Icon-maskable-192.png
+          test -s web/icons/Icon-maskable-512.png
+
+      - name: Commit refreshed launcher images
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android/app/src/main/res/mipmap-*/ic_launcher.png \
+                  web/favicon.png web/manifest.json \
+                  web/icons/Icon-192.png web/icons/Icon-512.png \
+                  web/icons/Icon-maskable-192.png web/icons/Icon-maskable-512.png
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "Icons already match assets/icon/icon.png" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git commit -m "Regenerate app icons from assets/icon/icon.png [skip ci]"
+          git push origin HEAD:main
+          echo "Updated Android and Web launcher images on main" >> "$GITHUB_STEP_SUMMARY"
