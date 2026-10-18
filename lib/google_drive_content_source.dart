@@ -143,7 +143,8 @@ Future<HostedTownContent> loadAppTownContent() async {
 ;
   final id = json['releaseId'];
   final manifestHash = json['manifestSha256'];
-  if (json['schemaVersion'] != 1 ||
+  if (json['schemaVersion'] is! int ||
+      json['schemaVersion'] != 1 ||
       id is! String ||
       !RegExp(digestPattern).hasMatch(id) ||
       json['basePath'] != '/releases/$id/' ||
