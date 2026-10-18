@@ -16,23 +16,23 @@ const bool developerToolsAvailable =
 /// whether signed releases even contain operational developer features.
 class DeveloperMenuUnlockSequence {
   int _count = 0;
-  DateTime? _lastTap;
+  DateTime? _firstTap;
 
   bool registerHistoryTap(DateTime now) {
-    final previous = _lastTap;
-    if (previous == null ||
-        now.isBefore(previous) ||
-        now.difference(previous) > const Duration(seconds: 8)) {
+    final start = _firstTap;
+    if (start == null ||
+        now.isBefore(start) ||
+        now.difference(start) > const Duration(seconds: 8)) {
+      _firstTap = now;
       _count = 1;
     } else {
       _count++;
     }
-    _lastTap = now;
     return _count >= 7;
   }
 
   void reset() {
     _count = 0;
-    _lastTap = null;
+    _firstTap = null;
   }
 }
