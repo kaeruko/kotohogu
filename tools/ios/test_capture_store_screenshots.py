@@ -67,7 +67,7 @@ class ScreenshotWorkflowTests(unittest.TestCase):
             marker = Path(directory) / capture.MARKER
             marker.write_text("ready:town\n", encoding="utf-8")
             capture.await_rendered_page(marker, "town")
-            with self.assertRaisesRegex(RuntimeError, "wrong screen"):
+            with self.assertRaisesRegex(RuntimeError, "Unexpected screenshot status"):
                 capture.await_rendered_page(marker, "missions")
 
 
