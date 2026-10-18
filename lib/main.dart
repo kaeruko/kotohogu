@@ -53,7 +53,11 @@ class FutureLiftApp extends StatelessWidget {
     this.enableTutorial = true,
     this.remoteContentLoader,
     this.townRandom,
-  });
+    this.initialPage = 0,
+  }) : assert(initialPage >= 0 && initialPage <= 3);
+  /// Used by the separate App Store screenshot entrypoint only.
+  /// Production continues to start on the home page.
+  final int initialPage;
   final ProgressController controller;
   /// Optional random stream for reproducible outings in tests.
   final math.Random? townRandom;
@@ -95,6 +99,7 @@ class FutureLiftApp extends StatelessWidget {
       enableTutorial: enableTutorial,
       remoteContentLoader: remoteContentLoader,
       townRandom: townRandom,
+      initialPage: initialPage,
     ),
   );
 }
@@ -107,7 +112,11 @@ class FutureLiftHome extends StatefulWidget {
     this.enableTutorial = true,
     this.remoteContentLoader,
     this.townRandom,
-  });
+    this.initialPage = 0,
+  }) : assert(initialPage >= 0 && initialPage <= 3);
+  /// Used by the separate App Store screenshot entrypoint only.
+  /// Production continues to start on the home page.
+  final int initialPage;
   final ProgressController controller;
   final math.Random? townRandom;
   final DialogueCatalog? dialogueCatalog;
@@ -122,7 +131,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     with WidgetsBindingObserver {
   final _townSceneKey = GlobalKey();
   final ScrollController _townScrollController = ScrollController();
-  int _page = 0;
+  late int _page;
   // In an opted-in signed build the tools stay hidden until the local gesture.
   // A regular debug run retains its familiar visible fifth tab.
   bool _developerMenuUnlocked = kDebugMode;
@@ -155,6 +164,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   @override
   void initState() {
     super.initState();
+    _page = widget.initialPage;
     _townVisit = TownVisit(random: widget.townRandom);
     WidgetsBinding.instance.addObserver(this);
     _dialoguesFuture = widget.dialogueCatalog != null
