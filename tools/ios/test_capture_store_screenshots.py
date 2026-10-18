@@ -65,7 +65,7 @@ class ScreenshotWorkflowTests(unittest.TestCase):
     def test_requires_page_ready_marker_to_match(self):
         with tempfile.TemporaryDirectory() as directory:
             marker = Path(directory) / capture.MARKER
-            marker.write_text("town\n", encoding="utf-8")
+            marker.write_text("ready:town\n", encoding="utf-8")
             capture.await_rendered_page(marker, "town")
             with self.assertRaisesRegex(RuntimeError, "wrong screen"):
                 capture.await_rendered_page(marker, "missions")
