@@ -30,18 +30,18 @@ bool isSalonUnlocked(Iterable<TownResident> owned) =>
     owned.contains(TownResident.c035_beaty);
 
 /// Temporary debug preview, never part of saved progress.
-enum SalonUnlocdeveloperToolsAvailable { normal, forceOpen, forceClosed }
+enum SalonUnlockDebugMode { normal, forceOpen, forceClosed }
 
 bool isSalonAccessible(
   Iterable<TownResident> owned, {
-  SalonUnlocdeveloperToolsAvailable debugMode = SalonUnlocdeveloperToolsAvailable.normal,
+  SalonUnlockDebugMode debugMode = SalonUnlockDebugMode.normal,
 }) {
   final ownedOwner = isSalonUnlocked(owned);
   if (!developerToolsAvailable) return ownedOwner;
   return switch (debugMode) {
-    SalonUnlocdeveloperToolsAvailable.normal => ownedOwner,
-    SalonUnlocdeveloperToolsAvailable.forceOpen => true,
-    SalonUnlocdeveloperToolsAvailable.forceClosed => false,
+    SalonUnlockDebugMode.normal => ownedOwner,
+    SalonUnlockDebugMode.forceOpen => true,
+    SalonUnlockDebugMode.forceClosed => false,
   };
 }
 
