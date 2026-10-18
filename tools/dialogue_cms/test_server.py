@@ -191,7 +191,7 @@ class CmsTests(unittest.TestCase):
         self.assertIn("007_hitsuji",
                       {row["id"] for row in original["characters"]})
         dart = generate_dart(DART.read_text("utf-8"), original["characters"])
-        self.assertIn('c007_hitsuji("007_hitsuji", "ひつじ", "007_hitsuji"', dart)
+        self.assertIn('c007_hitsuji("007_hitsuji", "めりぃ", "007_hitsuji"', dart)
 
         modified = copy.deepcopy(original)
         modified["characters"].append({
