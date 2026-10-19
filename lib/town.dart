@@ -230,10 +230,14 @@ class _TownSceneState extends State<TownScene> {
         ? visibleResidents.indexOf(tonkoMarcheOwner)
         : -1;
     final count = visibleResidents.length + widget.remoteVisitors.length;
-    final size = (width * (count <= townWalkSlots.length
+    // Size limits use a 768px reference canvas, so higher-resolution
+    // backgrounds do not shrink walkers after FittedBox scales the scene.
+    final spriteScale = widget.fillViewport ? width / 768.0 : 1.0;
+    final referenceWidth = width / spriteScale;
+    final size = (referenceWidth * (count <= townWalkSlots.length
         ? .14
         : math.min(.14, .64 / math.sqrt(count * 1.3).ceil())))
-        .clamp(22.0, 76.0);
+        .clamp(22.0, 76.0) * spriteScale;
     return Stack(
       children: [
         Positioned.fill(
