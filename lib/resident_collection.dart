@@ -29,6 +29,10 @@ List<TownResident> visibleTownResidents(
 bool isSalonUnlocked(Iterable<TownResident> owned) =>
     owned.contains(TownResident.c035_beaty);
 
+/// The pastry shop opens as soon as its patissier is owned.
+bool isBakeryUnlocked(Iterable<TownResident> owned) =>
+    owned.contains(TownResident.c047_patisie);
+
 /// Temporary debug preview, never part of saved progress.
 enum SalonUnlockDebugMode { normal, forceOpen, forceClosed }
 

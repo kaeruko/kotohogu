@@ -14,6 +14,9 @@ const townNames = ['穏やかなまち', '花のあるまち', '笑顔が集ま�
 /// Keep this rect in source-image coordinates, not screen coordinates.
 const villageSalonDoor = Rect.fromLTWH(782, 728, 112, 132);
 
+/// Door beside the red parasol in the middle-right shopping-street house.
+const shoppingBakeryDoor = Rect.fromLTWH(606, 552, 65, 95);
+
 /// Tonko's 540x474 image in source coordinates of the 768x1376 plaza.
 const plazaMarcheRect = Rect.fromLTWH(509, 663, 214, 188);
 
@@ -51,6 +54,8 @@ class TownScene extends StatefulWidget {
     this.remoteContentBaseUri,
     this.onRemoteVisitor,
     this.onEnterSalon,
+    this.onEnterBakery,
+    this.showBakeryEntranceMarker = false,
     this.showSalonEntranceMarker = false,
     this.marcheOpen = false,
     this.onVisitMarche,
@@ -71,6 +76,8 @@ class TownScene extends StatefulWidget {
   final Uri? remoteContentBaseUri;
   final Future<void> Function(RemoteResident)? onRemoteVisitor;
   final VoidCallback? onEnterSalon;
+  final VoidCallback? onEnterBakery;
+  final bool showBakeryEntranceMarker;
   /// Show the salon entrance sign only when entry is currently permitted.
   final bool showSalonEntranceMarker;
   final bool marcheOpen;
@@ -374,6 +381,41 @@ class _TownSceneState extends State<TownScene> {
                     ),
                   ),
                 ),
+              ),
+            ),
+          ),
+        if (widget.area == TownArea.shopping && widget.onEnterBakery != null)
+          Positioned(
+            left: width * shoppingBakeryDoor.left / 768,
+            top: height * shoppingBakeryDoor.top / 1376,
+            width: width * shoppingBakeryDoor.width / 768,
+            height: height * shoppingBakeryDoor.height / 1376,
+            child: Semantics(
+              button: true,
+              label: '洋菓子店に入る',
+              child: Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  key: const ValueKey('shopping-bakery-entrance'),
+                  onTap: widget.onEnterBakery,
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            ),
+          ),
+        if (widget.area == TownArea.shopping &&
+            widget.showBakeryEntranceMarker && widget.onEnterBakery != null)
+          Positioned(
+            left: width * 460 / 768,
+            top: height * 470 / 1376,
+            width: width * 205 / 768,
+            height: height * 80 / 1376,
+            child: FittedBox(
+              child: FilledButton.tonalIcon(
+                key: const ValueKey('shopping-bakery-open-marker'),
+                onPressed: widget.onEnterBakery,
+                icon: const Icon(Icons.cake_outlined),
+                label: const Text('洋菓子店\n入口はこちら ↘'),
               ),
             ),
           ),

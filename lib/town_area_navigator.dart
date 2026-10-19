@@ -7,6 +7,7 @@ import 'gacha_hud.dart';
 import 'resident_collection.dart';
 import 'local_content_preview.dart';
 import 'salon_room.dart';
+import 'bakery_room.dart';
 import 'town.dart';
 import 'town_areas.dart';
 
@@ -28,6 +29,7 @@ class TownAreaNavigator extends StatefulWidget {
     this.salonUnlockMode = SalonUnlockDebugMode.normal,
     this.onResident,
     this.onSalonResident,
+    this.onBakeryResident,
     this.marcheOpen = false,
     this.onVisitMarche,
   });
@@ -48,6 +50,7 @@ class TownAreaNavigator extends StatefulWidget {
   final SalonUnlockDebugMode salonUnlockMode;
   final Future<void> Function(TownResident)? onResident;
   final Future<void> Function(TownResident)? onSalonResident;
+  final Future<void> Function(TownResident)? onBakeryResident;
   final bool marcheOpen;
   final VoidCallback? onVisitMarche;
 
@@ -147,6 +150,20 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
               onResident: widget.onResident,
               marcheOpen: widget.marcheOpen,
               onVisitMarche: widget.onVisitMarche,
+              showBakeryEntranceMarker: isBakeryUnlocked(widget.residents),
+              onEnterBakery: () {
+                if (!isBakeryUnlocked(widget.residents)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text(
+                      'パティシエをガチャでお迎えすると、洋菓子店に入れるよ')),
+                  );
+                  return;
+                }
+                Navigator.of(context).push<void>(MaterialPageRoute<void>(
+                  settings: const RouteSettings(name: '/shopping/bakery'),
+                  builder: (_) => BakeryRoom(onResident: widget.onBakeryResident),
+                ));
+              },
               showSalonEntranceMarker: isSalonAccessible(
                 widget.residents,
                 debugMode: widget.salonUnlockMode,

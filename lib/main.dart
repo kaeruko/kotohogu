@@ -394,7 +394,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     });
   }
 
-  Future<void> _showDialogue(TownResident resident, {bool inSalon = false}) async {
+  Future<void> _showDialogue(TownResident resident, {bool inSalon = false, bool inBakery = false}) async {
     if (controller.busy || controller.failure != null ||
         controller.progress == null) {
       return;
@@ -405,12 +405,14 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       controller.progress!, visit: _townVisit,
       debugTownResidents: _debugTownResidents);
     final visibleIds = rules.conversationPeers(
-      inSalon
+      inBakery
+          ? ConversationSite.bakery
+          : inSalon
           ? ConversationSite.salon
           : _page == 2
               ? ConversationSite.town
               : ConversationSite.roster,
-      area: !inSalon && _page == 2 ? _townArea : null,
+      area: !inSalon && !inBakery && _page == 2 ? _townArea : null,
       previewSalonUnowned: inSalon && developerToolsAvailable &&
           _salonUnlockMode == SalonUnlockDebugMode.forceOpen,
     );
@@ -869,6 +871,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           salonUnlockMode: developerToolsAvailable
               ? _salonUnlockMode : SalonUnlockDebugMode.normal,
           onResident: _showDialogue,
+          onBakeryResident: (resident) =>
+              _showDialogue(resident, inBakery: true),
           onSalonResident: (resident) =>
               _showDialogue(resident, inSalon: true),
           marcheOpen: rules.marcheOpen,

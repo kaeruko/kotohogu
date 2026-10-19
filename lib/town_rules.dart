@@ -5,7 +5,7 @@ import 'town_areas.dart';
 
 /// Where a conversation was started. This determines which residents may
 /// satisfy a `townTogether` dialogue condition.
-enum ConversationSite { town, salon, roster }
+enum ConversationSite { town, salon, bakery, roster }
 
 /// One view of the saved game state shared by town rendering and dialogue.
 ///
@@ -58,6 +58,9 @@ class TownRules {
           progress.residents.owned,
           previewUnowned: previewSalonUnowned,
         );
+      case ConversationSite.bakery:
+        participants = progress.residents.owned.where(
+          (resident) => resident == TownResident.c047_patisie);
       case ConversationSite.roster:
         participants = visibleTownResidents(
           progress.residents.owned,
