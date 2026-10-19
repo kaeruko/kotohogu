@@ -3092,6 +3092,10 @@
           "type": "residentOwned",
           "residentId": "041_pig_middle",
           "owned": true
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_034"
         }
       ]
     },
@@ -4887,6 +4891,15 @@
           "withinDays": 1
         }
       ]
+    },
+    {
+      "id": "048_advicer_001",
+      "residentId": "048_advicer",
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }

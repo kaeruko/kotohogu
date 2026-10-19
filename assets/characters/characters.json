@@ -253,6 +253,17 @@
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
+    },
+    {
+      "key": "c048_advicer",
+      "id": "048_advicer",
+      "label": "しんだんし",
+      "profile": "",
+      "artFolder": "048_advicer",
+      "nextDialogueNumber": 2,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
     }
   ]
 }

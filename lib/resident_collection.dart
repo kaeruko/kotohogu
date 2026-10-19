@@ -120,7 +120,9 @@ enum TownResident {
   // ignore: constant_identifier_names
   c007_hitsuji("007_hitsuji", "めりぃ", "007_hitsuji", true, true, "", "plaza", archived: false),
   // ignore: constant_identifier_names
-  c047_patisie("047_patisie", "パティシエ", "047_patisie", true, true, "ことほぎ商店街に新しく小さなケーキ屋さんを開いたパティシエ。お菓子作りが大好きで、自分の店を持つのが長年の夢だった。およめさんの夫で、小さな子どもの父親。味や仕上がりにこだわる一方で、仕入れ、値付け、売れ残りや家計のことまで考えなくてはならず、毎日試行錯誤している。妻がときどき店を手伝ってくれることに感謝しているが、家事も大事な仕事と考えている。忙しくても子どもと過ごす時間を大切にしたい、穏やかで働き者の人。", "plaza", archived: false)
+  c047_patisie("047_patisie", "パティシエ", "047_patisie", true, true, "ことほぎ商店街に新しく小さなケーキ屋さんを開いたパティシエ。お菓子作りが大好きで、自分の店を持つのが長年の夢だった。およめさんの夫で、小さな子どもの父親。味や仕上がりにこだわる一方で、仕入れ、値付け、売れ残りや家計のことまで考えなくてはならず、毎日試行錯誤している。妻がときどき店を手伝ってくれることに感謝しているが、家事も大事な仕事と考えている。忙しくても子どもと過ごす時間を大切にしたい、穏やかで働き者の人。", "plaza", archived: false),
+  // ignore: constant_identifier_names
+  c048_advicer("048_advicer", "しんだんし", "048_advicer", true, true, "", "plaza", archived: false)
   // END CMS RESIDENTS
   ;
 
