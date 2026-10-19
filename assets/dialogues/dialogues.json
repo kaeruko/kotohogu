@@ -40,7 +40,7 @@
     {
       "id": "rabbit_default_1",
       "residentId": "002_usagi",
-      "text": "新しいことを知る楽しさも、ずっと大切にしたいね。",
+      "text": "今日は子どもが早起きでね。お茶をゆっくり飲めるのは、もう少しあとかしら。ふふ。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -49,7 +49,7 @@
     {
       "id": "rabbit_default_2",
       "residentId": "002_usagi",
-      "text": "外に出るきっかけは、好きな場所を見つけることでもよさそう。",
+      "text": "うちの人が商店街にケーキ屋さんを開いたの。お客さんが来てくれると、今でもすごくうれしそうよ。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -58,7 +58,7 @@
     {
       "id": "rabbit_default_3",
       "residentId": "002_usagi",
-      "text": "体を動かす方法は、ひとつじゃないんだって。自分に合うものを。",
+      "text": "お庭に小さなお花を植えたの。水やりの時間は、わたしも自分のペースに戻れる気がするわ。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -67,7 +67,7 @@
     {
       "id": "rabbit_default_4",
       "residentId": "002_usagi",
-      "text": "誰かと一緒だと、楽しめる活動もあるかもしれないね。",
+      "text": "お母さんだからって、何でも上手にできるわけじゃないわ。今日は何をお休みしようかしら。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -2902,12 +2902,404 @@
     {
       "id": "002_usagi_001",
       "residentId": "002_usagi",
-      "text": "こんにちは、うさぎだよ。新しいことを知るのが好きなんだ。これからいろんなお話ができたらうれしいな。",
+      "text": "こんにちは、うさぎです。小さな子どもがいるの。夫は商店街でケーキ屋さんを始めたばかり。よかったら仲良くしてね♪",
       "priority": 0,
       "once": true,
       "firstGreeting": true,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "002_usagi_002",
+      "residentId": "002_usagi",
+      "text": "うちの子ね、最近なんでも自分でやりたがるの。時間はかかるけど、できたときの顔がかわいくって。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_003",
+      "residentId": "002_usagi",
+      "text": "昨日はなかなか寝ついてくれなくてね。今日はわたしのほうが眠たいわ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_004",
+      "residentId": "002_usagi",
+      "text": "うちの子が、パパのケーキ屋さんの絵を描いてくれたの。レジの横に飾ってあるのよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_005",
+      "residentId": "002_usagi",
+      "text": "『パパとママ、どっちに似てる？』って聞いたら、『ねずみににてる！』ですって。ふふ、そうよねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_006",
+      "residentId": "002_usagi",
+      "text": "うちの子、パパのケーキより、上にのったいちごが好きみたい。夫はちょっと複雑そうよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_007",
+      "residentId": "002_usagi",
+      "text": "子どもが寝たあとのお茶の時間がね、わたしの小さな楽しみなの。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_008",
+      "residentId": "002_usagi",
+      "text": "結婚したら、もっとしっかりした大人になると思ってたの。でも意外と、わたしはわたしのままねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_009",
+      "residentId": "002_usagi",
+      "text": "お母さんになっても、かわいいお洋服は着たいわよねぇ。今日はお気に入りを着てきたの。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_010",
+      "residentId": "002_usagi",
+      "text": "ひとりでお買い物に行ってきたの。たった一時間でも、なんだか新鮮だったわ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_011",
+      "residentId": "002_usagi",
+      "text": "子どもはとってもかわいいの。でも、たまには誰にも呼ばれない時間もほしいのよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_012",
+      "residentId": "002_usagi",
+      "text": "ほかのお母さんは上手にやっているように見えちゃうこともあるの。でも、よそのおうちの一日って見えないものね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_013",
+      "residentId": "002_usagi",
+      "text": "家のこともお店のことも、全部わたしがやらなくちゃって思うと大変。できない日は、ちゃんと相談するの。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_014",
+      "residentId": "002_usagi",
+      "text": "お店は夫の長年の夢なの。応援してるわ。でもね、わたしにも自分のやってみたいことがあるのよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_015",
+      "residentId": "002_usagi",
+      "text": "お店の包み紙やリボンを選ぶの、好きなの。わたしの好みも少し入ってるのよ。ふふ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_016",
+      "residentId": "002_usagi",
+      "text": "店先に飾るお花、季節ごとに変えているの。ケーキを買わない人にも、楽しんでもらえたらいいな。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_017",
+      "residentId": "002_usagi",
+      "text": "開店前は家じゅうばたばたしてね。『夢がかなう』って、静かなことじゃないのねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_018",
+      "residentId": "002_usagi",
+      "text": "お店のお手伝いは楽しいけど、毎日じゃないの。夫もわたしも、自分の役目とお休みを考えているところよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_019",
+      "residentId": "002_usagi",
+      "text": "今日はわたしが店番なの。夫は子どもとお出かけ。帰ったら何をして遊んだか聞くのが楽しみだわ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_020",
+      "residentId": "002_usagi",
+      "text": "家族で過ごす日も、ひとりで好きなことをする日も、どちらも大切にしたいの。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_021",
+      "residentId": "002_usagi",
+      "text": "とんこさん、マルシェでお茶を出しているのよね。お店を始める前のどきどき、なんだか思い出しちゃうわ。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "041_pig_middle",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "002_usagi_022",
+      "residentId": "002_usagi",
+      "text": "とんこさんのお茶、ケーキと一緒に楽しめたら素敵よねぇ。いつかそんな日が来るかしら。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "041_pig_middle",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "002_usagi_023",
+      "residentId": "002_usagi",
+      "text": "うちの人、ケーキのことを話し始めると止まらないの。好きなことがお仕事になるって、うれしいけど大変なのね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "047_patisie",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "002_usagi_024",
+      "residentId": "002_usagi",
+      "text": "配達屋さんが、お店の前のお花をほめてくれたの。毎日見てくれてたなんて、うれしかったわ。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "005_risu",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "002_usagi_025",
+      "residentId": "002_usagi",
+      "text": "とんこさん、マルシェはいかが？ 楽しいことも、心配なこともあるでしょう？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "そうなのよぉ。お客さんが来てくれるとうれしいけど、次も来てくれるかしらって、どきどきしちゃうの。"
+      }
+    },
+    {
+      "id": "002_usagi_026",
+      "residentId": "002_usagi",
+      "text": "とんこさん、お店を出すなら、ご家族のお手伝いも必要だと思ってる？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "そうねぇ……。誰かに頼ることと、誰かの時間を当たり前にもらうことは、違うわよね。"
+      }
+    },
+    {
+      "id": "002_usagi_027",
+      "residentId": "002_usagi",
+      "text": "あなた、お店のことはどう？ まだ緊張する？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "047_patisie"
+        }
+      ],
+      "reply": {
+        "residentId": "047_patisie",
+        "text": "うん。お客さんが来ない日は今でも不安だよ。でも、作ったケーキを喜んでもらえるとうれしくてね。"
+      }
+    },
+    {
+      "id": "002_usagi_028",
+      "residentId": "002_usagi",
+      "text": "今日はわたしがお店に出るから、あなたは子どもと遊んできてね。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "047_patisie"
+        }
+      ],
+      "reply": {
+        "residentId": "047_patisie",
+        "text": "ありがとう！ 帰ったら、ふたりで夕ごはんを作るよ。"
+      }
+    },
+    {
+      "id": "002_usagi_029",
+      "residentId": "002_usagi",
+      "text": "配達屋さん、いつもお届けものありがとう。お店の場所も、もう覚えてくれた？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "005_risu"
+        }
+      ],
+      "reply": {
+        "residentId": "005_risu",
+        "text": "もちろん！ お花のあるケーキ屋さんでしょ。あっ、寄り道はしてないよ！"
+      }
+    },
+    {
+      "id": "002_usagi_030",
+      "residentId": "002_usagi",
+      "text": "誰かとお話ししたのね。わたしもね、大人とゆっくりおしゃべりできると、ほっとする日があるの。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "conversation",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "002_usagi_031",
+      "residentId": "002_usagi",
+      "text": "お出かけしてきたの？ わたしは花を見に行くのが好き。子どもと歩くと、見つけるものも違うのよ。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "002_usagi_032",
+      "residentId": "002_usagi",
+      "text": "好きなことを楽しむ時間があったのね。家族のためじゃない楽しみも、大事にしたいわねぇ。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "hobby",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "002_usagi_033",
+      "residentId": "002_usagi",
+      "text": "わたしも昔は、家族が幸せなら自分もそれで十分って思ってたの。今は、自分の好きなこともちゃんと持っていたいなって。",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_034",
+      "residentId": "002_usagi",
+      "text": "夫のお店は夫の夢。わたしはわたしで、どんなことをしてみたいのか……考えるだけで、ちょっと楽しみなの。",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "002_usagi_033"
+        }
+      ]
     },
     {
       "id": "003_penguin_001",
