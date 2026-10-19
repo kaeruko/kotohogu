@@ -112,7 +112,7 @@
     {
       "id": "cat_default_1",
       "residentId": "004_neko",
-      "text": "暮らしの中で体を動かすことも、大切な活動なんだって。",
+      "text": "具合のいい日も、いまひとつの日もあるさ。今日の調子に合わせて暮らしていこうね。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -121,7 +121,7 @@
     {
       "id": "cat_default_2",
       "residentId": "004_neko",
-      "text": "無理のない範囲で、楽しめる動き方を探してみたいね。",
+      "text": "診察室ではわからないこともあるからね。普段どんなふうに過ごしているのか、聞かせてほしいんだ。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -130,7 +130,7 @@
     {
       "id": "cat_default_3",
       "residentId": "004_neko",
-      "text": "人と話す時間も、日々のつながりを育てるひとときだね。",
+      "text": "今日は患者さんに『先生こそちゃんと休みなさい』って言われちゃったよ。ははは、まったくだね。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -139,7 +139,7 @@
     {
       "id": "cat_default_4",
       "residentId": "004_neko",
-      "text": "自分が大切にしたいことを続けられる環境も、大事なんだって。",
+      "text": "わたしが医者でも、あなたの人生に何が大切かは、あなたのほうがよく知っているんだよ。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -3032,12 +3032,356 @@
     {
       "id": "004_neko_001",
       "residentId": "004_neko",
-      "text": "こんにちは",
+      "text": "こんにちは。まちのお医者さんをしているよ。せんせいって呼ばれているけどね、わたしだって知らないことはたくさんあるんだ。",
       "priority": 0,
       "once": true,
       "firstGreeting": true,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "004_neko_002",
+      "residentId": "004_neko",
+      "text": "『年のせい』で片づける前に、一度ちゃんと調べてみようか。対処できることが見つかるかもしれないからね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_003",
+      "residentId": "004_neko",
+      "text": "お薬が飲みにくかった？ そういうことこそ、遠慮しないで教えてほしいんだ。別の方法を考えられるかもしれないよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_004",
+      "residentId": "004_neko",
+      "text": "検査の数字も大切だけどね、あなたが毎日どう暮らしているかも、わたしは知りたいんだよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_005",
+      "residentId": "004_neko",
+      "text": "病気があっても、好きなことは続けたいよね。そのためにできることを、一緒に考えよう。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_006",
+      "residentId": "004_neko",
+      "text": "よくなると約束できないこともある。でも、いま困っていることについて、一緒に考えることはできるよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_007",
+      "residentId": "004_neko",
+      "text": "専門の検査が必要なら、詳しい先生にお願いするよ。わたしひとりで何でもできるわけじゃないからね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_008",
+      "residentId": "004_neko",
+      "text": "前より歩きにくくなったとか、最近疲れやすいとか。そんな変化も、どうぞ気軽に相談しておくれ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_009",
+      "residentId": "004_neko",
+      "text": "休むのも大切だよ。……うん、わたしも今日は早く帰るようにするよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_010",
+      "residentId": "004_neko",
+      "text": "同じ病名でも、困っていることは人によって違う。だから、まずは話を聞かせてほしいんだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_011",
+      "residentId": "004_neko",
+      "text": "治療について迷ったら、迷っている気持ちも聞かせてね。説明を聞いたうえで、一緒に考えていこう。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_012",
+      "residentId": "004_neko",
+      "text": "白衣のポケットには何でも入るからね。……おや、昨日探していた飴が出てきた。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_013",
+      "residentId": "004_neko",
+      "text": "診察室の椅子が、最近きしむようになってね。だいくさんに頼んでみようかな。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_014",
+      "residentId": "004_neko",
+      "text": "わたしの目かい？ 緑内障でね。片方はほとんど見えなくなってしまったんだ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_015",
+      "residentId": "004_neko",
+      "text": "もう片方の目は、今も眼科で診てもらっているよ。お医者さんだって、患者さんになるのさ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "004_neko_014"
+        }
+      ]
+    },
+    {
+      "id": "004_neko_016",
+      "residentId": "004_neko",
+      "text": "おっと、そちらにいたのかい。見えにくいほうから声をかけられると、気づくのが遅れることがあるんだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_017",
+      "residentId": "004_neko",
+      "text": "ごんすけさんとは長い付き合いでね。診察室の外で会うと、わたしのほうが元気かどうか聞かれてしまうよ。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "042_senior_dog",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "004_neko_018",
+      "residentId": "004_neko",
+      "text": "とんこさんのところでお茶を飲むと、つい長居してしまうよ。気持ちの休まる時間だね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "041_pig_middle",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "004_neko_019",
+      "residentId": "004_neko",
+      "text": "あの配達屋さん、道をよく知っているね。わたしが知らなかった近道まで教えてくれたよ。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "005_risu",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "004_neko_020",
+      "residentId": "004_neko",
+      "text": "ごんすけさん、今日は何か気になることがあるかい？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "042_senior_dog"
+        }
+      ],
+      "reply": {
+        "residentId": "042_senior_dog",
+        "text": "先生こそ、ちゃんと休めとるかのう？ たまには自分のことも気にしておくれ。"
+      }
+    },
+    {
+      "id": "004_neko_021",
+      "residentId": "004_neko",
+      "text": "おやすみくん、今日は何をしていたのかな？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "なんにもしないをしてたんだもふ〜。"
+      }
+    },
+    {
+      "id": "004_neko_022",
+      "residentId": "004_neko",
+      "text": "ぱんこ先生、診察室ではわからない暮らしのこと、いつも教えてくれてありがとう。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "028_caregiver"
+        }
+      ],
+      "reply": {
+        "residentId": "028_caregiver",
+        "text": "こちらこそ。おうちで困っていることも、一緒に考えていきたいですね。"
+      }
+    },
+    {
+      "id": "004_neko_023",
+      "residentId": "004_neko",
+      "text": "とんこさん、お茶を一杯いただけるかな。少し休憩したくてね。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "もちろんよ、先生。今日はお仕事のお話はお休みにしましょうねぇ。"
+      }
+    },
+    {
+      "id": "004_neko_024",
+      "residentId": "004_neko",
+      "text": "お出かけしてきたんだね。いつもの道でも、新しい景色が見つかるものだね。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "004_neko_025",
+      "residentId": "004_neko",
+      "text": "体を動かしたんだね。無理のないやり方で、少しずつ続けられるといいね。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "strength",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "004_neko_026",
+      "residentId": "004_neko",
+      "text": "座りっぱなしから少し離れたんだね。自分の調子に気づけるのも大切なことだよ。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "sittingBreak",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "004_neko_027",
+      "residentId": "004_neko",
+      "text": "誰かとお話ししたんだね。話すだけでなく、聞いてもらえることもうれしいものだよね。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "conversation",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "004_neko_028",
+      "residentId": "004_neko",
+      "text": "お医者さんだからって、自分の検査結果を見るときは少し緊張するんだ。人間だものね。……あ、ねこだったね。",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "004_neko_029",
+      "residentId": "004_neko",
+      "text": "困ったことがあったら相談してほしいと、いつも患者さんに言っているんだ。わたしもちゃんと、ほかの先生を頼らなくちゃね。",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "004_neko_028"
+        }
+      ]
     },
     {
       "id": "005_risu_001",
