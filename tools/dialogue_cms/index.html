@@ -544,6 +544,31 @@ function renderCharacterList(){
     }
   }
 }
+function firstGreetingTextError(row,greeting){
+  const field=`「${row.label}」の初対面のあいさつ（${greeting.id}）`;
+  if(typeof greeting.text!=="string")return field+"の本文は文字列で入力してください。";
+  if(!greeting.text.trim())return field+"が空欄です。本文を入力するか、「初対面のあいさつを削除」で登録を解除してください。";
+  if(Array.from(greeting.text).length>500)return field+"は500文字以内で入力してください。";
+  return "";
+}
+function deleteFirstGreeting(row){
+  if(!registry||!data)throw Error("データが読込まれていません");
+  const greeting=data.dialogues.find(entry=>entry.residentId===row.id&&entry.firstGreeting===true);
+  if(!greeting)throw Error("初対面のあいさつが登録されていません: "+row.id);
+  const dependent=data.dialogues.find(entry=>entry!==greeting&&
+    entry.conditions.some(condition=>condition.type==="seenDialogue"&&condition.dialogueId===greeting.id));
+  if(dependent){
+    setCharacterStatus("削除できません: "+dependent.id+" がこのあいさつを表示条件に使っています。先に条件を外してください。",true);
+    return;
+  }
+  if(!confirm("「"+row.label+"」の初対面のあいさつを削除しますか？\n未登録になり、最初から通常の会話になります。"))return;
+  data.dialogues=data.dialogues.filter(entry=>entry!==greeting);
+  if(selected===greeting.id)selected=null;
+  previewSeenIds.delete(greeting.id);
+  dirty=true;
+  renderCharacterEditor();refresh();runPreview();
+  setCharacterStatus("初対面のあいさつを削除しました。保存してください。");
+}
 function renderCharacterEditor(){
   const box=byId("characterEditor");box.replaceChildren();
   const row=activeCharacter();
@@ -607,10 +632,25 @@ function renderCharacterEditor(){
   const firstGreeting=data.dialogues.find(e=>e.residentId===row.id&&e.firstGreeting===true);
   if(firstGreeting){
     const input=labelControl(box,"🌸 初対面のあいさつ（1回のみ）","textarea",firstGreeting.text,value=>{
-      firstGreeting.text=value;dirty=true;setCharacterStatus("未保存の変更があります");
+      firstGreeting.text=value;dirty=true;
+      const error=showGreetingError();
+      setCharacterStatus(error||"未保存の変更があります",Boolean(error));
     });
-    input.rows=4;input.maxLength=500;
+    input.rows=4;input.maxLength=500;input.required=true;
+    input.setAttribute("aria-describedby","characterFirstGreetingError");
+    const warning=append(box,"p");
+    warning.id="characterFirstGreetingError";warning.className="status error";
+    warning.setAttribute("role","alert");
+    const showGreetingError=()=>{
+      const error=firstGreetingTextError(row,firstGreeting);
+      input.setCustomValidity(error);warning.textContent=error;warning.hidden=!error;
+      return error;
+    };
+    showGreetingError();
     append(box,"p","最初に話しかけたとき、ほかの条件付きセリフより優先して表示します。既読後は通常の確率抽選に戻ります。").className="hint";
+    append(box,"p","登録中の本文は必須・500文字以内です。使わない場合は下のボタンで削除してください。").className="hint";
+    const remove=append(box,"button","初対面のあいさつを削除");remove.className="secondary";
+    remove.onclick=()=>deleteFirstGreeting(row);
   }else{
     append(box,"p","初対面のあいさつは未登録です。未登録なら従来どおり通常会話になります。").className="hint";
     const create=append(box,"button","＋ 初対面のあいさつを登録");create.className="secondary";
@@ -887,6 +927,12 @@ byId("cancelNewCharacter").onclick=()=>{
 async function saveAll(){
   try{
     if(!registry||!data)throw Error("データが読込まれていません");
+    for(const greeting of data.dialogues.filter(entry=>entry.firstGreeting===true)){
+      const row=registry.characters.find(character=>character.id===greeting.residentId);
+      if(!row)throw Error("あいさつのキャラクターが見つかりません: "+greeting.id);
+      const error=firstGreetingTextError(row,greeting);
+      if(error)throw Error(error);
+    }
     const response=await fetch("/api/cms",{method:"PUT",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({characters:registry,dialogues:data,areas:areaDoc})});

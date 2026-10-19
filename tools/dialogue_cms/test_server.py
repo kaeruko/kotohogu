@@ -462,6 +462,28 @@ class CmsTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 validate(invalid)
 
+    def test_first_greeting_requires_text_but_registration_is_optional(self):
+        normal = {"id": "cat_default_1", "residentId": "004_neko",
+                  "text": "こんにちは。", "priority": 0, "once": False,
+                  "logic": "all", "conditions": []}
+        greeting = {"id": "004_neko_001", "residentId": "004_neko",
+                    "text": "はじめまして。", "priority": 0, "once": True,
+                    "firstGreeting": True, "logic": "all", "conditions": []}
+        doc = {"version": 1, "dialogues": [normal, greeting]}
+        residents = {"004_neko"}
+        validate(doc, residents=residents)
+        for text in ("", " \n\t\u3000", None):
+            invalid = copy.deepcopy(doc)
+            invalid["dialogues"][1]["text"] = text
+            before = copy.deepcopy(invalid)
+            with self.subTest(text=text), self.assertRaisesRegex(
+                    ValueError, "Invalid text: 004_neko_001"):
+                validate(invalid, residents=residents)
+            self.assertEqual(invalid, before)
+        without_greeting = {"version": 1, "dialogues": [normal]}
+        self.assertIs(validate(without_greeting, residents=residents),
+                      without_greeting)
+
     def test_valid_bundled_content(self):
         validate(sample())
         frog = [entry for entry in sample()["dialogues"]
