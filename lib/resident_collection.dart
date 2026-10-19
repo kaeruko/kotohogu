@@ -77,44 +77,44 @@ enum WalkDirection { front, back, left, right }
 
 enum TownResident {
   // BEGIN CMS RESIDENTS
-  shiba("001_shiba", "しばいぬ", "001_shiba", true, true, "", "plaza"),
-  rabbit("002_usagi", "うさぎ", "002_usagi", true, true, "", "park"),
-  penguin("003_penguin", "まちの案内係", "003_penguin", true, true, "", "plaza"),
-  cat("004_neko", "ねこ", "004_neko", true, true, "", "shopping"),
-  squirrel("005_risu", "ドライバー", "005_risu", true, true, "", "park"),
-  bear("006_kuma", "だいくさん", "006_kuma", true, true, "まちの家やお店を建て、家具やベンチを直す大工。腕はいいが口下手で、頼まれなくても壊れたものをそっと修理する。完成した建物が手を離れるのは少し寂しいけれど、そこで誰かの暮らしが始まることを喜んでいる。", "village"),
+  shiba("001_shiba", "しばいぬ", "001_shiba", true, true, "", "plaza", archived: false),
+  rabbit("002_usagi", "うさぎ", "002_usagi", true, true, "", "park", archived: false),
+  penguin("003_penguin", "まちの案内係", "003_penguin", true, true, "", "plaza", archived: false),
+  cat("004_neko", "ねこ", "004_neko", true, true, "", "shopping", archived: false),
+  squirrel("005_risu", "ドライバー", "005_risu", true, true, "ことほぎのまちで生まれ育った配達員。まちの道や住民のおうちに詳しいけれど、配達の仕事はまだ新人。好奇心旺盛でつい寄り道してしまうが、預かった荷物は大切に届ける。住民たちとおしゃべりしたり、道ばたの季節の変化を見つけたりするのが好き。お届け先の秘密は決して言いふらさない。", "park", archived: false),
+  bear("006_kuma", "だいくさん", "006_kuma", true, true, "まちの家やお店を建て、家具やベンチを直す大工。腕はいいが口下手で、頼まれなくても壊れたものをそっと修理する。完成した建物が手を離れるのは少し寂しいけれど、そこで誰かの暮らしが始まることを喜んでいる。", "village", archived: false),
   // ignore: constant_identifier_names
-  c009_chef("009_chef", "シェフ", "009_chef", true, true, "", "shopping"),
+  c009_chef("009_chef", "シェフ", "009_chef", true, true, "", "shopping", archived: false),
   // ignore: constant_identifier_names
-  c026_farmer("026_farmer", "やすぞう", "026_farmer", true, true, "本名：多賀　康三。健康を意識している中年男性。", "park"),
+  c026_farmer("026_farmer", "やすぞう", "026_farmer", true, true, "本名：多賀　康三。健康を意識している中年男性。", "park", archived: false),
   // ignore: constant_identifier_names
-  c027_daydreamer("027_daydreamer", "おやすみくん", "027_daydreamer", true, true, "おしごともべんきょうもおやすみ中の子。ぼくはまだまだこれからなんだ～", "park"),
+  c027_daydreamer("027_daydreamer", "おやすみくん", "027_daydreamer", true, true, "おしごともべんきょうもおやすみ中の子。ぼくはまだまだこれからなんだ～", "park", archived: false),
   // ignore: constant_identifier_names
-  c032_miner("032_miner", "もぐた", "032_miner", true, true, "道路や公園など、まちの土台をつくる土木工事の職人。元気いっぱいで、まちづくりが大好きな子。", "shopping"),
+  c032_miner("032_miner", "もぐた", "032_miner", true, true, "道路や公園など、まちの土台をつくる土木工事の職人。元気いっぱいで、まちづくりが大好きな子。", "shopping", archived: false),
   // ignore: constant_identifier_names
-  c036_mosa("036_mosa", "モサエド", "036_mosa", true, true, "拙者、猛者江戸（モサエド）と申す！", "plaza"),
+  c036_mosa("036_mosa", "モサエド", "036_mosa", true, true, "拙者、猛者江戸（モサエド）と申す！", "plaza", archived: false),
   // ignore: constant_identifier_names
-  c035_beaty("035_beaty", "つやこ", "035_beaty", true, false, "美容家", "salon"),
+  c035_beaty("035_beaty", "つやこ", "035_beaty", true, false, "美容家", "salon", archived: false),
   // ignore: constant_identifier_names
-  c031_kimono_fox("031_kimono_fox", "きものぎつね", "031_kimono_fox", true, false, "桜の美容室の看板娘。和装が好きで、みんなを笑顔で迎える。", "salon"),
+  c031_kimono_fox("031_kimono_fox", "きものぎつね", "031_kimono_fox", true, false, "桜の美容室の看板娘。和装が好きで、みんなを笑顔で迎える。", "salon", archived: false),
   // ignore: constant_identifier_names
-  c037_tora("037_tora", "とらお", "037_tora", true, true, "", "park"),
+  c037_tora("037_tora", "とらお", "037_tora", true, true, "", "park", archived: false),
   // ignore: constant_identifier_names
-  c029_office_worker("029_office_worker", "かえる", "029_office_worker", true, true, "", "plaza"),
+  c029_office_worker("029_office_worker", "かえる", "029_office_worker", true, true, "", "plaza", archived: false),
   // ignore: constant_identifier_names
-  c038_lion_lady("038_lion_lady", "リオコ", "038_lion_lady", true, true, "", "salon"),
+  c038_lion_lady("038_lion_lady", "リオコ", "038_lion_lady", true, true, "", "salon", archived: false),
   // ignore: constant_identifier_names
-  c034_artist("034_artist", "くまりん", "034_artist", true, true, "絵を描くのが大好きな女の子。自分の描きたい絵と、みんなに喜んでもらえる絵の間で悩みながら、少しずつ自分らしい表現を探している。", "village"),
+  c034_artist("034_artist", "くまりん", "034_artist", true, true, "絵を描くのが大好きな女の子。自分の描きたい絵と、みんなに喜んでもらえる絵の間で悩みながら、少しずつ自分らしい表現を探している。", "village", archived: false),
   // ignore: constant_identifier_names
-  c015_office_worker("015_office_worker", "ぶちょう", "015_office_worker", true, true, "", "plaza"),
+  c015_office_worker("015_office_worker", "ぶちょう", "015_office_worker", true, true, "", "plaza", archived: false),
   // ignore: constant_identifier_names
-  c028_caregiver("028_caregiver", "ぱんこ先生", "028_caregiver", true, true, "", "shopping"),
+  c028_caregiver("028_caregiver", "ぱんこ先生", "028_caregiver", true, true, "", "shopping", archived: false),
   // ignore: constant_identifier_names
-  c041_pig_middle("041_pig_middle", "とんこ", "041_pig_middle", true, true, "", "village"),
+  c041_pig_middle("041_pig_middle", "とんこ", "041_pig_middle", true, true, "", "village", archived: false),
   // ignore: constant_identifier_names
-  c042_senior_dog("042_senior_dog", "ごんすけ", "042_senior_dog", true, true, "", "park"),
+  c042_senior_dog("042_senior_dog", "ごんすけ", "042_senior_dog", true, true, "", "park", archived: false),
   // ignore: constant_identifier_names
-  c007_hitsuji("007_hitsuji", "めりぃ", "007_hitsuji", true, true, "", "plaza")
+  c007_hitsuji("007_hitsuji", "めりぃ", "007_hitsuji", true, true, "", "plaza", archived: false)
   // END CMS RESIDENTS
   ;
 

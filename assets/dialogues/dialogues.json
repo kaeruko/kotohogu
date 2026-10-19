@@ -148,7 +148,7 @@
     {
       "id": "squirrel_default_1",
       "residentId": "005_risu",
-      "text": "少し体を動かすことも、毎日のセルフケアになるんだって。",
+      "text": "このまちのおうちなら、だいたいわかるよ！ 小さいころから、あちこち探検してたんだ。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -157,7 +157,7 @@
     {
       "id": "squirrel_default_2",
       "residentId": "005_risu",
-      "text": "家事や庭の手入れにも、体を動かす機会があるんだね。",
+      "text": "お庭のお花が咲くとね、同じ道でも違って見えるんだ。配達の楽しみのひとつだよ！",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -166,7 +166,7 @@
     {
       "id": "squirrel_default_3",
       "residentId": "005_risu",
-      "text": "好きな遊びや趣味を、長く楽しめるといいね。",
+      "text": "荷物のお届けはね、ちゃんと確認してから。ぼく、まだまだ覚えることがいっぱいなんだ！",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -175,7 +175,7 @@
     {
       "id": "squirrel_default_4",
       "residentId": "005_risu",
-      "text": "身近な人とのつながりも、大切にしたいね。",
+      "text": "きょうは誰に会えるかなぁ。お届け先で交わす『こんにちは』が好きなんだ！",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -3042,12 +3042,280 @@
     {
       "id": "005_risu_001",
       "residentId": "005_risu",
-      "text": "こんにちは！りすだよ。ちょこちょこ動くのが好きだけど、のんびりする日もあるよ。よろしくね！",
+      "text": "こんにちは！ このまちで配達をしているんだ。お仕事はまだ新人だけど、道ならまかせてね！",
       "priority": 0,
       "once": true,
       "firstGreeting": true,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "005_risu_002",
+      "residentId": "005_risu",
+      "text": "あれ、こっちの道、行き止まりだったっけ？ えへへ、知らない道もまだあるみたい。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_003",
+      "residentId": "005_risu",
+      "text": "近道を見つけたと思ったら、お花畑に出ちゃった。……ここ、どこだろう？",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_004",
+      "residentId": "005_risu",
+      "text": "お手紙の中身？ それはもちろん、ぼくにも秘密だよ！ 大切にお届けするのが仕事だからね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_005",
+      "residentId": "005_risu",
+      "text": "荷物を渡したら『ありがとう』って言ってもらえたよ。ぼくも『ありがとう』って言いたくなっちゃった！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_006",
+      "residentId": "005_risu",
+      "text": "きょうはね、お届け先でお茶をいただいちゃった。あっ、配達が終わってからだよ！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_007",
+      "residentId": "005_risu",
+      "text": "ぼく、早く一人前になりたいんだ。でも急いで宛先を間違えたら大変だもんね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_008",
+      "residentId": "005_risu",
+      "text": "寄り道しちゃったけど、きれいなお花を見つけたんだよ。今度、お休みの日にも見に行こうかな。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_009",
+      "residentId": "005_risu",
+      "text": "急ぎの荷物は急いで届けるよ。でも、お休みの日くらいはゆっくり歩きたいな。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_010",
+      "residentId": "005_risu",
+      "text": "宛先よし、荷物よし、帽子よし！ ……えへへ、帽子まで確認しちゃった。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_011",
+      "residentId": "005_risu",
+      "text": "むかしは道を覚えるのが好きだったけど、今はその先に誰が暮らしてるかを知るのが楽しいんだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_012",
+      "residentId": "005_risu",
+      "text": "大きな荷物は仲間と一緒に運ぶんだ。ひとりで無理して、大切な荷物を落としたら困るもんね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_013",
+      "residentId": "005_risu",
+      "text": "とんこさんは、お茶のことをよく教えてくれるんだ。ぼくもいつか、香りの違いがわかるようになりたいな。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "041_pig_middle",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "005_risu_014",
+      "residentId": "005_risu",
+      "text": "くまりんちゃんに画材を届けたよ。何を描くのかなぁ。できあがりが楽しみ！",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "034_artist",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "005_risu_015",
+      "residentId": "005_risu",
+      "text": "もぐたくんは、ぼくの知らない道まで知ってるんだ！ でも、工事中の道を教えてくれることもあるんだよ。あはは！",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "032_miner",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "005_risu_016",
+      "residentId": "005_risu",
+      "text": "ごんすけさんはね、ぼくが小さいころから知ってるんだ。会うと『ちゃんと食べとるか』って聞いてくれるの！",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "042_senior_dog",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "005_risu_017",
+      "residentId": "005_risu",
+      "text": "ごんすけさん、ぼくが小さいころもこの道で会ったよね！",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "042_senior_dog"
+        }
+      ],
+      "reply": {
+        "residentId": "042_senior_dog",
+        "text": "おお、覚えとるよ。あのころから、きみはよく寄り道しとったのう。"
+      }
+    },
+    {
+      "id": "005_risu_018",
+      "residentId": "005_risu",
+      "text": "おやすみくん、きょうはどこにお出かけするの？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "ぼく？ きょうはおやすみするんだもふ〜。"
+      }
+    },
+    {
+      "id": "005_risu_019",
+      "residentId": "005_risu",
+      "text": "もぐたくん！ この先の道、通ってもだいじょうぶ？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "032_miner"
+        }
+      ],
+      "reply": {
+        "residentId": "032_miner",
+        "text": "まだ工事中だもぐ！ もう少し待っててほしいもぐ〜！"
+      }
+    },
+    {
+      "id": "005_risu_020",
+      "residentId": "005_risu",
+      "text": "お出かけしてきたんだね！ いつもの道にも、きっと小さな発見があったんじゃないかな？",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "005_risu_021",
+      "residentId": "005_risu",
+      "text": "誰かとおしゃべりしたんだね！ ふだんの『こんにちは』も、ぼくはけっこう好きなんだ。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "conversation",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "005_risu_022",
+      "residentId": "005_risu",
+      "text": "ぼく、このまちの道なら何でも知ってると思ってた。でも今日、はじめて見る小さな庭を見つけたんだ！",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "005_risu_023",
+      "residentId": "005_risu",
+      "text": "知らない道があるって、前はちょっとくやしかった。でも今は、まだ知らない景色があるのが楽しみなんだ！",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "005_risu_022"
+        }
+      ]
     },
     {
       "id": "006_kuma_001",
