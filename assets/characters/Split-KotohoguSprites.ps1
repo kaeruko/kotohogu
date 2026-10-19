@@ -1,7 +1,7 @@
 ﻿#requires -Version 5.1
 <#
 .SYNOPSIS
-  コトホグの4x4スプライトシート(PNG)を個別PNG/GIF/ZIPに変換します。
+  コトホグの4x4スプライトシート(PNG)を個別PNG/GIFに変換します。
 .EXAMPLE
   .\Split-KotohoguSprites.ps1 -InputPng 'C:\Users\mail\Downloads\cat.png' -Name '004_neko'
 .NOTES
@@ -50,9 +50,8 @@ if (-not (Test-Path -LiteralPath $outputBase -PathType Container)) {
     throw "出力先フォルダがありません: $outputBase"
 }
 $outDir = Join-Path $outputBase "${Name}"
-$zipPath = Join-Path $outputBase "${Name}.zip"
-if ((Test-Path -LiteralPath $outDir) -or (Test-Path -LiteralPath $zipPath)) {
-    throw "同名の出力が既にあります。上書きせず停止します: $outDir / $zipPath"
+if (Test-Path -LiteralPath $outDir) {
+    throw "同名の出力フォルダが既にあります。上書きせず停止します: $outDir"
 }
 
 # アルファチャンネルとサイズを確認（1254pxなど4で割れない寸法も対応）
@@ -172,8 +171,5 @@ foreach ($png in $pngs) {
     }
 }
 
-# ZIPに中身のファイルを直接格納。既存ファイルは上書きしない。
-Compress-Archive -Path (Join-Path $outDir '*') -DestinationPath $zipPath -CompressionLevel Optimal -ErrorAction Stop
-Write-Host "完了: $zipPath"
-Write-Host "個別PNG/GIF: $outDir"
+Write-Host "完了（個別PNG/GIF）: $outDir"
 Write-Host "注意: キャラのはみ出しとノイズは自動修正しません。必ずプレビューを確認してください。"
