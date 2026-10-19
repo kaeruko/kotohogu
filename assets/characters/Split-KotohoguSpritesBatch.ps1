@@ -15,9 +15,9 @@
   .\Split-KotohoguSpritesBatch.ps1 -InputDirectory 'C:\sprites' -OutputRoot 'C:\output'
 .NOTES
   ImageMagick 7 の magick コマンドが必要です。
-  -SkipExisting は完成済みの出力フォルダがある場合にスキップします（ZIPは任意）。
-  ファイル一覧を検証し、欠損がある場合は停止します。ZIPだけがある場合も停止します。
-  フォルダだけがある場合、ZIPは新規作成しません。
+  -SkipExisting は完成済みの出力フォルダがある場合にスキップします。
+  ファイル一覧を検証し、欠損がある場合は停止します。
+  ZIPファイルは生成しません。既存のZIPは変更しません。
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -111,25 +111,15 @@ $skipped = 0
 foreach ($inputPng in $inputs) {
     $name = $inputPng.BaseName
     $outDir = Join-Path $outputItem.FullName $name
-    $zip = Join-Path $outputItem.FullName ($name + '.zip')
-    $hasDir = Test-Path -LiteralPath $outDir
-    $hasZip = Test-Path -LiteralPath $zip
-
-    if ($hasDir -or $hasZip) {
-        if ($SkipExisting -and $hasDir) {
+    if (Test-Path -LiteralPath $outDir) {
+        if ($SkipExisting) {
             Assert-CompleteSpriteOutput -Directory $outDir -Name $name
-            if ($hasZip -and -not (Test-Path -LiteralPath $zip -PathType Leaf)) {
-                throw "ZIPのパスがファイルではありません: $zip"
-            }
-            if (-not $hasZip) {
-                Write-Warning "ZIPがありません（生成せずフォルダをスキップ）: $zip"
-            }
             Write-Host "スキップ（出力済み）: $name"
             $skipped++
             continue
         }
 
-        throw "出力先が既に存在します: $outDir / $zip。-SkipExisting は完成済みフォルダのみスキップできます。"
+        throw "出力先が既に存在します: $outDir。-SkipExisting は完成済みフォルダのみスキップできます。"
     }
     $pending += $inputPng
 }
@@ -141,7 +131,7 @@ if ($pending.Count -gt 0) {
 $completed = 0
 foreach ($inputPng in $pending) {
     $name = $inputPng.BaseName
-    if ($PSCmdlet.ShouldProcess($inputPng.FullName, "分割・GIF/ZIP生成 ($name)")) {
+    if ($PSCmdlet.ShouldProcess($inputPng.FullName, "分割・GIF生成 ($name)")) {
         Write-Host "処理中: $($inputPng.Name)"
         & $splitter -InputPng $inputPng.FullName -Name $name -OutputRoot $outputItem.FullName
         $completed++
