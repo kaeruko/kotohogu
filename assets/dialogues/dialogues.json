@@ -3032,7 +3032,7 @@
     {
       "id": "004_neko_001",
       "residentId": "004_neko",
-      "text": "やあ、ねこだよ。気ままに歩いたり、ひなたで休んだりしてるんだ。見かけたら声をかけてね。",
+      "text": "こんにちは",
       "priority": 0,
       "once": true,
       "firstGreeting": true,
