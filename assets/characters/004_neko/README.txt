@@ -1,6 +1,6 @@
-Kotohogu sprite package: 004_neko
-Source: cat.png
-Source size: 1254x1254
+Kotohogu sprite package: 010_cat
+Source: 010_cat.png
+Source size: 1152x1152
 Output PNG: 288x288 pixels, transparent
 
 walk_front_01..04: front walk
@@ -9,7 +9,7 @@ walk_right_01..04: right walk
 walk_left_01..04: horizontal flips of right walk
 idle_front_01: idle
 clap_front_01..02: clap
-004_neko_sheet_4x4.png: 4x4 sprite sheet
+010_cat_sheet_4x4.png: 4x4 sprite sheet
 preview_*.gif: animation previews
 
 IMPORTANT:
