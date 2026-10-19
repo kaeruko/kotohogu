@@ -8,7 +8,8 @@ from unittest.mock import patch
 
 from server import (portrait_path, runtime_catalog, runtime_sprite_path,
                     validate, write_document)
-from characters import (load_catalog, validate_catalog, generate_dart, generate_pubspec,
+from characters import (validate_archive_dependencies, validate_archive_code_references,
+                         load_catalog, validate_catalog, generate_dart, generate_pubspec,
                         DART, PUBSPEC, save_catalog_and_dialogues, validate_dialogue_ids)
 
 
@@ -187,6 +188,72 @@ class CmsTests(unittest.TestCase):
                 modified["characters"][0]["artFolder"] = "002_usagi"
             with self.subTest(change=change), self.assertRaises(ValueError):
                 validate_catalog(modified, previous=original)
+
+    def test_archived_resident_stays_decodable_and_leaves_gacha(self):
+        original = load_catalog()
+        retired = copy.deepcopy(original)
+        row = next(item for item in retired["characters"] if item["id"] == "037_tora")
+        row["archived"] = True
+        self.assertIs(validate_catalog(retired, previous=original), retired)
+        generated = generate_dart(DART.read_text("utf-8"), retired["characters"])
+        self.assertIn('c037_tora("037_tora", "とらお", "037_tora", false, false, "", "plaza")',
+                      generated)
+        self.assertIn("assets/characters/037_tora/", generate_pubspec(
+            PUBSPEC.read_text("utf-8"), retired["characters"]))
+        bad = copy.deepcopy(retired)
+        next(item for item in bad["characters"] if item["id"] == "037_tora")["archived"] = False
+        with self.assertRaisesRegex(ValueError, "Archived flag"):
+            validate_catalog(bad, previous=original)
+        del row["archived"]
+        validate_catalog(retired, previous=original)
+
+    def test_archive_blocks_core_residents_and_active_dependencies(self):
+        original = load_catalog()
+        for identifier in ("01_shiba", "02_rabbit"):
+            retired = copy.deepcopy(original)
+            next(row for row in retired["characters"] if row["id"] == identifier)["archived"] = True
+            with self.assertRaisesRegex(ValueError, "Core resident"):
+                validate_archive_code_references(retired, original)
+        retired = copy.deepcopy(original)
+        next(row for row in retired["characters"] if row["id"] == "037_tora")["archived"] = True
+        original_data = sample()
+        altered = copy.deepcopy(original_data)
+        target = next(row for row in altered["dialogues"] if row["residentId"] == "01_shiba")
+        target["conditions"] = [{"type": "residentOwned", "residentId": "037_tora", "owned": False}]
+        with self.assertRaisesRegex(ValueError, "depends on archived"):
+            validate_archive_dependencies(retired, altered)
+        archived_dialogue = next(row["id"] for row in original_data["dialogues"]
+                                 if row["residentId"] == "037_tora")
+        target["conditions"] = [{"type": "seenDialogue", "dialogueId": archived_dialogue}]
+        with self.assertRaisesRegex(ValueError, "depends on archived"):
+            validate_archive_dependencies(retired, altered)
+        target["conditions"] = [{"type": "townTogether", "otherResidentId": "037_tora"}]
+        with self.assertRaisesRegex(ValueError, "depends on archived"):
+            validate_archive_dependencies(retired, altered)
+
+    def test_archive_rejects_handwritten_dart_references(self):
+        original = load_catalog()
+        retired = copy.deepcopy(original)
+        next(row for row in retired["characters"] if row["id"] == "037_tora")["archived"] = True
+        with tempfile.TemporaryDirectory() as folder:
+            lib = Path(folder) / "lib"
+            lib.mkdir()
+            (lib / "dependency.dart").write_text('const friend = "037_tora";', encoding="utf-8")
+            with patch("characters.ROOT", Path(folder)):
+                with self.assertRaisesRegex(ValueError, "used by app code"):
+                    validate_archive_code_references(retired, original)
+
+    def test_runtime_catalog_hides_retired_residents(self):
+        original = load_catalog()
+        retired = copy.deepcopy(original)
+        next(row for row in retired["characters"] if row["id"] == "037_tora")["archived"] = True
+        with patch("server.load_catalog", return_value=retired):
+            live = runtime_catalog()
+        self.assertNotIn("037_tora", {row["id"] for row in live["characters"]})
+        self.assertTrue(all(row["residentId"] != "037_tora"
+                            for row in live["dialogues"]))
+        self.assertTrue(all("archived" not in row for row in live["characters"]))
+        self.assertIn("01_shiba", {row["id"] for row in live["characters"]})
 
     def test_new_character_needs_sprite_and_unconditional_dialogue(self):
         original = load_catalog()

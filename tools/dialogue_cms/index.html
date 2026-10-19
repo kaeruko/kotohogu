@@ -122,8 +122,9 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
     <div class="actions">
       <button id="saveCharacters">💾 キャラとセリフを保存</button>
       <button id="cancelNewCharacter" class="secondary">追加を取り消す</button>
+      <button id="deleteCharacter" class="danger">選択キャラを削除</button>
     </div>
-    <p class="hint">画像は先に assets/characters/ のフォルダへ置いてね。保存時に全スプライトを検証し、Flutterの住民定義と画像登録を自動生成します。公開には Git コミットと再ビルドが必要です。</p>
+    <p class="hint">削除したキャラは通常一覧・新規ガチャ・まちから外れます。過去のセーブを守るためID・画像・セリフは保持し、削除済み一覧から復元できます。保存後はGitコミットと再ビルドが必要です。</p>
     <p class="status" id="characterStatus" role="status"></p>
   </section>
 </main>
@@ -222,8 +223,10 @@ function current(){if(selected===null)return null;return data.dialogues.find(e=>
 function refresh(){
   const filter=byId("filter").value;
   const list=byId("entries");list.replaceChildren();
-  const showing=data.dialogues.filter(e=>filter==="all"||e.residentId===filter);
-  byId("count").textContent="("+showing.length+"/"+data.dialogues.length+")";
+  const valid=new Set(activeCharacters().map(row=>row.id));
+  const visible=data.dialogues.filter(e=>valid.has(e.residentId));
+  const showing=visible.filter(e=>filter==="all"||e.residentId===filter);
+  byId("count").textContent="("+showing.length+"/"+visible.length+")";
   for(const entry of showing){
     const btn=append(list,"button",residents[entry.residentId]+"｜"+entry.text.substring(0,32));
     btn.className="entry"+(entry.id===selected?" active":"");
@@ -433,9 +436,10 @@ function setCharacterStatus(message,error=false){
 }
 function renderPreviewSeen(){
   const area=byId("previewSeen");area.replaceChildren();
-  const known=new Set(data.dialogues.map(entry=>entry.id));
+  const active=new Set(activeCharacters().map(row=>row.id));
+  const known=new Set(data.dialogues.filter(entry=>active.has(entry.residentId)).map(entry=>entry.id));
   previewSeenIds=new Set([...previewSeenIds].filter(id=>known.has(id)));
-  for(const entry of data.dialogues){
+  for(const entry of data.dialogues.filter(row=>active.has(row.residentId))){
     const label=append(area,"label");label.className="controls";
     const checkbox=append(label,"input");checkbox.type="checkbox";
     checkbox.checked=previewSeenIds.has(entry.id);
@@ -450,9 +454,9 @@ function renderPreviewSeen(){
 }
 function renderPreviewOwned(){
   const area=byId("previewOwned");area.replaceChildren();
-  const valid=new Set(registry.characters.map(row=>row.id));
+  const valid=new Set(activeCharacters().map(row=>row.id));
   previewOwnedIds=new Set([...previewOwnedIds].filter(id=>valid.has(id)));
-  for(const row of registry.characters){
+  for(const row of activeCharacters()){
     const label=append(area,"label");label.className="controls";
     const input=append(label,"input");input.type="checkbox";
     input.checked=previewOwnedIds.has(row.id);
@@ -466,7 +470,7 @@ function renderPreviewOwned(){
 }
 function renderPreviewTown(){
   const area=byId("previewTown");area.replaceChildren();
-  const enabled=registry.characters.filter(row=>row.walkInTown&&row.homeAreaId!=="salon");
+  const enabled=activeCharacters().filter(row=>row.walkInTown&&row.homeAreaId!=="salon");
   const valid=new Set(enabled.map(row=>row.id));
   previewTownIds=new Set([...previewTownIds].filter(id=>valid.has(id)));
   for(const row of enabled){
@@ -488,29 +492,50 @@ function renderPreviewTown(){
     };
   }
 }
+function isArchived(row){return row?.archived===true}
+function activeCharacters(){return registry.characters.filter(row=>!isArchived(row))}
 function rebuildResidentOptions(){
-  residents=Object.fromEntries(registry.characters.map(row=>[row.id,row.label]));
+  const active=activeCharacters();
+  if(!active.length)throw Error("表示できるキャラクターがいません");
+  residents=Object.fromEntries(active.map(row=>[row.id,row.label]));
   for(const id of ["filter","previewResident"]){
     const element=byId(id);
     const previous=element.value;
     element.replaceChildren();
     opts(element,id==="filter"?{"all":"すべて",...residents}:residents,
-         previous==="all"&&id==="filter"?"all":residents[previous]?previous:(id==="filter"?"all":registry.characters[0].id));
+         previous==="all"&&id==="filter"?"all":residents[previous]?previous:(id==="filter"?"all":active[0].id));
   }
   renderPreviewTown();
   renderPreviewOwned();
 }
 function activeCharacter(){
-  return registry.characters.find(row=>row.id===characterSelected)||null;
+  return activeCharacters().find(row=>row.id===characterSelected)||null;
 }
 function renderCharacterList(){
   const box=byId("characterEntries");box.replaceChildren();
-  for(const row of registry.characters){
+  for(const row of activeCharacters()){
     const btn=append(box,"button",row.label+"｜"+row.id);
     btn.className="entry"+(row.id===characterSelected?" active":"");
     btn.style.marginBottom="6px";
     append(btn,"small",row.artFolder+" ｜ "+(row.homeAreaId==="salon"?"美容室":row.walkInTown?"屋外ランダム":"屋外表示OFF")+(row.inGacha?" ｜ ガチャ":""));
     btn.onclick=()=>{characterSelected=row.id;renderCharacterList();renderCharacterEditor()};
+  }
+  const archived=registry.characters.filter(isArchived);
+  if(archived.length){
+    const details=append(box,"details");
+    append(details,"summary","削除済み（"+archived.length+"）・復元する");
+    for(const row of archived){
+      const wrapper=append(details,"div");wrapper.className="actions";
+      append(wrapper,"span",row.label+"｜"+row.id);
+      const restore=append(wrapper,"button","復元");restore.className="secondary";
+      restore.onclick=()=>{
+        delete row.archived;
+        characterSelected=row.id;dirty=true;
+        rebuildResidentOptions();renderCharacterList();renderCharacterEditor();
+        refresh();runPreview();renderAreaPreview();
+        setCharacterStatus("「"+row.label+"」を復元しました。保存してください。");
+      };
+    }
   }
 }
 function renderCharacterEditor(){
@@ -623,6 +648,7 @@ function renderCharacterEditor(){
   }
   if(!locked)append(box,"p","最初のセリフはセリフ管理タブで編集できます。条件なしセリフを1件以上残してください。").className="hint";
   byId("cancelNewCharacter").disabled=locked;
+  byId("deleteCharacter").disabled=!locked;
 }
 
 // The legacy homeAreaId is retained for older saved/catalog formats.
@@ -710,7 +736,7 @@ function renderAreaPreview(){
   }
   const groups=Object.fromEntries(areaDoc.areas.map(a=>[a.id,[]]));
   groups.salon=[];const hidden=[];
-  for(const resident of registry.characters){
+  for(const resident of activeCharacters()){
     if(resident.homeAreaId==="salon"){
       groups.salon.push(resident.label);continue;
     }
@@ -754,10 +780,10 @@ async function load(){
     savedCount=registry.characters.length;
     previewSeenIds=new Set();
     previewOwnedIds=new Set(["01_shiba","02_rabbit"]);
-    previewTownIds=new Set(registry.characters
+    previewTownIds=new Set(activeCharacters()
       .filter(row=>row.walkInTown&&row.homeAreaId!=="salon").slice(0,8).map(row=>row.id));
-    characterSelected=registry.characters[0].id;
-    selected=data.dialogues[0].id;dirty=false;
+    characterSelected=activeCharacters()[0].id;
+    selected=data.dialogues.find(line=>activeCharacters().some(row=>row.id===line.residentId))?.id||null;dirty=false;
     rebuildResidentOptions();renderCharacterList();renderCharacterEditor();
     refresh();runPreview();renderAreaList();renderAreaEditor();renderAreaPreview();
     setStatus("読込成功");setCharacterStatus("読込成功");setAreaStatus("読込成功");
@@ -801,12 +827,41 @@ byId("addCharacter").onclick=()=>{
   rebuildResidentOptions();renderCharacterList();renderCharacterEditor();
   setCharacterStatus("新しい住民を追加しました。名前・ID・セリフを設定してください。画像フォルダ名とDart識別子は自動設定されます。");
 };
+byId("deleteCharacter").onclick=()=>{
+  if(!registry||!data)throw Error("キャラクターを読み込めていません");
+  const row=activeCharacter();
+  if(!row)return;
+  if(registry.characters.indexOf(row)>=savedCount){
+    setCharacterStatus("保存前の追加キャラは「追加を取り消す」を使ってください。",true);return;
+  }
+  if(!activeCharacters().some(other=>other!==row&&other.inGacha)){
+    setCharacterStatus("最後のガチャ対象キャラは削除できません。",true);return;
+  }
+  const attached=new Set(data.dialogues.filter(e=>e.residentId===row.id).map(e=>e.id));
+  for(const line of data.dialogues.filter(e=>e.residentId!==row.id&&!isArchived(registry.characters.find(c=>c.id===e.residentId)))){
+    const blocking=line.conditions.find(c=>
+      (c.type==="residentOwned"&&c.residentId===row.id)||
+      (c.type==="townTogether"&&c.otherResidentId===row.id)||
+      (c.type==="seenDialogue"&&attached.has(c.dialogueId)));
+    if(blocking||line.reply?.residentId===row.id){
+      setCharacterStatus("削除できません: "+line.id+" がこのキャラやセリフを参照しています。先に条件を外してください。",true);
+      return;
+    }
+  }
+  if(!confirm("「"+row.label+"」（"+row.id+"）を削除済みに移しますか？\n新しいガチャ・まちから除外します。\n既存セーブのためID・画像・セリフは保持し、あとから復元できます。"))return;
+  row.archived=true;dirty=true;
+  characterSelected=activeCharacters()[0]?.id||null;
+  selected=data.dialogues.find(e=>!isArchived(registry.characters.find(r=>r.id===e.residentId)))?.id||null;
+  rebuildResidentOptions();renderCharacterList();renderCharacterEditor();
+  refresh();runPreview();renderAreaPreview();
+  setCharacterStatus("「"+row.label+"」を削除済みに移しました。保存してください。");
+};
 byId("cancelNewCharacter").onclick=()=>{
   const row=activeCharacter();
   if(!row||registry.characters.indexOf(row)<savedCount)return;
   registry.characters=registry.characters.filter(item=>item!==row);
   data.dialogues=data.dialogues.filter(item=>item.residentId!==row.id);
-  characterSelected=registry.characters[0].id;
+  characterSelected=activeCharacters()[0].id;
   dirty=true;rebuildResidentOptions();renderCharacterList();renderCharacterEditor();refresh();
   setCharacterStatus("追加を取り消しました（保存前の変更です）");
 };

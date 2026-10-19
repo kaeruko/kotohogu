@@ -45,10 +45,19 @@ def runtime_catalog():
     registry = validate_catalog(load_catalog())
     dialogues = json.loads(DATA.read_text(encoding="utf-8"))
     validate(dialogues, residents={row["id"] for row in registry["characters"]})
+    active = {row["id"] for row in registry["characters"]
+              if not row.get("archived", False)}
+    visible = {"version": 1, "dialogues": [
+        entry for entry in dialogues["dialogues"] if entry["residentId"] in active
+    ]}
+    validate(visible, residents=active)
     return {
         "version": 1,
-        "characters": registry["characters"],
-        "dialogues": dialogues["dialogues"],
+        # The preview schema does not allow CMS-only archival metadata.
+        "characters": [{key: value for key, value in row.items()
+                        if key != "archived"} for row in registry["characters"]
+                       if row["id"] in active],
+        "dialogues": visible["dialogues"],
     }
 
 

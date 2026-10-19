@@ -691,9 +691,11 @@ class ProgressController extends ChangeNotifier {
     busy = true;
     notifyListeners();
     try {
+      final pool = TownResident.gachaPool;
+      if (pool.isEmpty) throw StateError('Resident gacha pool is empty');
       final results = List<TownResident>.generate(
         11,
-        (_) => TownResident.values[random.nextInt(TownResident.values.length)],
+        (_) => pool[random.nextInt(pool.length)],
       );
       final next = progress!.onDay(clock()).acquireResidentsTenPlusOne(results);
       await store.save(next);

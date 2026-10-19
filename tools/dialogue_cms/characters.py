@@ -42,8 +42,10 @@ def validate_catalog(document, previous=None, *, characters_root=None):
     ids, keys, folders = set(), set(), set()
     root = characters_root if characters_root is not None else CATALOG.parent
     for index, row in enumerate(characters):
-        if not isinstance(row, dict) or set(row) != FIELDS:
+        if not isinstance(row, dict) or set(row) not in (FIELDS, FIELDS | {"archived"}):
             raise ValueError(f"Invalid character fields at row {index}")
+        if "archived" in row and row["archived"] is not True:
+            raise ValueError(f"Archived flag must be true when present at row {index}")
         key, identifier, folder = row["key"], row["id"], row["artFolder"]
         if not isinstance(key, str) or not re.fullmatch(r"[a-z][a-z0-9_]*", key):
             raise ValueError(f"Invalid character key at row {index}")
@@ -98,16 +100,19 @@ def validate_catalog(document, previous=None, *, characters_root=None):
             raise ValueError(f"Missing sprite in {folder}: {missing[0]}")
     owner = next((row for row in characters if row["id"] == "035_beaty"), None)
     if owner is not None and (
-        owner["homeAreaId"] != "salon"
+        owner.get("archived") is True
+        or owner["homeAreaId"] != "salon"
         or owner["inGacha"] is not True
         or owner["walkInTown"] is not False
     ):
         raise ValueError(
             "Salon owner 035_beaty must be in salon, in gacha, and not walk outside"
         )
-    if sum(row["homeAreaId"] == "salon" for row in characters) > 7:
+    if sum(row["homeAreaId"] == "salon" and not row.get("archived", False)
+           for row in characters) > 7:
         raise ValueError("Salon supports at most 7 assigned residents")
-    if not any(row["inGacha"] for row in characters):
+    if not any(row["inGacha"] and not row.get("archived", False)
+               for row in characters):
         raise ValueError("At least one resident must be available in gacha")
     if previous is not None:
         prior = previous["characters"]
@@ -162,10 +167,13 @@ def generate_dart(source, characters):
         profile = json.dumps(row["profile"], ensure_ascii=False).replace("$", r"\$")
         # Keep persisted enum keys unchanged, including legacy underscored keys.
         ignore_lint = "  // ignore: constant_identifier_names\n" if "_" in row["key"] else ""
+        active = not row.get("archived", False)
+        # Keep old IDs and assets, so already saved collections still decode.
+        home = row["homeAreaId"] if active else "plaza"
         declarations.append(
             f'{ignore_lint}  {row["key"]}("{row["id"]}", {label}, "{row["artFolder"]}", '
-            f'{"true" if row["inGacha"] else "false"}, '
-            f'{"true" if row["walkInTown"] else "false"}, {profile}, "{row["homeAreaId"]}")'
+            f'{"true" if active and row["inGacha"] else "false"}, '
+            f'{"true" if active and row["walkInTown"] else "false"}, {profile}, "{home}")'
         )
     return replace_section(source, DART_START, DART_END, ",\n".join(declarations))
 
@@ -227,6 +235,54 @@ def commit_files(contents):
                 temp.unlink()
 
 
+def validate_archive_dependencies(catalog, dialogues):
+    """Prevent live dialogue conditions from referencing archived residents."""
+    retired = {row["id"] for row in catalog["characters"] if row.get("archived")}
+    retired_lines = {entry["id"] for entry in dialogues["dialogues"]
+                     if entry["residentId"] in retired}
+    for entry in dialogues["dialogues"]:
+        if entry["residentId"] in retired:
+            continue
+        for condition in entry["conditions"]:
+            resident = (
+                condition.get("residentId") if condition["type"] == "residentOwned"
+                else condition.get("otherResidentId") if condition["type"] == "townTogether"
+                else None
+            )
+            if resident in retired or (
+                condition["type"] == "seenDialogue"
+                and condition["dialogueId"] in retired_lines
+            ):
+                raise ValueError(
+                    f"Active dialogue {entry['id']} depends on archived character: "
+                    f"{resident or condition.get('dialogueId')}"
+                )
+        if entry.get("reply", {}).get("residentId") in retired:
+            raise ValueError(f"Active dialogue {entry['id']} replies as archived character")
+
+
+def validate_archive_code_references(catalog, previous):
+    """Block removal from play while hard-coded Dart dependencies remain."""
+    previously_retired = {row["id"] for row in previous["characters"]
+                          if row.get("archived")}
+    for row in catalog["characters"]:
+        if not row.get("archived") or row["id"] in previously_retired:
+            continue
+        if row["id"] in {"01_shiba", "02_rabbit", "035_beaty"}:
+            raise ValueError(f"Core resident cannot be archived: {row['id']}")
+        for path in (ROOT / "lib").rglob("*.dart"):
+            source = path.read_text(encoding="utf-8")
+            if path == DART:
+                source = replace_section(source, DART_START, DART_END, "")
+            if (re.search(r"\bTownResident\." + re.escape(row["key"]) + r"\b", source)
+                    or re.search(r"(?<![A-Za-z0-9])" + re.escape(row["id"])
+                                 + r"(?![A-Za-z0-9])", source)):
+                raise ValueError(
+                    f"Character {row['id']} is used by app code in "
+                    f"{path.relative_to(ROOT)}; remove the dependency before archiving"
+                )
+
+
 def save_catalog_and_dialogues(payload, validate_dialogues):
     if (not isinstance(payload, dict) or
             set(payload) not in ({"characters", "dialogues"},
@@ -241,6 +297,8 @@ def save_catalog_and_dialogues(payload, validate_dialogues):
     previous_dialogues = json.loads(DIALOGUES.read_text(encoding="utf-8"))
     validate_dialogues(previous_dialogues, residents={row["id"] for row in previous["characters"]})
     validate_dialogue_ids(catalog, dialogues, previous, previous_dialogues)
+    validate_archive_dependencies(catalog, dialogues)
+    validate_archive_code_references(catalog, previous)
     dart = generate_dart(DART.read_text(encoding="utf-8"), catalog["characters"])
     pubspec = generate_pubspec(PUBSPEC.read_text(encoding="utf-8"), catalog["characters"])
     town_dart = generate_town_areas(AREA_DART.read_text(encoding="utf-8"), area_doc)
