@@ -154,7 +154,7 @@ void main() {
     };
     try {
       final watching = scene(
-        24, saved: const OyasumiProgress(completed: 1, lastNight: '2026-10-23'),
+        24, saved: const OyasumiProgress(completed: 2, lastNight: '2026-10-24'),
       );
       expect(watching.stage, 'watching');
       final exchange = watching.dialogue(frog, 'watching', 0);
