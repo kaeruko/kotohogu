@@ -172,7 +172,7 @@ def generate_dart(source, characters):
         active = not row.get("archived", False)
         # Keep old IDs and assets, so already saved collections still decode.
         home = row["homeAreaId"] if active else "plaza"
-        archived = "" if active else ", archived: true"
+        archived = ", archived: false" if active else ", archived: true"
         declarations.append(
             f'{ignore_lint}  {row["key"]}("{row["id"]}", {label}, "{row["artFolder"]}", '
             f'{"true" if active and row["inGacha"] else "false"}, '

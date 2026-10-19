@@ -153,14 +153,14 @@ class CmsTests(unittest.TestCase):
         moved = copy.deepcopy(original)
         moved["characters"][0]["homeAreaId"] = "park"
         validate_catalog(moved, previous=original)
-        self.assertIn('"park")', generate_dart(DART.read_text("utf-8"), moved["characters"]))
+        self.assertIn('"park", archived: false)', generate_dart(DART.read_text("utf-8"), moved["characters"]))
         salon = copy.deepcopy(original)
         salon_resident = next(row for row in salon["characters"]
                               if row["id"] == "035_beaty")
         self.assertEqual(salon_resident["homeAreaId"], "salon")
         self.assertTrue(salon_resident["inGacha"])
         validate_catalog(salon, previous=original)
-        self.assertIn('"salon")',
+        self.assertIn('"salon", archived: false)',
                       generate_dart(DART.read_text("utf-8"), salon["characters"]))
         invalid_owner = copy.deepcopy(original)
         row = next(row for row in invalid_owner["characters"]
