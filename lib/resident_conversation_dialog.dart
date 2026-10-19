@@ -92,11 +92,13 @@ class PagedConversationDialog extends StatefulWidget {
     required this.conversationId,
     required this.turns,
     this.badge,
+    this.reportCompletion = false,
   });
 
   final String conversationId;
   final List<ConversationTurn> turns;
   final String? badge;
+  final bool reportCompletion;
 
   @override
   State<PagedConversationDialog> createState() => _PagedConversationDialogState();
@@ -115,7 +117,11 @@ class _PagedConversationDialogState extends State<PagedConversationDialog> {
         _pageIndex = 0;
       });
     } else {
-      Navigator.of(context).pop();
+      if (widget.reportCompletion) {
+        Navigator.of(context).pop(true);
+      } else {
+        Navigator.of(context).pop();
+      }
     }
   }
 

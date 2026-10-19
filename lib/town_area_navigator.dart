@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'dev_tools.dart';
 import 'gacha_hud.dart';
 import 'resident_collection.dart';
+import 'oyasumi_club.dart';
 import 'local_content_preview.dart';
 import 'salon_room.dart';
 import 'bakery_room.dart';
@@ -28,6 +29,7 @@ class TownAreaNavigator extends StatefulWidget {
     this.onRemoteVisitor,
     this.salonUnlockMode = SalonUnlockDebugMode.normal,
     this.onResident,
+    this.oyasumi,
     this.onSalonResident,
     this.onBakeryResident,
     this.marcheOpen = false,
@@ -49,6 +51,7 @@ class TownAreaNavigator extends StatefulWidget {
   final Future<void> Function(RemoteResident)? onRemoteVisitor;
   final SalonUnlockDebugMode salonUnlockMode;
   final Future<void> Function(TownResident)? onResident;
+  final OyasumiScene? oyasumi;
   final Future<void> Function(TownResident)? onSalonResident;
   final Future<void> Function(TownResident)? onBakeryResident;
   final bool marcheOpen;
@@ -151,6 +154,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
               remoteContentBaseUri: widget.remoteContentBaseUri,
               onRemoteVisitor: widget.onRemoteVisitor,
               onResident: widget.onResident,
+              oyasumi: widget.oyasumi,
               marcheOpen: widget.marcheOpen,
               onVisitMarche: widget.onVisitMarche,
               showBakeryEntranceMarker: isBakeryUnlocked(widget.residents),
@@ -377,7 +381,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                     Flexible(
                       child: Text(
                         area == TownArea.plaza
-                            ? townNames[widget.level] : area.label,
+                            ? (widget.oyasumi?.active == true ? 'ゆうぐれおやすみクラブ' : townNames[widget.level]) : area.label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

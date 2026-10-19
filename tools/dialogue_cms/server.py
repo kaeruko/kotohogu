@@ -8,6 +8,7 @@ import tempfile
 from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+import events
 from urllib.parse import parse_qs, urlsplit
 from characters import (archive_code_blockers, load_catalog, validate_catalog,
                         save_catalog_and_dialogues)
@@ -300,6 +301,21 @@ class Handler(BaseHTTPRequestHandler):
             raw = INDEX.read_bytes()
             self._headers(200, "text/html; charset=utf-8", len(raw))
             self.wfile.write(raw)
+        elif path in {"/events", "/events.js", "/api/events", "/api/event-background"}:
+            try:
+                if path == "/api/events":
+                    return self._send(200, events.load())
+                if path == "/api/event-background":
+                    file = ROOT / events.load()["background"]
+                    mime = "image/jpeg"
+                else:
+                    file = Path(__file__).parent / ("events.html" if path == "/events" else "events.js")
+                    mime = "text/html; charset=utf-8" if path == "/events" else "text/javascript; charset=utf-8"
+                raw = file.read_bytes()
+                self._headers(200, mime, len(raw))
+                self.wfile.write(raw)
+            except (OSError, ValueError, TypeError) as exc:
+                self._send(400, {"error": str(exc)})
         elif path == "/api/portrait":
             try:
                 args = parse_qs(url.query, strict_parsing=True,
@@ -399,7 +415,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         endpoint = urlsplit(self.path).path
-        if endpoint not in {"/api/dialogues", "/api/cms"}:
+        if endpoint not in {"/api/dialogues", "/api/cms", "/api/events"}:
             return self._send(404, {"error": "Not found"})
         # A cross-origin website must not be able to modify local files.
         expected = f"http://127.0.0.1:{self.server.server_port}"
@@ -413,7 +429,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(413, {"error": "Invalid document size"})
             raw = self.rfile.read(size)
             value = json.loads(raw.decode("utf-8"))
-            if endpoint == "/api/cms":
+            if endpoint == "/api/events":
+                events.save(value)
+                self._send(200, {"ok": True})
+            elif endpoint == "/api/cms":
                 result = save_catalog_and_dialogues(value, validate)
                 self._send(200, result)
             else:
@@ -425,7 +444,17 @@ class Handler(BaseHTTPRequestHandler):
             self._send(500, {"error": str(exc)})
 
     def do_POST(self):
-        self._send(405, {"error": "Method not allowed"})
+        if self.path != "/api/event-preview":
+            return self._send(405, {"error": "Method not allowed"})
+        if self.headers.get("Origin") != f"http://127.0.0.1:{self.server.server_port}":
+            return self._send(403, {"error": "Same-origin editor only"})
+        try:
+            size = int(self.headers.get("Content-Length", "-1"))
+            if not 0 < size <= 1024 * 1024: raise ValueError("Invalid document size")
+            result = events.preview(json.loads(self.rfile.read(size).decode("utf-8")))
+            self._send(200, result)
+        except (ValueError, TypeError, KeyError, OverflowError) as exc:
+            self._send(400, {"error": str(exc)})
 
 
 if __name__ == "__main__":

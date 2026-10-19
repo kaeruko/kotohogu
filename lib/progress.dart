@@ -1,3 +1,4 @@
+import 'oyasumi_club.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -65,6 +66,7 @@ class Progress {
     Map<MissionPeriod, String> debugResets = const {},
     Map<Mission, int>? missionCounts,
     Set<String> seenDialogues = const {},
+    this.oyasumi = const OyasumiProgress(),
   }) : residents = residents ?? ResidentCollection.initial(points),
        completed = Set.unmodifiable(completed),
        history = Map.unmodifiable({
@@ -88,6 +90,7 @@ class Progress {
     completed: {},
   );
 
+  final OyasumiProgress oyasumi;
   final String day;
   final String? lastCompletedDay;
   final int points;
@@ -146,6 +149,7 @@ class Progress {
       history: history,
       missionCounts: missionCounts,
       seenDialogues: seenDialogues,
+      oyasumi: oyasumi,
       debugResets: {
         if (weekStart(today) == weekStart(day) &&
             debugResets.containsKey(MissionPeriod.weekly))
@@ -179,6 +183,7 @@ class Progress {
       },
       missionCounts: {...missionCounts, mission: (missionCounts[mission] ?? 0) + 1},
       seenDialogues: seenDialogues,
+      oyasumi: oyasumi,
       debugResets: debugResets,
     );
   }
@@ -196,6 +201,7 @@ class Progress {
     history: history,
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
+    oyasumi: oyasumi,
     debugResets: {
       MissionPeriod.daily: day,
       MissionPeriod.weekly: weekStart(day),
@@ -214,6 +220,7 @@ class Progress {
     monthlyCompleted: monthlyCompleted,
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
+    oyasumi: oyasumi,
     debugResets: debugResets,
   );
 
@@ -229,6 +236,7 @@ class Progress {
     history: history,
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
+    oyasumi: oyasumi,
     debugResets: debugResets,
   );
 
@@ -243,6 +251,7 @@ class Progress {
     history: history,
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
+    oyasumi: oyasumi,
     debugResets: debugResets,
   );
 
@@ -258,6 +267,7 @@ class Progress {
     history: history,
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
+    oyasumi: oyasumi,
     debugResets: debugResets,
   );
 
@@ -275,12 +285,22 @@ class Progress {
       history: history,
       missionCounts: missionCounts,
       seenDialogues: {...seenDialogues, id},
+      oyasumi: oyasumi,
       debugResets: debugResets,
     );
   }
 
+  Progress withOyasumi(OyasumiProgress value) => Progress(
+    day: day, lastCompletedDay: lastCompletedDay, points: points,
+    residents: residents, completed: completed, history: history,
+    weeklyCompleted: weeklyCompleted, monthlyCompleted: monthlyCompleted,
+    debugResets: debugResets, missionCounts: missionCounts,
+    seenDialogues: seenDialogues, oyasumi: value,
+  );
+
   String encode() => jsonEncode({
     'version': 5,
+    if (oyasumi.completed > 0) 'oyasumi': oyasumi.toJson(),
     'residents': residents.encode(),
     'missionCounts': {
       for (final mission in Mission.values)
@@ -323,6 +343,7 @@ class Progress {
       throw FormatException('Unsupported FutureLift save version: $version');
     }
     final keys = {
+      if (version >= 5 && data.containsKey('oyasumi')) 'oyasumi',
       if (version >= 4) 'residents',
       if (version >= 5) ...['missionCounts', 'seenDialogues'],
       'version',
@@ -496,6 +517,7 @@ class Progress {
       monthlyCompleted: monthly,
       history: history,
       missionCounts: knownCounts,
+      oyasumi: data.containsKey('oyasumi') ? OyasumiProgress.fromJson(data['oyasumi']) : const OyasumiProgress(),
       seenDialogues: version >= 5 ? Set<String>.from(data['seenDialogues'] as List) : {},
       debugResets: debugResets,
     );
@@ -750,6 +772,29 @@ class ProgressController extends ChangeNotifier {
       return true;
     } catch (error, stack) {
       failure = ProgressFailure('デバッグ用ミッション全リセット', error, stack);
+      return false;
+    } finally {
+      _finishOperation();
+    }
+  }
+
+  Future<bool> completeOyasumi(OyasumiScene scene, TownResident speaker, String group) async {
+    if (busy || failure != null || progress == null ||
+        progress!.oyasumi.completed != scene.saved.completed ||
+        progress!.oyasumi.lastNight != scene.saved.lastNight) {
+      return false;
+    }
+    final value = scene.completeIntroduction(speaker, group);
+    if (identical(value, scene.saved)) return true;
+    busy = true;
+    notifyListeners();
+    try {
+      final next = progress!.onDay(clock()).withOyasumi(value);
+      await store.save(next);
+      progress = next;
+      return true;
+    } catch (error, stack) {
+      failure = ProgressFailure('おやすみクラブの進行保存', error, stack);
       return false;
     } finally {
       _finishOperation();

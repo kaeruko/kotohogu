@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'resident_collection.dart';
+import 'oyasumi_club.dart';
 import 'marche.dart';
 import 'local_content_preview.dart';
 import 'town_walk.dart';
@@ -50,6 +51,7 @@ class TownScene extends StatefulWidget {
     required this.lifetimePoints,
     this.debugTownResidents,
     this.onResident,
+    this.oyasumi,
     this.remoteVisitors = const [],
     this.remoteContentBaseUri,
     this.onRemoteVisitor,
@@ -72,6 +74,7 @@ class TownScene extends StatefulWidget {
   /// A temporary debug-only cast; null uses the owned residents.
   final List<TownResident>? debugTownResidents;
   final Future<void> Function(TownResident)? onResident;
+  final OyasumiScene? oyasumi;
   final List<RemoteResident> remoteVisitors;
   final Uri? remoteContentBaseUri;
   final Future<void> Function(RemoteResident)? onRemoteVisitor;
@@ -178,8 +181,8 @@ class _TownSceneState extends State<TownScene> {
   @override
   Widget build(BuildContext context) {
     if (widget.fillViewport) {
-      final sourceWidth = widget.area.sourceWidth;
-      final sourceHeight = widget.area.sourceHeight;
+      final sourceWidth = widget.oyasumi?.background(widget.area) != null ? 941 : widget.area.sourceWidth;
+      final sourceHeight = widget.oyasumi?.background(widget.area) != null ? 1672 : widget.area.sourceHeight;
       if (sourceWidth == null || sourceHeight == null ||
           sourceWidth <= 0 || sourceHeight <= 0) {
         throw StateError('No source image dimensions for ${widget.area.id}');
@@ -212,7 +215,7 @@ class _TownSceneState extends State<TownScene> {
 
   Widget _scene(BuildContext context, double width, double height) {
     final reduced = MediaQuery.disableAnimationsOf(context);
-    final visibleResidents = areaResidents(
+    final ordinaryResidents = areaResidents(
       widget.residents,
       widget.area,
       lifetimePoints: widget.lifetimePoints,
@@ -220,6 +223,7 @@ class _TownSceneState extends State<TownScene> {
       debugOverride: widget.debugTownResidents,
       marcheOpen: widget.marcheOpen,
     );
+    final visibleResidents = widget.oyasumi?.residents(widget.area, ordinaryResidents) ?? ordinaryResidents;
     if (widget.remoteVisitors.isNotEmpty && widget.remoteContentBaseUri == null) {
       throw StateError('Remote visitors require a local content base URI');
     }
@@ -245,7 +249,7 @@ class _TownSceneState extends State<TownScene> {
       children: [
         Positioned.fill(
           child: Image.asset(
-            widget.area.backgroundAsset ??
+            widget.oyasumi?.background(widget.area) ?? widget.area.backgroundAsset ??
                 (throw StateError('Missing background for ${widget.area.id}')),
             key: const ValueKey('town-background'),
             fit: BoxFit.cover,
@@ -457,13 +461,13 @@ class _TownSceneState extends State<TownScene> {
     final isShopkeeper = widget.area == TownArea.plaza &&
         widget.marcheOpen && widget.debugTownResidents == null &&
         resident == tonkoMarcheOwner;
-    final route = widget.area == TownArea.hospital
+    final route = widget.oyasumi?.route(widget.area, resident) ?? (widget.area == TownArea.hospital
         ? const TownWalkRoute(.52, .65, stay: true)
         : isShopkeeper
         ? plazaMarcheStaffRoute
         : widget.area == TownArea.park
             ? parkWalkRoute(resident.id, index, totalSlots: totalSlots)
-            : null;
+            : null);
     final origin = route == null
         ? townWalkOrigin(index, totalSlots: totalSlots)
         : (route.x, route.y);

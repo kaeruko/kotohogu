@@ -1,4 +1,5 @@
 import 'marche.dart';
+import 'oyasumi_club.dart';
 import 'progress.dart';
 import 'resident_collection.dart';
 import 'town_areas.dart';
@@ -9,15 +10,17 @@ enum ConversationSite { town, salon, bakery, roster }
 
 /// One view of the saved game state shared by town rendering and dialogue.
 ///
-/// No new save fields: facilities are derived from Progress, and outdoor
-/// destinations come from the same in-memory visit used by the painted town.
+/// Facilities are derived from Progress; event snapshots and the in-memory
+/// town visit are shared by the painted scene and conversation conditions.
 /// A debug cast affects previews only, not the permanent facility unlock.
 class TownRules {
   const TownRules(this.progress, {
     required this.visit,
     this.debugTownResidents,
+    this.oyasumi,
   });
 
+  final OyasumiScene? oyasumi;
   final Progress progress;
   final TownVisit visit;
   final List<TownResident>? debugTownResidents;
@@ -25,14 +28,17 @@ class TownRules {
   bool get marcheOpen => isMarcheOpen(progress);
   bool get salonUnlocked => isSalonUnlocked(progress.residents.owned);
 
-  List<TownResident> outdoors(TownArea area) => areaResidents(
-    progress.residents.owned,
-    area,
-    lifetimePoints: progress.points,
-    visit: visit,
-    debugOverride: debugTownResidents,
-    marcheOpen: marcheOpen,
-  );
+  List<TownResident> outdoors(TownArea area) {
+    final ordinary = areaResidents(
+      progress.residents.owned,
+      area,
+      lifetimePoints: progress.points,
+      visit: visit,
+      debugOverride: debugTownResidents,
+      marcheOpen: marcheOpen,
+    );
+    return oyasumi?.residents(area, ordinary) ?? ordinary;
+  }
 
   /// All speakers considered "together" for a particular conversation.
   ///

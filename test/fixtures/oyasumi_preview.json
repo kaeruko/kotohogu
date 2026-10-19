@@ -1,0 +1,1875 @@
+[
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 0
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "watching",
+      "nightKey": "2026-10-21",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joining",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joining",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "watching",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "watching",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": true,
+      "stage": "watching",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joining",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 2
+    }
+  },
+  {
+    "input": {
+      "completed": 2,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "joining",
+      "nightKey": "2026-10-21",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T17:59"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59"
+    },
+    "expected": {
+      "active": true,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T05:00"
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00"
+    },
+    "expected": {
+      "active": true,
+      "stage": "joined",
+      "nightKey": "2026-10-21",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  }
+]

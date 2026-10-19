@@ -283,7 +283,7 @@ def archive_code_blockers(catalog):
                                  + r"(?![A-Za-z0-9])", source)):
                 blockers[row["id"]] = (
                     f"Character {row['id']} is used by app code in "
-                    f"{path}; remove the dependency before archiving"
+                    f"{path.as_posix()}; remove the dependency before archiving"
                 )
                 break
     return blockers

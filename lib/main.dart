@@ -9,6 +9,7 @@ import 'celebration.dart';
 import 'dialogue_engine.dart';
 import 'marche.dart';
 import 'town_rules.dart';
+import 'oyasumi_club.dart';
 import 'local_content_preview.dart';
 import 'google_drive_content_source.dart';
 import 'local_town_visitors.dart';
@@ -149,6 +150,13 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   Timer? _midnight;
   int _marcheDailyDialogueRotation = 0;
   bool _marcheConversationOpen = false;
+  bool _clubConversationOpen = false;
+  final Map<String, int> _clubRotations = {};
+  Timer? _clubClock;
+  OyasumiScene _clubScene(Progress progress) => OyasumiScene(
+    saved: progress.oyasumi, owned: progress.residents.owned,
+    now: controller.clock(), enabled: _debugTownResidents == null,
+  );
   /// Debug-only town cast kept in memory; never written to the save file.
   List<TownResident>? _debugTownResidents;
   /// Debug-only, opt-in showcase of not-yet-owned remote residents.
@@ -174,6 +182,9 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     if (loader != null) _remoteContentFuture = loader();
     controller.initialize();
     _scheduleMidnight();
+    _clubClock = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted && _page == 2) setState(() {});
+    });
   }
 
   void _scheduleMidnight() {
@@ -198,6 +209,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   @override
   void dispose() {
     _midnight?.cancel();
+    _clubClock?.cancel();
     _townScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -399,10 +411,18 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         controller.progress == null) {
       return;
     }
+    final scene = _clubScene(controller.progress!);
+    final clubGroup = scene.group(resident,
+      inPlaza: !inSalon && !inBakery && _page == 2 && _townArea == TownArea.plaza);
+    if (clubGroup != null) {
+      await _showClubDialogue(scene, resident, clubGroup);
+      return;
+    }
     final catalog = await _dialoguesFuture;
     if (!mounted || controller.failure != null) return;
     final rules = TownRules(
       controller.progress!, visit: _townVisit,
+      oyasumi: _clubScene(controller.progress!),
       debugTownResidents: _debugTownResidents);
     final visibleIds = rules.conversationPeers(
       inBakery
@@ -437,6 +457,32 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         dialogue: line,
       ),
     );
+  }
+
+  Future<void> _showClubDialogue(OyasumiScene scene, TownResident resident, String group) async {
+    if (_clubConversationOpen) return;
+    _clubConversationOpen = true;
+    final key = '$group/${resident.id}';
+    final line = scene.dialogue(resident, group, _clubRotations[key] ?? 0);
+    try {
+      final read = await showDialog<bool>(
+        context: context,
+        builder: (_) => PagedConversationDialog(
+          conversationId: line.id, reportCompletion: true,
+          badge: group == 'resting' ? null : 'ゆうぐれおやすみクラブ',
+          turns: [ConversationTurn(label: resident.label,
+            avatar: TownResidentAvatar(resident: resident), text: line.text)],
+        ),
+      );
+      if (read != true || !mounted) return;
+      if (scene.introduction(resident, group)) {
+        await controller.completeOyasumi(scene, resident, group);
+      } else {
+        _clubRotations[key] = (_clubRotations[key] ?? 0) + 1;
+      }
+    } finally {
+      _clubConversationOpen = false;
+    }
   }
 
   /// The stall has its own sequential story and daily conversation rotation.
@@ -838,7 +884,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   Widget _townNavigator(
       Progress progress, HostedTownContent? hosted) {
     final rules = TownRules(
-      progress, visit: _townVisit, debugTownResidents: _debugTownResidents);
+      progress, visit: _townVisit,
+      oyasumi: _clubScene(progress), debugTownResidents: _debugTownResidents);
     final visitors = hosted == null
         ? const <RemoteResident>[]
         : localVisitorsForArea(
@@ -876,6 +923,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           onSalonResident: (resident) =>
               _showDialogue(resident, inSalon: true),
           marcheOpen: rules.marcheOpen,
+          oyasumi: rules.oyasumi,
           onVisitMarche: _visitMarche,
         ),
         if (widget.remoteContentLoader != null)
