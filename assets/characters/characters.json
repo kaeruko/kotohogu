@@ -59,12 +59,12 @@
     {
       "key": "bear",
       "id": "06_bear",
-      "label": "くま",
+      "label": "だいくさん",
       "artFolder": "006_kuma",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 2,
-      "profile": "",
+      "nextDialogueNumber": 12,
+      "profile": "まちの家やお店を建て、家具やベンチを直す大工。腕はいいが口下手で、頼まれなくても壊れたものをそっと修理する。完成した建物が手を離れるのは少し寂しいけれど、そこで誰かの暮らしが始まることを喜んでいる。",
       "homeAreaId": "village"
     },
     {
@@ -104,7 +104,7 @@
       "key": "c032_miner",
       "id": "032_miner",
       "label": "もぐた",
-      "profile": "工事現場ではたらく子",
+      "profile": "道路や公園など、まちの土台をつくる土木工事の職人。元気いっぱいで、まちづくりが大好きな子。",
       "artFolder": "032_miner",
       "nextDialogueNumber": 7,
       "inGacha": true,

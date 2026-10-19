@@ -82,7 +82,7 @@ enum TownResident {
   penguin("03_penguin", "まちの案内係", "003_penguin", true, true, "", "plaza"),
   cat("04_cat", "ねこ", "004_neko", true, true, "", "shopping"),
   squirrel("05_squirrel", "りす", "005_risu", true, true, "", "park"),
-  bear("06_bear", "くま", "006_kuma", true, true, "", "village"),
+  bear("06_bear", "だいくさん", "006_kuma", true, true, "まちの家やお店を建て、家具やベンチを直す大工。腕はいいが口下手で、頼まれなくても壊れたものをそっと修理する。完成した建物が手を離れるのは少し寂しいけれど、そこで誰かの暮らしが始まることを喜んでいる。", "village"),
   // ignore: constant_identifier_names
   c009_chef("009_chef", "シェフ", "009_chef", true, true, "", "shopping"),
   // ignore: constant_identifier_names
@@ -90,7 +90,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c027_daydreamer("027_daydreamer", "おやすみくん", "027_daydreamer", true, true, "おしごともべんきょうもおやすみ中の子。ぼくはまだまだこれからなんだ～", "park"),
   // ignore: constant_identifier_names
-  c032_miner("032_miner", "もぐた", "032_miner", true, true, "工事現場ではたらく子", "shopping"),
+  c032_miner("032_miner", "もぐた", "032_miner", true, true, "道路や公園など、まちの土台をつくる土木工事の職人。元気いっぱいで、まちづくりが大好きな子。", "shopping"),
   // ignore: constant_identifier_names
   c036_mosa("036_mosa", "モサエド", "036_mosa", true, true, "拙者、猛者江戸（モサエド）と申す！", "plaza"),
   // ignore: constant_identifier_names

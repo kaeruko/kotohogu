@@ -184,7 +184,7 @@
     {
       "id": "bear_default_1",
       "residentId": "06_bear",
-      "text": "年齢が同じでも、できることや必要な支えは人それぞれだね。",
+      "text": "木ってのはな、一本一本ちがうんだ。同じように切ったつもりでも、同じにはならねぇ。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -193,7 +193,7 @@
     {
       "id": "bear_default_2",
       "residentId": "06_bear",
-      "text": "支えを借りながらでも、自分の好きなことを楽しめるといいね。",
+      "text": "そこのベンチ、直しといたぞ。……いや、礼はいい。ぐらぐらしてるのが気になっただけだ。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -202,7 +202,7 @@
     {
       "id": "bear_default_3",
       "residentId": "06_bear",
-      "text": "学んだり、人とつながったりすることも、生活する力のひとつだね。",
+      "text": "新しい家を建てるのも好きだが、古い家を直すのも好きなんだ。長いこと、大事にされてきたんだろうからな。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -211,7 +211,7 @@
     {
       "id": "bear_default_4",
       "residentId": "06_bear",
-      "text": "体調や暮らしに合う、自分なりのセルフケアを大切にしたいね。",
+      "text": "道具はな、使い終わったあとの手入れが大事なんだ。次に使うとき、ちゃんと力になってくれる。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -3052,12 +3052,137 @@
     {
       "id": "06_bear_001",
       "residentId": "06_bear",
-      "text": "こんにちは、くまだよ。急がずに、自分のペースで暮らしてるんだ。よかったら、ときどき話そうね。",
+      "text": "……おれは、だいくさんだ。まちの家や店を建てたり、直したりしてる。話すのは得意じゃねぇが……困ったら声をかけな。",
       "priority": 0,
       "once": true,
       "firstGreeting": true,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "06_bear_002",
+      "residentId": "06_bear",
+      "text": "おれだって間違えるさ。大事なのは、間違えたあとにどうするかだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "06_bear_003",
+      "residentId": "06_bear",
+      "text": "焦ると寸法を間違える。急いでるときほど、一度手を止めて確かめるんだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "06_bear_004",
+      "residentId": "06_bear",
+      "text": "完成した建物を見ると、少しだけ寂しくなる。ずっと向き合ってきたものが、おれの手を離れていくからな。",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "06_bear_005",
+      "residentId": "06_bear",
+      "text": "おれの仕事は、家を建てたら終わりだ。でも、そこから誰かの暮らしが始まるんだな。……悪くねぇよ。",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "06_bear_004"
+        }
+      ]
+    },
+    {
+      "id": "06_bear_006",
+      "residentId": "06_bear",
+      "text": "まっすぐに見える板にも、くせがある。無理に押さえつけずに、うまく付き合うのが腕の見せどころだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "06_bear_007",
+      "residentId": "06_bear",
+      "text": "頼まれた棚を直したらな、花瓶を飾ったって聞いた。……そうか。使ってもらえてるなら、何よりだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "06_bear_008",
+      "residentId": "06_bear",
+      "text": "あの公園のベンチは、おれが作ったんだ。",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "032_miner"
+        }
+      ],
+      "reply": {
+        "residentId": "032_miner",
+        "text": "ええっ！ じゃあ、ぼくたち一緒に公園を作ってたんだもぐ！"
+      }
+    },
+    {
+      "id": "06_bear_009",
+      "residentId": "06_bear",
+      "text": "筋力を使ったんだな。大きな仕事も、一つひとつの積み重ねだ。よくやった。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "strength",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "06_bear_010",
+      "residentId": "06_bear",
+      "text": "ちゃんと座りっぱなしをやめて休んだんだな。仕事も休憩も大事だ。無理はするなよ。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "sittingBreak",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "06_bear_011",
+      "residentId": "06_bear",
+      "text": "好きなことを楽しんだのか。いいじゃねぇか。何かに夢中になれる時間は、宝物だぞ。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "hobby",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
     },
     {
       "id": "009_chef_005",

@@ -128,6 +128,80 @@ void main() {
     }
   });
 
+  test('carpenter keeps stable ID and greets before his two-part story', () async {
+    const carpenter = TownResident.bear;
+    expect(carpenter.id, '06_bear');
+    expect(carpenter.label, 'だいくさん');
+    expect(carpenter.profile, contains('大工'));
+    expect(TownResident.c032_miner.profile, contains('土木工事'));
+    final catalog = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 10, 19, 2);
+    var progress = Progress.empty(DateTime(2026, 10, 19));
+    DialogueEntry next() => catalog.select(
+      resident: carpenter, progress: progress, now: now,
+      random: const FixedRoll(last: false),
+    );
+    expect(next().id, '06_bear_001');
+    progress = progress.markDialogueSeen('06_bear_001');
+    expect(next().id, '06_bear_004');
+    progress = progress.markDialogueSeen('06_bear_004');
+    expect(next().id, '06_bear_005');
+    progress = progress.markDialogueSeen('06_bear_005');
+    expect(next().once, isFalse);
+    final restored = Progress.decode(progress.encode(), expectedVersion: 5);
+    expect(catalog.select(
+      resident: carpenter, progress: restored, now: now,
+      random: const FixedRoll(last: false),
+    ).once, isFalse);
+  });
+
+  test('carpenter and Moguta talk only when both are in the same scene', () async {
+    final catalog = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 10, 19, 2);
+    final progress = Progress.empty(DateTime(2026, 10, 19));
+    DialogueEntry paired(Set<String> residents) => catalog.selectById(
+      id: '06_bear_008', resident: TownResident.bear,
+      progress: progress, now: now, townResidentIds: residents,
+    );
+    expect(() => paired({}), throwsStateError);
+    expect(() => paired({'06_bear'}), throwsStateError);
+    expect(() => paired({'032_miner'}), throwsStateError);
+    final line = paired({'06_bear', '032_miner'});
+    expect(line.reply?.residentId, '032_miner');
+    expect(line.reply?.text, contains('一緒に公園'));
+  });
+
+  test('carpenter mission celebrations appear only that day and once', () async {
+    final catalog = await DialogueCatalog.load();
+    const carpenter = TownResident.bear;
+    final today = DateTime.utc(2026, 10, 19, 2);
+    final tomorrow = DateTime.utc(2026, 10, 19, 15);
+    var progress = Progress.empty(DateTime(2026, 10, 19))
+      .markDialogueSeen('06_bear_001')
+      .markDialogueSeen('06_bear_004')
+      .markDialogueSeen('06_bear_005');
+    DialogueEntry select(String id, DateTime now) => catalog.selectById(
+      id: id, resident: carpenter, progress: progress, now: now,
+    );
+    for (final id in ['06_bear_009', '06_bear_010', '06_bear_011']) {
+      expect(() => select(id, today), throwsStateError);
+    }
+    progress = progress.complete(Mission.strength);
+    expect(catalog.select(
+      resident: carpenter, progress: progress, now: today,
+      random: const FixedRoll(last: false),
+    ).id, '06_bear_009');
+    expect(select('06_bear_009', today).once, isTrue);
+    expect(() => select('06_bear_009', tomorrow), throwsStateError);
+    progress = progress.markDialogueSeen('06_bear_009');
+    expect(() => select('06_bear_009', today), throwsStateError);
+    progress = progress.complete(Mission.sittingBreak).complete(Mission.hobby);
+    expect(select('06_bear_010', today).once, isTrue);
+    expect(select('06_bear_011', today).once, isTrue);
+    expect(() => select('06_bear_010', tomorrow), throwsStateError);
+    expect(() => select('06_bear_011', tomorrow), throwsStateError);
+  });
+
   test('Merry keeps her first greeting and celebrates only on completion day', () async {
     final live = await DialogueCatalog.load();
     const merry = TownResident.c007_hitsuji;
