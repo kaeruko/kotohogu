@@ -128,7 +128,7 @@
       "label": "つやこ",
       "profile": "美容家",
       "artFolder": "035_beaty",
-      "nextDialogueNumber": 15,
+      "nextDialogueNumber": 16,
       "inGacha": true,
       "walkInTown": false,
       "homeAreaId": "salon"
@@ -258,9 +258,9 @@
       "key": "c048_advicer",
       "id": "048_advicer",
       "label": "しんだんし",
-      "profile": "",
+      "profile": "ことほぎのまちの商店街で、個人商店や小さな会社の経営相談に乗ってきた中小企業診断士。つやこさんが桜の美容室を開くときも、事業計画や設備投資の相談を受けていた。今は開店したばかりのケーキ屋さんや、マルシェでお茶を売るとんこさんの話にも耳を傾ける。穏やかで数字には細かいが、夢を否定したり決断を押しつけたりはしない。店主が望む暮らしと、商売を続けるための現実を一緒に考える。税務・年金など専門外の相談では適切な専門家につなぐ。",
       "artFolder": "048_advicer",
-      "nextDialogueNumber": 2,
+      "nextDialogueNumber": 30,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"

@@ -4420,6 +4420,21 @@
       "conditions": []
     },
     {
+      "id": "035_beaty_015",
+      "residentId": "035_beaty",
+      "text": "しんだんしさんには、美容室を開く前から相談に乗っていただいたの。理想のお店のことも、お金のこともね。今も続けていられるのがうれしいわ♡",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "048_advicer",
+          "owned": true
+        }
+      ]
+    },
+    {
       "id": "031_kimono_fox_002",
       "residentId": "031_kimono_fox",
       "text": "いらっしゃいませ♪ わたしはきものぎつね。桜の美容室でお手伝いしているの。着物を見るのが大好きなのよ。",
@@ -4895,9 +4910,350 @@
     {
       "id": "048_advicer_001",
       "residentId": "048_advicer",
-      "text": "こんにちは！よろしくね。",
+      "text": "ほほう、今日はどんなご相談ですか？ お店の数字でも、まだ形になっていない計画でも、まずは聞かせてください。",
       "priority": 0,
       "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_002",
+      "residentId": "048_advicer",
+      "text": "はじめまして。まちの商売や経営の相談に乗っている、しんだんしです。数字が苦手な方も大丈夫。いっしょに整理してみましょう。",
+      "priority": 0,
+      "once": true,
+      "logic": "all",
+      "conditions": [],
+      "firstGreeting": true
+    },
+    {
+      "id": "048_advicer_003",
+      "residentId": "048_advicer",
+      "text": "商売を始めるのは勇気がいります。でも、続けていくには計算も必要なんですよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_004",
+      "residentId": "048_advicer",
+      "text": "売上と利益は違いますからね。いくら売れたかだけでなく、いくら残ったかも見ておきましょう。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_005",
+      "residentId": "048_advicer",
+      "text": "最初の一歩は、ノートを一冊用意することかもしれません。何がいくら売れたか、記録してみませんか。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_006",
+      "residentId": "048_advicer",
+      "text": "数字は叱ったりしませんよ。見てみると、次に考えることを教えてくれるんです。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_007",
+      "residentId": "048_advicer",
+      "text": "お客さんが多い日と少ない日、違いは何でしょうね。天気や曜日から記録してみるのも面白いですよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_008",
+      "residentId": "048_advicer",
+      "text": "好きなことを仕事にすると、材料を選ぶ時間も、片づけの時間も仕事になります。そこも計画に入れましょう。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_009",
+      "residentId": "048_advicer",
+      "text": "値段を下げれば売れるとは限りません。お客さんが何を喜んでいるのか、聞いてみるのも大切ですよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_010",
+      "residentId": "048_advicer",
+      "text": "『いつかお店を持ちたい』ですか。いいですねぇ。では、まず毎月いくら必要になるか考えてみましょう。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_011",
+      "residentId": "048_advicer",
+      "text": "大きく始めることだけが正解ではありません。小さく試して、確かめながら続ける方法もありますよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_012",
+      "residentId": "048_advicer",
+      "text": "仕入れや家賃は、お客さんが来ない日にもかかることがあります。そこが商売の難しいところですね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_013",
+      "residentId": "048_advicer",
+      "text": "店主さんが何を大切にしたいかは、店主さんが決めることです。わたしは考える材料をお渡しします。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_014",
+      "residentId": "048_advicer",
+      "text": "商売の相談を聞いていると、帳簿には載らない苦労がたくさんあると気づかされますねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_015",
+      "residentId": "048_advicer",
+      "text": "わたしも、何でも知っているわけではありません。税金の申告は税理士さんなど、専門の方に確認していただきます。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_016",
+      "residentId": "048_advicer",
+      "text": "お店を閉じるべきか迷う方もいます。続ける方法も、区切りをつける方法も、落ち着いて考えたいものですね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_017",
+      "residentId": "048_advicer",
+      "text": "つやこさんの美容室は、開業前に事業計画を一緒に考えたんですよ。いまもお客さんを迎えているのが、うれしいですね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "035_beaty",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "048_advicer_018",
+      "residentId": "048_advicer",
+      "text": "つやこさん、最初の計画では広いお店を考えておられました。でも、無理なく続けられる規模から始めたんです。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "035_beaty",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "048_advicer_019",
+      "residentId": "048_advicer",
+      "text": "パティシエさんは、作る腕も立派ですが、仕入れと売れ残りの計算にも真剣ですね。お店を持つと仕事が増えるものです。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "047_patisie",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "048_advicer_020",
+      "residentId": "048_advicer",
+      "text": "とんこさんは今、マルシェでお茶を売りながら、少しずつ商売を学んでおられるそうですね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_033"
+        }
+      ]
+    },
+    {
+      "id": "048_advicer_021",
+      "residentId": "048_advicer",
+      "text": "およめさんは、子育てと家のことを担っておられます。家族の暮らしを守る仕事にも、時間が必要ですからね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "002_usagi",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "048_advicer_022",
+      "residentId": "048_advicer",
+      "text": "とんこさん、マルシェのお茶は、ひと月にどのくらい売れていますか？",
+      "priority": 45,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_033"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "売上は記録してるんですけどねぇ。材料費を引くと、まだあんまり残らなくて……。"
+      }
+    },
+    {
+      "id": "048_advicer_023",
+      "residentId": "048_advicer",
+      "text": "とんこさん、アルバイトをしながらお茶のお店を続けているんでしたね。",
+      "priority": 45,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_033"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "ええ。まだハーブだけでは暮らせないから。いつかお茶のお仕事を育てていきたいんです。"
+      }
+    },
+    {
+      "id": "048_advicer_024",
+      "residentId": "048_advicer",
+      "text": "パティシエさん、ケーキが売り切れる日と残る日、記録していますか？",
+      "priority": 45,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "047_patisie"
+        }
+      ],
+      "reply": {
+        "residentId": "047_patisie",
+        "text": "はい。でも曜日によって違って……。作る数を決めるのが難しいです。"
+      }
+    },
+    {
+      "id": "048_advicer_025",
+      "residentId": "048_advicer",
+      "text": "開店してから、思っていたのと違ったことはありましたか？",
+      "priority": 45,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "047_patisie"
+        }
+      ],
+      "reply": {
+        "residentId": "047_patisie",
+        "text": "ケーキを作っている時間より、帳簿や仕入れを考えている時間が長い日もあるんです。"
+      }
+    },
+    {
+      "id": "048_advicer_026",
+      "residentId": "048_advicer",
+      "text": "およめさん、パートとお店のお手伝いで迷っているそうですね。",
+      "priority": 45,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "002_usagi"
+        }
+      ],
+      "reply": {
+        "residentId": "002_usagi",
+        "text": "ええ。この子が大きくなったら、どちらが家計にいいのかしらって。国民年金のことも気になるんです。"
+      }
+    },
+    {
+      "id": "048_advicer_027",
+      "residentId": "048_advicer",
+      "text": "働き方を考えるときは、収入だけでなく、時間や社会保険の条件も比べましょう。制度の詳しいことは専門窓口に確認してくださいね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "002_usagi",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "048_advicer_028",
+      "residentId": "048_advicer",
+      "text": "もし数字が思わしくなくても、それで夢が間違いだったとは限りません。やり方を変える余地があるか、一緒に探しましょう。",
+      "priority": 15,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "048_advicer_029",
+      "residentId": "048_advicer",
+      "text": "昔、お店を開く前に何度も相談に来た方がいました。今では、わたしのほうがお客さんとして通っていますよ。",
+      "priority": 15,
+      "once": true,
       "logic": "all",
       "conditions": []
     }
