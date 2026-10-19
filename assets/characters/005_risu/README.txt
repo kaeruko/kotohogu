@@ -1,5 +1,5 @@
-Kotohogu sprite package: 005_risu
-Source: 005_risu_sheet_4x4.png
+Kotohogu sprite package: 012_delivery
+Source: 012_delivery.png
 Source size: 1152x1152
 Output PNG: 288x288 pixels, transparent
 
@@ -9,7 +9,7 @@ walk_right_01..04: right walk
 walk_left_01..04: horizontal flips of right walk
 idle_front_01: idle
 clap_front_01..02: clap
-005_risu_sheet_4x4.png: 4x4 sprite sheet
+012_delivery_sheet_4x4.png: 4x4 sprite sheet
 preview_*.gif: animation previews
 
 IMPORTANT:

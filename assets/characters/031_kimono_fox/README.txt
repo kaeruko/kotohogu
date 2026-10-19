@@ -1,5 +1,5 @@
-Kotohogu sprite package: 031_kimono_fox
-Source: 031_kimono_fox.png
+Kotohogu sprite package: 045_senior_fox
+Source: 045_senior_fox.png
 Source size: 1152x1152
 Output PNG: 288x288 pixels, transparent
 
@@ -9,7 +9,7 @@ walk_right_01..04: right walk
 walk_left_01..04: horizontal flips of right walk
 idle_front_01: idle
 clap_front_01..02: clap
-031_kimono_fox_sheet_4x4.png: 4x4 sprite sheet
+045_senior_fox_sheet_4x4.png: 4x4 sprite sheet
 preview_*.gif: animation previews
 
 IMPORTANT:

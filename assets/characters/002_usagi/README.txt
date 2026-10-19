@@ -1,24 +1,18 @@
-コトホグ うさぎスプライト（修正版）
+Kotohogu sprite package: 002_usagi
+Source: 002_usagi.png
+Source size: 1152x1152
+Output PNG: 288x288 pixels, transparent
 
-・透過PNG／各288×288ピクセル／全て同じ足元基準
-・歩行：walk_front_01～04, walk_back_01～04, walk_right_01～04
-・左向き：walk_left_01～04（右向きから左右反転した追加素材）
-・待機：idle_front_01
-・拍手：clap_front_01～02
-・rabbit_sheet_4x4.png：4列×4行、最後の右下は空白
-・preview_*.gif：アニメーション確認用
-・rabbit_preview.png：画像を一覧で確認するためのプレビュー
+walk_front_01..04: front walk
+walk_back_01..04: back walk
+walk_right_01..04: right walk
+walk_left_01..04: horizontal flips of right walk
+idle_front_01: idle
+clap_front_01..02: clap
+002_usagi_sheet_4x4.png: 4x4 sprite sheet
+preview_*.gif: animation previews
 
-生成シートを基に、15個の主要ポーズを位置合わせ・切り出ししました。
-背景ノイズは透明アルファで分離し、孤立した不要な画素を除去しています。
-歩行4枚・拍手2枚は元画像のポーズを使っています。
-拍手2枚や歩行コマの差は小さいので、実機で動きを確認してください。
-
-スプライトシートの配置：
-1行目　正面歩行 1-4
-2行目　背面歩行 1-4
-3行目　右向き歩行 1-4
-4行目　待機 1、拍手 1、拍手 2、空欄
-
-※左向き反転時は花の位置も左右反転します。
-※ZIPはローカル用です。GitHubへのpushは行っていません。
+IMPORTANT:
+Pure equal-grid crop/resizing only. This script does not remove noise or
+reconstruct characters overlapping another grid cell.
+Inspect the preview before adding assets to the app.
