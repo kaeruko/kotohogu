@@ -3020,7 +3020,7 @@
     {
       "id": "002_usagi_014",
       "residentId": "002_usagi",
-      "text": "お店は夫の長年の夢なの。応援してるわ。でもね、わたしにも自分のやってみたいことがあるのよ。",
+      "text": "夫のお店を手伝う日もあるけれど、ふだんは家のことや子どものことがいっぱい。どちらも毎日の暮らしを支える仕事ね。",
       "priority": 10,
       "once": false,
       "logic": "all",
@@ -3281,7 +3281,7 @@
     {
       "id": "002_usagi_033",
       "residentId": "002_usagi",
-      "text": "わたしも昔は、家族が幸せなら自分もそれで十分って思ってたの。今は、自分の好きなこともちゃんと持っていたいなって。",
+      "text": "朝からごはんを作って、洗濯して、子どもの支度をして……気づいたらもう夕方。何もしていない日なんてないのねぇ。",
       "priority": 15,
       "once": true,
       "logic": "all",
@@ -3290,7 +3290,7 @@
     {
       "id": "002_usagi_034",
       "residentId": "002_usagi",
-      "text": "夫のお店は夫の夢。わたしはわたしで、どんなことをしてみたいのか……考えるだけで、ちょっと楽しみなの。",
+      "text": "家のことって、終わったそばからまた始まるのよね。でも、こうして家族が暮らせるのはうれしいわ。",
       "priority": 15,
       "once": true,
       "logic": "all",
@@ -3298,6 +3298,173 @@
         {
           "type": "seenDialogue",
           "dialogueId": "002_usagi_033"
+        }
+      ]
+    },
+    {
+      "id": "002_usagi_035",
+      "residentId": "002_usagi",
+      "text": "きょうは洗濯して、お買い物して、子どもを迎えに行って……あら、もう夕方！ 一日って早いわねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_036",
+      "residentId": "002_usagi",
+      "text": "ご近所さんにおすそ分けをいただいたの。今度はうちからも何か持っていこうかしら。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_037",
+      "residentId": "002_usagi",
+      "text": "お店が忙しい日は、夫の帰りが遅くなることもあるの。だから、家族そろって過ごせる日はうれしいわね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_038",
+      "residentId": "002_usagi",
+      "text": "子どもの服って、すぐ小さくなるのよね。昨日まで着られたのに、びっくりしちゃうわ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_039",
+      "residentId": "002_usagi",
+      "text": "家計簿をつけてると、お店ができてから出ていくお金の種類が増えたなぁって思うの。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_040",
+      "residentId": "002_usagi",
+      "text": "この子がもう少し大きくなったら、パートのお仕事も考えようかしら。お店を手伝う道もあるし、まだ決められないわね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_041",
+      "residentId": "002_usagi",
+      "text": "お店を手伝うのも、外でパートをするのも、お給料や時間をちゃんと考えなくちゃね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_042",
+      "residentId": "002_usagi",
+      "text": "お店の値札、開店前は何度も夫と相談したの。材料費だけじゃ決められないのねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "002_usagi_043",
+      "residentId": "002_usagi",
+      "text": "この子が大きくなったら、パートに出たほうがいいのかしら。それとも、お店を手伝ったほうがいいのかな。",
+      "priority": 50,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_033"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "私はまだハーブで暮らせてないから、アルバイトしてるの。"
+      }
+    },
+    {
+      "id": "002_usagi_044",
+      "residentId": "002_usagi",
+      "text": "とんこさん、マルシェとアルバイト、両方してると毎日忙しいでしょう？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_033"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "忙しい日もあるわねぇ。でも今は、生活費を稼ぎながらお茶のお仕事を続けてみたいの。"
+      }
+    },
+    {
+      "id": "002_usagi_045",
+      "residentId": "002_usagi",
+      "text": "あなた、最近はケーキの売れ方をノートに書いているのね。何かわかった？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "047_patisie"
+        }
+      ],
+      "reply": {
+        "residentId": "047_patisie",
+        "text": "土曜日はよく売れるけど、平日はばらつくね。作る数をどうするか、まだ考え中なんだ。"
+      }
+    },
+    {
+      "id": "002_usagi_046",
+      "residentId": "002_usagi",
+      "text": "この子が大きくなったら、お店を手伝うか、パートに出るか迷いそうね。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "047_patisie"
+        }
+      ],
+      "reply": {
+        "residentId": "047_patisie",
+        "text": "そのころ、お店がどうなっているかもわからないからね。急がず、家計も一緒に考えていこう。"
+      }
+    },
+    {
+      "id": "002_usagi_047",
+      "residentId": "002_usagi",
+      "text": "今日はお店のラッピングを手伝ってきたの。『かわいいね』って言ってもらえて、うれしかったわ。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "047_patisie",
+          "owned": true
         }
       ]
     },
@@ -4453,7 +4620,7 @@
     {
       "id": "047_patisie_001",
       "residentId": "047_patisie",
-      "text": "こんにちは！よろしくね。",
+      "text": "お店の準備で朝が早いんだ。今日もショーケースにケーキを並べ終わったよ。さて、お客さんは来てくれるかな。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -4462,12 +4629,264 @@
     {
       "id": "047_patisie_002",
       "residentId": "047_patisie",
-      "text": "はじめまして！よろしくね。",
+      "text": "こんにちは！ 商店街に新しくケーキ屋さんを開いたんだ。妻と小さな子どもがいるよ。よかったらお店ものぞいていってね！",
       "priority": 0,
       "once": true,
       "logic": "all",
       "conditions": [],
       "firstGreeting": true
+    },
+    {
+      "id": "047_patisie_003",
+      "residentId": "047_patisie",
+      "text": "商店街に自分の店を持てるなんて、まだ夢みたいだよ。でも、開店したら毎日の仕事が始まるんだね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_004",
+      "residentId": "047_patisie",
+      "text": "ケーキを作るのは好きだけど、仕入れや帳簿はまだ勉強中なんだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_005",
+      "residentId": "047_patisie",
+      "text": "今日は少し売れ残ってね。おいしく作ることと、ちょうどいい数を作ることは別なんだなぁ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_006",
+      "residentId": "047_patisie",
+      "text": "材料費が上がると、値段を決めるのも難しいね。お客さんにも来てほしいし、お店も続けたいから。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_007",
+      "residentId": "047_patisie",
+      "text": "ショーケースの前で『どれにしよう』って迷ってもらえると、なんだかうれしいんだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_008",
+      "residentId": "047_patisie",
+      "text": "お客さんが少ない日は、つい何度も時計を見ちゃうよ。そんな日は仕込みのやり方を見直しているんだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_009",
+      "residentId": "047_patisie",
+      "text": "この前、また来てくれたお客さんがいたんだ。『前のが好きだった』って言ってくれて、忘れられないよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_010",
+      "residentId": "047_patisie",
+      "text": "うちの子がね、お店の絵を描いてくれたんだ。レジの横に飾ってあるよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_011",
+      "residentId": "047_patisie",
+      "text": "妻は家のことでも忙しいのに、お店の花や包み紙も考えてくれるんだ。ありがたいなぁ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_012",
+      "residentId": "047_patisie",
+      "text": "休みの日に子どもと公園に行くと、次は何のお菓子を作ろうかなってアイデアが浮かぶんだ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_013",
+      "residentId": "047_patisie",
+      "text": "開店前はケーキを何種類も並べたかったけど、今は作る数と時間の相談だね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_014",
+      "residentId": "047_patisie",
+      "text": "売れた数だけじゃなくて、材料費や光熱費も見なくちゃ。お店を続けるって、こういうことなんだね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_015",
+      "residentId": "047_patisie",
+      "text": "ひとりで全部焼こうとして、ずいぶん遅くなっちゃった。今は仕込みの順番を工夫しているよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_016",
+      "residentId": "047_patisie",
+      "text": "今日は小さめのケーキを選んだお客さんがいたよ。食べたい量も人それぞれだものね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_017",
+      "residentId": "047_patisie",
+      "text": "妻がお店に出てくれる日は助かるよ。でも、家のことだって仕事がいっぱいだからね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "002_usagi",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "047_patisie_018",
+      "residentId": "047_patisie",
+      "text": "妻が店先のお花を替えてくれたんだ。朝、シャッターを開けるのが少し楽しみになったよ。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "002_usagi",
+          "owned": true
+        }
+      ]
+    },
+    {
+      "id": "047_patisie_019",
+      "residentId": "047_patisie",
+      "text": "あなた、家計のことも気にしてくれてありがとう。お店の数字、ぼくもちゃんと見なくちゃね。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "002_usagi"
+        }
+      ],
+      "reply": {
+        "residentId": "002_usagi",
+        "text": "ふふ。家のことはわたしも見ているから、お店のことは一緒に考えましょうね。"
+      }
+    },
+    {
+      "id": "047_patisie_020",
+      "residentId": "047_patisie",
+      "text": "今日は早めに片づけて、子どものお迎えに行こうと思うんだ。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "002_usagi"
+        }
+      ],
+      "reply": {
+        "residentId": "002_usagi",
+        "text": "あら、助かるわ。じゃあ、わたしはお夕飯の買い物をして帰るわね。"
+      }
+    },
+    {
+      "id": "047_patisie_021",
+      "residentId": "047_patisie",
+      "text": "とんこさん、マルシェに出すお茶の量って、どうやって決めているんですか？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_033"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "まだ手探りなのよぉ。残る日もあるし、足りなくなる日もあってねぇ。"
+      }
+    },
+    {
+      "id": "047_patisie_022",
+      "residentId": "047_patisie",
+      "text": "とんこさん、ぼくも開店したばかりだから、毎日勉強です。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_033"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "私もよぉ。マルシェで少しずつ、お客さんに教えてもらってるところなの。"
+      }
+    },
+    {
+      "id": "047_patisie_023",
+      "residentId": "047_patisie",
+      "text": "外に出たんだね。ぼくも仕込みの合間に少し歩くと、気分が変わるよ。",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
     }
   ]
 }
