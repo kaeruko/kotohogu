@@ -60,20 +60,20 @@ void main() {
       expect(intro.once, isTrue);
       expect(intro.conditionCount, 0);
     }
-    expect(parsed.linesFor('01_shiba').where((row) => row.firstGreeting),
+    expect(parsed.linesFor('001_shiba').where((row) => row.firstGreeting),
         hasLength(1));
   });
 
   test('optional firstGreeting validates without relaxing dialogue schema', () {
-    final shiba = resident('01_shiba', '001_shiba');
-    final normal = dialogue('normal', '01_shiba');
-    final first = {...dialogue('intro', '01_shiba'),
+    final shiba = resident('001_shiba', '001_shiba');
+    final normal = dialogue('normal', '001_shiba');
+    final first = {...dialogue('intro', '001_shiba'),
       'once': true, 'firstGreeting': true};
     final valid = RemoteContentCatalog.fromJson(catalog([shiba], [
       normal, first,
     ]));
-    expect(valid.linesFor('01_shiba').first.firstGreeting, isFalse);
-    expect(valid.linesFor('01_shiba').last.firstGreeting, isTrue);
+    expect(valid.linesFor('001_shiba').first.firstGreeting, isFalse);
+    expect(valid.linesFor('001_shiba').last.firstGreeting, isTrue);
 
     for (final invalid in [
       {...first, 'firstGreeting': false},
@@ -81,7 +81,7 @@ void main() {
       {...first, 'once': false},
       {...first, 'priority': -1000},
       {...first, 'conditions': [{'type': 'mission'}]},
-      {...first, 'reply': {'residentId': '02_rabbit', 'text': 'hi'}},
+      {...first, 'reply': {'residentId': '002_usagi', 'text': 'hi'}},
       {...first, 'unsupportedField': 'unexpected'},
     ]) {
       expect(

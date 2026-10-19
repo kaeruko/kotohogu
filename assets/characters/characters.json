@@ -3,7 +3,7 @@
   "characters": [
     {
       "key": "shiba",
-      "id": "01_shiba",
+      "id": "001_shiba",
       "label": "しばいぬ",
       "artFolder": "001_shiba",
       "inGacha": true,
@@ -14,7 +14,7 @@
     },
     {
       "key": "rabbit",
-      "id": "02_rabbit",
+      "id": "002_usagi",
       "label": "うさぎ",
       "artFolder": "002_usagi",
       "inGacha": true,
@@ -25,7 +25,7 @@
     },
     {
       "key": "penguin",
-      "id": "03_penguin",
+      "id": "003_penguin",
       "label": "まちの案内係",
       "artFolder": "003_penguin",
       "inGacha": true,
@@ -36,7 +36,7 @@
     },
     {
       "key": "cat",
-      "id": "04_cat",
+      "id": "004_neko",
       "label": "ねこ",
       "artFolder": "004_neko",
       "inGacha": true,
@@ -47,7 +47,7 @@
     },
     {
       "key": "squirrel",
-      "id": "05_squirrel",
+      "id": "005_risu",
       "label": "りす",
       "artFolder": "005_risu",
       "inGacha": true,
@@ -58,7 +58,7 @@
     },
     {
       "key": "bear",
-      "id": "06_bear",
+      "id": "006_kuma",
       "label": "だいくさん",
       "artFolder": "006_kuma",
       "inGacha": true,

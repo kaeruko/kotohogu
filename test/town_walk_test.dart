@@ -77,8 +77,8 @@ void main() {
       '027_daydreamer': (.60, .63),
       '037_tora': (.63, .45),
       '026_farmer': (.45, .55),
-      '02_rabbit': (.39, .46),
-      '05_squirrel': (.30, .54),
+      '002_usagi': (.39, .46),
+      '005_risu': (.30, .54),
     };
     for (var index = 0; index < residents.length; index++) {
       final id = residents[index].id;

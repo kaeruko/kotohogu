@@ -3,7 +3,7 @@
   "dialogues": [
     {
       "id": "shiba_default_1",
-      "residentId": "01_shiba",
+      "residentId": "001_shiba",
       "text": "わんわん！おさんぽだいすきわん！",
       "priority": 0,
       "once": false,
@@ -12,7 +12,7 @@
     },
     {
       "id": "shiba_default_2",
-      "residentId": "01_shiba",
+      "residentId": "001_shiba",
       "text": "家事や庭の手入れにも、体を動かす機会があるんだね。",
       "priority": 0,
       "once": false,
@@ -21,7 +21,7 @@
     },
     {
       "id": "shiba_default_3",
-      "residentId": "01_shiba",
+      "residentId": "001_shiba",
       "text": "好きな遊びや趣味を、長く楽しめるといいね。",
       "priority": 0,
       "once": false,
@@ -30,7 +30,7 @@
     },
     {
       "id": "shiba_default_4",
-      "residentId": "01_shiba",
+      "residentId": "001_shiba",
       "text": "身近な人とのつながりも、大切にしたいね。",
       "priority": 0,
       "once": false,
@@ -39,7 +39,7 @@
     },
     {
       "id": "rabbit_default_1",
-      "residentId": "02_rabbit",
+      "residentId": "002_usagi",
       "text": "新しいことを知る楽しさも、ずっと大切にしたいね。",
       "priority": 0,
       "once": false,
@@ -48,7 +48,7 @@
     },
     {
       "id": "rabbit_default_2",
-      "residentId": "02_rabbit",
+      "residentId": "002_usagi",
       "text": "外に出るきっかけは、好きな場所を見つけることでもよさそう。",
       "priority": 0,
       "once": false,
@@ -57,7 +57,7 @@
     },
     {
       "id": "rabbit_default_3",
-      "residentId": "02_rabbit",
+      "residentId": "002_usagi",
       "text": "体を動かす方法は、ひとつじゃないんだって。自分に合うものを。",
       "priority": 0,
       "once": false,
@@ -66,7 +66,7 @@
     },
     {
       "id": "rabbit_default_4",
-      "residentId": "02_rabbit",
+      "residentId": "002_usagi",
       "text": "誰かと一緒だと、楽しめる活動もあるかもしれないね。",
       "priority": 0,
       "once": false,
@@ -75,7 +75,7 @@
     },
     {
       "id": "penguin_default_1",
-      "residentId": "03_penguin",
+      "residentId": "003_penguin",
       "text": "今日はどこにお出かけする？ ぼく、おすすめの場所を知ってるよ！",
       "priority": 0,
       "once": false,
@@ -84,7 +84,7 @@
     },
     {
       "id": "penguin_default_2",
-      "residentId": "03_penguin",
+      "residentId": "003_penguin",
       "text": "無理のない範囲で、楽しめる動き方を探してみたいね。",
       "priority": 0,
       "once": false,
@@ -93,7 +93,7 @@
     },
     {
       "id": "penguin_default_3",
-      "residentId": "03_penguin",
+      "residentId": "003_penguin",
       "text": "人と話す時間も、日々のつながりを育てるひとときだね。",
       "priority": 0,
       "once": false,
@@ -102,7 +102,7 @@
     },
     {
       "id": "penguin_default_4",
-      "residentId": "03_penguin",
+      "residentId": "003_penguin",
       "text": "自分が大切にしたいことを続けられる環境も、大事なんだって。",
       "priority": 0,
       "once": false,
@@ -111,7 +111,7 @@
     },
     {
       "id": "cat_default_1",
-      "residentId": "04_cat",
+      "residentId": "004_neko",
       "text": "暮らしの中で体を動かすことも、大切な活動なんだって。",
       "priority": 0,
       "once": false,
@@ -120,7 +120,7 @@
     },
     {
       "id": "cat_default_2",
-      "residentId": "04_cat",
+      "residentId": "004_neko",
       "text": "無理のない範囲で、楽しめる動き方を探してみたいね。",
       "priority": 0,
       "once": false,
@@ -129,7 +129,7 @@
     },
     {
       "id": "cat_default_3",
-      "residentId": "04_cat",
+      "residentId": "004_neko",
       "text": "人と話す時間も、日々のつながりを育てるひとときだね。",
       "priority": 0,
       "once": false,
@@ -138,7 +138,7 @@
     },
     {
       "id": "cat_default_4",
-      "residentId": "04_cat",
+      "residentId": "004_neko",
       "text": "自分が大切にしたいことを続けられる環境も、大事なんだって。",
       "priority": 0,
       "once": false,
@@ -147,7 +147,7 @@
     },
     {
       "id": "squirrel_default_1",
-      "residentId": "05_squirrel",
+      "residentId": "005_risu",
       "text": "少し体を動かすことも、毎日のセルフケアになるんだって。",
       "priority": 0,
       "once": false,
@@ -156,7 +156,7 @@
     },
     {
       "id": "squirrel_default_2",
-      "residentId": "05_squirrel",
+      "residentId": "005_risu",
       "text": "家事や庭の手入れにも、体を動かす機会があるんだね。",
       "priority": 0,
       "once": false,
@@ -165,7 +165,7 @@
     },
     {
       "id": "squirrel_default_3",
-      "residentId": "05_squirrel",
+      "residentId": "005_risu",
       "text": "好きな遊びや趣味を、長く楽しめるといいね。",
       "priority": 0,
       "once": false,
@@ -174,7 +174,7 @@
     },
     {
       "id": "squirrel_default_4",
-      "residentId": "05_squirrel",
+      "residentId": "005_risu",
       "text": "身近な人とのつながりも、大切にしたいね。",
       "priority": 0,
       "once": false,
@@ -183,7 +183,7 @@
     },
     {
       "id": "bear_default_1",
-      "residentId": "06_bear",
+      "residentId": "006_kuma",
       "text": "木ってのはな、一本一本ちがうんだ。同じように切ったつもりでも、同じにはならねぇ。",
       "priority": 0,
       "once": false,
@@ -192,7 +192,7 @@
     },
     {
       "id": "bear_default_2",
-      "residentId": "06_bear",
+      "residentId": "006_kuma",
       "text": "そこのベンチ、直しといたぞ。……いや、礼はいい。ぐらぐらしてるのが気になっただけだ。",
       "priority": 0,
       "once": false,
@@ -201,7 +201,7 @@
     },
     {
       "id": "bear_default_3",
-      "residentId": "06_bear",
+      "residentId": "006_kuma",
       "text": "新しい家を建てるのも好きだが、古い家を直すのも好きなんだ。長いこと、大事にされてきたんだろうからな。",
       "priority": 0,
       "once": false,
@@ -210,7 +210,7 @@
     },
     {
       "id": "bear_default_4",
-      "residentId": "06_bear",
+      "residentId": "006_kuma",
       "text": "道具はな、使い終わったあとの手入れが大事なんだ。次に使うとき、ちゃんと力になってくれる。",
       "priority": 0,
       "once": false,
@@ -219,7 +219,7 @@
     },
     {
       "id": "shiba_sakura_outside_5",
-      "residentId": "01_shiba",
+      "residentId": "001_shiba",
       "text": "桜の季節だね！最近のお散歩はどうだった？",
       "priority": 20,
       "once": false,
@@ -240,7 +240,7 @@
     },
     {
       "id": "rabbit_new_year",
-      "residentId": "02_rabbit",
+      "residentId": "002_usagi",
       "text": "あけましておめでとう！今年も一緒に小さな一歩を楽しもうね。",
       "priority": 30,
       "once": false,
@@ -255,7 +255,7 @@
     },
     {
       "id": "shiba_five_actions",
-      "residentId": "01_shiba",
+      "residentId": "001_shiba",
       "text": "もう5回もミッションを達成したんだね！えらいワン！",
       "priority": 10,
       "once": true,
@@ -2890,8 +2890,8 @@
       ]
     },
     {
-      "id": "01_shiba_001",
-      "residentId": "01_shiba",
+      "id": "001_shiba_001",
+      "residentId": "001_shiba",
       "text": "わんわん！ぼくはしばいぬ！おさんぽがだいすきなんだ。きみに会えてうれしいワン！",
       "priority": 0,
       "once": true,
@@ -2900,8 +2900,8 @@
       "conditions": []
     },
     {
-      "id": "02_rabbit_001",
-      "residentId": "02_rabbit",
+      "id": "002_usagi_001",
+      "residentId": "002_usagi",
       "text": "こんにちは、うさぎだよ。新しいことを知るのが好きなんだ。これからいろんなお話ができたらうれしいな。",
       "priority": 0,
       "once": true,
@@ -2910,8 +2910,8 @@
       "conditions": []
     },
     {
-      "id": "03_penguin_001",
-      "residentId": "03_penguin",
+      "id": "003_penguin_001",
+      "residentId": "003_penguin",
       "text": "こんにちは！ぼくはまちの案内係。道に迷ったら声をかけてね。ぼくもまだ知らない場所があるんだけど！",
       "priority": 0,
       "once": true,
@@ -2920,8 +2920,8 @@
       "conditions": []
     },
     {
-      "id": "03_penguin_002",
-      "residentId": "03_penguin",
+      "id": "003_penguin_002",
+      "residentId": "003_penguin",
       "text": "里山に『桜の美容室』があるって、知ってる？ つやこさんっていうおしゃれな人がやってるんだって。ぼくもまだ詳しくないから、もっと調べておくね！",
       "priority": 30,
       "once": false,
@@ -2935,8 +2935,8 @@
       ]
     },
     {
-      "id": "03_penguin_003",
-      "residentId": "03_penguin",
+      "id": "003_penguin_003",
+      "residentId": "003_penguin",
       "text": "桜の美容室、もう行ってみた？ つやこさんに髪を整えてもらうと、帰り道までうきうきするって評判だよ！",
       "priority": 30,
       "once": false,
@@ -2950,8 +2950,8 @@
       ]
     },
     {
-      "id": "03_penguin_004",
-      "residentId": "03_penguin",
+      "id": "003_penguin_004",
+      "residentId": "003_penguin",
       "text": "桜の美容室には、着物がよく似合うきつねさんもいるんだって。ぼくもお店の案内を覚えなくちゃ！",
       "priority": 10,
       "once": false,
@@ -2965,8 +2965,8 @@
       ]
     },
     {
-      "id": "03_penguin_005",
-      "residentId": "03_penguin",
+      "id": "003_penguin_005",
+      "residentId": "003_penguin",
       "text": "商店街のお店の人たち、朝が早いんだよ。ぼくが巡回するころには、もう準備が始まってるんだ！",
       "priority": 10,
       "once": false,
@@ -2974,8 +2974,8 @@
       "conditions": []
     },
     {
-      "id": "03_penguin_006",
-      "residentId": "03_penguin",
+      "id": "003_penguin_006",
+      "residentId": "003_penguin",
       "text": "道案内をしているとね、ぼくの知らない近道を教えてもらうこともあるんだ。案内係なのにね！",
       "priority": 10,
       "once": false,
@@ -2983,8 +2983,8 @@
       "conditions": []
     },
     {
-      "id": "03_penguin_007",
-      "residentId": "03_penguin",
+      "id": "003_penguin_007",
+      "residentId": "003_penguin",
       "text": "ふれあい公園は、のんびり歩くのにぴったりだよ。疲れたらベンチでひと休みしてね。",
       "priority": 10,
       "once": false,
@@ -2992,8 +2992,8 @@
       "conditions": []
     },
     {
-      "id": "03_penguin_008",
-      "residentId": "03_penguin",
+      "id": "003_penguin_008",
+      "residentId": "003_penguin",
       "text": "里山は、まちとはちょっと違う静けさがあるんだ。お散歩していると、新しい景色が見つかるかも！",
       "priority": 10,
       "once": false,
@@ -3001,8 +3001,8 @@
       "conditions": []
     },
     {
-      "id": "03_penguin_009",
-      "residentId": "03_penguin",
+      "id": "003_penguin_009",
+      "residentId": "003_penguin",
       "text": "絵を描くのが好きなくまりんちゃん、知ってる？ いつもの景色も、あの子の目にはちがって見えるみたい。",
       "priority": 20,
       "once": false,
@@ -3016,8 +3016,8 @@
       ]
     },
     {
-      "id": "03_penguin_010",
-      "residentId": "03_penguin",
+      "id": "003_penguin_010",
+      "residentId": "003_penguin",
       "text": "中央ひろばのとんこさん、お茶の屋台を開いたんだって。お茶の香りが道しるべになりそうだね！",
       "priority": 20,
       "once": false,
@@ -3030,8 +3030,8 @@
       ]
     },
     {
-      "id": "04_cat_001",
-      "residentId": "04_cat",
+      "id": "004_neko_001",
+      "residentId": "004_neko",
       "text": "やあ、ねこだよ。気ままに歩いたり、ひなたで休んだりしてるんだ。見かけたら声をかけてね。",
       "priority": 0,
       "once": true,
@@ -3040,8 +3040,8 @@
       "conditions": []
     },
     {
-      "id": "05_squirrel_001",
-      "residentId": "05_squirrel",
+      "id": "005_risu_001",
+      "residentId": "005_risu",
       "text": "こんにちは！りすだよ。ちょこちょこ動くのが好きだけど、のんびりする日もあるよ。よろしくね！",
       "priority": 0,
       "once": true,
@@ -3050,8 +3050,8 @@
       "conditions": []
     },
     {
-      "id": "06_bear_001",
-      "residentId": "06_bear",
+      "id": "006_kuma_001",
+      "residentId": "006_kuma",
       "text": "……おれは、だいくさんだ。まちの家や店を建てたり、直したりしてる。話すのは得意じゃねぇが……困ったら声をかけな。",
       "priority": 0,
       "once": true,
@@ -3060,8 +3060,8 @@
       "conditions": []
     },
     {
-      "id": "06_bear_002",
-      "residentId": "06_bear",
+      "id": "006_kuma_002",
+      "residentId": "006_kuma",
       "text": "おれだって間違えるさ。大事なのは、間違えたあとにどうするかだ。",
       "priority": 10,
       "once": false,
@@ -3069,8 +3069,8 @@
       "conditions": []
     },
     {
-      "id": "06_bear_003",
-      "residentId": "06_bear",
+      "id": "006_kuma_003",
+      "residentId": "006_kuma",
       "text": "焦ると寸法を間違える。急いでるときほど、一度手を止めて確かめるんだ。",
       "priority": 10,
       "once": false,
@@ -3078,8 +3078,8 @@
       "conditions": []
     },
     {
-      "id": "06_bear_004",
-      "residentId": "06_bear",
+      "id": "006_kuma_004",
+      "residentId": "006_kuma",
       "text": "完成した建物を見ると、少しだけ寂しくなる。ずっと向き合ってきたものが、おれの手を離れていくからな。",
       "priority": 15,
       "once": true,
@@ -3087,8 +3087,8 @@
       "conditions": []
     },
     {
-      "id": "06_bear_005",
-      "residentId": "06_bear",
+      "id": "006_kuma_005",
+      "residentId": "006_kuma",
       "text": "おれの仕事は、家を建てたら終わりだ。でも、そこから誰かの暮らしが始まるんだな。……悪くねぇよ。",
       "priority": 15,
       "once": true,
@@ -3096,13 +3096,13 @@
       "conditions": [
         {
           "type": "seenDialogue",
-          "dialogueId": "06_bear_004"
+          "dialogueId": "006_kuma_004"
         }
       ]
     },
     {
-      "id": "06_bear_006",
-      "residentId": "06_bear",
+      "id": "006_kuma_006",
+      "residentId": "006_kuma",
       "text": "まっすぐに見える板にも、くせがある。無理に押さえつけずに、うまく付き合うのが腕の見せどころだ。",
       "priority": 10,
       "once": false,
@@ -3110,8 +3110,8 @@
       "conditions": []
     },
     {
-      "id": "06_bear_007",
-      "residentId": "06_bear",
+      "id": "006_kuma_007",
+      "residentId": "006_kuma",
       "text": "頼まれた棚を直したらな、花瓶を飾ったって聞いた。……そうか。使ってもらえてるなら、何よりだ。",
       "priority": 10,
       "once": false,
@@ -3119,8 +3119,8 @@
       "conditions": []
     },
     {
-      "id": "06_bear_008",
-      "residentId": "06_bear",
+      "id": "006_kuma_008",
+      "residentId": "006_kuma",
       "text": "あの公園のベンチは、おれが作ったんだ。",
       "priority": 30,
       "once": false,
@@ -3137,8 +3137,8 @@
       }
     },
     {
-      "id": "06_bear_009",
-      "residentId": "06_bear",
+      "id": "006_kuma_009",
+      "residentId": "006_kuma",
       "text": "筋力を使ったんだな。大きな仕事も、一つひとつの積み重ねだ。よくやった。",
       "priority": 30,
       "once": true,
@@ -3153,8 +3153,8 @@
       ]
     },
     {
-      "id": "06_bear_010",
-      "residentId": "06_bear",
+      "id": "006_kuma_010",
+      "residentId": "006_kuma",
       "text": "ちゃんと座りっぱなしをやめて休んだんだな。仕事も休憩も大事だ。無理はするなよ。",
       "priority": 30,
       "once": true,
@@ -3169,8 +3169,8 @@
       ]
     },
     {
-      "id": "06_bear_011",
-      "residentId": "06_bear",
+      "id": "006_kuma_011",
+      "residentId": "006_kuma",
       "text": "好きなことを楽しんだのか。いいじゃねぇか。何かに夢中になれる時間は、宝物だぞ。",
       "priority": 30,
       "once": true,

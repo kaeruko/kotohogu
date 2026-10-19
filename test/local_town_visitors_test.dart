@@ -29,11 +29,11 @@ RemoteContentCatalog catalog(List<Object> characters, List<Object> lines) =>
 void main() {
   test('normal play never shows unowned CMS visitors, even with live data', () {
     final content = catalog([
-      character('01_shiba', 'plaza'),
+      character('001_shiba', 'plaza'),
       character('038_owl', 'park'),
       character('039_new', 'shopping'),
     ], [
-      line('01_shiba'), line('038_owl'), line('039_new'),
+      line('001_shiba'), line('038_owl'), line('039_new'),
     ]);
     final random = ScriptedTownRandom([0, 0]);
     final visit = TownVisit(random: random);
@@ -64,12 +64,12 @@ void main() {
 
   test('unknown CMS resident visits only unlocked areas without duplicates', () {
     final content = catalog([
-      character('01_shiba', 'plaza'),
+      character('001_shiba', 'plaza'),
       character('037_tora', 'park'),
       character('038_owl', 'park'),
       character('039_cat', 'salon', walk: false),
     ], [
-      line('01_shiba'), line('037_tora'), line('038_owl'), line('039_cat'),
+      line('001_shiba'), line('037_tora'), line('038_owl'), line('039_cat'),
     ]);
     final before = localVisitorsForArea(content, TownArea.plaza, debugRemotePreviewEnabled: true, lifetimePoints: 0, visit: TownVisit(),
       owned: const [TownResident.shiba, TownResident.rabbit],

@@ -77,11 +77,11 @@ void main() {
 
   test('designated introductions always come before one-time stories', () {
     final c = catalog([
-      row('intro', '01_shiba', 'はじめまして！',
+      row('intro', '001_shiba', 'はじめまして！',
           once: true, firstGreeting: true, priority: 0),
-      row('special', '01_shiba', 'ミッションおめでとう',
+      row('special', '001_shiba', 'ミッションおめでとう',
           once: true, priority: 900),
-      row('tip', '01_shiba', '普段のお話', priority: 500),
+      row('tip', '001_shiba', '普段のお話', priority: 500),
     ]);
     final now = DateTime.utc(2026, 10, 13);
     final progress = completed([]);
@@ -99,14 +99,14 @@ void main() {
 
   test('invalid or duplicate first introductions are rejected', () {
     expect(() => catalog([
-      row('first1', '01_shiba', '初回1', once: true, firstGreeting: true),
-      row('first2', '01_shiba', '初回2', once: true, firstGreeting: true),
+      row('first1', '001_shiba', '初回1', once: true, firstGreeting: true),
+      row('first2', '001_shiba', '初回2', once: true, firstGreeting: true),
     ]), throwsFormatException);
     expect(() => catalog([
-      row('bad', '01_shiba', '何度も出る初対面', firstGreeting: true),
+      row('bad', '001_shiba', '何度も出る初対面', firstGreeting: true),
     ]), throwsFormatException);
     expect(() => catalog([
-      row('bad', '01_shiba', '条件つき初対面',
+      row('bad', '001_shiba', '条件つき初対面',
           once: true, firstGreeting: true,
           conditions: [{'type': 'mission', 'missionId': 'all', 'minCount': 1}]),
     ]), throwsFormatException);
@@ -130,7 +130,7 @@ void main() {
 
   test('carpenter keeps stable ID and greets before his two-part story', () async {
     const carpenter = TownResident.bear;
-    expect(carpenter.id, '06_bear');
+    expect(carpenter.id, '006_kuma');
     expect(carpenter.label, 'だいくさん');
     expect(carpenter.profile, contains('大工'));
     expect(TownResident.c032_miner.profile, contains('土木工事'));
@@ -141,12 +141,12 @@ void main() {
       resident: carpenter, progress: progress, now: now,
       random: const FixedRoll(last: false),
     );
-    expect(next().id, '06_bear_001');
-    progress = progress.markDialogueSeen('06_bear_001');
-    expect(next().id, '06_bear_004');
-    progress = progress.markDialogueSeen('06_bear_004');
-    expect(next().id, '06_bear_005');
-    progress = progress.markDialogueSeen('06_bear_005');
+    expect(next().id, '006_kuma_001');
+    progress = progress.markDialogueSeen('006_kuma_001');
+    expect(next().id, '006_kuma_004');
+    progress = progress.markDialogueSeen('006_kuma_004');
+    expect(next().id, '006_kuma_005');
+    progress = progress.markDialogueSeen('006_kuma_005');
     expect(next().once, isFalse);
     final restored = Progress.decode(progress.encode(), expectedVersion: 5);
     expect(catalog.select(
@@ -160,13 +160,13 @@ void main() {
     final now = DateTime.utc(2026, 10, 19, 2);
     final progress = Progress.empty(DateTime(2026, 10, 19));
     DialogueEntry paired(Set<String> residents) => catalog.selectById(
-      id: '06_bear_008', resident: TownResident.bear,
+      id: '006_kuma_008', resident: TownResident.bear,
       progress: progress, now: now, townResidentIds: residents,
     );
     expect(() => paired({}), throwsStateError);
-    expect(() => paired({'06_bear'}), throwsStateError);
+    expect(() => paired({'006_kuma'}), throwsStateError);
     expect(() => paired({'032_miner'}), throwsStateError);
-    final line = paired({'06_bear', '032_miner'});
+    final line = paired({'006_kuma', '032_miner'});
     expect(line.reply?.residentId, '032_miner');
     expect(line.reply?.text, contains('一緒に公園'));
   });
@@ -177,29 +177,29 @@ void main() {
     final today = DateTime.utc(2026, 10, 19, 2);
     final tomorrow = DateTime.utc(2026, 10, 19, 15);
     var progress = Progress.empty(DateTime(2026, 10, 19))
-      .markDialogueSeen('06_bear_001')
-      .markDialogueSeen('06_bear_004')
-      .markDialogueSeen('06_bear_005');
+      .markDialogueSeen('006_kuma_001')
+      .markDialogueSeen('006_kuma_004')
+      .markDialogueSeen('006_kuma_005');
     DialogueEntry select(String id, DateTime now) => catalog.selectById(
       id: id, resident: carpenter, progress: progress, now: now,
     );
-    for (final id in ['06_bear_009', '06_bear_010', '06_bear_011']) {
+    for (final id in ['006_kuma_009', '006_kuma_010', '006_kuma_011']) {
       expect(() => select(id, today), throwsStateError);
     }
     progress = progress.complete(Mission.strength);
     expect(catalog.select(
       resident: carpenter, progress: progress, now: today,
       random: const FixedRoll(last: false),
-    ).id, '06_bear_009');
-    expect(select('06_bear_009', today).once, isTrue);
-    expect(() => select('06_bear_009', tomorrow), throwsStateError);
-    progress = progress.markDialogueSeen('06_bear_009');
-    expect(() => select('06_bear_009', today), throwsStateError);
+    ).id, '006_kuma_009');
+    expect(select('006_kuma_009', today).once, isTrue);
+    expect(() => select('006_kuma_009', tomorrow), throwsStateError);
+    progress = progress.markDialogueSeen('006_kuma_009');
+    expect(() => select('006_kuma_009', today), throwsStateError);
     progress = progress.complete(Mission.sittingBreak).complete(Mission.hobby);
-    expect(select('06_bear_010', today).once, isTrue);
-    expect(select('06_bear_011', today).once, isTrue);
-    expect(() => select('06_bear_010', tomorrow), throwsStateError);
-    expect(() => select('06_bear_011', tomorrow), throwsStateError);
+    expect(select('006_kuma_010', today).once, isTrue);
+    expect(select('006_kuma_011', today).once, isTrue);
+    expect(() => select('006_kuma_010', tomorrow), throwsStateError);
+    expect(() => select('006_kuma_011', tomorrow), throwsStateError);
   });
 
   test('Merry keeps her first greeting and celebrates only on completion day', () async {
@@ -253,24 +253,24 @@ void main() {
     final before = Progress.empty(now).markDialogueSeen('035_beaty_001');
     DialogueEntry pick(String id, Progress progress) => live.selectById(
       id: id, resident: TownResident.penguin, progress: progress, now: now);
-    expect(pick('03_penguin_002', before).id, '03_penguin_002');
-    expect(() => pick('03_penguin_003', before), throwsStateError);
-    expect(() => pick('03_penguin_004', before), throwsStateError);
+    expect(pick('003_penguin_002', before).id, '003_penguin_002');
+    expect(() => pick('003_penguin_003', before), throwsStateError);
+    expect(() => pick('003_penguin_004', before), throwsStateError);
 
     final after = before.grantTicketsForDebug(1)
         .acquireResident(TownResident.c035_beaty);
-    expect(() => pick('03_penguin_002', after), throwsStateError);
-    expect(pick('03_penguin_003', after).id, '03_penguin_003');
-    expect(pick('03_penguin_004', after).id, '03_penguin_004');
-    expect(() => pick('03_penguin_009', after), throwsStateError);
-    expect(() => pick('03_penguin_010', after), throwsStateError);
+    expect(() => pick('003_penguin_002', after), throwsStateError);
+    expect(pick('003_penguin_003', after).id, '003_penguin_003');
+    expect(pick('003_penguin_004', after).id, '003_penguin_004');
+    expect(() => pick('003_penguin_009', after), throwsStateError);
+    expect(() => pick('003_penguin_010', after), throwsStateError);
 
     final withArtist = after.grantTicketsForDebug(1)
         .acquireResident(TownResident.c034_artist);
-    expect(pick('03_penguin_009', withArtist).id, '03_penguin_009');
-    expect(pick('03_penguin_010',
+    expect(pick('003_penguin_009', withArtist).id, '003_penguin_009');
+    expect(pick('003_penguin_010',
         withArtist.markDialogueSeen('041_pig_middle_033')).id,
-        '03_penguin_010');
+        '003_penguin_010');
   });
 
   test('ownership condition rejects unknown resident and nonbool status', () {
@@ -279,20 +279,20 @@ void main() {
       <String, Object>{'type':'residentOwned','residentId':'035_beaty','owned':'yes'},
     ]) {
       expect(() => catalog([
-        row('bad_owner', '03_penguin', '不正な所持条件',
+        row('bad_owner', '003_penguin', '不正な所持条件',
             conditions: [fields]),
       ]), throwsFormatException);
     }
   });
 
   test('weighted repeatable selection includes greetings and allows repeats', () {
-    final c = catalog([row('tip', '01_shiba', '豆知識', priority: 20)]);
+    final c = catalog([row('tip', '001_shiba', '豆知識', priority: 20)]);
     final p = completed([]);
     DialogueEntry pick(math.Random random) => c.select(
       resident: TownResident.shiba, progress: p,
       now: DateTime.utc(2026, 10, 13), random: random,
     );
-    expect(pick(const FixedRoll(last: false)).id, '01_shiba_default');
+    expect(pick(const FixedRoll(last: false)).id, '001_shiba_default');
     expect(pick(const FixedRoll()).id, 'tip');
     // There is no consecutive-repeat exclusion.
     expect(pick(const FixedRoll()).id, 'tip');
@@ -300,10 +300,10 @@ void main() {
 
   test('one-time stories precede random everyday lines in reading order', () {
     final c = catalog([
-      row('first', '01_shiba', '第一話', priority: 35, once: true),
-      row('second', '01_shiba', '第二話', priority: 36, once: true,
+      row('first', '001_shiba', '第一話', priority: 35, once: true),
+      row('second', '001_shiba', '第二話', priority: 36, once: true,
         conditions: [{'type': 'seenDialogue', 'dialogueId': 'first'}]),
-      row('tip', '01_shiba', '豆知識', priority: 100),
+      row('tip', '001_shiba', '豆知識', priority: 100),
     ]);
     final now = DateTime.utc(2026, 10, 13);
     var p = completed([]);
@@ -314,19 +314,19 @@ void main() {
     p = p.markDialogueSeen('first');
     expect(pick(const FixedRoll(last: false)).id, 'second');
     p = p.markDialogueSeen('second');
-    expect(pick(const FixedRoll(last: false)).id, '01_shiba_default');
+    expect(pick(const FixedRoll(last: false)).id, '001_shiba_default');
     expect(pick(const FixedRoll()).id, 'tip');
   });
 
   test('facility-only dialogue is excluded from everyday draws', () {
     final c = catalog([
-      row('facility', '01_shiba', '施設会話', priority: -1000),
+      row('facility', '001_shiba', '施設会話', priority: -1000),
     ]);
     final p = completed([]);
     final now = DateTime.utc(2026, 10, 13);
     for (final random in [const FixedRoll(last: false), const FixedRoll()]) {
       expect(c.select(resident: TownResident.shiba,
-        progress: p, now: now, random: random).id, '01_shiba_default');
+        progress: p, now: now, random: random).id, '001_shiba_default');
     }
     expect(c.selectById(id: 'facility', resident: TownResident.shiba,
       progress: p, now: now).id, 'facility');
@@ -362,11 +362,11 @@ void main() {
       {'type':'date', 'mode':'annual_range','start':'12-20','end':'01-05'},
     ];
     final c = catalog([
-      row('winter', '01_shiba', '冬だね', priority: 10, conditions: conditions),
-      row('weekday', '02_rabbit', '月曜日', priority: 10, conditions: [
+      row('winter', '001_shiba', '冬だね', priority: 10, conditions: conditions),
+      row('weekday', '002_usagi', '月曜日', priority: 10, conditions: [
         {'type':'date', 'mode':'weekday','days':[1]},
       ]),
-      row('one_day', '03_penguin', '今日だけ', priority: 10, conditions: [
+      row('one_day', '003_penguin', '今日だけ', priority: 10, conditions: [
         {'type':'date', 'mode':'exact','date':'2026-12-25'},
       ]),
     ]);
@@ -384,11 +384,11 @@ void main() {
 
   test('AND/OR mission conditions, priorities and once shown persistence', () {
     final c=catalog([
-      row('and','01_shiba','散歩と学び',priority:20,once:true,conditions:[
+      row('and','001_shiba','散歩と学び',priority:20,once:true,conditions:[
         {'type':'mission','missionId':'outside','minCount':1},
         {'type':'mission','missionId':'hobby','minCount':1},
       ]),
-      row('or','01_shiba','どちらか達成',priority:10,logic:'any',conditions:[
+      row('or','001_shiba','どちらか達成',priority:10,logic:'any',conditions:[
         {'type':'mission','missionId':'outside','minCount':1},
         {'type':'kotohogi','min':100},
       ]),
@@ -409,7 +409,7 @@ void main() {
 
   test('mission celebration is valid on the completion day only in JST', () {
     final c = catalog([
-      row('today_sitting', '01_shiba', '今日ひと休みしたね',
+      row('today_sitting', '001_shiba', '今日ひと休みしたね',
         priority: 20, once: true,
         conditions: [
           {'type': 'mission', 'missionId': 'sittingBreak',
@@ -435,11 +435,11 @@ void main() {
 
   test('two residents visible in town unlock a paired conversation', () {
     final c = catalog([
-      row('friends', '01_shiba', '雲を見てみようよ', priority: 20,
+      row('friends', '001_shiba', '雲を見てみようよ', priority: 20,
         conditions: [
-          {'type':'townTogether', 'otherResidentId':'02_rabbit'},
+          {'type':'townTogether', 'otherResidentId':'002_usagi'},
         ],
-        reply: {'residentId':'02_rabbit', 'text':'あの雲、描いてみたい！'}),
+        reply: {'residentId':'002_usagi', 'text':'あの雲、描いてみたい！'}),
     ]);
     final now = DateTime.utc(2026, 10, 15, 0);
     final progress = completed([]);
@@ -447,11 +447,11 @@ void main() {
         c.select(resident: TownResident.shiba, progress: progress,
           now: now, townResidentIds: town, random: const FixedRoll());
     expect(pick({}).text, '通常の雑談');
-    expect(pick({'01_shiba'}).text, '通常の雑談');
-    expect(pick({'02_rabbit'}).text, '通常の雑談');
-    final selected = pick({'01_shiba', '02_rabbit'});
+    expect(pick({'001_shiba'}).text, '通常の雑談');
+    expect(pick({'002_usagi'}).text, '通常の雑談');
+    final selected = pick({'001_shiba', '002_usagi'});
     expect(selected.id, 'friends');
-    expect(selected.reply?.residentId, '02_rabbit');
+    expect(selected.reply?.residentId, '002_usagi');
     expect(selected.reply?.text, 'あの雲、描いてみたい！');
   });
 
@@ -485,41 +485,41 @@ void main() {
 
   test('town companion works with AND/OR and enforces speaker presence', () {
     final c = catalog([
-      row('pair_or_date', '01_shiba', '特別な会話', priority: 20,
+      row('pair_or_date', '001_shiba', '特別な会話', priority: 20,
         logic: 'any', conditions: [
-          {'type':'townTogether','otherResidentId':'02_rabbit'},
+          {'type':'townTogether','otherResidentId':'002_usagi'},
           {'type':'date','mode':'exact','date':'2026-12-25'},
         ]),
     ]);
     final progress = completed([]);
     final jstChristmas = DateTime.utc(2026, 12, 24, 15);
     expect(c.select(resident: TownResident.shiba, progress: progress,
-      now: DateTime.utc(2026, 10, 15), townResidentIds: {'01_shiba'}).text,
+      now: DateTime.utc(2026, 10, 15), townResidentIds: {'001_shiba'}).text,
       '通常の雑談');
     expect(c.select(resident: TownResident.shiba, progress: progress,
       now: jstChristmas, townResidentIds: {}, random: const FixedRoll()).id, 'pair_or_date');
   });
 
   test('invalid town pair and reply definitions fail fast', () {
-    final valid = {'type':'townTogether','otherResidentId':'02_rabbit'};
+    final valid = {'type':'townTogether','otherResidentId':'002_usagi'};
     for (final invalid in [
       {'type':'townTogether','otherResidentId':'unknown'},
-      {'type':'townTogether','otherResidentId':'01_shiba'},
+      {'type':'townTogether','otherResidentId':'001_shiba'},
       {'type':'townTogether','otherResidentId':42},
     ]) {
       expect(() => catalog([
-        row('bad_pair','01_shiba','無効',conditions:[invalid]),
+        row('bad_pair','001_shiba','無効',conditions:[invalid]),
       ]), throwsFormatException, reason: invalid.toString());
     }
     for (final entry in [
-      row('bad_reply','01_shiba','無効',
-        reply: {'residentId':'02_rabbit','text':'こんにちは'}),
-      row('bad_or','01_shiba','無効',logic:'any',
-        conditions:[valid], reply:{'residentId':'02_rabbit','text':'こんにちは'}),
-      row('wrong_partner','01_shiba','無効',
-        conditions:[valid], reply:{'residentId':'03_penguin','text':'こんにちは'}),
-      row('blank_reply','01_shiba','無効',
-        conditions:[valid], reply:{'residentId':'02_rabbit','text':' '}),
+      row('bad_reply','001_shiba','無効',
+        reply: {'residentId':'002_usagi','text':'こんにちは'}),
+      row('bad_or','001_shiba','無効',logic:'any',
+        conditions:[valid], reply:{'residentId':'002_usagi','text':'こんにちは'}),
+      row('wrong_partner','001_shiba','無効',
+        conditions:[valid], reply:{'residentId':'003_penguin','text':'こんにちは'}),
+      row('blank_reply','001_shiba','無効',
+        conditions:[valid], reply:{'residentId':'002_usagi','text':' '}),
     ]) {
       expect(() => catalog([entry]), throwsFormatException,
         reason: entry.toString());
@@ -528,45 +528,45 @@ void main() {
 
   test('a seen dialogue from a different character unlocks a two-person conversation', () {
     final c = catalog([
-      row('01_shiba_997', '01_shiba', '前のお話', priority: 10),
-      row('03_penguin_998', '03_penguin', '続きのお話', priority: 20,
+      row('001_shiba_997', '001_shiba', '前のお話', priority: 10),
+      row('003_penguin_998', '003_penguin', '続きのお話', priority: 20,
         conditions: [
-          {'type': 'seenDialogue', 'dialogueId': '01_shiba_997'},
-          {'type': 'townTogether', 'otherResidentId': '04_cat'},
-        ], reply: {'residentId': '04_cat', 'text': '聞かせて！'}),
+          {'type': 'seenDialogue', 'dialogueId': '001_shiba_997'},
+          {'type': 'townTogether', 'otherResidentId': '004_neko'},
+        ], reply: {'residentId': '004_neko', 'text': '聞かせて！'}),
     ]);
     final now = DateTime.utc(2026, 10, 15, 0);
     final before = completed([]);
-    final visible = <String>{'03_penguin', '04_cat'};
+    final visible = <String>{'003_penguin', '004_neko'};
     expect(c.select(resident: TownResident.penguin,
       progress: before, now: now, townResidentIds: visible).text, '通常の雑談');
 
     // The trigger is not an "only once" dialogue; its read state is durable.
     final restored = Progress.decode(
-      before.markDialogueSeen('01_shiba_997').encode(), expectedVersion: 5);
-    expect(restored.seenDialogues, contains('01_shiba_997'));
+      before.markDialogueSeen('001_shiba_997').encode(), expectedVersion: 5);
+    expect(restored.seenDialogues, contains('001_shiba_997'));
     final followup = c.select(resident: TownResident.penguin,
       progress: restored, now: now, townResidentIds: visible,
       random: const FixedRoll());
-    expect(followup.id, '03_penguin_998');
+    expect(followup.id, '003_penguin_998');
     expect(followup.reply?.text, '聞かせて！');
     expect(c.select(resident: TownResident.penguin,
-      progress: restored, now: now, townResidentIds: {'03_penguin'}).text,
+      progress: restored, now: now, townResidentIds: {'003_penguin'}).text,
       '通常の雑談');
   });
 
   test('invalid global seen-dialogue references fail fast', () {
-    final before = row('01_shiba_997', '01_shiba', '前のお話');
-    for (final reference in ['missing', '03_penguin_998', 10, '']) {
+    final before = row('001_shiba_997', '001_shiba', '前のお話');
+    for (final reference in ['missing', '003_penguin_998', 10, '']) {
       expect(() => catalog([
         before,
-        row('03_penguin_998', '03_penguin', '次の話', conditions: [
+        row('003_penguin_998', '003_penguin', '次の話', conditions: [
           {'type': 'seenDialogue', 'dialogueId': reference},
         ]),
       ]), throwsFormatException, reason: reference.toString());
     }
     expect(() => catalog([
-      row('bad', '01_shiba', '参照先がない', conditions: [
+      row('bad', '001_shiba', '参照先がない', conditions: [
         {'type': 'seenDialogue'},
       ]),
     ]), throwsFormatException);

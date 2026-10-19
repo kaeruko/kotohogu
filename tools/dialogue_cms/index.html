@@ -161,6 +161,7 @@ const missions={"all":"全ミッション合計","strength":"筋力を使った"
 const modes={"exact":"指定日","range":"指定期間","annual":"毎年の指定日","annual_range":"毎年の期間","weekday":"毎週の曜日"};
 const byId=id=>document.getElementById(id);
 let data=null,selected=null,dirty=false,registry=null,characterSelected=null,savedCount=0;
+let archiveBlockers=null;
 let areaDoc=null,activeArea="plaza";
 let areaPreviewDestinations=new Map(),areaPreviewUnlockedKey="";
 let previewTownIds=new Set();
@@ -511,6 +512,11 @@ function rebuildResidentOptions(){
 function activeCharacter(){
   return activeCharacters().find(row=>row.id===characterSelected)||null;
 }
+function archiveBlockMessage(row){
+  if(archiveBlockers===null)throw Error("削除可否を読み込めていません");
+  const reason=archiveBlockers[row.id];
+  return reason?"初期住民・施設・アプリ内の処理で使われているため、削除できません。詳細: "+reason:"";
+}
 function renderCharacterList(){
   const box=byId("characterEntries");box.replaceChildren();
   for(const row of activeCharacters()){
@@ -631,11 +637,12 @@ function renderCharacterEditor(){
   append(box,"p","通常の住民に出現エリアの指定はありません。まちに入るたび、開放済みエリアのどこかにランダムで現れます。").className="hint";
   if(isSalonOwner)append(box,"p",
     "つやこさんは美容室のオーナーです。美容室所属・ガチャ・屋外表示は固定です。").className="hint";
-  edit("キャラID（例: 009_chef）","id",locked);
+  edit("キャラID（所持・セリフの参照用）","id",locked);
   const folderHint=append(box,"p",locked
     ? `画像フォルダ: assets/characters/${row.artFolder}/（登録済みの設定を維持）`
     : `画像フォルダ: assets/characters/${row.artFolder}/（IDから自動設定）`);
   folderHint.id="characterArtFolderHint";folderHint.className="hint";
+  append(box,"p","キャラIDと画像フォルダ名は同一です。PNGは assets/characters/〈キャラID〉/ に置いてください。").className="hint";
   for(const [field,title] of [["inGacha","ガチャに登場する"],["walkInTown","屋外に登場する（美容室所属の子は対象外）"]]){
     const label=append(box,"label");label.className="controls";
     const input=append(label,"input");input.type="checkbox";input.checked=row[field];
@@ -648,7 +655,10 @@ function renderCharacterEditor(){
   }
   if(!locked)append(box,"p","最初のセリフはセリフ管理タブで編集できます。条件なしセリフを1件以上残してください。").className="hint";
   byId("cancelNewCharacter").disabled=locked;
-  byId("deleteCharacter").disabled=!locked;
+  const archiveBlock=archiveBlockMessage(row);
+  byId("deleteCharacter").disabled=!locked||Boolean(archiveBlock);
+  byId("deleteCharacter").title=archiveBlock;
+  if(archiveBlock)append(box,"p",archiveBlock).className="hint";
 }
 
 // The legacy homeAreaId is retained for older saved/catalog formats.
@@ -765,21 +775,28 @@ function renderAreaPreview(){
 
 async function load(){
   try{
-    const [dialogResponse,characterResponse,areaResponse]=await Promise.all([
+    const [dialogResponse,characterResponse,areaResponse,archiveResponse]=await Promise.all([
       fetch("/api/dialogues",{cache:"no-store"}),
       fetch("/api/characters",{cache:"no-store"}),
-      fetch("/api/areas",{cache:"no-store"})
+      fetch("/api/areas",{cache:"no-store"}),
+      fetch("/api/character-archive-blockers",{cache:"no-store"})
     ]);
-    const [dialogBody,characterBody,areaBody]=await Promise.all([
-      dialogResponse.json(),characterResponse.json(),areaResponse.json()]);
+    const [dialogBody,characterBody,areaBody,archiveBody]=await Promise.all([
+      dialogResponse.json(),characterResponse.json(),areaResponse.json(),archiveResponse.json()]);
     if(!characterResponse.ok)throw Error(characterBody.error||"キャラ読込失敗");
     if(!dialogResponse.ok)throw Error(dialogBody.error||"セリフ読込失敗");
     if(!areaResponse.ok)throw Error(areaBody.error||"エリア読込失敗");
+    if(!archiveResponse.ok)throw Error(archiveBody.error||"削除可否の読込失敗");
+    if(!archiveBody.blockers||typeof archiveBody.blockers!=="object"||
+        Array.isArray(archiveBody.blockers)||
+        Object.values(archiveBody.blockers).some(value=>typeof value!=="string"||!value))
+      throw Error("削除可否の形式が不正です");
+    archiveBlockers=archiveBody.blockers;
     data=dialogBody;registry=characterBody;areaDoc=areaBody;
     updateAreaLabels();
     savedCount=registry.characters.length;
     previewSeenIds=new Set();
-    previewOwnedIds=new Set(["01_shiba","02_rabbit"]);
+    previewOwnedIds=new Set(["001_shiba","002_usagi"]);
     previewTownIds=new Set(activeCharacters()
       .filter(row=>row.walkInTown&&row.homeAreaId!=="salon").slice(0,8).map(row=>row.id));
     characterSelected=activeCharacters()[0].id;
@@ -834,6 +851,8 @@ byId("deleteCharacter").onclick=()=>{
   if(registry.characters.indexOf(row)>=savedCount){
     setCharacterStatus("保存前の追加キャラは「追加を取り消す」を使ってください。",true);return;
   }
+  const archiveBlock=archiveBlockMessage(row);
+  if(archiveBlock){setCharacterStatus(archiveBlock,true);return}
   if(!activeCharacters().some(other=>other!==row&&other.inGacha)){
     setCharacterStatus("最後のガチャ対象キャラは削除できません。",true);return;
   }

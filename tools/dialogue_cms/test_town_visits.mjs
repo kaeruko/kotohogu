@@ -73,7 +73,7 @@ test('salon membership is the only editable resident placement exception',()=>{
   assert(start>=0&&end>start,'Salon membership helper must exist');
   const ctx=vm.createContext({});
   vm.runInContext(html.slice(start,end),ctx);
-  const outdoor={id:'02_rabbit',homeAreaId:'park'};
+  const outdoor={id:'002_usagi',homeAreaId:'park'};
   ctx.setSalonMembership(outdoor,false);
   assert.equal(outdoor.homeAreaId,'park','old outdoor value is preserved');
   ctx.setSalonMembership(outdoor,true);

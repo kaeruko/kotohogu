@@ -123,17 +123,16 @@ void main() {
         [TownResident.shiba, TownResident.rabbit, TownResident.c027_daydreamer]);
     expect(find.byKey(const ValueKey('resident-2')), findsNothing);
     // A resident stays in the assigned home area even in debug preview.
-    for (var i = 0; i < 3; i++) {
-      await tester.tap(find.byKey(const ValueKey('town-area-next')));
-      await tester.pumpAndSettle();
-    }
+    await tester.tap(find.byKey(const ValueKey('town-area-next')));
+    await tester.pumpAndSettle();
     expect(tester.widget<TownAreaNavigator>(find.byType(TownAreaNavigator)).area,
-        TownArea.village);
+        TownArea.park);
     expect(tester.widget<TownScene>(find.byType(TownScene)).area,
-        TownArea.village);
-    expect(find.byKey(const ValueKey('resident-0')), findsOneWidget);
+        TownArea.park);
+    final daydreamerInTown = find.byTooltip(TownResident.c027_daydreamer.label);
+    expect(daydreamerInTown, findsOneWidget);
     // A debug-only dialogue must not modify seen IDs or ownership.
-    await tester.tap(find.byKey(const ValueKey('resident-0')));
+    await tester.tap(daydreamerInTown);
     await tester.pumpAndSettle();
     expect(find.text('こんにちは、おやすみくんです。'), findsOneWidget);
     await tester.tap(find.text('また話そう'));

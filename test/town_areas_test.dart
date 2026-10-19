@@ -45,6 +45,13 @@ void main() {
   });
 
   test('source dimensions match bundled backgrounds exactly', () {
+    final decoded = {
+      for (final area in TownArea.values)
+        if (area.backgroundAsset != null)
+          area: _imageDimensions(File(area.backgroundAsset!).readAsBytesSync()),
+    };
+    debugPrint('Background dimensions: ${decoded.map((area, size) =>
+        MapEntry(area.id, '${size.$1}x${size.$2}'))}');
     for (final area in TownArea.values) {
       final asset = area.backgroundAsset;
       if (asset == null) {
@@ -52,7 +59,7 @@ void main() {
         expect(area.sourceHeight, isNull);
         continue;
       }
-      final pixels = _imageDimensions(File(asset).readAsBytesSync());
+      final pixels = decoded[area]!;
       expect(pixels.$1, area.sourceWidth,
           reason: '${area.id} background width');
       expect(pixels.$2, area.sourceHeight,

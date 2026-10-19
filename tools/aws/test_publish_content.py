@@ -75,7 +75,7 @@ class PublishContentTests(unittest.TestCase):
                 publisher.prepare(self.base / "invalid")
 
     def test_explicit_shiba_mirror_exception_only(self):
-        shiba = publisher.frames_for({"id": "01_shiba"})
+        shiba = publisher.frames_for({"id": "001_shiba"})
         owl = publisher.frames_for({"id": "038_owl"})
         self.assertNotIn("walk_left_01.png", shiba)
         self.assertIn("walk_left_01.png", owl)

@@ -35,11 +35,11 @@ Progress buildStoreScreenshotProgress(DateTime now) {
     residents: ResidentCollection(
       baselinePoints: 0,
       counts: const {
-        '01_shiba': 1,
-        '02_rabbit': 1,
-        '03_penguin': 1,
-        '04_cat': 1,
-        '05_squirrel': 1,
+        '001_shiba': 1,
+        '002_usagi': 1,
+        '003_penguin': 1,
+        '004_neko': 1,
+        '005_risu': 1,
         '009_chef': 1,
         '032_miner': 1,
         '026_farmer': 1,

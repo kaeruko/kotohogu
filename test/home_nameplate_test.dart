@@ -88,7 +88,7 @@ void main() {
     expect(missionVisits, 0);
     expect(residentVisits, 0);
 
-    await tester.tap(find.byKey(const ValueKey('home-resident-sprite-01_shiba')));
+    await tester.tap(find.byKey(const ValueKey('home-resident-sprite-001_shiba')));
     expect(townVisits, 1);
     expect(residentVisits, 1);
 
@@ -148,7 +148,7 @@ void main() {
         find.byKey(const ValueKey('home-footer-message')),
       );
       final resident = tester.getRect(
-        find.byKey(const ValueKey('home-resident-sprite-01_shiba')),
+        find.byKey(const ValueKey('home-resident-sprite-001_shiba')),
       );
 
       expect(mission.top, greaterThan(resident.bottom));

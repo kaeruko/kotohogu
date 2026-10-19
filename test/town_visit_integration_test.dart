@@ -21,7 +21,7 @@ void main() {
       day: '2026-10-18', lastCompletedDay: '2026-10-18',
       points: 90, completed: {},
       residents: ResidentCollection(baselinePoints: 0, counts: {
-        '01_shiba': 1, '02_rabbit': 1,
+        '001_shiba': 1, '002_usagi': 1,
         '032_miner': 1, '027_daydreamer': 1,
       }),
     );

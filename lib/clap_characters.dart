@@ -19,7 +19,10 @@ class ClapCharacters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final visible = residents.take(applauseResidentLimit).toList();
+    final visible = residents
+        .where((resident) => !resident.archived)
+        .take(applauseResidentLimit)
+        .toList();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

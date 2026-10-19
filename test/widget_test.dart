@@ -112,7 +112,7 @@ void main() {
     }
 
     int frame() => tester
-        .widget<IndexedStack>(find.byKey(const ValueKey('clap-01_shiba')))
+        .widget<IndexedStack>(find.byKey(const ValueKey('clap-001_shiba')))
         .index!;
 
     await show(0);
@@ -325,7 +325,7 @@ void main() {
       points: 190,
       residents: ResidentCollection(
         baselinePoints: 0,
-        counts: const {'01_shiba': 2, '02_rabbit': 2},
+        counts: const {'001_shiba': 2, '002_usagi': 2},
       ),
       completed: const {},
     );
@@ -373,7 +373,7 @@ void main() {
       points: 170,
       residents: ResidentCollection(
         baselinePoints: 0,
-        counts: const {'01_shiba': 2, '02_rabbit': 2},
+        counts: const {'001_shiba': 2, '002_usagi': 2},
       ),
       completed: const {},
     );
@@ -429,8 +429,8 @@ void main() {
       'dialogues': [
         ...defaults,
         {
-          'id': '01_shiba_001',
-          'residentId': '01_shiba',
+          'id': '001_shiba_001',
+          'residentId': '001_shiba',
           'text': '今日は雲を眺めようよ',
           'priority': 20,
           // Make this two-turn fixture a first-time event so the widget test
@@ -438,10 +438,10 @@ void main() {
           'once': true,
           'logic': 'all',
           'conditions': [
-            {'type': 'townTogether', 'otherResidentId': '02_rabbit'},
+            {'type': 'townTogether', 'otherResidentId': '002_usagi'},
           ],
           'reply': {
-            'residentId': '02_rabbit', 'text': 'あの雲、描いてみたい！',
+            'residentId': '002_usagi', 'text': 'あの雲、描いてみたい！',
           },
         },
       ],
@@ -559,14 +559,31 @@ void main() {
     expect(background.fit, BoxFit.cover);
     await tester.tap(find.byKey(const ValueKey('resident-0')));
     await tester.pumpAndSettle();
-    expect(find.text(Resident.child.tips.first), findsOneWidget);
-    // Ordinary repeatable dialogue IDs are now saved for global prerequisites.
-    expect(controller.progress!.seenDialogues, contains('shiba_default_1'));
+    final catalog = await tester.runAsync(DialogueCatalog.load);
+    if (catalog == null) throw StateError('Dialogue asset did not load');
+    final greeting = catalog.entries.singleWhere(
+      (entry) => entry.residentId == '001_shiba' && entry.firstGreeting,
+    );
+    expect(find.text(greeting.text), findsOneWidget);
+    expect(controller.progress!.seenDialogues, contains(greeting.id));
     await tester.tap(find.text('また話そう'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('resident-0')));
     await tester.pumpAndSettle();
-    expect(find.text(Resident.child.tips[1]), findsOneWidget);
+    final ordinaryLines = catalog.entries.where(
+      (entry) => entry.residentId == '001_shiba' &&
+          !entry.once && entry.conditions.isEmpty && entry.priority != -1000,
+    );
+    expect(
+      ordinaryLines.any((entry) => find.text(entry.text).evaluate().isNotEmpty),
+      isTrue,
+    );
+    expect(find.text(greeting.text), findsNothing);
+    expect(
+      ordinaryLines.any((entry) =>
+          controller.progress!.seenDialogues.contains(entry.id)),
+      isTrue,
+    );
     await tester.tap(find.text('また話そう'));
     await tester.pumpAndSettle();
     await tester.pumpWidget(const SizedBox());
@@ -621,10 +638,7 @@ void main() {
     'storage failure displays halt and original diagnostics, no celebration',
     (tester) async {
       await launch(tester, MemoryStore()..saveError = StateError('disk full'));
-      await tester.scrollUntilVisible(
-        find.byKey(const ValueKey('open-missions')),
-        150,
-      );
+      await tester.ensureVisible(find.byKey(const ValueKey('open-missions')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('open-missions')));
       await tester.pumpAndSettle();

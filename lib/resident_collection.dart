@@ -77,12 +77,12 @@ enum WalkDirection { front, back, left, right }
 
 enum TownResident {
   // BEGIN CMS RESIDENTS
-  shiba("01_shiba", "しばいぬ", "001_shiba", true, true, "", "plaza"),
-  rabbit("02_rabbit", "うさぎ", "002_usagi", true, true, "", "park"),
-  penguin("03_penguin", "まちの案内係", "003_penguin", true, true, "", "plaza"),
-  cat("04_cat", "ねこ", "004_neko", true, true, "", "shopping"),
-  squirrel("05_squirrel", "りす", "005_risu", true, true, "", "park"),
-  bear("06_bear", "だいくさん", "006_kuma", true, true, "まちの家やお店を建て、家具やベンチを直す大工。腕はいいが口下手で、頼まれなくても壊れたものをそっと修理する。完成した建物が手を離れるのは少し寂しいけれど、そこで誰かの暮らしが始まることを喜んでいる。", "village"),
+  shiba("001_shiba", "しばいぬ", "001_shiba", true, true, "", "plaza"),
+  rabbit("002_usagi", "うさぎ", "002_usagi", true, true, "", "park"),
+  penguin("003_penguin", "まちの案内係", "003_penguin", true, true, "", "plaza"),
+  cat("004_neko", "ねこ", "004_neko", true, true, "", "shopping"),
+  squirrel("005_risu", "りす", "005_risu", true, true, "", "park"),
+  bear("006_kuma", "だいくさん", "006_kuma", true, true, "まちの家やお店を建て、家具やベンチを直す大工。腕はいいが口下手で、頼まれなくても壊れたものをそっと修理する。完成した建物が手を離れるのは少し寂しいけれど、そこで誰かの暮らしが始まることを喜んでいる。", "village"),
   // ignore: constant_identifier_names
   c009_chef("009_chef", "シェフ", "009_chef", true, true, "", "shopping"),
   // ignore: constant_identifier_names
@@ -118,18 +118,20 @@ enum TownResident {
   // END CMS RESIDENTS
   ;
 
-  const TownResident(this.id, this.label, this.artFolder, this.inGacha, this.walkInTown, this.profile, this.homeAreaId);
+  const TownResident(this.id, this.label, this.artFolder, this.inGacha, this.walkInTown, this.profile, this.homeAreaId, {this.archived = false});
   final String id;
   final String label;
   final String artFolder;
   final bool inGacha;
   final bool walkInTown;
+  /// Archived residents retain their saved identity, but do not join applause.
+  final bool archived;
   final String profile;
   /// Legacy catalog field: 'salon' means indoor-only. Other values are kept
   /// for compatibility and debug views, but do not affect random outings.
   final String homeAreaId;
   static List<TownResident> get gachaPool =>
-      values.where((resident) => resident.inGacha).toList(growable: false);
+      values.where((resident) => !resident.archived && resident.inGacha).toList(growable: false);
   String get idleAsset => 'assets/characters/$artFolder/idle_front_01.png';
   List<String> get clapAssets => [
     for (final frame in ['01', '02'])
@@ -181,7 +183,7 @@ class ResidentCollection {
   }) : counts = Map.unmodifiable(counts);
   factory ResidentCollection.initial(int points) => ResidentCollection(
     baselinePoints: points,
-    counts: const {'01_shiba': 1, '02_rabbit': 1},
+    counts: const {'001_shiba': 1, '002_usagi': 1},
   );
   final int baselinePoints;
   final Map<String, int> counts;
@@ -304,8 +306,8 @@ class ResidentCollection {
         baseline > points ||
         baseline % 10 != 0 ||
         entries.length > ownedResidentLimit ||
-        !entries.containsKey('01_shiba') ||
-        !entries.containsKey('02_rabbit')) {
+        !entries.containsKey('001_shiba') ||
+        !entries.containsKey('002_usagi')) {
       throw const FormatException('Invalid resident collection values.');
     }
     final counts = <String, int>{};

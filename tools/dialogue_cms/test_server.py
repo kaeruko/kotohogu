@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from server import (portrait_path, runtime_catalog, runtime_sprite_path,
                     validate, write_document)
-from characters import (validate_archive_dependencies, validate_archive_code_references,
+from characters import (archive_code_blockers, validate_archive_dependencies, validate_archive_code_references,
                          load_catalog, validate_catalog, generate_dart, generate_pubspec,
                         DART, PUBSPEC, save_catalog_and_dialogues, validate_dialogue_ids)
 
@@ -20,25 +20,38 @@ def sample():
 
 
 class CmsTests(unittest.TestCase):
+    def test_character_ids_match_sprite_folders_including_rabbit(self):
+        original = load_catalog()
+        self.assertTrue(all(row["id"] == row["artFolder"]
+                            for row in original["characters"]))
+        rabbit = next(row for row in original["characters"]
+                      if row["key"] == "rabbit")
+        self.assertEqual(rabbit["id"], "002_usagi")
+        self.assertNotIn("archived", rabbit)
+        mismatched = copy.deepcopy(original)
+        mismatched["characters"][0]["artFolder"] = "002_usagi"
+        with self.assertRaisesRegex(ValueError, "must match"):
+            validate_catalog(mismatched, previous=original)
+
     def test_resident_ownership_conditions_validate_strictly(self):
         current = sample()
         self.assertIs(validate(current), current)
         entry = next(row for row in current["dialogues"]
-                     if row["id"] == "03_penguin_002")
+                     if row["id"] == "003_penguin_002")
         self.assertEqual(entry["conditions"], [
             {"type": "residentOwned", "residentId": "035_beaty", "owned": False},
         ])
         for value in ("no", 0, None):
             invalid = copy.deepcopy(current)
             target = next(row for row in invalid["dialogues"]
-                          if row["id"] == "03_penguin_002")
+                          if row["id"] == "003_penguin_002")
             target["conditions"][0]["owned"] = value
             with self.subTest(value=value), self.assertRaisesRegex(
                     ValueError, "Invalid resident ownership"):
                 validate(invalid)
         unknown = copy.deepcopy(current)
         next(row for row in unknown["dialogues"]
-             if row["id"] == "03_penguin_002")["conditions"][0]["residentId"] = "does_not_exist"
+             if row["id"] == "003_penguin_002")["conditions"][0]["residentId"] = "does_not_exist"
         with self.assertRaisesRegex(ValueError, "Invalid resident ownership"):
             validate(unknown)
 
@@ -196,7 +209,7 @@ class CmsTests(unittest.TestCase):
         row["archived"] = True
         self.assertIs(validate_catalog(retired, previous=original), retired)
         generated = generate_dart(DART.read_text("utf-8"), retired["characters"])
-        self.assertIn('c037_tora("037_tora", "とらお", "037_tora", false, false, "", "plaza")',
+        self.assertIn('c037_tora("037_tora", "とらお", "037_tora", false, false, "", "plaza", archived: true)',
                       generated)
         self.assertIn("assets/characters/037_tora/", generate_pubspec(
             PUBSPEC.read_text("utf-8"), retired["characters"]))
@@ -206,10 +219,38 @@ class CmsTests(unittest.TestCase):
             validate_catalog(bad, previous=original)
         del row["archived"]
         validate_catalog(retired, previous=original)
+        restored = generate_dart(DART.read_text("utf-8"), retired["characters"])
+        self.assertNotIn("archived: true", restored)
+
+    def test_archive_blockers_match_save_validation_without_mutating_rabbit(self):
+        catalog = {"characters": [
+            {"id": "002_usagi", "key": "rabbit"},
+            {"id": "037_tora", "key": "c037_tora"},
+            {"id": "038_lion_lady", "key": "c038_lion_lady"},
+        ]}
+        original = copy.deepcopy(catalog)
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "lib").mkdir()
+            (root / "lib/dependency.dart").write_text(
+                'const friend = "037_tora";', encoding="utf-8")
+            with patch("characters.ROOT", root):
+                blockers = archive_code_blockers(catalog)
+                self.assertIn("Core resident", blockers["002_usagi"])
+                self.assertIn("lib/dependency.dart", blockers["037_tora"])
+                self.assertNotIn("038_lion_lady", blockers)
+                for identifier, reason in blockers.items():
+                    candidate = copy.deepcopy(catalog)
+                    next(row for row in candidate["characters"]
+                         if row["id"] == identifier)["archived"] = True
+                    with self.assertRaises(ValueError) as error:
+                        validate_archive_code_references(candidate, catalog)
+                    self.assertEqual(str(error.exception), reason)
+        self.assertEqual(catalog, original)
 
     def test_archive_blocks_core_residents_and_active_dependencies(self):
         original = load_catalog()
-        for identifier in ("01_shiba", "02_rabbit"):
+        for identifier in ("001_shiba", "002_usagi"):
             retired = copy.deepcopy(original)
             next(row for row in retired["characters"] if row["id"] == identifier)["archived"] = True
             with self.assertRaisesRegex(ValueError, "Core resident"):
@@ -218,7 +259,7 @@ class CmsTests(unittest.TestCase):
         next(row for row in retired["characters"] if row["id"] == "037_tora")["archived"] = True
         original_data = sample()
         altered = copy.deepcopy(original_data)
-        target = next(row for row in altered["dialogues"] if row["residentId"] == "01_shiba")
+        target = next(row for row in altered["dialogues"] if row["residentId"] == "001_shiba")
         target["conditions"] = [{"type": "residentOwned", "residentId": "037_tora", "owned": False}]
         with self.assertRaisesRegex(ValueError, "depends on archived"):
             validate_archive_dependencies(retired, altered)
@@ -253,7 +294,7 @@ class CmsTests(unittest.TestCase):
         self.assertTrue(all(row["residentId"] != "037_tora"
                             for row in live["dialogues"]))
         self.assertTrue(all("archived" not in row for row in live["characters"]))
-        self.assertIn("01_shiba", {row["id"] for row in live["characters"]})
+        self.assertIn("001_shiba", {row["id"] for row in live["characters"]})
 
     def test_new_character_needs_sprite_and_unconditional_dialogue(self):
         original = load_catalog()
@@ -304,12 +345,12 @@ class CmsTests(unittest.TestCase):
         modified["characters"][0]["nextDialogueNumber"] = 4
         dialogues = sample()
         dialogues["dialogues"].append({
-            "id": "01_shiba_002", "residentId": "01_shiba",
+            "id": "001_shiba_002", "residentId": "001_shiba",
             "text": "新しい話", "priority": 0, "once": False,
             "logic": "all", "conditions": [],
         })
         dialogues["dialogues"].append({
-            "id": "01_shiba_003", "residentId": "01_shiba",
+            "id": "001_shiba_003", "residentId": "001_shiba",
             "text": "次の話", "priority": 0, "once": False,
             "logic": "all", "conditions": [],
         })
@@ -328,7 +369,7 @@ class CmsTests(unittest.TestCase):
         future["characters"][0]["nextDialogueNumber"] = 5
         new_dialogues = sample()
         new_dialogues["dialogues"].append({
-            "id": "01_shiba_003", "residentId": "01_shiba",
+            "id": "001_shiba_003", "residentId": "001_shiba",
             "text": "削除済み番号の再利用", "priority": 0, "once": False,
             "logic": "all", "conditions": [],
         })
@@ -336,7 +377,7 @@ class CmsTests(unittest.TestCase):
             validate_dialogue_ids(future, new_dialogues, previously_reserved, sample())
 
         renamed = copy.deepcopy(dialogues)
-        renamed["dialogues"][0]["residentId"] = "02_rabbit"
+        renamed["dialogues"][0]["residentId"] = "002_usagi"
         with self.assertRaisesRegex(ValueError, "resident cannot change"):
             validate_dialogue_ids(modified, renamed, original, sample())
 
@@ -457,11 +498,11 @@ class CmsTests(unittest.TestCase):
     def test_town_companion_and_two_speaker_reply_validation(self):
         normal = sample()
         selected = normal["dialogues"][0]
-        selected["conditions"] = [{"type": "townTogether", "otherResidentId": "02_rabbit"}]
-        selected["reply"] = {"residentId": "02_rabbit", "text": "絵を描きたい！"}
+        selected["conditions"] = [{"type": "townTogether", "otherResidentId": "002_usagi"}]
+        selected["reply"] = {"residentId": "002_usagi", "text": "絵を描きたい！"}
         validate(normal)
         for condition in (
-            {"type": "townTogether", "otherResidentId": "01_shiba"},
+            {"type": "townTogether", "otherResidentId": "001_shiba"},
             {"type": "townTogether", "otherResidentId": "unknown"},
             {"type": "townTogether", "otherResidentId": 10},
             {"type": "townTogether"},
@@ -477,7 +518,7 @@ class CmsTests(unittest.TestCase):
             validate(invalid_reply)
         invalid_reply = copy.deepcopy(normal)
         invalid_reply["dialogues"][0]["reply"] = {
-            "residentId": "03_penguin", "text": "違う人の返事"}
+            "residentId": "003_penguin", "text": "違う人の返事"}
         with self.assertRaisesRegex(ValueError, "matching AND"):
             validate(invalid_reply)
         invalid_reply = copy.deepcopy(normal)
@@ -539,7 +580,7 @@ class CmsTests(unittest.TestCase):
                 before = target.read_bytes()
                 modified = sample()
                 modified["dialogues"].append({
-                    "id": "01_shiba_002", "residentId": "01_shiba",
+                    "id": "001_shiba_002", "residentId": "001_shiba",
                     "text": "新しい話", "priority": 0, "once": False,
                     "logic": "all", "conditions": [],
                 })
@@ -551,7 +592,7 @@ class CmsTests(unittest.TestCase):
         doc = sample()
         doc["dialogues"] = [
             e for e in doc["dialogues"]
-            if e["residentId"] != "01_shiba" or e["conditions"]
+            if e["residentId"] != "001_shiba" or e["conditions"]
         ]
         with self.assertRaises(ValueError):
             validate(doc)

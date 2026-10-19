@@ -14,8 +14,8 @@ Progress fixture({bool tonkoOwned = true, int points = 300}) => Progress(
   residents: ResidentCollection(
     baselinePoints: 0,
     counts: {
-      '01_shiba': 1,
-      '02_rabbit': 1,
+      '001_shiba': 1,
+      '002_usagi': 1,
       if (tonkoOwned) '041_pig_middle': 1,
     },
   ),
@@ -43,11 +43,11 @@ void main() {
         [TownResident.shiba, TownResident.c041_pig_middle]);
     expect(rules.conversationPeers(
       ConversationSite.town, area: TownArea.plaza),
-      {'01_shiba', '041_pig_middle'});
+      {'001_shiba', '041_pig_middle'});
     expect(rules.conversationPeers(
       ConversationSite.town, area: TownArea.village), isEmpty);
     expect(rules.conversationPeers(ConversationSite.roster),
-        {'01_shiba', '02_rabbit', '041_pig_middle'});
+        {'001_shiba', '002_usagi', '041_pig_middle'});
     expect(rules.conversationPeers(ConversationSite.salon), isEmpty);
     expect(() => rules.conversationPeers(ConversationSite.town),
         throwsArgumentError);
@@ -80,8 +80,8 @@ void main() {
       residents: ResidentCollection(
         baselinePoints: 0,
         counts: {
-          '01_shiba': 1,
-          '02_rabbit': 1,
+          '001_shiba': 1,
+          '002_usagi': 1,
           '035_beaty': 1,
         },
       ),

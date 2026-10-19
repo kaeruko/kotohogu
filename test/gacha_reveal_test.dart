@@ -247,7 +247,7 @@ void main() {
       ).data,
       TownResident.penguin.label,
     );
-    expect(controller.progress!.residents.counts['03_penguin'], 2);
+    expect(controller.progress!.residents.counts['003_penguin'], 2);
     expect(controller.progress!.residents.availableKotohogi(60), 0);
     expect(
       tester.widget<TextButton>(find.byKey(const ValueKey('button_again')))
@@ -468,7 +468,7 @@ void main() {
     expect(find.byType(GachaReveal), findsOneWidget);
     expect(find.byKey(const ValueKey('resident-arrival-banner')),
         findsOneWidget);
-    expect(controller.progress!.residents.counts['03_penguin'], 1);
+    expect(controller.progress!.residents.counts['003_penguin'], 1);
     expect(store.writes, 1);
     await tester.tap(find.byKey(const ValueKey('consultation-town-back')));
     await tester.pumpAndSettle();

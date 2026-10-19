@@ -26,8 +26,8 @@ void main() {
     // Periodic stepping should not cause pumpAndSettle to time out.
     await tester.pumpAndSettle();
 
-    final shiba = find.byKey(const ValueKey('home-resident-sprite-01_shiba'));
-    final rabbit = find.byKey(const ValueKey('home-resident-sprite-02_rabbit'));
+    final shiba = find.byKey(const ValueKey('home-resident-sprite-001_shiba'));
+    final rabbit = find.byKey(const ValueKey('home-resident-sprite-002_usagi'));
     String asset(Finder finder) =>
         (tester.widget<Image>(finder).image as AssetImage).assetName;
 
@@ -75,8 +75,8 @@ void main() {
         ),
       ),
     );
-    final shiba = find.byKey(const ValueKey('home-resident-sprite-01_shiba'));
-    final rabbit = find.byKey(const ValueKey('home-resident-sprite-02_rabbit'));
+    final shiba = find.byKey(const ValueKey('home-resident-sprite-001_shiba'));
+    final rabbit = find.byKey(const ValueKey('home-resident-sprite-002_usagi'));
     String asset(Finder finder) =>
         (tester.widget<Image>(finder).image as AssetImage).assetName;
     expect(asset(shiba), TownResident.shiba.idleAsset);

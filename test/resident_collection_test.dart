@@ -106,7 +106,7 @@ void main() {
     expect(progress.residents.tickets(progress.points), 1);
     final duplicate = progress.acquireResident(TownResident.shiba);
     expect(duplicate.residents.owned.length, 2);
-    expect(duplicate.residents.counts['01_shiba'], 2);
+    expect(duplicate.residents.counts['001_shiba'], 2);
     expect(duplicate.points, 30);
     expect(duplicate.residents.tickets(30), 0);
     expect(
@@ -206,7 +206,7 @@ void main() {
     expect(progress.residents.owned.length, TownResident.values.length);
     progress = progress.acquireResident(TownResident.penguin);
     expect(progress.residents.owned.length, TownResident.values.length);
-    expect(progress.residents.counts['03_penguin'], 2);
+    expect(progress.residents.counts['003_penguin'], 2);
     // The repeated penguin draw also costs one ticket.
     expect(progress.residents.tickets(drawPoints), 0);
     progress = progress
@@ -248,27 +248,27 @@ void main() {
         null,
         {
           'baselinePoints': 40,
-          'counts': {'01_shiba': 1, '02_rabbit': 1},
+          'counts': {'001_shiba': 1, '002_usagi': 1},
         },
         {
           'baselinePoints': 0,
-          'counts': {'01_shiba': 1, '02_rabbit': 1, 'unknown': 1},
+          'counts': {'001_shiba': 1, '002_usagi': 1, 'unknown': 1},
         },
         {
           'baselinePoints': 0,
-          'counts': {'01_shiba': 1, '02_rabbit': 0},
+          'counts': {'001_shiba': 1, '002_usagi': 0},
         },
         {
           'baselinePoints': 0,
-          'counts': {'01_shiba': 1, '02_rabbit': 1.0},
+          'counts': {'001_shiba': 1, '002_usagi': 1.0},
         },
         {
           'baselinePoints': 0,
-          'counts': {'01_shiba': 3, '02_rabbit': 1},
+          'counts': {'001_shiba': 3, '002_usagi': 1},
         },
         {
           'baselinePoints': 0,
-          'counts': {'01_shiba': 1},
+          'counts': {'001_shiba': 1},
         },
       ]) {
         expect(

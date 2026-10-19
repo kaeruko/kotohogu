@@ -40,7 +40,7 @@ def digest(data):
 def frames_for(resident):
     names = list(FRAMES)
     for direction in SPRITE_DIRECTIONS:
-        if resident["id"] == "01_shiba" and direction == "left":
+        if resident["id"] == "001_shiba" and direction == "left":
             # The project's existing sprite contract explicitly mirrors right.
             # Do not invent files or silently substitute another source image.
             continue

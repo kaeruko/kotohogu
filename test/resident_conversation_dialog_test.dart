@@ -119,7 +119,7 @@ void main() {
   });
 
   testWidgets('ordinary dialogue still closes in one tap', (tester) async {
-    await openDialogue(tester, TownResident.rabbit, {'02_rabbit'});
+    await openDialogue(tester, TownResident.rabbit, {'002_usagi'});
     expect(find.text('うさぎ'), findsOneWidget);
     expect(find.text('ひとりのおはなし'), findsOneWidget);
     expect(find.text('つづきへ'), findsNothing);
@@ -147,7 +147,7 @@ void main() {
           },
         {
           'id': 'long_rabbit',
-          'residentId': '02_rabbit',
+          'residentId': '002_usagi',
           'text': original,
           'priority': 5,
           'once': false,
@@ -156,7 +156,7 @@ void main() {
         },
       ],
     }));
-    await openDialogue(tester, TownResident.rabbit, {'02_rabbit'},
+    await openDialogue(tester, TownResident.rabbit, {'002_usagi'},
         chosenLine: longCatalog.entries.last);
 
     expect(find.byKey(const ValueKey('dialogue-page-count')), findsOneWidget);

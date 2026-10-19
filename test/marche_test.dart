@@ -18,8 +18,8 @@ Progress tonkoProgress({bool owned = true}) => Progress(
   residents: ResidentCollection(
     baselinePoints: 0,
     counts: {
-      '01_shiba': 1,
-      '02_rabbit': 1,
+      '001_shiba': 1,
+      '002_usagi': 1,
       if (owned) '041_pig_middle': 1,
     },
   ),

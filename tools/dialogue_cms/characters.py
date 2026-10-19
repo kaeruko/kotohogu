@@ -50,7 +50,7 @@ def validate_catalog(document, previous=None, *, characters_root=None):
         if not isinstance(key, str) or not re.fullmatch(r"[a-z][a-z0-9_]*", key):
             raise ValueError(f"Invalid character key at row {index}")
         if key in {"values", "index", "name", "byName", "id", "label", "artFolder",
-                   "inGacha", "walkInTown", "homeAreaId", "nextDialogueNumber", "gachaPool",
+                   "inGacha", "walkInTown", "archived", "homeAreaId", "nextDialogueNumber", "gachaPool",
                    "abstract", "as", "assert", "async", "await", "base", "break",
                    "case", "catch", "class", "const", "continue", "covariant",
                    "default", "deferred", "do", "dynamic", "else", "enum",
@@ -67,6 +67,8 @@ def validate_catalog(document, previous=None, *, characters_root=None):
             raise ValueError(f"Invalid resident ID at row {index}")
         if not isinstance(folder, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", folder) or ".." in folder:
             raise ValueError(f"Invalid sprite folder at row {index}")
+        if identifier != folder:
+            raise ValueError(f"Character ID and sprite folder must match: {identifier} != {folder}")
         if previous is not None and index >= len(previous["characters"]):
             if key != f"c{identifier}" or folder != identifier:
                 raise ValueError(f"New resident key and art folder must be derived from ID: {identifier}")
@@ -93,7 +95,7 @@ def validate_catalog(document, previous=None, *, characters_root=None):
             f"walk_{direction}_{frame:02d}.png"
             for direction in DIRECTIONS
             for frame in range(1, 5)
-            if not (identifier == "01_shiba" and direction == "left")
+            if not (identifier == "001_shiba" and direction == "left")
         ]
         missing = [name for name in required if not (directory / name).is_file()]
         if missing:
@@ -170,10 +172,11 @@ def generate_dart(source, characters):
         active = not row.get("archived", False)
         # Keep old IDs and assets, so already saved collections still decode.
         home = row["homeAreaId"] if active else "plaza"
+        archived = "" if active else ", archived: true"
         declarations.append(
             f'{ignore_lint}  {row["key"]}("{row["id"]}", {label}, "{row["artFolder"]}", '
             f'{"true" if active and row["inGacha"] else "false"}, '
-            f'{"true" if active and row["walkInTown"] else "false"}, {profile}, "{home}")'
+            f'{"true" if active and row["walkInTown"] else "false"}, {profile}, "{home}"{archived})'
         )
     return replace_section(source, DART_START, DART_END, ",\n".join(declarations))
 
@@ -261,26 +264,40 @@ def validate_archive_dependencies(catalog, dialogues):
             raise ValueError(f"Active dialogue {entry['id']} replies as archived character")
 
 
+def archive_code_blockers(catalog):
+    """Share the same core/code restrictions with the editor and save validator."""
+    sources = []
+    for path in sorted((ROOT / "lib").rglob("*.dart")):
+        source = path.read_text(encoding="utf-8")
+        if path == DART:
+            source = replace_section(source, DART_START, DART_END, "")
+        sources.append((path.relative_to(ROOT), source))
+    blockers = {}
+    for row in catalog["characters"]:
+        if row["id"] in {"001_shiba", "002_usagi", "035_beaty"}:
+            blockers[row["id"]] = f"Core resident cannot be archived: {row['id']}"
+            continue
+        for path, source in sources:
+            if (re.search(r"\bTownResident\." + re.escape(row["key"]) + r"\b", source)
+                    or re.search(r"(?<![A-Za-z0-9])" + re.escape(row["id"])
+                                 + r"(?![A-Za-z0-9])", source)):
+                blockers[row["id"]] = (
+                    f"Character {row['id']} is used by app code in "
+                    f"{path}; remove the dependency before archiving"
+                )
+                break
+    return blockers
+
+
 def validate_archive_code_references(catalog, previous):
     """Block removal from play while hard-coded Dart dependencies remain."""
     previously_retired = {row["id"] for row in previous["characters"]
                           if row.get("archived")}
+    blockers = archive_code_blockers(catalog)
     for row in catalog["characters"]:
-        if not row.get("archived") or row["id"] in previously_retired:
-            continue
-        if row["id"] in {"01_shiba", "02_rabbit", "035_beaty"}:
-            raise ValueError(f"Core resident cannot be archived: {row['id']}")
-        for path in (ROOT / "lib").rglob("*.dart"):
-            source = path.read_text(encoding="utf-8")
-            if path == DART:
-                source = replace_section(source, DART_START, DART_END, "")
-            if (re.search(r"\bTownResident\." + re.escape(row["key"]) + r"\b", source)
-                    or re.search(r"(?<![A-Za-z0-9])" + re.escape(row["id"])
-                                 + r"(?![A-Za-z0-9])", source)):
-                raise ValueError(
-                    f"Character {row['id']} is used by app code in "
-                    f"{path.relative_to(ROOT)}; remove the dependency before archiving"
-                )
+        if (row.get("archived") and row["id"] not in previously_retired
+                and row["id"] in blockers):
+            raise ValueError(blockers[row["id"]])
 
 
 def save_catalog_and_dialogues(payload, validate_dialogues):

@@ -46,8 +46,8 @@ class TownWalkRoute {
 /// These are on the dirt paths next to equipment, not on top of the benches.
 /// The routes can be refined without changing resident data or saved progress.
 const parkResidentRoutes = <String, TownWalkRoute>{
-  '02_rabbit': TownWalkRoute(.39, .46, width: .020, height: .010), // slide
-  '05_squirrel': TownWalkRoute(.30, .54, width: .025), // flowerbed/sign
+  '002_usagi': TownWalkRoute(.39, .46, width: .020, height: .010), // slide
+  '005_risu': TownWalkRoute(.30, .54, width: .025), // flowerbed/sign
   '026_farmer': TownWalkRoute(.45, .55, width: .020), // fountain
   '027_daydreamer': TownWalkRoute(.60, .63, stay: true), // right bench
   '037_tora': TownWalkRoute(.63, .45, width: .025), // swings

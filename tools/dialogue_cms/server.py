@@ -9,7 +9,8 @@ from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
-from characters import load_catalog, validate_catalog, save_catalog_and_dialogues
+from characters import (archive_code_blockers, load_catalog, validate_catalog,
+                        save_catalog_and_dialogues)
 from areas import load_areas, validate_areas, AREAS as AREA_DATA
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -348,6 +349,14 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 document = validate_catalog(load_catalog())
                 self._send(200, document)
+            except (OSError, ValueError, TypeError) as exc:
+                self._send(500, {"error": str(exc)})
+        elif path == "/api/character-archive-blockers":
+            if url.query:
+                return self._send(400, {"error": "Archive blockers take no query parameters"})
+            try:
+                catalog = validate_catalog(load_catalog())
+                self._send(200, {"blockers": archive_code_blockers(catalog)})
             except (OSError, ValueError, TypeError) as exc:
                 self._send(500, {"error": str(exc)})
         elif path == "/api/areas":
