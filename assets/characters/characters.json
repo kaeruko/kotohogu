@@ -15,7 +15,7 @@
     {
       "key": "rabbit",
       "id": "002_usagi",
-      "label": "うさぎ",
+      "label": "およめさん",
       "artFolder": "002_usagi",
       "inGacha": true,
       "walkInTown": true,
@@ -239,6 +239,17 @@
       "profile": "",
       "artFolder": "007_hitsuji",
       "nextDialogueNumber": 11,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
+    },
+    {
+      "key": "c047_patisie",
+      "id": "047_patisie",
+      "label": "パティシエ",
+      "profile": "",
+      "artFolder": "047_patisie",
+      "nextDialogueNumber": 3,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"

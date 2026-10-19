@@ -4057,6 +4057,25 @@
           "withinDays": 1
         }
       ]
+    },
+    {
+      "id": "047_patisie_001",
+      "residentId": "047_patisie",
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "047_patisie_002",
+      "residentId": "047_patisie",
+      "text": "はじめまして！よろしくね。",
+      "priority": 0,
+      "once": true,
+      "logic": "all",
+      "conditions": [],
+      "firstGreeting": true
     }
   ]
 }

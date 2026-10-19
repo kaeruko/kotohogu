@@ -78,7 +78,7 @@ enum WalkDirection { front, back, left, right }
 enum TownResident {
   // BEGIN CMS RESIDENTS
   shiba("001_shiba", "しばいぬ", "001_shiba", true, true, "", "plaza", archived: false),
-  rabbit("002_usagi", "うさぎ", "002_usagi", true, true, "", "park", archived: false),
+  rabbit("002_usagi", "およめさん", "002_usagi", true, true, "", "park", archived: false),
   penguin("003_penguin", "まちの案内係", "003_penguin", true, true, "", "plaza", archived: false),
   cat("004_neko", "せんせい", "004_neko", true, true, "ことほぎのまちで長く診療を続けてきた、少し年配のかかりつけ医。病名や年齢だけで決めつけず、その人が望む暮らしを大切にしている。必要なときは専門医やほかの医療職と協力する。自身も緑内障で片目がほとんど見えなくなり、もう片方の目も眼科で定期的に診てもらっている。見え方に合う工夫をしながら、住民と同じように日々を暮らす。穏やかで聞き上手だが、言うべきことはきちんと伝える。患者さんには休息を勧める一方、自分はつい働きすぎてしまう、少しお茶目な先生。", "shopping", archived: false),
   squirrel("005_risu", "ドライバー", "005_risu", true, true, "ことほぎのまちで生まれ育った配達員。まちの道や住民のおうちに詳しいけれど、配達の仕事はまだ新人。好奇心旺盛でつい寄り道してしまうが、預かった荷物は大切に届ける。住民たちとおしゃべりしたり、道ばたの季節の変化を見つけたりするのが好き。お届け先の秘密は決して言いふらさない。", "park", archived: false),
@@ -114,7 +114,9 @@ enum TownResident {
   // ignore: constant_identifier_names
   c042_senior_dog("042_senior_dog", "ごんすけ", "042_senior_dog", true, true, "", "park", archived: false),
   // ignore: constant_identifier_names
-  c007_hitsuji("007_hitsuji", "めりぃ", "007_hitsuji", true, true, "", "plaza", archived: false)
+  c007_hitsuji("007_hitsuji", "めりぃ", "007_hitsuji", true, true, "", "plaza", archived: false),
+  // ignore: constant_identifier_names
+  c047_patisie("047_patisie", "パティシエ", "047_patisie", true, true, "", "plaza", archived: false)
   // END CMS RESIDENTS
   ;
 
