@@ -168,7 +168,8 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                 }
                 Navigator.of(context).push<void>(MaterialPageRoute<void>(
                   settings: const RouteSettings(name: '/shopping/bakery'),
-                  builder: (_) => BakeryRoom(onResident: widget.onBakeryResident),
+                  builder: (_) => BakeryRoom(onResident: widget.onBakeryResident,
+                    ownedResidents: widget.residents),
                 ));
               },
               showSalonEntranceMarker: isSalonAccessible(

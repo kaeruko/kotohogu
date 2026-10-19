@@ -58,7 +58,7 @@ void main() {
     addTearDown(tester.view.reset);
     final boundary = GlobalKey();
     await tester.pumpWidget(MaterialApp(home: RepaintBoundary(
-      key: boundary, child: const BakeryRoom(),
+      key: boundary, child: const BakeryRoom(ownedResidents: [TownResident.c047_patisie]),
     )));
     await tester.runAsync(() async {
       await precacheImage(const AssetImage(BakeryRoom.backgroundAsset), boundary.currentContext!);

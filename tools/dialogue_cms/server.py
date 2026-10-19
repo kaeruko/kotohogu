@@ -9,6 +9,7 @@ from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import events
+import facilities
 from urllib.parse import parse_qs, urlsplit
 from characters import (archive_code_blockers, load_catalog, validate_catalog,
                         save_catalog_and_dialogues)
@@ -301,6 +302,24 @@ class Handler(BaseHTTPRequestHandler):
             raw = INDEX.read_bytes()
             self._headers(200, "text/html; charset=utf-8", len(raw))
             self.wfile.write(raw)
+        elif path in {"/facilities", "/facilities.js", "/api/facilities", "/api/facility-background"}:
+            try:
+                if path == "/api/facilities":
+                    return self._send(200, facilities.load())
+                if path == "/api/facility-background":
+                    args = parse_qs(url.query, strict_parsing=True, max_num_fields=1)
+                    if set(args) != {"id"} or len(args["id"]) != 1 or args["id"][0] not in facilities.FIXED:
+                        raise ValueError("Unknown facility")
+                    file = ROOT / facilities.FIXED[args["id"][0]]["background"]
+                    mime = "image/png" if file.suffix == ".png" else "image/jpeg"
+                else:
+                    file = Path(__file__).parent / ("facilities.html" if path == "/facilities" else "facilities.js")
+                    mime = "text/html; charset=utf-8" if path == "/facilities" else "text/javascript; charset=utf-8"
+                raw = file.read_bytes()
+                self._headers(200, mime, len(raw))
+                self.wfile.write(raw)
+            except (OSError, ValueError, TypeError) as exc:
+                self._send(400, {"error": str(exc)})
         elif path in {"/events", "/events.js", "/api/events", "/api/event-background"}:
             try:
                 if path == "/api/events":
@@ -415,7 +434,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         endpoint = urlsplit(self.path).path
-        if endpoint not in {"/api/dialogues", "/api/cms", "/api/events"}:
+        if endpoint not in {"/api/dialogues", "/api/cms", "/api/events", "/api/facilities"}:
             return self._send(404, {"error": "Not found"})
         # A cross-origin website must not be able to modify local files.
         expected = f"http://127.0.0.1:{self.server.server_port}"
@@ -429,7 +448,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(413, {"error": "Invalid document size"})
             raw = self.rfile.read(size)
             value = json.loads(raw.decode("utf-8"))
-            if endpoint == "/api/events":
+            if endpoint == "/api/facilities":
+                facilities.save(value)
+                self._send(200, {"ok": True})
+            elif endpoint == "/api/events":
                 events.save(value)
                 self._send(200, {"ok": True})
             elif endpoint == "/api/cms":

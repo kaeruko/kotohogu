@@ -1,10 +1,13 @@
+import 'facility_layout.dart';
 import 'package:flutter/material.dart';
 
 import 'resident_collection.dart';
 
 /// The pastry shop interior, reached from the shopping-street doorway.
 class BakeryRoom extends StatefulWidget {
-  const BakeryRoom({super.key, this.onResident});
+  const BakeryRoom({super.key, this.onResident, this.ownedResidents = const []});
+
+  final List<TownResident> ownedResidents;
 
   static const backgroundAsset = 'assets/kotohogu/backaly_background_001.png';
   final Future<void> Function(TownResident)? onResident;
@@ -16,14 +19,36 @@ class BakeryRoom extends StatefulWidget {
 class _BakeryRoomState extends State<BakeryRoom> {
   bool _talking = false;
 
-  Future<void> _talk() async {
+  Future<void> _talk(TownResident resident) async {
     if (_talking || widget.onResident == null) return;
     setState(() => _talking = true);
     try {
-      await widget.onResident!(TownResident.c047_patisie);
+      await widget.onResident!(resident);
     } finally {
       if (mounted) setState(() => _talking = false);
     }
+  }
+
+  Widget _resident(TownResident resident) {
+    final placement = facilityPlacement('bakery', resident.id);
+    return Positioned(
+      left: placement.x, top: placement.y,
+      width: placement.size, height: placement.size,
+      child: Semantics(
+        button: widget.onResident != null,
+        label: '${resident.label}のおはなし',
+        child: Tooltip(
+          message: resident.label,
+          child: InkWell(
+            key: ValueKey(resident == TownResident.c047_patisie
+                ? 'bakery-patissier' : 'bakery-resident-${resident.id}'),
+            onTap: _talking || widget.onResident == null ? null : () => _talk(resident),
+            child: Image.asset(resident.idleAsset,
+              fit: BoxFit.contain, excludeFromSemantics: true),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -48,25 +73,8 @@ class _BakeryRoomState extends State<BakeryRoom> {
                       excludeFromSemantics: true,
                     ),
                   ),
-                  Positioned(
-                    left: 300,
-                    top: 760,
-                    width: 235,
-                    height: 235,
-                    child: Semantics(
-                      button: true,
-                      label: 'パティシエのおはなし',
-                      child: InkWell(
-                        key: const ValueKey('bakery-patissier'),
-                        onTap: _talking ? null : _talk,
-                        child: Image.asset(
-                          TownResident.c047_patisie.idleAsset,
-                          fit: BoxFit.contain,
-                          excludeFromSemantics: true,
-                        ),
-                      ),
-                    ),
-                  ),
+                  for (final resident in bakeryResidents(widget.ownedResidents))
+                    _resident(resident),
                 ],
               ),
             ),

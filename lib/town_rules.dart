@@ -65,8 +65,7 @@ class TownRules {
           previewUnowned: previewSalonUnowned,
         );
       case ConversationSite.bakery:
-        participants = progress.residents.owned.where(
-          (resident) => resident == TownResident.c047_patisie);
+        participants = bakeryResidents(progress.residents.owned);
       case ConversationSite.roster:
         participants = visibleTownResidents(
           progress.residents.owned,

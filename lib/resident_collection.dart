@@ -1,3 +1,4 @@
+import 'facility_layout.dart';
 import 'package:flutter/material.dart';
 
 import 'dev_tools.dart';
@@ -49,28 +50,26 @@ bool isSalonAccessible(
   };
 }
 
-/// Salon occupants are separate from outdoor walkers.
-/// Every gacha resident must be acquired before appearing in the salon.
-List<TownResident> salonResidents(
-  Iterable<TownResident> owned, {
-  bool previewUnowned = false,
-}) {
+/// Facility membership comes from the CMS; ownership gates every occupant.
+List<TownResident> facilityResidents(String facilityId, Iterable<TownResident> owned,
+    {bool previewUnowned = false}) {
   if (previewUnowned && !developerToolsAvailable) {
-    throw StateError('Salon preview of unowned residents requires debug mode');
+    throw StateError('Unowned facility previews require debug mode');
   }
   final ownedSet = owned.toSet();
-  final occupants = TownResident.values.where((resident) =>
-      resident.homeAreaId == 'salon' &&
-      (previewUnowned || !resident.inGacha || ownedSet.contains(resident))).toList();
-  const owner = TownResident.c035_beaty;
-  const fox = TownResident.c031_kimono_fox;
   return List<TownResident>.unmodifiable([
-    if (occupants.contains(owner)) owner,
-    if (occupants.contains(fox)) fox,
-    for (final resident in occupants)
-      if (resident != owner && resident != fox) resident,
+    for (final placement in facilityPlacements(facilityId))
+      if (previewUnowned || ownedSet.contains(TownResident.fromId(placement.residentId)))
+        TownResident.fromId(placement.residentId),
   ]);
 }
+
+List<TownResident> salonResidents(Iterable<TownResident> owned,
+    {bool previewUnowned = false}) =>
+    facilityResidents('salon', owned, previewUnowned: previewUnowned);
+
+List<TownResident> bakeryResidents(Iterable<TownResident> owned) =>
+    facilityResidents('bakery', owned);
 
 const applauseResidentLimit = 8;
 
