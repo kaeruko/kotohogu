@@ -10,7 +10,8 @@ enum TownArea {
   plaza("plaza", "中央ひろば", "みんなが集まるまちの中心。", 0, "assets/kotohogu/town_background_001.jpg", 768, 1376),
   park("park", "ふれあい公園", "お散歩やおしゃべりを楽しむ場所。", 90, "assets/kotohogu/park_background_001.png", 768, 1376),
   shopping("shopping", "ことほぎ商店街", "お店と仕事の話が聞こえてくる通り。", 180, "assets/kotohogu/street_background_001.png", 768, 1376),
-  village("village", "のんびり里", "畑とおうちで、それぞれのペースで暮らす場所。", 300, "assets/kotohogu/village_background_001.png", 941, 1672);
+  village("village", "のんびり里", "畑とおうちで、それぞれのペースで暮らす場所。", 300, "assets/kotohogu/village_background_001.png", 941, 1672),
+  hospital("hospital", "びょういん", "せんせいがみんなを迎える、花に囲まれた動物病院。", 0, "assets/kotohogu/hospital_background_001.png", 937, 1679);
   // END CMS TOWN AREAS
 
   const TownArea(this.id, this.label, this.description, this.unlockAt,
@@ -28,7 +29,10 @@ enum TownArea {
   final int? sourceWidth;
   final int? sourceHeight;
 
-  bool isUnlocked(int lifetimePoints) => lifetimePoints >= unlockAt;
+  bool isUnlocked(int lifetimePoints, {Iterable<TownResident> owned = const []}) =>
+      this == TownArea.hospital
+          ? owned.contains(TownResident.cat)
+          : lifetimePoints >= unlockAt;
 
   static TownArea fromId(String id) => values.firstWhere(
     (area) => area.id == id,
@@ -38,9 +42,10 @@ enum TownArea {
 
 /// Areas counted in the town-page indicator, based solely on actual
 /// lifetime-point unlocks. Debug navigation must not increase the total.
-List<TownArea> unlockedTownAreas(int lifetimePoints) =>
+List<TownArea> unlockedTownAreas(int lifetimePoints,
+    {Iterable<TownResident> owned = const []}) =>
     List<TownArea>.unmodifiable(
-      TownArea.values.where((area) => area.isUnlocked(lifetimePoints)),
+      TownArea.values.where((area) => area.isUnlocked(lifetimePoints, owned: owned)),
     );
 
 /// One in-memory outing, shared by rendering and conversation conditions.
@@ -64,6 +69,7 @@ class TownVisit {
     if (lifetimePoints < 0) {
       throw RangeError.value(lifetimePoints, 'lifetimePoints', 'Must be >= 0');
     }
+    if (residentId == TownResident.cat.id) return TownArea.hospital;
     if (homeAreaId == 'salon') return null;
     // Legacy outdoor home IDs are validated for compatibility, but do not
     // constrain or weight random outings. Only 'salon' means indoor-only.

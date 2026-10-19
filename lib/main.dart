@@ -306,9 +306,9 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       return;
     }
     final points = controller.progress!.points;
-    if (!_townArea.isUnlocked(points)) {
+    if (!_townArea.isUnlocked(points, owned: controller.progress!.residents.owned)) {
       _townArea = TownArea.values.lastWhere(
-        (area) => area.isUnlocked(points),
+        (area) => area.isUnlocked(points, owned: controller.progress!.residents.owned),
       );
     }
   }

@@ -1,4 +1,4 @@
-"""Validated, CMS-owned town areas; the four stable area IDs are not editable.
+"""Validated, CMS-owned town areas; the stable area IDs are not editable.
 
 The generated Flutter enum keeps the current static API and saved progress
 unchanged. Resident homeAreaId still belongs to characters.json.
@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 AREAS = ROOT / "assets" / "town" / "areas.json"
 DART = ROOT / "lib" / "town_areas.dart"
-AREA_IDS = ("plaza", "park", "shopping", "village")
+AREA_IDS = ("plaza", "park", "shopping", "village", "hospital")
 START = "  // BEGIN CMS TOWN AREAS"
 END = "  // END CMS TOWN AREAS"
 FIELDS = {
@@ -49,7 +49,9 @@ def validate_areas(doc, previous=None, *, asset_root=None):
             raise ValueError(f"Invalid unlock threshold for {expected_id}")
         if i == 0 and value != 0:
             raise ValueError("Central plaza must be open from the beginning")
-        if i and value <= last_unlock:
+        if expected_id == "hospital" and value != 0:
+            raise ValueError("Hospital unlocks through resident ownership, not points")
+        if i and expected_id != "hospital" and value <= last_unlock:
             raise ValueError("Area unlock thresholds must increase in navigation order")
         last_unlock = value
 

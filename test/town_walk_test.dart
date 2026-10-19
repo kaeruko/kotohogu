@@ -240,7 +240,7 @@ void main() {
     const owned = [
       TownResident.shiba,
       TownResident.rabbit,
-      TownResident.cat,
+      TownResident.penguin,
       TownResident.bear,
       TownResident.c035_beaty,
       TownResident.c031_kimono_fox,
@@ -279,16 +279,16 @@ void main() {
     // Before the park opens, all four outdoor friends gather in the plaza.
     await show(TownArea.plaza, 10, const [
       TownResident.shiba, TownResident.rabbit,
-      TownResident.cat, TownResident.bear,
+      TownResident.penguin, TownResident.bear,
     ]);
     await show(TownArea.plaza, 90, const [
       TownResident.shiba, TownResident.rabbit,
-      TownResident.cat, TownResident.bear,
+      TownResident.penguin, TownResident.bear,
     ]);
     await show(TownArea.park, 90, const []);
     await show(TownArea.plaza, 180, const [
       TownResident.shiba, TownResident.rabbit,
-      TownResident.cat, TownResident.bear,
+      TownResident.penguin, TownResident.bear,
     ]);
     await show(TownArea.shopping, 180, const []);
     await show(TownArea.village, 300, const []);
@@ -296,7 +296,7 @@ void main() {
     // On a new visit everyone may travel away from their registered home.
     visit = TownVisit(random: ScriptedTownRandom([3, 2, 1, 0]));
     await show(TownArea.plaza, 300, const [TownResident.bear]);
-    await show(TownArea.park, 300, const [TownResident.cat]);
+    await show(TownArea.park, 300, const [TownResident.penguin]);
     await show(TownArea.shopping, 300, const [TownResident.rabbit]);
     await show(TownArea.village, 300, const [TownResident.shiba]);
     await tester.pumpWidget(const SizedBox());
@@ -309,7 +309,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     const residents = [
-      TownResident.cat,
+      TownResident.penguin,
       TownResident.c009_chef,
       TownResident.c032_miner,
     ];
@@ -430,7 +430,7 @@ void main() {
           (area.sourceWidth!.toDouble() * .14).clamp(22.0, 76.0).toDouble();
       final sprite = tester.widget<Image>(
           find.byKey(const ValueKey('resident-sprite-0')));
-      expect(sprite.width, closeTo(base * 1.2, .01),
+      expect(sprite.width, closeTo(base * (area == TownArea.hospital ? 1.4 : 1.2), .01),
           reason: 'area: ${area.id}');
       expect(tester.takeException(), isNull);
     }

@@ -466,7 +466,7 @@ void main() {
     expect(find.text('1 / 2'), findsOneWidget);
     await tester.tap(find.text('つぎへ'));
     await tester.pumpAndSettle();
-    expect(find.descendant(of: dialogue, matching: find.text('うさぎ')),
+    expect(find.descendant(of: dialogue, matching: find.text(TownResident.rabbit.label)),
         findsOneWidget);
     expect(find.text('今日は雲を眺めようよ'), findsNothing);
     expect(find.text('あの雲、描いてみたい！'), findsOneWidget);

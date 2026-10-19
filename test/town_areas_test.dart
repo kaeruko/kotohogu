@@ -39,7 +39,7 @@ void main() {
         [TownArea.plaza, TownArea.park, TownArea.shopping]);
     expect(unlockedTownAreas(299),
         [TownArea.plaza, TownArea.park, TownArea.shopping]);
-    expect(unlockedTownAreas(300), TownArea.values);
+    expect(unlockedTownAreas(300), TownArea.values.where((area) => area != TownArea.hospital));
     expect(() => unlockedTownAreas(90).add(TownArea.village),
         throwsUnsupportedError);
   });
@@ -135,13 +135,13 @@ void main() {
       TownResident.bear, TownResident.c035_beaty, TownResident.c031_kimono_fox,
     ];
     const outdoors = [
-      TownResident.shiba, TownResident.rabbit, TownResident.cat, TownResident.bear,
+      TownResident.shiba, TownResident.rabbit, TownResident.bear,
     ];
     for (final points in [0, 10, 89]) {
       final visit = TownVisit(random: ScriptedTownRandom([0, 0, 0, 0]));
       expect(areaResidents(owned, TownArea.plaza,
           lifetimePoints: points, visit: visit), outdoors);
-      for (final area in TownArea.values.skip(1)) {
+      for (final area in TownArea.values.skip(1).where((a) => a != TownArea.hospital)) {
         expect(areaResidents(owned, area,
             lifetimePoints: points, visit: visit), isEmpty);
       }
@@ -345,7 +345,7 @@ void main() {
         final hud = tester.getRect(find.byKey(const ValueKey('kotohogi-bar-art')));
         final name = tester.getRect(find.byKey(const ValueKey('town-area-name')));
         final counter = tester.getRect(find.text(
-            '${area.index + 1} / ${TownArea.values.length}'));
+            '${area.index + 1} / ${unlockedTownAreas(300).length}'));
         expect(name.top, greaterThan(hud.bottom + 8),
             reason: '$area at width $width overlaps the pinned currency HUD');
         expect(counter.top, greaterThanOrEqualTo(name.bottom),
@@ -587,7 +587,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('town-area-next')));
       await tester.pump();
     }
-    expect(area, TownArea.village);
+    expect(area, TownArea.hospital);
     expect(find.byKey(const ValueKey('town-background')), findsOneWidget);
     expect(find.text('未開放'), findsOneWidget,
         reason: 'Debug-only access does not affect area counts');

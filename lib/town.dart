@@ -457,7 +457,9 @@ class _TownSceneState extends State<TownScene> {
     final isShopkeeper = widget.area == TownArea.plaza &&
         widget.marcheOpen && widget.debugTownResidents == null &&
         resident == tonkoMarcheOwner;
-    final route = isShopkeeper
+    final route = widget.area == TownArea.hospital
+        ? const TownWalkRoute(.52, .65, stay: true)
+        : isShopkeeper
         ? plazaMarcheStaffRoute
         : widget.area == TownArea.park
             ? parkWalkRoute(resident.id, index, totalSlots: totalSlots)

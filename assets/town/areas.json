@@ -36,6 +36,15 @@
       "backgroundAsset": "assets/kotohogu/village_background_001.png",
       "sourceWidth": 941,
       "sourceHeight": 1672
+    },
+    {
+      "id": "hospital",
+      "label": "びょういん",
+      "description": "せんせいがみんなを迎える、花に囲まれた動物病院。",
+      "unlockAt": 0,
+      "backgroundAsset": "assets/kotohogu/hospital_background_001.png",
+      "sourceWidth": 937,
+      "sourceHeight": 1679
     }
   ]
 }

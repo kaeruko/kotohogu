@@ -120,7 +120,7 @@ void main() {
 
   testWidgets('ordinary dialogue still closes in one tap', (tester) async {
     await openDialogue(tester, TownResident.rabbit, {'002_usagi'});
-    expect(find.text('うさぎ'), findsOneWidget);
+    expect(find.text(TownResident.rabbit.label), findsOneWidget);
     expect(find.text('ひとりのおはなし'), findsOneWidget);
     expect(find.text('つづきへ'), findsNothing);
     expect(find.byKey(const ValueKey('dialogue-turn-count')), findsNothing);

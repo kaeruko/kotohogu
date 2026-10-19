@@ -723,7 +723,7 @@ function renderAreaList(){
     const button=append(container,"button",area.label);
     button.className="entry"+(activeArea===area.id?" active":"");
     button.style.marginBottom="7px";
-    append(button,"small",area.id+" ｜ 最低 "+area.unlockAt+" ことほぎ");
+    append(button,"small",area.id+(area.id==="hospital"?" ｜ せんせい入手で開放":" ｜ 最低 "+area.unlockAt+" ことほぎ"));
     button.onclick=()=>chooseArea(area.id);
   }
 }
@@ -755,12 +755,15 @@ function renderAreaEditor(){
     renderAreaList();renderAreaPreview();setAreaStatus("未保存の変更があります");
   },{type:"number",min:0});
   threshold.step="1";
-  threshold.disabled=area.id==="plaza";
+  threshold.disabled=area.id==="plaza"||area.id==="hospital";
+  if(area.id==="hospital")append(container,"p","せんせい（004_neko）の入手で開放されます。ポイント条件はありません。");
   append(container,"p","背景: "+area.backgroundAsset+"（"+area.sourceWidth+"×"+area.sourceHeight+"）").className="hint";
   append(container,"p","背景画像のパス・サイズ、エリアID・順序はこの画面では固定です。").className="hint";
 }
 function previewOutingArea(resident,unlockedIds,destinations,marcheOpen,random=Math.random){
   if(resident.homeAreaId==="salon"||!resident.walkInTown)return null;
+  if(resident.id==="004_neko")return "hospital";
+  unlockedIds=unlockedIds.filter(id=>id!=="hospital");
   if(marcheOpen&&resident.id==="041_pig_middle")return "plaza";
   if(!unlockedIds.length)throw Error("開放済みエリアがありません");
   if(!destinations.has(resident.id)){
@@ -778,7 +781,7 @@ function renderAreaPreview(){
   const points=Number(byId("areaPreviewPoints").value);
   if(!Number.isFinite(points)||points<0){append(root,"p","0以上のことほぎを入力してください。");return;}
   const marche=byId("areaPreviewMarche").checked;
-  const areaOpen=id=>points>=areaDoc.areas.find(a=>a.id===id).unlockAt;
+  const areaOpen=id=>id==="hospital"?activeCharacters().some(r=>r.id==="004_neko"):points>=areaDoc.areas.find(a=>a.id===id).unlockAt;
   const unlockedIds=areaDoc.areas.filter(a=>areaOpen(a.id)).map(a=>a.id);
   const unlockedKey=unlockedIds.join(",");
   if(unlockedKey!==areaPreviewUnlockedKey){

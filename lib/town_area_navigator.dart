@@ -67,34 +67,37 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
   /// Only unlocked neighborhoods are navigable in normal play. Debug town
   /// previews and the salon facility test may temporarily explore all areas.
   bool _canVisit(TownArea area) =>
-      area.isUnlocked(widget.lifetimePoints) ||
+      area.isUnlocked(widget.lifetimePoints, owned: widget.residents) ||
       widget.debugTownResidents != null ||
       (developerToolsAvailable &&
           widget.salonUnlockMode != SalonUnlockDebugMode.normal);
 
+  TownArea? _destination(int direction) {
+    for (var index = widget.area.index + direction;
+        index >= 0 && index < TownArea.values.length; index += direction) {
+      if (_canVisit(TownArea.values[index])) return TownArea.values[index];
+    }
+    return null;
+  }
+
   void _move(int direction) {
-    final next = widget.area.index + direction;
-    if (next < 0 || next >= TownArea.values.length) return;
-    final destination = TownArea.values[next];
-    if (!_canVisit(destination)) return; // Also protects horizontal swipes.
-    widget.onAreaChanged(destination);
+    final destination = _destination(direction);
+    if (destination != null) widget.onAreaChanged(destination);
   }
 
   @override
   Widget build(BuildContext context) {
     final area = widget.area;
     final debugPreview = widget.debugTownResidents != null;
-    final unlocked = area.isUnlocked(widget.lifetimePoints);
+    final unlocked = area.isUnlocked(widget.lifetimePoints, owned: widget.residents);
     // Facility debug modes also allow traversing intermediate neighborhoods.
     final salonOverride = developerToolsAvailable &&
         widget.salonUnlockMode != SalonUnlockDebugMode.normal;
     final accessible = _canVisit(area);
-    final canGoPrevious =
-        area.index > 0 && _canVisit(TownArea.values[area.index - 1]);
-    final canGoNext = area.index < TownArea.values.length - 1 &&
-        _canVisit(TownArea.values[area.index + 1]);
+    final canGoPrevious = _destination(-1) != null;
+    final canGoNext = _destination(1) != null;
     final showNavigation = canGoPrevious || canGoNext;
-    final unlockedAreas = unlockedTownAreas(widget.lifetimePoints);
+    final unlockedAreas = unlockedTownAreas(widget.lifetimePoints, owned: widget.residents);
     final unlockedIndex = unlockedAreas.indexOf(area);
     // Locked areas reached by debug navigation are deliberately not counted.
     final areaCounter = unlockedIndex < 0
@@ -440,7 +443,9 @@ class _AreaPreparation extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 accessible ? area.description
-                    : '累計${area.unlockAt}ことほぎで開放\n'
+                    : area == TownArea.hospital
+                        ? 'せんせいをガチャでお迎えすると開放されるよ'
+                        : '累計${area.unlockAt}ことほぎで開放\n'
                       'あと${area.unlockAt - lifetimePoints}ことほぎ',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
