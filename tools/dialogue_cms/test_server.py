@@ -336,7 +336,7 @@ class CmsTests(unittest.TestCase):
             mismatched = copy.deepcopy(modified)
             mismatched["characters"][-1][field] = value
             with self.subTest(field=field), self.assertRaisesRegex(
-                    ValueError, "derived from ID"):
+                    ValueError, "derived from ID" if field == "key" else "must match"):
                 validate_catalog(mismatched, previous=original)
 
     def test_dialogue_serials_preserve_existing_ids_and_retired_numbers(self):
