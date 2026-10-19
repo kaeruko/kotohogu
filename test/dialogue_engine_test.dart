@@ -128,6 +128,51 @@ void main() {
     }
   });
 
+  test('Merry keeps her first greeting and celebrates only on completion day', () async {
+    final live = await DialogueCatalog.load();
+    const merry = TownResident.c007_hitsuji;
+    final firstMeeting = Progress.empty(DateTime(2026, 10, 19));
+    final today = DateTime.utc(2026, 10, 19, 2);
+    final tomorrow = DateTime.utc(2026, 10, 19, 15);
+    final intro = live.select(
+      resident: merry, progress: firstMeeting, now: today,
+      random: const FixedRoll(last: false),
+    );
+    expect(intro.id, '007_hitsuji_002');
+    expect(intro.firstGreeting, isTrue);
+
+    DialogueEntry byId(String id, Progress progress, DateTime now) =>
+      live.selectById(id: id, resident: merry, progress: progress, now: now);
+    var progress = firstMeeting.markDialogueSeen(intro.id);
+    for (var number = 3; number <= 7; number++) {
+      final id = '007_hitsuji_${number.toString().padLeft(3, '0')}';
+      expect(byId(id, progress, today).once, isFalse, reason: id);
+    }
+    for (final id in ['007_hitsuji_008', '007_hitsuji_009', '007_hitsuji_010']) {
+      expect(() => byId(id, progress, today), throwsStateError,
+          reason: 'No mission completed yet: $id');
+    }
+
+    progress = progress.complete(Mission.outside);
+    expect(live.select(
+      resident: merry, progress: progress, now: today,
+      random: const FixedRoll(last: false),
+    ).id, '007_hitsuji_008');
+    expect(byId('007_hitsuji_008', progress, today).once, isTrue);
+    expect(() => byId('007_hitsuji_008', progress, tomorrow), throwsStateError);
+    progress = progress.markDialogueSeen('007_hitsuji_008');
+    expect(() => byId('007_hitsuji_008', progress, today), throwsStateError);
+
+    progress = progress.complete(Mission.hobby).complete(Mission.conversation);
+    expect(byId('007_hitsuji_009', progress, today).once, isTrue);
+    expect(byId('007_hitsuji_010', progress, today).once, isTrue);
+    expect(() => byId('007_hitsuji_009', progress, tomorrow), throwsStateError);
+    expect(() => byId('007_hitsuji_010', progress, tomorrow), throwsStateError);
+    // Celebration content is editable CMS data, and the save format is unchanged.
+    final restored = Progress.decode(progress.encode(), expectedVersion: 5);
+    expect(byId('007_hitsuji_009', restored, today).id, '007_hitsuji_009');
+  });
+
   test('guide rumors react to salon ownership, not dialogue history', () async {
     final live = await DialogueCatalog.load();
     final now = DateTime.utc(2026, 10, 19);

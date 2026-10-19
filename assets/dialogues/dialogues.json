@@ -3227,6 +3227,99 @@
       "logic": "all",
       "conditions": [],
       "firstGreeting": true
+    },
+    {
+      "id": "007_hitsuji_003",
+      "residentId": "007_hitsuji",
+      "text": "年相応って、よく言うでしょう？ でもわたし、自分の年齢の人が何をするものなのか、いまだによく知らないのよねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "007_hitsuji_004",
+      "residentId": "007_hitsuji",
+      "text": "この歳から始めても遅いかしら、って思うこともあるの。でも、今始めなかったら、来年はもっと遅くなっちゃうでしょう？",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "007_hitsuji_005",
+      "residentId": "007_hitsuji",
+      "text": "若い頃は、知らないことがあると恥ずかしかったの。今はね、知らないことが見つかると、ちょっと嬉しいのよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "007_hitsuji_006",
+      "residentId": "007_hitsuji",
+      "text": "何をしにここへ来たんだったかしら。……まあいいわ。お花がきれいだから、少し眺めていきましょう。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "007_hitsuji_007",
+      "residentId": "007_hitsuji",
+      "text": "昔のわたしが今のわたしを見たら、きっと驚くわ。こんなに長く生きても、まだ初めてのことがあるんですもの。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "007_hitsuji_008",
+      "residentId": "007_hitsuji",
+      "text": "お出かけしてきたの？ いいわねぇ。いつもの道でも、昨日とは違うものが見つかったりするのよ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "007_hitsuji_009",
+      "residentId": "007_hitsuji",
+      "text": "新しいことを覚えたのね！ すてき。わたしもまだまだ、知らないことだらけなのよ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "hobby",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "007_hitsuji_010",
+      "residentId": "007_hitsuji",
+      "text": "誰かとお話ししたのね。人の話を聞くと、自分ひとりじゃ思いつかないことに出会えるわねぇ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "conversation",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
     }
   ]
 }
