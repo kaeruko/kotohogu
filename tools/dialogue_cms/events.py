@@ -2,7 +2,7 @@
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from characters import commit_files
+from characters import commit_files, load_catalog
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'assets/events/oyasumi_club.json'
@@ -29,10 +29,29 @@ def validate(doc):
         raise ValueError('開始は12〜23時、終了は翌1〜11時で指定してください')
     if not isinstance(doc['stages'],dict) or set(doc['stages']) != set(STAGES):
         raise ValueError('物語の4段階は固定です')
-    def lines(items):
+    outdoor = {
+        row['id'] for row in load_catalog()['characters']
+        if row['walkInTown'] and row['homeAreaId'] != 'salon'
+    }
+    def lines(items, speaker, allowed):
         if not isinstance(items,list) or not 3 <= len(items) <= 4:
             raise ValueError('繰り返し会話は3〜4本で設定してください')
-        for item in items: text(item)
+        has_solo = False
+        for item in items:
+            if isinstance(item,str):
+                text(item)
+                has_solo = True
+                continue
+            if not isinstance(item,dict) or set(item) != {'turns'} or not isinstance(item['turns'],list) or not 1 <= len(item['turns']) <= 8:
+                raise ValueError('掛け合いは1〜8発言の順番で登録してください')
+            turns = item['turns']
+            for index,turn in enumerate(turns):
+                if not isinstance(turn,dict) or set(turn) != {'speaker','text'} or not isinstance(turn['speaker'],str) or turn['speaker'] not in allowed or (index==0 and turn['speaker']!=speaker):
+                    raise ValueError('掛け合いの話者が不正です')
+                text(turn['text'])
+            if len(turns)==1 and turns[0]['speaker']==speaker:
+                has_solo=True
+        return has_solo
     for key in STAGES:
         stage = doc['stages'][key]
         if not isinstance(stage,dict) or set(stage) != {'label','positions','intro','chatter'}:
@@ -51,8 +70,10 @@ def validate(doc):
             if not isinstance(intro,dict) or set(intro) != {'speaker','text'} or intro['speaker'] != (HOST if key=='solo' else FROG):
                 raise ValueError('導入会話の話者が不正です')
             text(intro['text'])
-        for items in stage['chatter'].values(): lines(items)
-    lines(doc['restingDialogue'])
+        for speaker,items in stage['chatter'].items():
+            lines(items, speaker, cast)
+    if not lines(doc['restingDialogue'], FROG, outdoor) :
+        raise ValueError('昼のかえるの会話には、一人で話せる候補を1本以上残してください')
     return doc
 
 
@@ -78,6 +99,10 @@ def preview(payload):
     if last: datetime.strptime(last,'%Y-%m-%d')
     owned=payload['owned']
     if not isinstance(owned,list) or any(i not in (HOST,FROG) for i in owned): raise ValueError('所持設定が不正です')
+    peers=payload.get('peers',[])
+    outdoor={c['id'] for c in load_catalog()['characters'] if c['walkInTown'] and c['homeAreaId']!='salon'}
+    if not isinstance(peers,list) or any(type(i) is not str or i not in outdoor for i in peers):
+        raise ValueError('同席者の設定が不正です')
     night=now.hour>=doc['night']['startHour'] or now.hour<doc['night']['endHour']
     night_key=(now-timedelta(days=1 if now.hour<doc['night']['endHour'] else 0)).strftime('%Y-%m-%d')
     later=last is None or night_key>last
@@ -88,4 +113,7 @@ def preview(payload):
     cast=([HOST]+([FROG] if step>1 and FROG in owned else [])) if active else []
     intro=active and step<=3 and completed<step
     reason=('昼のためクラブはお休みです' if not night else 'おやすみくん未所持のため開催しません' if HOST not in owned else 'かえる未所持：一人のクラブを続けます' if FROG not in owned else '今夜の導入会話を読み終えると進行します' if intro else '次の開催夜を待っています' if step<4 else '参加後のクラブを続けます')
-    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,positions=stage['positions'] if active else {},intro=stage['intro'] if intro else None,canComplete=intro and later,completed=completed,lastNight=last,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},nextCompleted=step if intro and later else completed)
+    def turn_speakers(item):
+        return [FROG] if isinstance(item,str) else [turn['speaker'] for turn in item['turns']]
+    rest = [item for item in doc['restingDialogue'] if set(turn_speakers(item)).issubset(set(peers)|{FROG})] if completed==3 and FROG in owned and not active else []
+    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,positions=stage['positions'] if active else {},intro=stage['intro'] if intro else None,canComplete=intro and later,completed=completed,lastNight=last,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},restingOptions=rest,nextCompleted=step if intro and later else completed)

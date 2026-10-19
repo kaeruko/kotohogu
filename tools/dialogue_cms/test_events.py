@@ -1,6 +1,8 @@
 import copy
 import json
 import tempfile
+import shutil
+import subprocess
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -41,6 +43,59 @@ class EventTests(unittest.TestCase):
         for mutate in [lambda d:d['night'].update(startHour=5),lambda d:d.update(background='../private'),lambda d:d['stages']['solo']['positions'].update({events.FROG:[.5,.5]}),lambda d:d['stages']['solo']['chatter'].update({events.HOST:['only one']}),lambda d:d['stages']['watching']['positions'].update({events.FROG:[float('nan'),.5]})]:
             doc=copy.deepcopy(events.load());mutate(doc)
             with self.assertRaises(ValueError):events.validate(doc)
+    def test_multi_character_replies_and_daytime_peer_filtering(self):
+        doc=copy.deepcopy(events.load())
+        doc['restingDialogue'][1]={'turns':[
+            {'speaker':events.FROG,'text':'やすぞうさん、畑を手伝ってもいいですか？'},
+            {'speaker':'026_farmer','text':'ほっほ、やってみるかね'},
+            {'speaker':events.FROG,'text':'はい、少しだけ！'},
+        ]}
+        doc['stages']['watching']['chatter'][events.FROG][0]={'turns':[
+            {'speaker':events.FROG,'text':'あそこに座ってもいいかな'},
+            {'speaker':events.HOST,'text':'いつでもどうぞ〜'},
+        ]}
+        events.validate(doc)
+        base={'config':doc,'completed':3,'lastNight':'2026-10-19','now':'2026-10-20T12:00','owned':[events.HOST,events.FROG]}
+        alone=events.preview({**base,'peers':[]})
+        self.assertEqual(len(alone['restingOptions']),3)
+        self.assertNotIn(doc['restingDialogue'][1],alone['restingOptions'])
+        with_yasuzo=events.preview({**base,'peers':['026_farmer']})
+        self.assertEqual(len(with_yasuzo['restingOptions']),4)
+        self.assertEqual(with_yasuzo['restingOptions'][1]['turns'][1]['speaker'],'026_farmer')
+        with self.assertRaises(ValueError):
+            events.preview({**base,'peers':['035_beaty']})
+        self.assertEqual(events.preview({**base,'now':'2026-10-20T19:00'})['restingOptions'],[])
+
+    def test_invalid_multi_character_dialogue_rejected(self):
+        for item in [
+            {'turns':[]},
+            {'turns':[{'speaker':'026_farmer','text':'おやすみ'}]},
+            {'turns':[{'speaker':events.FROG,'text':'やあ'},{'speaker':'035_beaty','text':'こんにちは'}]},
+            {'turns':[{'speaker':events.FROG,'text':'やあ'},{'speaker':'nobody','text':'こんにちは'}]},
+            {'turns':[{'speaker':events.FROG,'text':'やあ','extra':'invalid'}]},
+            {'turns':[{'speaker':events.FROG,'text':'ひとこと'}]*9},
+        ]:
+            with self.subTest(item=item):
+                doc=copy.deepcopy(events.load())
+                doc['restingDialogue'][1]=item
+                with self.assertRaises(ValueError):events.validate(doc)
+        doc=copy.deepcopy(events.load())
+        doc['stages']['solo']['chatter'][events.HOST][0]={
+            'turns':[{'speaker':events.HOST,'text':'やあ'},{'speaker':events.FROG,'text':'どうも'}]}
+        with self.assertRaises(ValueError):events.validate(doc)
+        doc=copy.deepcopy(events.load())
+        doc['restingDialogue']=[
+            {'turns':[{'speaker':events.FROG,'text':'一緒に'},{'speaker':events.HOST,'text':'もふ'}]}
+            for _ in range(3)
+        ]
+        with self.assertRaisesRegex(ValueError,'一人で話せる'):events.validate(doc)
+
+    @unittest.skipUnless(shutil.which('node'), 'Node.js is optional')
+    def test_event_editor_javascript_syntax(self):
+        process=subprocess.run(['node','--check',str(events.ROOT/'tools/dialogue_cms/events.js')],
+                               text=True,capture_output=True,check=False,timeout=15)
+        self.assertEqual(process.returncode,0,process.stderr)
+
     def test_preview_never_saves(self):
         with patch.object(events,'commit_files',side_effect=AssertionError('preview wrote data')):
             self.preview();self.preview(3,'2026-10-19')

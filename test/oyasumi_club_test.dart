@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/oyasumi_club.dart';
+import 'package:future_lift/oyasumi_config.g.dart';
 import 'package:future_lift/progress.dart';
 import 'package:future_lift/resident_collection.dart';
 import 'package:future_lift/town_areas.dart';
@@ -99,6 +100,71 @@ void main() {
     expect(daytime.group(frog, inPlaza: false), 'resting');
     expect(daytime.dialogue(frog, 'resting', 0).text, contains('会社を辞めて'));
   });
+  test('post-club dialogue shows absent companions only when actually present', () {
+    final previous = oyasumiConfig['restingDialogue'];
+    oyasumiConfig['restingDialogue'] = [
+      'ひとりでおさんぽしたよ。',
+      {
+        'turns': [
+          {'speaker': frog.id, 'text': 'やすぞうさん、手伝ってもいい？'},
+          {'speaker': '026_farmer', 'text': 'もちろんじゃよ。'},
+          {'speaker': frog.id, 'text': 'じゃあ少しだけ！'},
+        ],
+      },
+      '今日もぼちぼち。',
+    ];
+    try {
+      final daytime = scene(
+        25, hour: 12,
+        saved: const OyasumiProgress(completed: 3, lastNight: '2026-10-24'),
+      );
+      final alone = daytime.dialogue(
+        frog, 'resting', 1, availableResidentIds: {frog.id},
+      );
+      expect(alone.text, '今日もぼちぼち。');
+      expect(alone.turns.length, 1);
+      final together = daytime.dialogue(
+        frog, 'resting', 1,
+        availableResidentIds: {frog.id, '026_farmer'},
+      );
+      expect(together.turns.length, 3);
+      expect(together.turns[1].resident.id, '026_farmer');
+      expect(together.turns[2].resident, frog);
+      expect(together.turns[2].text, 'じゃあ少しだけ！');
+      final absent = daytime.dialogue(
+        frog, 'resting', 1,
+        availableResidentIds: {frog.id, host.id},
+      );
+      expect(absent.turns.length, 1);
+      expect(absent.text, '今日もぼちぼち。');
+    } finally {
+      oyasumiConfig['restingDialogue'] = previous;
+    }
+  });
+
+  test('night chatter can be a multi-turn exchange within the event cast', () {
+    final messages = (oyasumiConfig['stages']!['watching']!['chatter']!
+        [frog.id] as List);
+    final original = messages[0];
+    messages[0] = {
+      'turns': [
+        {'speaker': frog.id, 'text': 'こんばんは'},
+        {'speaker': host.id, 'text': 'もふ〜'},
+      ],
+    };
+    try {
+      final watching = scene(
+        24, saved: const OyasumiProgress(completed: 1, lastNight: '2026-10-23'),
+      );
+      expect(watching.stage, 'watching');
+      final exchange = watching.dialogue(frog, 'watching', 0);
+      expect(exchange.turns.map((t) => t.resident).toList(), [frog, host]);
+      expect(exchange.text, 'こんばんは');
+    } finally {
+      messages[0] = original;
+    }
+  });
+
   test('night boundaries and missing host do not activate club', () {
     expect(scene(20, hour: 17).active, isFalse);
     expect(scene(20, hour: 18).active, isTrue);

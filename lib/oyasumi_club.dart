@@ -1,8 +1,22 @@
 import 'resident_collection.dart';
-import 'dialogue_engine.dart';
 import 'town_areas.dart';
 import 'town_walk.dart';
 import 'oyasumi_config.g.dart';
+
+/// One selectable event conversation may contain multiple speaking residents.
+/// The CMS stores a plain string for a single voice, or a list of speaker turns.
+class OyasumiDialogueTurn {
+  const OyasumiDialogueTurn(this.resident, this.text);
+  final TownResident resident;
+  final String text;
+}
+
+class OyasumiDialogue {
+  const OyasumiDialogue(this.id, this.turns);
+  final String id;
+  final List<OyasumiDialogueTurn> turns;
+  String get text => turns.first.text;
+}
 
 /// Only completed story beats are saved. The visible stage is derived.
 class OyasumiProgress {
@@ -119,24 +133,57 @@ class OyasumiScene {
       step <= 3 &&
       saved.completed < step &&
       definition['intro']['speaker'] == resident.id;
-  DialogueEntry dialogue(TownResident resident, String group, int rotation) {
+  List<OyasumiDialogueTurn> _dialogueTurns(dynamic item, TownResident speaker) {
+    if (item is String) return [OyasumiDialogueTurn(speaker, item)];
+    if (item is! Map || item['turns'] is! List) {
+      throw StateError('Invalid oyasumi event dialogue');
+    }
+    return [
+      for (final dynamic part in item['turns'] as List)
+        OyasumiDialogueTurn(
+          TownResident.fromId(part['speaker'] as String),
+          part['text'] as String,
+        ),
+    ];
+  }
+
+  /// Partners in a post-club daytime exchange must actually be present in
+  /// the conversation site. If absent, fall back to solo dialogue variants.
+  OyasumiDialogue dialogue(
+    TownResident resident,
+    String group,
+    int rotation, {
+    Set<String>? availableResidentIds,
+  }) {
     final intro = introduction(resident, group);
-    final lines = group == 'resting'
+    if (intro) {
+      final text = definition['intro']['text'] as String;
+      return OyasumiDialogue(
+        'oyasumi_${group}_${resident.id}_intro',
+        [OyasumiDialogueTurn(resident, text)],
+      );
+    }
+    final options = group == 'resting'
         ? oyasumiConfig['restingDialogue'] as List
         : definition['chatter'][resident.id] as List;
-    final text = intro
-        ? definition['intro']['text']
-        : lines[rotation % lines.length];
-    return DialogueEntry.parse({
-      'id':
-          'oyasumi_${group}_${resident.id}_${intro ? 'intro' : rotation % lines.length}',
-      'residentId': resident.id,
-      'text': text,
-      'priority': -1000,
-      'once': false,
-      'logic': 'all',
-      'conditions': <dynamic>[],
-    });
+    final peers = group == 'resting'
+        ? (availableResidentIds ?? {resident.id})
+        : cast.map((character) => character.id).toSet();
+    final eligible = [
+      for (final item in options)
+        if (_dialogueTurns(item, resident).every(
+          (turn) => peers.contains(turn.resident.id),
+        ))
+          item,
+    ];
+    if (eligible.isEmpty) {
+      throw StateError('No eligible oyasumi conversation: $group / ${resident.id}');
+    }
+    final slot = rotation % eligible.length;
+    return OyasumiDialogue(
+      'oyasumi_${group}_${resident.id}_$slot',
+      _dialogueTurns(eligible[slot], resident),
+    );
   }
 
   OyasumiProgress completeIntroduction(TownResident resident, String group) {

@@ -462,16 +462,35 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   Future<void> _showClubDialogue(OyasumiScene scene, TownResident resident, String group) async {
     if (_clubConversationOpen) return;
     _clubConversationOpen = true;
-    final key = '$group/${resident.id}';
-    final line = scene.dialogue(resident, group, _clubRotations[key] ?? 0);
     try {
+    final key = '$group/${resident.id}';
+    // A daytime conversation can involve only characters currently in the
+    // same outdoor area. A roster conversation always stays solo.
+    final peers = group == 'resting' && _page == 2
+        ? TownRules(
+            controller.progress!,
+            visit: _townVisit,
+            oyasumi: _clubScene(controller.progress!),
+            debugTownResidents: _debugTownResidents,
+          ).conversationPeers(ConversationSite.town, area: _townArea)
+        : {resident.id};
+    final line = scene.dialogue(
+      resident, group, _clubRotations[key] ?? 0,
+      availableResidentIds: peers,
+    );
       final read = await showDialog<bool>(
         context: context,
         builder: (_) => PagedConversationDialog(
           conversationId: line.id, reportCompletion: true,
           badge: group == 'resting' ? null : 'ゆうぐれおやすみクラブ',
-          turns: [ConversationTurn(label: resident.label,
-            avatar: TownResidentAvatar(resident: resident), text: line.text)],
+          turns: [
+            for (final turn in line.turns)
+              ConversationTurn(
+                label: turn.resident.label,
+                avatar: TownResidentAvatar(resident: turn.resident),
+                text: turn.text,
+              ),
+          ],
         ),
       );
       if (read != true || !mounted) return;
