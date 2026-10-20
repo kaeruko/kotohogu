@@ -94,18 +94,24 @@ class OyasumiScene {
       oyasumiConfig['stages'][stage] as Map<String, dynamic>;
   List<TownResident> get cast =>
       !active ? [] : [host, if (step > 1 && owned.contains(frog)) frog];
-  String? background(TownArea area) => active && area == TownArea.plaza
+
+  /// During the event, the night plaza is reserved for the scripted cast.
+  /// Other neighborhoods continue their ordinary routines.
+  bool takesOver(TownArea area) => active && area == TownArea.plaza;
+
+  String? background(TownArea area) => takesOver(area)
       ? oyasumiConfig['background'] as String
       : null;
+
   List<TownResident> residents(
     TownArea area,
     Iterable<TownResident> ordinary,
-  ) => !active
-      ? ordinary.toList()
-      : [
-          ...ordinary.where((r) => r != host && r != frog),
-          if (area == TownArea.plaza) ...cast,
-        ];
+  ) {
+    if (!active) return ordinary.toList();
+    if (takesOver(area)) return cast;
+    // Cast members are attending the event instead of appearing elsewhere.
+    return ordinary.where((r) => r != host && r != frog).toList();
+  }
   TownWalkRoute? route(TownArea area, TownResident resident) {
     if (frogResting && !active && resident == frog) {
       return const TownWalkRoute(.58, .64, stay: true);
