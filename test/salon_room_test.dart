@@ -128,10 +128,15 @@ void main() {
     await show(const [TownResident.c031_kimono_fox]);
     final foxOnly = find.byKey(const ValueKey('salon-fox-resident'));
     expect(foxOnly, findsOneWidget);
-    expect(station('salon-fox-resident').left, 585);
-    expect(station('salon-fox-resident').top, 805);
-    expect(station('salon-fox-resident').width, 180);
-    expect(station('salon-fox-resident').height, 180);
+    expect(station('salon-fox-resident').left, 560);
+    expect(station('salon-fox-resident').top, 755);
+    expect(station('salon-fox-resident').width, 230);
+    expect(station('salon-fox-resident').height, 230);
+    // Enlarging changes neither the center nor the feet position.
+    expect(station('salon-fox-resident').left! +
+        station('salon-fox-resident').width! / 2, 675);
+    expect(station('salon-fox-resident').top! +
+        station('salon-fox-resident').height!, 985);
     final foxPosition = tester.getRect(foxOnly);
 
     await show(const [
@@ -141,9 +146,12 @@ void main() {
         reason: 'Acquiring the owner must not relocate the fox');
     final owner = station('salon-resident-035_beaty');
     expect(owner.left, 360);
-    expect(owner.top, 925);
+    expect(owner.top, 500);
     expect(owner.width, 210);
     expect(owner.height, 210);
+    expect(station('salon-fox-resident').width!,
+        greaterThan(owner.width!),
+        reason: 'The fox frame should be slightly larger at its nearer depth');
     expect(tester.getRect(
         find.byKey(const ValueKey('salon-resident-035_beaty')))
         .overlaps(tester.getRect(foxOnly)), isFalse);
