@@ -227,6 +227,7 @@ void main() {
       raw.remove('residents');
       raw.remove('missionCounts');
       raw.remove('seenDialogues');
+      raw.remove('playerName');
       final migrated = Progress.decode(jsonEncode(raw), expectedVersion: 3);
       expect(migrated.points, 100);
       expect(migrated.residents.baselinePoints, 100);
