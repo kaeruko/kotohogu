@@ -858,11 +858,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(Mission.movement.title), findsOneWidget);
     expect(find.text('いつもより身体を動かした'), findsNothing);
-    expect(find.text('0/7 セルフケア'), findsOneWidget);
+    expect(find.text('0/7 達成'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('mission-tab-weekly')));
     await tester.pumpAndSettle();
-    expect(find.text('0/4 セルフケア'), findsOneWidget);
+    expect(find.text('0/4 達成'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('complete-weeklyStrength')),
       160,
@@ -875,6 +875,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('close-celebration')));
     await tester.pumpAndSettle();
     expect(controller.progress!.weeklyCompleted, {Mission.weeklyStrength});
+    expect(find.text('1/4 達成'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('mission-tab-monthly')),
@@ -888,7 +889,7 @@ void main() {
       -100,
     );
     await tester.pumpAndSettle();
-    expect(find.text('0/3 セルフケア'), findsOneWidget);
+    expect(find.text('0/3 達成'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text(Mission.monthlyReview.title),
       160,
