@@ -264,6 +264,17 @@
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
+    },
+    {
+      "key": "c050_nailist",
+      "id": "050_nailist",
+      "label": "ネイリスト",
+      "profile": "",
+      "artFolder": "050_nailist",
+      "nextDialogueNumber": 2,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
     }
   ]
 }

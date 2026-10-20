@@ -5256,6 +5256,15 @@
       "once": true,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "050_nailist_001",
+      "residentId": "050_nailist",
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }
