@@ -5726,6 +5726,33 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "029_office_worker_017",
+      "residentId": "029_office_worker",
+      "text": "ぼくね、「もっと自信を持たなきゃ」って思うほど、なんだか縮こまっちゃうんだ。\nそれで最近は、「ぼくにも自分の考えがあるんだ」って思ってみることにしたの。そうすると、少し話しやすくなる気がするよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "029_office_worker_018",
+      "residentId": "029_office_worker",
+      "text": "「堂々としなきゃ」って思うと、今のぼくじゃだめみたいで、ちょっと苦しくなるんだ。\nでも「今のぼくのままでも、話していい」って考えると、少し気が楽になるよ。うまくできない日があってもいいよね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "029_office_worker_019",
+      "residentId": "029_office_worker",
+      "text": "「ぼくは自信満々！」って言ってみても、しっくりこない日もあるんだ。\nそんな日は、「緊張しても、ぼくの考えは大事にしていい」くらいの言葉が、今のぼくにはちょうどいいみたい。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }
