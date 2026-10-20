@@ -147,6 +147,8 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
     final restore = find.byKey(const ValueKey('debug-town-enable'));
     await tester.scrollUntilVisible(restore, 200);
     await tester.pumpAndSettle();
@@ -209,6 +211,8 @@ void main() {
     final originalWrites = store.writes;
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
     final forceOpen = find.byKey(const ValueKey('debug-salon-mode-forceOpen'));
     await tester.scrollUntilVisible(forceOpen, 170);
     await tester.pumpAndSettle();
@@ -251,6 +255,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
     final forceClosed = find.byKey(
         const ValueKey('debug-salon-mode-forceClosed'));
     await tester.scrollUntilVisible(forceClosed, 170);
@@ -272,12 +278,16 @@ void main() {
     expect(find.byKey(const ValueKey('town-area-next')), findsNothing);
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
 
     // A fresh app session uses normal mode without any stored override.
     await tester.pumpWidget(const SizedBox());
     await start(ProgressController(
       store, clock: () => DateTime(2026, 10, 16, 12)));
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
     await tester.pumpAndSettle();
     expect(tester.widget<DebugMenuScreen>(find.byType(DebugMenuScreen))
         .salonUnlockMode, SalonUnlockDebugMode.normal);
@@ -360,6 +370,8 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
     final toggle = find.byKey(const ValueKey('debug-unowned-preview-enable'));
     await tester.scrollUntilVisible(toggle, 160);
     await tester.pumpAndSettle();
@@ -378,6 +390,8 @@ void main() {
     expect(preview.residents, [TownResident.shiba, TownResident.rabbit]);
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(toggle, 160);
     await tester.pumpAndSettle();
