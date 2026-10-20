@@ -10,6 +10,8 @@ import 'package:future_lift/resident_collection.dart';
 import 'package:future_lift/town_areas.dart';
 import 'package:future_lift/town_rules.dart';
 import 'package:future_lift/main.dart';
+import 'package:future_lift/town.dart';
+import 'package:future_lift/local_content_preview.dart';
 import 'package:future_lift/dialogue_engine.dart';
 
 import 'progress_test.dart' show MemoryStore;
@@ -186,15 +188,112 @@ void main() {
       visit: TownVisit(),
       oyasumi: state,
     );
-    expect(rules.outdoors(TownArea.plaza), contains(host));
-    expect(rules.outdoors(TownArea.plaza), isNot(contains(frog)));
+    expect(rules.outdoors(TownArea.plaza), [host]);
     expect(
       rules.conversationPeers(ConversationSite.town, area: TownArea.plaza),
-      {host.id, '001_shiba', '002_usagi'},
+      {host.id},
     );
     for (final area in TownArea.values.where((a) => a != TownArea.plaza)) {
       expect(rules.outdoors(area), isEmpty);
     }
+
+    final observing = scene(
+      23,
+      saved: const OyasumiProgress(
+        completed: 1, lastNight: '2026-10-20',
+      ),
+    );
+    final companions = [TownResident.shiba, host, frog, TownResident.rabbit];
+    expect(observing.residents(TownArea.plaza, companions), [host, frog]);
+    expect(observing.cast, [host, frog]);
+    expect(observing.residents(TownArea.park, companions),
+        [TownResident.shiba, TownResident.rabbit]);
+    final laterRules = TownRules(
+      progress(DateTime(2026, 10, 23, 19), observing.saved),
+      visit: TownVisit(),
+      oyasumi: observing,
+    );
+    expect(laterRules.outdoors(TownArea.plaza), [host, frog]);
+    expect(
+      laterRules.conversationPeers(ConversationSite.town, area: TownArea.plaza),
+      {host.id, frog.id},
+    );
+
+    final daytime = scene(23, hour: 12, saved: observing.saved);
+    expect(daytime.residents(TownArea.plaza, companions), companions);
+    final withoutHost = OyasumiScene(
+      saved: observing.saved,
+      owned: [frog, TownResident.shiba],
+      now: DateTime(2026, 10, 23, 19),
+    );
+    expect(withoutHost.residents(TownArea.plaza, companions), companions);
+  });
+
+  testWidgets('night plaza renders only the club cast, excluding remote previews and stall',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    const visitor = RemoteResident(
+      id: '038_owl',
+      label: 'ふくろう',
+      artFolder: '038_owl',
+      homeAreaId: 'plaza',
+      profile: '',
+    );
+    Widget show(OyasumiScene club) => MaterialApp(
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(disableAnimations: true),
+        child: child!,
+      ),
+      home: Scaffold(
+        body: TownScene(
+          level: 0,
+          area: TownArea.plaza,
+          lifetimePoints: 0,
+          residents: const [
+            TownResident.shiba, host, frog, TownResident.c041_pig_middle,
+          ],
+          oyasumi: club,
+          fillViewport: true,
+          marcheOpen: true,
+          remoteVisitors: const [visitor],
+          remoteContentBaseUri: Uri.parse('http://localhost:8765/'),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(show(scene(20)));
+    await tester.pump();
+    expect(find.byTooltip(host.label), findsOneWidget);
+    expect(find.byTooltip(frog.label), findsNothing);
+    expect(find.byTooltip(TownResident.shiba.label), findsNothing);
+    expect(find.byTooltip(TownResident.c041_pig_middle.label), findsNothing);
+    expect(find.byKey(const ValueKey('remote-visitor-038_owl')), findsNothing);
+    expect(find.byKey(const ValueKey('plaza-marche-entrance')), findsNothing);
+    expect(find.byKey(const ValueKey('marche-shopkeeper')), findsNothing);
+
+    await tester.pumpWidget(show(scene(
+      23,
+      saved: const OyasumiProgress(
+        completed: 1, lastNight: '2026-10-20',
+      ),
+    )));
+    await tester.pump();
+    expect(find.byTooltip(host.label), findsOneWidget);
+    expect(find.byTooltip(frog.label), findsOneWidget);
+    expect(find.byTooltip(TownResident.shiba.label), findsNothing);
+    expect(find.byKey(const ValueKey('remote-visitor-038_owl')), findsNothing);
+
+    await tester.pumpWidget(show(scene(23, hour: 12)));
+    await tester.pump();
+    expect(find.byTooltip(TownResident.shiba.label), findsOneWidget);
+    expect(find.byTooltip(frog.label), findsOneWidget);
+    expect(find.byKey(const ValueKey('remote-visitor-038_owl')), findsOneWidget);
+    expect(find.byKey(const ValueKey('plaza-marche-entrance')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
   });
   test(
     'save roundtrip, midnight, missions and history clearing retain progress',
