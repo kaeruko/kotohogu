@@ -224,6 +224,11 @@ class _TownSceneState extends State<TownScene> {
       marcheOpen: widget.marcheOpen,
     );
     final visibleResidents = widget.oyasumi?.residents(widget.area, ordinaryResidents) ?? ordinaryResidents;
+    final clubTakesOver = widget.oyasumi?.takesOver(widget.area) ?? false;
+    // Debug-only remote previews must not leak extra characters into the club.
+    final visibleVisitors = clubTakesOver
+        ? const <RemoteResident>[]
+        : widget.remoteVisitors;
     if (widget.remoteVisitors.isNotEmpty && widget.remoteContentBaseUri == null) {
       throw StateError('Remote visitors require a local content base URI');
     }
@@ -240,7 +245,7 @@ class _TownSceneState extends State<TownScene> {
             widget.marcheOpen && widget.debugTownResidents == null
         ? visibleResidents.indexOf(tonkoMarcheOwner)
         : -1;
-    final count = visibleResidents.length + widget.remoteVisitors.length;
+    final count = visibleResidents.length + visibleVisitors.length;
     final size = (width * (count <= townWalkSlots.length
         ? .14
         : math.min(.14, .64 / math.sqrt(count * 1.3).ceil())))
@@ -269,9 +274,9 @@ class _TownSceneState extends State<TownScene> {
             size,
             reduced,
           ),
-        for (var index = 0; index < widget.remoteVisitors.length; index++)
+        for (var index = 0; index < visibleVisitors.length; index++)
           _visitor(
-            widget.remoteVisitors[index],
+            visibleVisitors[index],
             visibleResidents.length + index,
             count,
             width,
@@ -279,7 +284,7 @@ class _TownSceneState extends State<TownScene> {
             size,
             reduced,
           ),
-        if (widget.area == TownArea.plaza && widget.marcheOpen)
+        if (widget.area == TownArea.plaza && widget.marcheOpen && !clubTakesOver)
           Positioned(
             left: width * plazaMarcheRect.left / 768,
             top: height * plazaMarcheRect.top / 1376,
