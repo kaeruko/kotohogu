@@ -167,11 +167,11 @@ void main() {
     expect(
       nav.destinations.map((destination) =>
           (destination as NavigationDestination).label).toList(),
-      ['ホーム', 'ミッション', 'みんなのまち', '履歴', 'メニュー'],
+      ['ホーム', 'セルフケア', '相談会', 'まち', 'メニュー'],
     );
     for (final id in [
-      'footer-home', 'footer-missions', 'footer-town',
-      'footer-history', 'footer-menu',
+      'footer-home', 'footer-missions', 'footer-consultation',
+      'footer-town', 'footer-menu',
     ]) {
       expect(find.byKey(ValueKey(id)), findsOneWidget);
     }
@@ -181,6 +181,12 @@ void main() {
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
         .selectedIndex, 1);
     expect(find.byType(MissionsScreen), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('footer-consultation')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
+        .selectedIndex, 2);
+    expect(find.byKey(const ValueKey('consultation-page')), findsOneWidget);
+    expect(find.byKey(const ValueKey('draw-resident')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('footer-home')));
     await tester.pumpAndSettle();
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
@@ -208,7 +214,9 @@ void main() {
     expect(tester.getRect(wallpaper).contains(
         tester.getCenter(find.byType(GachaHud))), isTrue);
 
-    await tester.tap(find.byKey(const ValueKey('footer-history')));
+    await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-history')));
     await tester.pumpAndSettle();
     expect(find.byType(HistoryScreen), findsOneWidget);
     expect(displayedAsset(), MissionsScreen.backgroundAsset);
@@ -216,6 +224,8 @@ void main() {
         tester.getCenter(find.byType(GachaHud))), isTrue);
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
     await tester.pumpAndSettle();
     expect(displayedAsset(), 'assets/kotohogu/town_background.png');
     await tester.tap(find.byKey(const ValueKey('footer-missions')));
@@ -291,7 +301,7 @@ void main() {
     expect(find.text('ハル'), findsOneWidget);
 
     for (final tab in [
-      'footer-missions', 'footer-town', 'footer-history',
+      'footer-missions', 'footer-consultation', 'footer-town',
       'footer-menu', 'footer-home',
     ]) {
       await tester.tap(find.byKey(ValueKey(tab)));
@@ -800,11 +810,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(Mission.movement.title), findsOneWidget);
     expect(find.text('いつもより身体を動かした'), findsNothing);
-    expect(find.text('0/7 言祝ぎ'), findsOneWidget);
+    expect(find.text('0/7 セルフケア'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('mission-tab-weekly')));
     await tester.pumpAndSettle();
-    expect(find.text('0/4 言祝ぎ'), findsOneWidget);
+    expect(find.text('0/4 セルフケア'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('complete-weeklyStrength')),
       160,
