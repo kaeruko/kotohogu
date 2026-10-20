@@ -379,22 +379,37 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   }
 
   void _onNavigationDestinationSelected(int index) {
-    if (index == 4 && !_developerMenuUnlocked) return;
-    // Hidden gesture for explicitly flagged TestFlight builds only; not a
-    // password or authentication. Seven quick taps on the History tab reveal
-    // the developer tab until this app session ends.
-    if (developerToolsAvailable && !kDebugMode &&
-        !_developerMenuUnlocked && index == 3) {
+    // In signed developer builds, seven quick taps on the Menu tab unlock
+    // the local debug tools. Regular users always see the ordinary menu.
+    if (index == 4 && developerToolsAvailable && !kDebugMode &&
+        !_developerMenuUnlocked) {
       if (_developerUnlockSequence.registerHistoryTap(DateTime.now())) {
         setState(() => _developerMenuUnlocked = true);
         _selectPage(4);
         return;
       }
-    } else if (index != 3) {
+    } else if (index != 4) {
       _developerUnlockSequence.reset();
     }
-    _selectPage(index);
+    final destination = switch (index) {
+      0 => 0, // Home
+      1 => 1, // Self-care
+      2 => 5, // Consultation
+      3 => 2, // Town
+      4 => 6, // Menu
+      _ => throw RangeError.index(index, const [0, 1, 2, 3, 4]),
+    };
+    _selectPage(destination);
   }
+
+  int get _selectedFooterIndex => switch (_page) {
+    0 => 0,
+    1 => 1,
+    5 => 2,
+    2 => 3,
+    3 || 4 || 6 => 4,
+    _ => throw StateError('Unexpected page: $_page'),
+  };
 
   void _selectPage(int index) {
     setState(() {
@@ -764,17 +779,33 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                   : _page == 3
                   ? _pageWithSharedHeader(
                       progress,
-                      HistoryScreen(
-                        progress: progress,
-                        busy: controller.busy,
-                        drawBackground: false,
-                        onClear: () async {
-                          await controller.clearHistory();
-                        },
+                      Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
+                              key: const ValueKey('history-return-menu'),
+                              onPressed: () => _selectPage(6),
+                              icon: const Icon(Icons.arrow_back),
+                              label: const Text('メニューにもどる'),
+                            ),
+                          ),
+                          Expanded(
+                            child: HistoryScreen(
+                              progress: progress,
+                              busy: controller.busy,
+                              drawBackground: false,
+                              onClear: () async {
+                                await controller.clearHistory();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                       backgroundAsset: HistoryScreen.backgroundAsset,
                     )
-                  : _pageWithSharedHeader(
+                  : _page == 4
+                  ? _pageWithSharedHeader(
                       progress,
                       DebugMenuScreen(
                         progress: progress,
@@ -797,6 +828,77 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                         drawBackground: false,
                       ),
                     ),
+                  : _page == 5
+                  ? _pageWithSharedHeader(
+                      progress,
+                      ListView(
+                        key: const ValueKey('consultation-page'),
+                        padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
+                        children: [
+                          const Text(
+                            '移住相談会',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              color: ink,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'ことほぎで相談会を開いて、まちに新しい仲間を迎えよう。',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: ink),
+                          ),
+                          const SizedBox(height: 20),
+                          ResidentGacha(
+                            controller: controller,
+                            onTown: () => _selectPage(2),
+                          ),
+                        ],
+                      ),
+                    )
+                  : _page == 6
+                  ? _pageWithSharedHeader(
+                      progress,
+                      ListView(
+                        key: const ValueKey('main-menu-page'),
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          const Text(
+                            'メニュー',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              color: ink,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Card(
+                            child: ListTile(
+                              key: const ValueKey('menu-history'),
+                              leading: uiPart('12_nav_history', width: 48, height: 48),
+                              title: const Text('履歴'),
+                              subtitle: const Text('これまでにできたことを振り返る'),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () => _selectPage(3),
+                            ),
+                          ),
+                          if (developerToolsAvailable && _developerMenuUnlocked)
+                            Card(
+                              child: ListTile(
+                                key: const ValueKey('menu-debug'),
+                                leading: const Icon(Icons.developer_mode),
+                                title: const Text('開発メニュー'),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () => _selectPage(4),
+                              ),
+                            ),
+                        ],
+                      ),
+                    )
+                  : throw StateError('Unexpected page: $_page'),
             ),
           ),
         ),
@@ -804,7 +906,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           height: 80,
           // Keep labels for accessibility, but display just the icons.
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          selectedIndex: _page,
+          selectedIndex: _selectedFooterIndex,
           onDestinationSelected: (index) {
             if (_tutorialSaving ||
                 _tutorialReplay ||
@@ -823,24 +925,23 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             NavigationDestination(
               key: const ValueKey('footer-missions'),
               icon: uiPart('10_nav_quest', width: 54, height: 58),
-              label: 'ミッション',
+              label: 'セルフケア',
+            ),
+            NavigationDestination(
+              key: const ValueKey('footer-consultation'),
+              icon: uiPart('13_nav_gacya', width: 54, height: 58),
+              label: '相談会',
             ),
             NavigationDestination(
               key: const ValueKey('footer-town'),
               icon: uiPart('11_nav_town', width: 54, height: 58),
-              label: 'みんなのまち',
+              label: 'まち',
             ),
             NavigationDestination(
-              key: const ValueKey('footer-history'),
-              icon: uiPart('12_nav_history', width: 54, height: 58),
-              label: '履歴',
+              key: const ValueKey('footer-menu'),
+              icon: uiPart('21_nav_menu', width: 54, height: 58),
+              label: 'メニュー',
             ),
-            if (developerToolsAvailable && _developerMenuUnlocked)
-              NavigationDestination(
-                key: const ValueKey('footer-menu'),
-                icon: uiPart('21_nav_menu', width: 54, height: 58),
-                label: 'メニュー',
-              ),
           ],
         ),
       );
