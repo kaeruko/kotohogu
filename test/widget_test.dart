@@ -842,7 +842,7 @@ void main() {
       -100,
     );
     await tester.pumpAndSettle();
-    expect(find.text('0/3 言祝ぎ'), findsOneWidget);
+    expect(find.text('0/3 セルフケア'), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text(Mission.monthlyReview.title),
       160,
@@ -864,6 +864,8 @@ void main() {
     final controller = await launch(tester, store);
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
     await tester.pumpAndSettle();
     expect(
       find.byKey(const ValueKey('debug-replay-celebration')),
@@ -944,6 +946,8 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
     final addCurrency = find.byKey(const ValueKey('debug-add-ticket-10'));
     await tester.ensureVisible(addCurrency);
     await tester.pumpAndSettle();
@@ -967,6 +971,8 @@ void main() {
     final store = MemoryStore();
     final controller = await launch(tester, store);
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
     await tester.pumpAndSettle();
 
     final plusOne = find.byKey(const ValueKey('debug-add-ticket-1'));
@@ -1012,6 +1018,8 @@ void main() {
     final store = MemoryStore()..raw = original.encode();
     final controller = await launch(tester, store);
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
     await tester.pumpAndSettle();
     final reset = find.byKey(const ValueKey('debug-reset-all-missions'));
     await tester.ensureVisible(reset);
@@ -1123,6 +1131,8 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
     final replay = find.byKey(const ValueKey('debug-replay-tutorial'));
     await tester.ensureVisible(replay);
     await tester.pumpAndSettle();
@@ -1144,6 +1154,8 @@ void main() {
     expect(store.raw, original);
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
     await tester.pumpAndSettle();
     await tester.ensureVisible(replay);
     await tester.pumpAndSettle();
