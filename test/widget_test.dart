@@ -621,7 +621,7 @@ void main() {
       // The footer is icon-only; selected destinations still have a label
       // for semantics and identification.
       expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
-          .selectedIndex, 2);
+          .selectedIndex, 3);
       expect(find.text(townNames.first), findsOneWidget);
       expect(find.text('LEVEL 0'), findsOneWidget);
       expect(find.byKey(const ValueKey('town-page-shrine-background')),
@@ -750,7 +750,9 @@ void main() {
       );
       final store = MemoryStore()..raw = saved.encode();
       final controller = await launch(tester, store);
-      await tester.tap(find.byKey(const ValueKey('footer-history')));
+      await tester.tap(find.byKey(const ValueKey('footer-menu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('menu-history')));
       await tester.pumpAndSettle();
       expect(find.text('これまで言祝がれた日々'), findsOneWidget);
       expect(find.text('直近30日は 2日、2個の行動を言祝ぎました。'), findsOneWidget);
