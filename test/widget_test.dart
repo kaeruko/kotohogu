@@ -241,7 +241,7 @@ void main() {
   });
 
 
-  testWidgets('missions and history use the park artwork, developer page retains its own',
+  testWidgets('missions and history use park, consultation uses village, developer page retains its own',
       (tester) async {
     tester.view.physicalSize = const Size(400, 850);
     tester.view.devicePixelRatio = 1;
@@ -274,6 +274,13 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('menu-debug')));
     await tester.pumpAndSettle();
     expect(displayedAsset(), 'assets/kotohogu/town_background.png');
+    await tester.tap(find.byKey(const ValueKey('footer-consultation')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('consultation-page')), findsOneWidget);
+    expect(displayedAsset(), 'assets/kotohogu/village_background_001.png');
+    expect(tester.widget<Image>(wallpaper).fit, BoxFit.cover);
+    expect(tester.getRect(wallpaper).contains(
+        tester.getCenter(find.byType(GachaHud))), isTrue);
     await tester.tap(find.byKey(const ValueKey('footer-missions')));
     await tester.pumpAndSettle();
     expect(displayedAsset(), MissionsScreen.backgroundAsset);
