@@ -5500,6 +5500,142 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "001_shiba_002",
+      "residentId": "001_shiba",
+      "text": "おさんぽは、歩いた数だけじゃなくて、少し息がはずむくらいの動きも健康と関係があるんだって。でも、急に速く歩かなくていいワン。自分のペースがいちばん！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "001_shiba_003",
+      "residentId": "001_shiba",
+      "text": "お外に出たんだね！ いいね、いいね！ ほんの少しでも外の空気にふれた時間、大事にしてほしいワン。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "026_farmer_004",
+      "residentId": "026_farmer",
+      "text": "高齢者の身体活動の目安には、1日およそ6,000歩に相当する量があるそうじゃ。でも、それはみんなに同じ歩数を求める話ではないぞ。体調に合わせて、できることからじゃな。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "026_farmer_005",
+      "residentId": "026_farmer",
+      "text": "畑の手入れも、買い物も、暮らしの中で体を動かす機会になるんじゃよ。散歩だけが運動じゃないのう。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "027_daydreamer_004",
+      "residentId": "027_daydreamer",
+      "text": "たくさん歩けない日もあるもふ。ぼく、歩数をくらべるより、今日はどんな景色を見たか聞いてみたいなぁ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "027_daydreamer_005",
+      "residentId": "027_daydreamer",
+      "text": "歩くのもいいけど、つかれたら休もうね。痛いところがあるときに、がまんして歩かなくていいもふ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "027_daydreamer_006",
+      "residentId": "027_daydreamer",
+      "text": "お外に行ったの？ どんな空だったもふ？ ぼくは雲をながめるのが好きなんだ〜。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "029_office_worker_013",
+      "residentId": "029_office_worker",
+      "text": "厚生労働省の健康づくりの目安には、成人なら1日約8,000歩に相当する身体活動があるんだって。でも、いきなり数字を追うより、今より少し動くところからでもいいんだね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "029_office_worker_014",
+      "residentId": "029_office_worker",
+      "text": "歩数だけじゃなくて、歩く速さや体を動かす時間も健康と関係があるんだって。ぼくも無理のない速さから試してみようかな。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "029_office_worker_015",
+      "residentId": "029_office_worker",
+      "text": "座りっぱなしの時間を区切れたんだね！ ぼくも仕事に集中すると、つい動くのを忘れちゃうよ。ちょっと体を動かす時間、大切にしたいな。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "sittingBreak",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_047",
+      "residentId": "041_pig_middle",
+      "text": "お散歩って、何歩だったかも気になるけれど、道ばたのお花に気づけた日もうれしいわねぇ。数字だけにしないで楽しみたいな。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "041_pig_middle_048",
+      "residentId": "041_pig_middle",
+      "text": "今日はお外に出たのねぇ。おつかれさま。帰ったらお茶でもいれて、ひと息ついてね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
     }
   ]
 }
