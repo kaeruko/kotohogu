@@ -81,6 +81,8 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('footer-menu')));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
     final toggle = find.byKey(const ValueKey('debug-town-enable'));
     await tester.scrollUntilVisible(toggle, 200);
     await tester.pumpAndSettle();
