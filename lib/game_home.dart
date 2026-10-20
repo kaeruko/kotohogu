@@ -247,8 +247,8 @@ class _GameHomeState extends State<GameHome> {
                                   child: _LobbySign(
                                     key: const ValueKey('open-town'),
                                     asset: '11_nav_town',
-                                    title: 'みんなのまちへ',
-                                    detail: 'みんなに会いにいこう',
+                                    title: 'みんなのまち',
+                                    detail: 'あいにいく',
                                     onTap: widget.onTown,
                                   ),
                                 ),
