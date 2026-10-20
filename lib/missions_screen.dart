@@ -56,7 +56,7 @@ class MissionsScreen extends StatelessWidget {
                       children: [
                         ExcludeSemantics(
                           child: Text(
-                            'ミッション一覧',
+                            'セルフケア一覧',
                             style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.w900,
@@ -68,7 +68,7 @@ class MissionsScreen extends StatelessWidget {
                           ),
                         ),
                         const Text(
-                          'ミッション一覧',
+                          'セルフケア一覧',
                           style: TextStyle(
                             color: wood,
                             fontSize: 30,
@@ -114,7 +114,7 @@ class MissionsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              '${progress.completedFor(period).length}/${Mission.forPeriod(period).length} 言祝ぎ',
+              '${progress.completedFor(period).length}/${Mission.forPeriod(period).length} セルフケア',
               key: const ValueKey('mission-period-progress'),
               textAlign: TextAlign.center,
               style: const TextStyle(color: wood, fontWeight: FontWeight.bold),
