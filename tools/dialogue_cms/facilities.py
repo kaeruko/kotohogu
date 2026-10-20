@@ -21,22 +21,25 @@ def validate(doc):
     active={r['id']:r for r in load_catalog()['characters'] if not r.get('archived')}
     for room in rooms:
         expected=FIXED[room['id']]
-        if set(room)!={'id','placements',*expected} or any(room.get(k)!=v for k,v in expected.items()):
+        if set(room)!={'id','placements','spriteSize',*expected} or any(room.get(k)!=v for k,v in expected.items()):
             raise ValueError('施設名・背景・画像サイズ・開放キャラは固定です')
+        size=room['spriteSize']
+        if type(size) not in (int,float) or not math.isfinite(size) or not 80<=size<=400:
+            raise ValueError('施設の共通キャラサイズは80〜400pxにしてください')
         rows=room['placements']
         if not isinstance(rows,list) or not 1<=len(rows)<=7:
             raise ValueError('配置キャラは店主を含めて1〜7人にしてください')
         ids=set()
         for row in rows:
-            if not isinstance(row,dict) or set(row)!={'residentId','x','y','size'} or not isinstance(row['residentId'],str) or row['residentId'] not in active:
+            if not isinstance(row,dict) or set(row)!={'residentId','x','y'} or not isinstance(row['residentId'],str) or row['residentId'] not in active:
                 raise ValueError('配置キャラは有効な住民から選んでください')
             if row['residentId'] in ids: raise ValueError('同じキャラを二重に配置できません')
             ids.add(row['residentId'])
-            if any(type(row[k]) not in (int,float) or not math.isfinite(row[k]) for k in ('x','y','size')):
+            if any(type(row[k]) not in (int,float) or not math.isfinite(row[k]) for k in ('x','y')):
                 raise ValueError('位置と大きさは数値で入力してください')
-            x,y,size=row['x'],row['y'],row['size']
+            x,y=row['x'],row['y']
             if not 80<=size<=400 or x<0 or y<0 or x+size>room['width'] or y+size>room['height']:
-                raise ValueError('キャラ全体が背景内に収まる位置・大きさにしてください（80〜400px）')
+                raise ValueError('キャラ全体が背景内に収まる位置にしてください')
         if room['owner'] not in ids: raise ValueError('開放条件の店主は配置から外せません')
     return doc
 
