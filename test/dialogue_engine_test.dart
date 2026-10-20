@@ -590,6 +590,7 @@ void main() {
     raw['version']=4;
     raw.remove('missionCounts');
     raw.remove('seenDialogues');
+    raw.remove('playerName');
     final old=Progress.decode(jsonEncode(raw),expectedVersion:4);
     expect(old.countFor('outside'),1);
     expect(old.countFor('hobby'),1);
