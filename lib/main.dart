@@ -424,68 +424,65 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   Future<void> _editPlayerName() async {
     final current = controller.progress;
     if (current == null || controller.busy || controller.failure != null) return;
-    final input = TextEditingController(text: current.playerName);
     final formKey = GlobalKey<FormState>();
+    var editedName = current.playerName;
     var saving = false;
-    try {
-      await showDialog<void>(
-        context: context,
-        builder: (dialogContext) => StatefulBuilder(
-          builder: (dialogContext, updateDialog) => AlertDialog(
-            title: const Text('名前を変える'),
-            content: Form(
-              key: formKey,
-              child: TextFormField(
-                key: const ValueKey('player-name-input'),
-                controller: input,
-                autofocus: true,
-                maxLength: maxPlayerNameLength,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
-                  labelText: '名前',
-                  hintText: '新しい名前',
-                ),
-                validator: (value) {
-                  final name = value ?? '';
-                  if (name.isEmpty) return '名前を入力してください';
-                  if (name != name.trim()) {
-                    return '前後の空白を取り除いてください';
-                  }
-                  if (!isValidPlayerName(name)) {
-                    return '12文字以内の名前を入力してください';
-                  }
-                  return null;
-                },
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, updateDialog) => AlertDialog(
+          title: const Text('名前を変える'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              key: const ValueKey('player-name-input'),
+              initialValue: current.playerName,
+              onChanged: (value) => editedName = value,
+              autofocus: true,
+              maxLength: maxPlayerNameLength,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(
+                labelText: '名前',
+                hintText: '新しい名前',
               ),
+              validator: (value) {
+                final name = value ?? '';
+                if (name.isEmpty) return '名前を入力してください';
+                if (name != name.trim()) {
+                  return '前後の空白を取り除いてください';
+                }
+                if (!isValidPlayerName(name)) {
+                  return '12文字以内の名前を入力してください';
+                }
+                return null;
+              },
             ),
-            actions: [
-              TextButton(
-                key: const ValueKey('cancel-player-name'),
-                onPressed: saving ? null : () => Navigator.of(dialogContext).pop(),
-                child: const Text('やめる'),
-              ),
-              FilledButton(
-                key: const ValueKey('save-player-name'),
-                onPressed: saving ? null : () async {
-                  if (!formKey.currentState!.validate()) return;
-                  updateDialog(() => saving = true);
-                  final saved = await controller.setPlayerName(input.text);
-                  if (!dialogContext.mounted) return;
-                  if (saved || controller.failure != null) {
-                    Navigator.of(dialogContext).pop();
-                  } else {
-                    updateDialog(() => saving = false);
-                  }
-                },
-                child: const Text('保存'),
-              ),
-            ],
           ),
+          actions: [
+            TextButton(
+              key: const ValueKey('cancel-player-name'),
+              onPressed: saving ? null : () => Navigator.of(dialogContext).pop(),
+              child: const Text('やめる'),
+            ),
+            FilledButton(
+              key: const ValueKey('save-player-name'),
+              onPressed: saving ? null : () async {
+                if (!formKey.currentState!.validate()) return;
+                updateDialog(() => saving = true);
+                final saved = await controller.setPlayerName(editedName);
+                if (!dialogContext.mounted) return;
+                if (saved || controller.failure != null) {
+                  Navigator.of(dialogContext).pop();
+                } else {
+                  updateDialog(() => saving = false);
+                }
+              },
+              child: const Text('保存'),
+            ),
+          ],
         ),
-      );
-    } finally {
-      input.dispose();
-    }
+      ),
+    );
   }
 
   Future<void> _showDialogue(TownResident resident, {bool inSalon = false, bool inBakery = false}) async {
