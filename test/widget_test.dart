@@ -154,6 +154,44 @@ void main() {
     return controller;
   }
 
+  testWidgets('menu can edit and persist the name across home and town', (tester) async {
+    tester.view.physicalSize = const Size(360, 720);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final store = MemoryStore();
+    final controller = await launch(tester, store);
+    await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('menu-change-name')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('menu-change-name')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('player-name-input')), '');
+    await tester.tap(find.byKey(const ValueKey('save-player-name')));
+    await tester.pumpAndSettle();
+    expect(find.text('名前を入力してください'), findsOneWidget);
+    expect(store.writes, 0);
+
+    await tester.enterText(find.byKey(const ValueKey('player-name-input')), 'もふ');
+    await tester.tap(find.byKey(const ValueKey('save-player-name')));
+    await tester.pumpAndSettle();
+    expect(controller.progress!.playerName, 'もふ');
+    expect(tester.widget<Text>(find.byKey(const ValueKey('player-display-name'))).data, 'もふ');
+
+    await tester.tap(find.byKey(const ValueKey('footer-town')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Text>(find.byKey(const ValueKey('player-display-name'))).data, 'もふ');
+    await tester.tap(find.byKey(const ValueKey('footer-home')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Text>(find.byKey(const ValueKey('player-display-name'))).data, 'もふ');
+
+    await tester.pumpWidget(const SizedBox());
+    final restarted = await launch(tester, store);
+    expect(restarted.progress!.playerName, 'もふ');
+    expect(tester.widget<Text>(find.byKey(const ValueKey('player-display-name'))).data, 'もふ');
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('bottom navigation shows icons without visible labels',
       (tester) async {
     tester.view.physicalSize = const Size(360, 720);
