@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +18,13 @@ void main() {
     expect(TownResident.c035_beaty.homeAreaId, 'salon');
     expect(TownResident.c035_beaty.inGacha, true);
     expect(TownResident.c035_beaty.walkInTown, false);
+    const nailist = TownResident.c050_nailist;
+    expect(nailist.inGacha, isTrue);
+    expect(nailist.homeAreaId, 'salon');
+    expect(nailist.walkInTown, isFalse);
+    expect(salonResidents([nailist]), [nailist]);
+    expect(salonResidents([TownResident.c035_beaty, nailist]),
+        [TownResident.c035_beaty, nailist]);
     expect(isSalonUnlocked(const []), isFalse);
     expect(isSalonUnlocked([SalonRoom.host]), isFalse);
     expect(isSalonUnlocked([TownResident.c035_beaty]), isTrue);
@@ -27,6 +36,13 @@ void main() {
         [TownResident.c035_beaty, SalonRoom.host]);
     expect(TownResident.gachaPool, contains(TownResident.c035_beaty));
     expect(TownResident.gachaPool, contains(SalonRoom.host));
+    expect(TownResident.gachaPool, contains(TownResident.c050_nailist));
+    expect(isSalonUnlocked([TownResident.c050_nailist]), isFalse);
+    expect(visibleTownResidents(TownResident.values),
+        isNot(contains(TownResident.c050_nailist)));
+    expect(areaResidents(TownResident.values, TownArea.plaza,
+        lifetimePoints: 500, visit: TownVisit()),
+        isNot(contains(TownResident.c050_nailist)));
     expect(areaResidents(TownResident.values, TownArea.village,
         lifetimePoints: 300, visit: TownVisit()),
         isNot(contains(SalonRoom.host)));
@@ -53,7 +69,7 @@ void main() {
     expect(salonResidents(foxOnly), foxOnly);
     expect(salonResidents(const [], previewUnowned: true),
         [TownResident.c035_beaty, TownResident.c031_kimono_fox,
-         TownResident.c038_lion_lady]);
+         TownResident.c038_lion_lady, TownResident.c050_nailist]);
   });
 
   test('one shared display size applies to every facility resident', () {
@@ -62,6 +78,7 @@ void main() {
       TownResident.c035_beaty.id,
       TownResident.c031_kimono_fox.id,
       TownResident.c038_lion_lady.id,
+      TownResident.c050_nailist.id,
     ]);
     expect(salon.map((p) => p.size).toSet(), {230.0});
     expect(facilityPlacements('bakery').map((p) => p.size).toSet(), {235.0});
@@ -93,6 +110,44 @@ void main() {
         findsOneWidget);
     expect(find.byKey(const ValueKey('salon-resident-038_lion_lady')),
         findsOneWidget);
+    expect(find.byKey(const ValueKey('salon-resident-050_nailist')),
+        findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  test('nailist has a first greeting, fashion talk, and practical care tips', () {
+    final root = jsonDecode(File('assets/dialogues/dialogues.json').readAsStringSync()) as Map<String,dynamic>;
+    final messages = (root['dialogues'] as List)
+        .where((row) => row['residentId'] == '050_nailist').toList();
+    expect(messages.length, greaterThanOrEqualTo(24));
+    expect(messages.where((row) => row['firstGreeting'] == true).length, 1);
+    expect(messages.any((row) => (row['text'] as String).contains('頭皮までシャワー')), isTrue);
+    expect(messages.any((row) => (row['text'] as String).contains('ネイル')), isTrue);
+    expect(messages.any((row) => (row['text'] as String).contains('洗濯物')), isTrue);
+    expect(messages.any((row) => (row['text'] as String).contains('手伝って')), isTrue);
+  });
+
+  testWidgets('owned nailist appears in the salon and can be spoken to',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final spoken = <TownResident>[];
+    await tester.pumpWidget(MaterialApp(
+      home: SalonRoom(
+        ownedResidents: const [TownResident.c035_beaty, TownResident.c050_nailist],
+        onResident: (resident) async { spoken.add(resident); },
+      ),
+    ));
+    final nailist = find.byKey(const ValueKey('salon-resident-050_nailist'));
+    final owner = find.byKey(const ValueKey('salon-resident-035_beaty'));
+    expect(nailist, findsOneWidget);
+    expect(owner, findsOneWidget);
+    expect(tester.getRect(nailist).overlaps(tester.getRect(owner)), isFalse);
+    await tester.tap(nailist);
+    await tester.pump();
+    expect(spoken, [TownResident.c050_nailist]);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });

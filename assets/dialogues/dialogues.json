@@ -5260,7 +5260,242 @@
     {
       "id": "050_nailist_001",
       "residentId": "050_nailist",
-      "text": "こんにちは！よろしくね。",
+      "text": "ねえ見て〜！ 今日のネイル、めっちゃかわいくない？ この色、ひとめぼれしちゃった♡",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_002",
+      "residentId": "050_nailist",
+      "text": "いらっしゃいませ〜！ 桜の美容室でネイルを担当してるの。かわいいものが大好き！ よろしくね♡",
+      "priority": 0,
+      "once": true,
+      "logic": "all",
+      "conditions": [],
+      "firstGreeting": true
+    },
+    {
+      "id": "050_nailist_003",
+      "residentId": "050_nailist",
+      "text": "新しいお洋服を着た日は、用事がなくてもお出かけしたくなっちゃうんだよね〜！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_004",
+      "residentId": "050_nailist",
+      "text": "ネイルって、小さい世界に『かわいい』をぎゅーっと詰め込めるの。最高じゃない？",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_005",
+      "residentId": "050_nailist",
+      "text": "この前かわいいヘアアクセを見つけてさ〜。似たの持ってるんだけど……どうしよう、欲しい！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_006",
+      "residentId": "050_nailist",
+      "text": "今日の色、ほんのちょっとくすんだピンクなの。指先を見るたびににやにやしちゃう♡",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_007",
+      "residentId": "050_nailist",
+      "text": "マニキュアをきれいに塗りたいなら、一度にたっぷりじゃなくて、薄く重ねるといいよ。乾かす時間も忘れずにね！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_008",
+      "residentId": "050_nailist",
+      "text": "ネイルって年齢なんか関係ないよ〜！ 好きな色が似合う色、って思って楽しんじゃお♡",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_009",
+      "residentId": "050_nailist",
+      "text": "お客さんが仕上がった爪を見てにこにこする瞬間、すっごくうれしいんだよね。わかる〜！ってなる！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_010",
+      "residentId": "050_nailist",
+      "text": "今日はどんな気分？ ぱきっとした赤？ それともミルクティーみたいなベージュ？ 考えるだけで楽しい〜！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_011",
+      "residentId": "050_nailist",
+      "text": "季節が変わったら、ネイルもお洋服も変えたくなるじゃん？ あ〜、忙しい忙しい♡",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_012",
+      "residentId": "050_nailist",
+      "text": "楽ちんでかわいい部屋着を見つけたの！ 疲れて帰っても、着替えるのがちょっと楽しみになったよ〜。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_013",
+      "residentId": "050_nailist",
+      "text": "ネイルの色って、爪にちょこっと乗せるだけでも気分が変わるんだよね。一本だけ塗るのもかわいいよ♡",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_014",
+      "residentId": "050_nailist",
+      "text": "わたし、髪を洗うのがすごくめんどうで……。長いし、乾かすのも時間かかるし。\nでもね、ちょっといいこと知ったの。シャンプーの前に、髪の表面じゃなくて、頭皮までシャワーのお湯をしっかり届けるんだって。\nそれからシャンプーして、よくすすいで、ちゃんと乾かすの。\n……前より、ちょっとだけお風呂が苦手じゃなくなったかも。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_015",
+      "residentId": "050_nailist",
+      "text": "お風呂って、入るまでがめんどくさくない？ わたし、先にタオルとパジャマを並べておくの。出てから探さなくていいだけで、結構ラク〜！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_016",
+      "residentId": "050_nailist",
+      "text": "髪を乾かすときは、タオルでやさしく水気を取ってから、根元のほうから乾かしてるよ。長い髪にはこれが助かるんだ〜。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_017",
+      "residentId": "050_nailist",
+      "text": "今日はもうシャワーも無理〜！って日は、ぬるま湯で湿らせたタオルで体を拭いて、清潔な下着に替えるだけのこともあるよ。お風呂の代わりにはならないけど、少しさっぱりするの。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_018",
+      "residentId": "050_nailist",
+      "text": "疲れた日の歯みがきって、洗面所まで行くのもめんどうじゃない？ わたし、お気に入りの歯ブラシを見えるところに置いてるの。寝る前は忘れないようにしたいもんね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_019",
+      "residentId": "050_nailist",
+      "text": "洗濯物がたまると、全部やらなきゃってげんなりしちゃう。そんな日は明日着るものから洗うの！ 一回で完璧にしなくてもいいよね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_020",
+      "residentId": "050_nailist",
+      "text": "ベッドの横に小さなゴミ箱を置いたら、お菓子の袋をその場で捨てられるようになったの。めんどくさがりには、配置も大事〜！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_021",
+      "residentId": "050_nailist",
+      "text": "ごはんを作る元気がない日のために、冷凍ごはんやすぐ食べられるものを用意してるよ。何も食べないで寝ちゃうより、ずっといいかなって。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_022",
+      "residentId": "050_nailist",
+      "text": "お風呂も洗濯も片づけも〜！って考えると、やる前からぐったりするの。だから今日はひとつだけ、って決める日もあるよ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_023",
+      "residentId": "050_nailist",
+      "text": "どうしても手が回らないときは、『ちょっと手伝って〜』って言っていいと思う！ ひとりで全部やるの、大変だもん。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_024",
+      "residentId": "050_nailist",
+      "text": "ジェルネイルが浮いてきても、無理にはがさないでね！ 自分の爪まで傷つけちゃうことがあるから、お店で相談して〜。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_025",
+      "residentId": "050_nailist",
+      "text": "ハンドクリームは手の甲だけじゃなく、爪のまわりにもなじませてみて。指先までかわいくいたいじゃん♡",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_026",
+      "residentId": "050_nailist",
+      "text": "接客でどっと疲れた日は、家に帰るともう何もしたくな〜い！ ……でも、新しいネイルの色を考える元気だけは残ってたりする。ふふ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "050_nailist_027",
+      "residentId": "050_nailist",
+      "text": "手を洗ったあと、指先がカサカサしてたら保湿してあげてね。ネイルも手も、大事にかわいがりたいもんね♡",
       "priority": 0,
       "once": false,
       "logic": "all",

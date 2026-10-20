@@ -269,12 +269,12 @@
       "key": "c050_nailist",
       "id": "050_nailist",
       "label": "ネイリスト",
-      "profile": "",
+      "profile": "桜の美容室で働く若いひつじのネイリスト。かわいいネイル、洋服、ヘアアクセサリーが大好きな、おしゃれで明るい女の子。お客さんが指先を見て笑顔になるのがうれしい。時々接客に疲れて家事や身だしなみが億劫になることもあるけれど、準備の手間を減らすなど、自分をいたわる小さな工夫を楽しんでいる。",
       "artFolder": "050_nailist",
-      "nextDialogueNumber": 2,
+      "nextDialogueNumber": 28,
       "inGacha": true,
-      "walkInTown": true,
-      "homeAreaId": "plaza"
+      "walkInTown": false,
+      "homeAreaId": "salon"
     }
   ]
 }
