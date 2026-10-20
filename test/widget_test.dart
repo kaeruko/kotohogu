@@ -675,8 +675,9 @@ void main() {
       // for semantics and identification.
       expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
           .selectedIndex, 3);
-      expect(find.text('中央ひろば'), findsWidgets);
+      expect(find.text('中央ひろば'), findsOneWidget);
       expect(find.textContaining('LEVEL '), findsNothing);
+      expect(find.byKey(const ValueKey('town-page-title-panel')), findsNothing);
       expect(find.byKey(const ValueKey('town-page-shrine-background')),
           findsNothing);
       final art = find.byType(TownScene);
