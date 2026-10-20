@@ -72,10 +72,16 @@ void main() {
     await tester.pump(const Duration(milliseconds: 700));
 
     expect(
-      find.text('🎊 日本の社会保障に貢献！ 🎊').hitTestable(),
+      find.text('🎊 あなたの一歩に、ありがとう！ 🎊').hitTestable(),
       findsOneWidget,
     );
-    expect(find.text('社会保障に貢献しました！'), findsOneWidget);
+    expect(find.text('みんなの未来にも、うれしい一歩です！'), findsOneWidget);
+    expect(
+      find.text(
+        '健康づくりや人とのつながりは、将来の医療・介護費を抑えることにもつながるかもしれません。',
+      ),
+      findsOneWidget,
+    );
     // Celebration uses the same full-screen wallpaper as the missions list.
     final celebrationBackground = tester.widget<Image>(
       find.byKey(const ValueKey('celebration-background')),
@@ -87,7 +93,7 @@ void main() {
     expect(celebrationBackground.fit, BoxFit.cover);
     expect(find.byKey(const ValueKey('close-celebration')), findsOneWidget);
     expect(
-      find.text('参考推計：医療・介護費 年間約81,000円（研究集団の比較）'),
+      find.text('参考試算：研究集団の医療・介護費の差 年間約81,000円'),
       findsOneWidget,
     );
     expect(find.textContaining('研究2件の集団間費用差'), findsOneWidget);
@@ -565,15 +571,21 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 700));
     expect(
-      find.text('🎊 日本の社会保障に貢献！ 🎊').hitTestable(),
+      find.text('🎊 あなたの一歩に、ありがとう！ 🎊').hitTestable(),
       findsOneWidget,
     );
-    expect(find.text('社会保障に貢献しました！'), findsOneWidget);
+    expect(find.text('みんなの未来にも、うれしい一歩です！'), findsOneWidget);
     expect(
-      find.text('参考推計：医療・介護費 年間約81,000円（研究集団の比較）'),
+      find.text(
+        '健康づくりや人とのつながりは、将来の医療・介護費を抑えることにもつながるかもしれません。',
+      ),
       findsOneWidget,
     );
-    expect(find.bySemanticsLabel('ミッション達成！ 日本の社会保障に貢献！'), findsOneWidget);
+    expect(
+      find.text('参考試算：研究集団の医療・介護費の差 年間約81,000円'),
+      findsOneWidget,
+    );
+    expect(find.bySemanticsLabel('ミッション達成！ あなたの一歩に、ありがとう！'), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(Celebration),
