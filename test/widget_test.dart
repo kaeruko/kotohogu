@@ -233,6 +233,8 @@ void main() {
         .selectedIndex, 2);
     expect(find.byKey(const ValueKey('consultation-page')), findsOneWidget);
     expect(find.byKey(const ValueKey('draw-resident')), findsOneWidget);
+    expect(find.text('まちの仲間 2人'), findsOneWidget);
+    expect(find.textContaining('2/$ownedResidentLimit'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('footer-home')));
     await tester.pumpAndSettle();
     expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
