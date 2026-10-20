@@ -343,41 +343,6 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                 ),
               ),
             ),
-          Positioned(
-            left: 14,
-            right: 14,
-            bottom: 16,
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Container(
-                key: const ValueKey('town-page-title-panel'),
-                decoration: BoxDecoration(
-                  color: const Color(0xEEFFF6DC),
-                  border: Border.all(color: const Color(0xFFD4A64E), width: 2),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        area == TownArea.plaza && widget.oyasumi?.active == true
-                            ? 'ゆうぐれおやすみクラブ'
-                            : area.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          color: Color(0xFF63351F),
-                          fontWeight: FontWeight.w900),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
       ),
