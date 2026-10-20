@@ -167,7 +167,7 @@ GitHub Actionsでは、Flutterの解析・テスト・WebビルドやPythonの�
 ## 配布ビルド
 
 - **Android（AAB）**：GitHub Actionsの `Android signed AAB`、または `scripts/build_aab.ps1`。署名確認後にビルド番号を更新します。詳しくは [Androidリリース手順](docs/android_release.md)。
-- **iOS（IPA / TestFlight）**：GitHub Actionsの `iOS TestFlight (Build and Upload)` で署名付きIPAを生成し、そのままTestFlightへアップロードします。`enable_developer_menu` をONにしたテスト専用ビルドでは、実機で「履歴」を8秒以内に7回タップすると開発メニューが現れます。公開版は必ずOFFでビルドしてください。詳しくは [iOSリリース手順](docs/ios_release.md)。
+- **iOS（IPA / TestFlight）**：GitHub Actionsの `iOS TestFlight (Build and Upload)` で署名付きIPAを生成し、そのままTestFlightへアップロードします。`enable_developer_menu` をONにしたテスト専用ビルドでは、実機で「メニュー」を8秒以内に7回タップするとメニュー内に開発メニューが現れます。公開版は必ずOFFでビルドしてください。詳しくは [iOSリリース手順](docs/ios_release.md)。
 
 ストアへの公開・審査提出は自動では行いません。
 
