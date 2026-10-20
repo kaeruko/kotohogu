@@ -827,7 +827,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                         busy: controller.busy || _celebrating,
                         drawBackground: false,
                       ),
-                    ),
+                    )
                   : _page == 5
                   ? _pageWithSharedHeader(
                       progress,
