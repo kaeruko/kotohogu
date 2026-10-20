@@ -25,7 +25,6 @@ import 'resident_conversation_dialog.dart';
 import 'resident_gacha.dart';
 import 'gacha_hud.dart';
 import 'kotohogisu_tutorial.dart';
-import 'town.dart';
 import 'town_areas.dart';
 import 'town_area_navigator.dart';
 
@@ -1110,7 +1109,6 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           area: _townArea,
           visit: _townVisit,
           onAreaChanged: (area) => setState(() => _townArea = area),
-          level: progress.townLevel,
           lifetimePoints: progress.points,
           residents: progress.residents.owned,
           debugTownResidents: _debugTownResidents,
@@ -1157,9 +1155,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       child: Column(
         children: [
           Text(
-            _townArea == TownArea.plaza
-                ? townDescriptions[progress.townLevel]
-                : _townArea.description,
+            _townArea.description,
             textAlign: TextAlign.center,
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),

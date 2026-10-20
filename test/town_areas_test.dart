@@ -177,7 +177,6 @@ void main() {
         body: TownAreaNavigator(
           area: TownArea.village,
           onAreaChanged: (_) {},
-          level: 0,
           lifetimePoints: 0,
           residents: owned,
           salonUnlockMode: mode,
@@ -233,7 +232,6 @@ void main() {
         body: TownAreaNavigator(
           area: TownArea.village,
           onAreaChanged: (_) {},
-          level: 0,
           lifetimePoints: 300,
           residents: owned,
         ),
@@ -277,7 +275,6 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: TownScene(
-            level: 0,
             area: area,
             lifetimePoints: 300,
             residents: const [],
@@ -333,7 +330,6 @@ void main() {
               contentBuilder: (context, height) => TownAreaNavigator(
                 area: area,
                 onAreaChanged: (_) {},
-                level: 2,
                 lifetimePoints: 300,
                 residents: const [],
               ),
@@ -366,7 +362,6 @@ void main() {
         body: TownAreaNavigator(
           area: area,
           onAreaChanged: (_) {},
-          level: 0,
           lifetimePoints: points,
           residents: const [],
         ),
@@ -441,7 +436,6 @@ void main() {
           body: MediaQuery(
             data: const MediaQueryData(disableAnimations: true),
             child: TownScene(
-              level: 2,
               area: area,
               lifetimePoints: 300,
               residents: const [],
@@ -479,7 +473,6 @@ void main() {
         return TownAreaNavigator(
           area: area,
           onAreaChanged: (next) => setState(() => area = next),
-          level: 0,
           lifetimePoints: points,
           residents: const [
             TownResident.shiba, TownResident.rabbit,
@@ -496,7 +489,6 @@ void main() {
           return TownAreaNavigator(
             area: area,
             onAreaChanged: (next) => setState(() => area = next),
-            level: 0,
             lifetimePoints: points,
             residents: const [
               TownResident.shiba, TownResident.rabbit,
@@ -575,7 +567,6 @@ void main() {
         return TownAreaNavigator(
           area: area,
           onAreaChanged: (next) => setState(() => area = next),
-          level: 0,
           lifetimePoints: 0,
           residents: const [],
           debugTownResidents: const [],

@@ -22,7 +22,6 @@ void main() {
     expect(snapshot.completed, containsAll([Mission.outside, Mission.food]));
     expect(snapshot.history.length, greaterThanOrEqualTo(3));
     expect(snapshot.seenDialogues, contains('tutorial_kotohogisu_v1'));
-    expect(snapshot.townLevel, greaterThanOrEqualTo(2));
     final decoded = Progress.decode(snapshot.encode(), expectedVersion: 5);
     expect(decoded.points, snapshot.points);
     expect(decoded.residents.owned, snapshot.residents.owned);

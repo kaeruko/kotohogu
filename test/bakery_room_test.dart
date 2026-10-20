@@ -19,7 +19,6 @@ void main() {
         body: TownAreaNavigator(
           area: TownArea.shopping,
           onAreaChanged: (_) {},
-          level: 3,
           lifetimePoints: 300,
           residents: owned,
           onBakeryResident: (resident) async { spoken.add(resident); },

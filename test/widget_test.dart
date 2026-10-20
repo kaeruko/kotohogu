@@ -607,7 +607,7 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('footer-town')));
     await tester.pumpAndSettle();
-    expect(tester.widget<TownScene>(find.byType(TownScene)).level, 0);
+    expect(find.textContaining('LEVEL '), findsNothing);
     final background = tester.widget<Image>(
       find.descendant(
         of: find.byType(TownScene),
@@ -675,8 +675,8 @@ void main() {
       // for semantics and identification.
       expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
           .selectedIndex, 3);
-      expect(find.text(townNames.first), findsOneWidget);
-      expect(find.text('LEVEL 0'), findsOneWidget);
+      expect(find.text('中央ひろば'), findsWidgets);
+      expect(find.textContaining('LEVEL '), findsNothing);
       expect(find.byKey(const ValueKey('town-page-shrine-background')),
           findsNothing);
       final art = find.byType(TownScene);
@@ -882,6 +882,11 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('close-celebration')));
     await tester.pumpAndSettle();
     expect(controller.progress!.weeklyCompleted, {Mission.weeklyStrength});
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('mission-period-progress')),
+      -100,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('1/4 達成'), findsOneWidget);
 
     await tester.scrollUntilVisible(

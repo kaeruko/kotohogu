@@ -172,7 +172,6 @@ void main() {
           child: SizedBox(
             width: 360,
             child: TownScene(
-              level: 0,
               lifetimePoints: 0,
               residents: residents,
               onResident: (_) async {
@@ -254,7 +253,6 @@ void main() {
           body: MediaQuery(
             data: const MediaQueryData(disableAnimations: true),
             child: TownScene(
-              level: 0,
               area: area,
               lifetimePoints: points,
               visit: visit,
@@ -321,7 +319,6 @@ void main() {
             child: MediaQuery(
               data: const MediaQueryData(disableAnimations: true),
               child: TownScene(
-                level: 0,
                 area: TownArea.shopping,
                 lifetimePoints: 300,
                 visit: TownVisit(random: ScriptedTownRandom([2, 2, 2])),
@@ -372,7 +369,6 @@ void main() {
             child: MediaQuery(
               data: const MediaQueryData(disableAnimations: true),
               child: TownScene(
-                level: 0,
                 area: TownArea.park,
                 lifetimePoints: 90,
                 visit: TownVisit(random: ScriptedTownRandom([1, 1])),
@@ -413,7 +409,6 @@ void main() {
           body: MediaQuery(
             data: const MediaQueryData(disableAnimations: true),
             child: TownScene(
-              level: 0,
               area: area,
               visit: visit,
               lifetimePoints: 300,
@@ -448,7 +443,6 @@ void main() {
             builder: (context) => MediaQuery(
               data: MediaQuery.of(context).copyWith(disableAnimations: true),
               child: const TownScene(
-                level: 0,
                 lifetimePoints: 0,
                 residents: [TownResident.shiba, TownResident.rabbit],
               ),

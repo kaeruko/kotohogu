@@ -20,7 +20,6 @@ class TownAreaNavigator extends StatefulWidget {
     this.visit,
     this.sceneKey,
     required this.onAreaChanged,
-    required this.level,
     required this.lifetimePoints,
     required this.residents,
     this.debugTownResidents,
@@ -42,7 +41,6 @@ class TownAreaNavigator extends StatefulWidget {
   /// Preserve the painted scene and its semantics when the long town page scrolls.
   final GlobalKey? sceneKey;
   final ValueChanged<TownArea> onAreaChanged;
-  final int level;
   final int lifetimePoints;
   final List<TownResident> residents;
   final List<TownResident>? debugTownResidents;
@@ -144,7 +142,6 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
           if (accessible && area.backgroundAsset != null)
             TownScene(
               key: widget.sceneKey,
-              level: widget.level,
               area: area,
               visit: _visit,
               lifetimePoints: widget.lifetimePoints,
@@ -363,26 +360,11 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (area == TownArea.plaza) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF277A70),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          'LEVEL ${widget.level}',
-                          style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
                     Flexible(
                       child: Text(
-                        area == TownArea.plaza
-                            ? (widget.oyasumi?.active == true ? 'ゆうぐれおやすみクラブ' : townNames[widget.level]) : area.label,
+                        area == TownArea.plaza && widget.oyasumi?.active == true
+                            ? 'ゆうぐれおやすみクラブ'
+                            : area.label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

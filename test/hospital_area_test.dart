@@ -28,7 +28,7 @@ void main() {
         change = setState;
         return TownAreaNavigator(area: area,
           onAreaChanged: (next) => setState(() => area = next),
-          level: 0, lifetimePoints: 0, residents: owned);
+          lifetimePoints: 0, residents: owned);
       }),
     )));
     expect(find.byKey(const ValueKey('town-area-next')), findsNothing);

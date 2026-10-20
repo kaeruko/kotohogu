@@ -151,6 +151,19 @@ void main() {
   });
 
   test('park cleaner dialogue needs future job marker and present friend', () {
+    // Keep eligibility checks independent of CMS dialogue edits and ordering.
+    final previous = oyasumiConfig['restingDialogue'];
+    addTearDown(() => oyasumiConfig['restingDialogue'] = previous);
+    oyasumiConfig['restingDialogue'] = [
+      '今日もぼちぼち。',
+      {
+        'requires': 'parkCleaner',
+        'turns': [
+          {'speaker': frog.id, 'text': '公園のおそうじをすることになったんだ。'},
+          {'speaker': host.id, 'text': 'ぼくはこうえんじゃないもふ！！'},
+        ],
+      },
+    ];
     const saved = OyasumiProgress(completed: 3, lastNight: '2026-10-24');
     final before = OyasumiScene(
       saved: saved, owned: [host, frog], now: DateTime(2026, 10, 25, 12),
@@ -159,17 +172,22 @@ void main() {
       saved: saved, owned: [host, frog], now: DateTime(2026, 10, 25, 12),
       parkCleanerStarted: true,
     );
-    expect(before.dialogue(
-      frog, 'resting', 6, availableResidentIds: {frog.id, host.id},
-    ).text, isNot(contains('おそうじをすることになった')));
+    for (var rotation = 0; rotation < 4; rotation++) {
+      expect(before.dialogue(
+        frog, 'resting', rotation, availableResidentIds: {frog.id, host.id},
+      ).text, '今日もぼちぼち。');
+      expect(after.dialogue(
+        frog, 'resting', rotation, availableResidentIds: {frog.id},
+      ).text, '今日もぼちぼち。');
+    }
     final together=after.dialogue(
-      frog, 'resting', 6, availableResidentIds: {frog.id, host.id},
+      frog, 'resting', 1, availableResidentIds: {frog.id, host.id},
     );
-    expect(together.turns.length, 4);
+    expect(together.turns.length, 2);
+    expect(together.turns.first.resident, frog);
+    expect(together.turns.first.text, '公園のおそうじをすることになったんだ。');
+    expect(together.turns.last.resident, host);
     expect(together.turns.last.text, 'ぼくはこうえんじゃないもふ！！');
-    expect(after.dialogue(
-      frog, 'resting', 6, availableResidentIds: {frog.id},
-    ).text, isNot(contains('おそうじをすることになった')));
   });
 
   test('night chatter can be a multi-turn exchange within the event cast', () {
@@ -322,7 +340,6 @@ void main() {
       ),
       home: Scaffold(
         body: TownScene(
-          level: 0,
           area: TownArea.plaza,
           lifetimePoints: 0,
           residents: const [

@@ -24,7 +24,7 @@ void main() {
         child: child!,
       ),
       home: Scaffold(body: TownScene(
-        level: 0, area: TownArea.plaza, lifetimePoints: 0,
+        area: TownArea.plaza, lifetimePoints: 0,
         residents: const [TownResident.shiba],
         remoteVisitors: const [visitor], remoteContentBaseUri: base,
         onRemoteVisitor: (_) async { visitorTalks++; },
@@ -53,7 +53,7 @@ void main() {
         child: child!,
       ),
       home: Scaffold(body: TownScene(
-        level: 0, area: TownArea.plaza, lifetimePoints: 0,
+        area: TownArea.plaza, lifetimePoints: 0,
         residents: const [TownResident.shiba, TownResident.rabbit],
         remoteVisitors: const [visitor], remoteContentBaseUri: base,
       )),
@@ -84,7 +84,7 @@ void main() {
         child: child!,
       ),
       home: Scaffold(body: TownScene(
-        level: 0, area: TownArea.plaza, lifetimePoints: 0,
+        area: TownArea.plaza, lifetimePoints: 0,
         residents: const [],
         remoteVisitors: const [visitor, second], remoteContentBaseUri: base,
       )),
@@ -108,7 +108,7 @@ void main() {
       ),
       home: Scaffold(body: TownAreaNavigator(
         area: TownArea.plaza, onAreaChanged: (_) {},
-        level: 0, lifetimePoints: 0,
+        lifetimePoints: 0,
         residents: const [TownResident.shiba],
         remoteVisitors: const [visitor], remoteContentBaseUri: base,
       )),
@@ -126,7 +126,7 @@ void main() {
       (tester) async {
     await tester.pumpWidget(const MaterialApp(
       home: Scaffold(body: TownScene(
-        level: 0, area: TownArea.plaza, lifetimePoints: 0,
+        area: TownArea.plaza, lifetimePoints: 0,
         residents: [], remoteVisitors: [visitor],
       )),
     ));

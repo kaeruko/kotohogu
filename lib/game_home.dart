@@ -249,7 +249,7 @@ class _GameHomeState extends State<GameHome> {
                                   key: const ValueKey('open-town'),
                                   asset: '11_nav_town',
                                   title: 'みんなのまちへ',
-                                  detail: 'LEVEL ${widget.progress.townLevel}',
+                                  detail: 'みんなに会いにいこう',
                                   onTap: widget.onTown,
                                 ),
                               ),

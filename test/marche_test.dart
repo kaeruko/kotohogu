@@ -183,7 +183,7 @@ void main() {
     Widget scene(TownArea area, bool open) => MaterialApp(
       home: Scaffold(
         body: TownScene(
-          level: 0, area: area, lifetimePoints: 300,
+          area: area, lifetimePoints: 300,
           residents: const [], fillViewport: true,
           marcheOpen: open,
           onVisitMarche: () { visits++; },
@@ -220,7 +220,6 @@ void main() {
     }) => MaterialApp(
       home: Scaffold(
         body: TownScene(
-          level: 0,
           area: area,
           lifetimePoints: 300,
           visit: visit,

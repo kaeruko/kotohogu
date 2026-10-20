@@ -123,7 +123,6 @@ void main() {
         expect(await restarted.complete(mission), isTrue);
       }
       expect(restarted.progress!.points, 30);
-      expect(restarted.progress!.townLevel, 1);
     },
   );
 
@@ -612,25 +611,4 @@ void main() {
     }
   });
 
-  test('four town stages use cumulative points and never decay', () {
-    for (final (points, level) in [
-      (0, 0),
-      (20, 0),
-      (30, 1),
-      (80, 1),
-      (90, 2),
-      (170, 2),
-      (180, 3),
-      (9990, 3),
-    ]) {
-      final progress = Progress(
-        day: localDay(today),
-        lastCompletedDay: null,
-        points: points,
-        completed: {},
-      );
-      expect(progress.townLevel, level);
-      expect(progress.onDay(DateTime(2028)).townLevel, level);
-    }
-  });
 }

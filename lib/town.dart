@@ -10,7 +10,6 @@ import 'local_content_preview.dart';
 import 'town_walk.dart';
 import 'town_areas.dart';
 
-const townNames = ['穏やかなまち', '花のあるまち', '笑顔が集まるまち', 'にぎやかなまち'];
 /// The tappable front-right house doorway in the 941x1672 village artwork.
 /// Keep this rect in source-image coordinates, not screen coordinates.
 const villageSalonDoor = Rect.fromLTWH(782, 728, 112, 132);
@@ -33,18 +32,11 @@ double _townResidentScale(double homeY) {
 }
 
 
-const townDescriptions = [
-  'いつものまちで、みんなが暮らしています。',
-  '道ばたに、色とりどりの花が咲きました。',
-  '公園に、笑顔の住民が集まってきました。',
-  '小さな飾りが、まちの日常を彩っています。',
-];
 
 /// The owned residents wander gently around the illustrated plaza.
 class TownScene extends StatefulWidget {
   const TownScene({
     super.key,
-    required this.level,
     required this.residents,
     this.area = TownArea.plaza,
     this.visit,
@@ -64,7 +56,6 @@ class TownScene extends StatefulWidget {
     this.fillViewport = false,
   });
 
-  final int level;
   final List<TownResident> residents;
   final TownArea area;
   /// Main navigation supplies its shared visit. A standalone scene owns one.

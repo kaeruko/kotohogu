@@ -49,7 +49,6 @@ void main() {
     expect(progress.residents.availableKotohogi(progress.points), 999);
     expect(progress.residents.expiredKotohogi, 1);
     expect(progress.completed, contains(Mission.strength));
-    expect(progress.townLevel, 3);
 
     progress = progress.complete(Mission.outside);
     expect(progress.points, 1010);

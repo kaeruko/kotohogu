@@ -125,14 +125,6 @@ class Progress {
     return missionCounts[mission] ?? 0;
   }
 
-  int get townLevel => points >= 180
-      ? 3
-      : points >= 90
-      ? 2
-      : points >= 30
-      ? 1
-      : 0;
-
   Set<Mission> completedFor(MissionPeriod period) => switch (period) {
     MissionPeriod.daily => completed,
     MissionPeriod.weekly => weeklyCompleted,
