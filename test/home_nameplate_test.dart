@@ -52,7 +52,7 @@ void main() {
       expect((nameRect.width / nameRect.height), closeTo(788 / 209, .01));
       expect(find.text('FutureLift'), findsNothing);
       expect(find.text('みんなのまち'), findsOneWidget);
-    expect(find.text('あいにいく'), findsOneWidget);
+      expect(find.text('あいにいく'), findsOneWidget);
       final scenery = find.byKey(const ValueKey('open-town-scenery'));
       expect(scenery, findsOneWidget);
       expect(tester.getRect(scenery).top, greaterThan(nameRect.bottom));
