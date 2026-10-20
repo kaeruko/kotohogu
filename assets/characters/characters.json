@@ -41,7 +41,7 @@
       "artFolder": "004_neko",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 30,
+      "nextDialogueNumber": 34,
       "profile": "ことほぎのまちで長く診療を続けてきた、少し年配のかかりつけ医。病名や年齢だけで決めつけず、その人が望む暮らしを大切にしている。必要なときは専門医やほかの医療職と協力する。自身も緑内障で片目がほとんど見えなくなり、もう片方の目も眼科で定期的に診てもらっている。見え方に合う工夫をしながら、住民と同じように日々を暮らす。穏やかで聞き上手だが、言うべきことはきちんと伝える。患者さんには休息を勧める一方、自分はつい働きすぎてしまう、少しお茶目な先生。",
       "homeAreaId": "shopping"
     },
@@ -84,7 +84,7 @@
       "label": "やすぞう",
       "profile": "本名：多賀　康三。健康を意識している中年男性。",
       "artFolder": "026_farmer",
-      "nextDialogueNumber": 6,
+      "nextDialogueNumber": 8,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"
@@ -95,7 +95,7 @@
       "label": "おやすみくん",
       "profile": "おしごともべんきょうもおやすみ中の子。ぼくはまだまだこれからなんだ～",
       "artFolder": "027_daydreamer",
-      "nextDialogueNumber": 7,
+      "nextDialogueNumber": 8,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"
@@ -161,7 +161,7 @@
       "label": "かえる",
       "profile": "",
       "artFolder": "029_office_worker",
-      "nextDialogueNumber": 16,
+      "nextDialogueNumber": 17,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
@@ -216,7 +216,7 @@
       "label": "とんこ",
       "profile": "",
       "artFolder": "041_pig_middle",
-      "nextDialogueNumber": 49,
+      "nextDialogueNumber": 50,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "village"
@@ -238,7 +238,7 @@
       "label": "めりぃ",
       "profile": "",
       "artFolder": "007_hitsuji",
-      "nextDialogueNumber": 11,
+      "nextDialogueNumber": 12,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
