@@ -150,7 +150,7 @@ class _CelebrationState extends State<Celebration>
                           const SizedBox(height: 4),
                           const Text(
                             '健康づくりや人とのつながりは、'
-                            '将来の医療・介護費を抑えることにもつながるかもしれません。',
+                            '将来の医療・介護費を抑えることにもつながります。',
                             key: ValueKey('social-contribution-reason'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
