@@ -169,6 +169,14 @@ void main() {
           (destination as NavigationDestination).label).toList(),
       ['ホーム', 'セルフケア', '相談会', 'まち', 'メニュー'],
     );
+    for (final (index, asset) in [
+      (1, 'assets/kotohogu/10_nav_quest.png'),
+      (2, 'assets/kotohogu/13_nav_gacya.png'),
+    ]) {
+      final icon = (nav.destinations[index] as NavigationDestination).icon as Image;
+      expect((icon.image as AssetImage).assetName, asset);
+      expect(icon.fit, BoxFit.contain);
+    }
     for (final id in [
       'footer-home', 'footer-missions', 'footer-consultation',
       'footer-town', 'footer-menu',
