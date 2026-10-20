@@ -153,6 +153,12 @@ void main() {
 
       expect(mission.top, greaterThan(resident.bottom));
       expect(town.top, greaterThan(resident.bottom));
+      // Both home action cards share one footprint even when the town
+      // description wraps onto a second line.
+      expect(mission.width, closeTo(town.width, 0.01));
+      expect(mission.height, closeTo(town.height, 0.01));
+      expect(mission.top, closeTo(town.top, 0.01));
+      expect(mission.bottom, closeTo(town.bottom, 0.01));
       expect(mission.bottom, lessThan(footer.top));
       expect(town.bottom, lessThan(footer.top));
       expect(footer.bottom, lessThanOrEqualTo(viewport.bottom));
@@ -162,6 +168,37 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
   }
+
+  testWidgets('home signs remain identical with larger accessibility text',
+      (tester) async {
+    tester.view.physicalSize = const Size(360, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: MediaQuery(
+          data: const MediaQueryData(
+            textScaler: TextScaler.linear(1.5),
+            disableAnimations: true,
+          ),
+          child: GameHome(
+            progress: Progress.empty(DateTime(2026, 10, 12)),
+            onMissions: () {},
+            onTown: () {},
+            onResident: (_) {},
+          ),
+        ),
+      ),
+    ));
+    await tester.pump();
+    final left = tester.getRect(find.byKey(const ValueKey('open-missions')));
+    final right = tester.getRect(find.byKey(const ValueKey('open-town')));
+    expect(left.width, closeTo(right.width, 0.01));
+    expect(left.height, closeTo(right.height, 0.01));
+    expect(left.top, closeTo(right.top, 0.01));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
 
   // The actual app wraps GameHome in SafeArea > Center > ConstrainedBox.
   // This supplies loose constraints, unlike a directly mounted Scaffold body.
