@@ -12,11 +12,12 @@ class FacilityPlacement {
 List<FacilityPlacement> facilityPlacements(String facilityId) {
   final rooms = facilityConfig['facilities'] as List;
   final room = rooms.singleWhere((r) => r['id'] == facilityId);
+  final size = (room['spriteSize'] as num).toDouble();
   return List.unmodifiable([
     for (final row in room['placements'] as List)
       FacilityPlacement(row['residentId'] as String,
         (row['x'] as num).toDouble(), (row['y'] as num).toDouble(),
-        (row['size'] as num).toDouble()),
+        size),
   ]);
 }
 
