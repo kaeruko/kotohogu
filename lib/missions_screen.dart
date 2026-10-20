@@ -499,11 +499,17 @@ class _QuestCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Container(
+                        key: ValueKey('mission-label-${mission.name}'),
+                        constraints: const BoxConstraints(minHeight: 56),
                         decoration: const BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage(
                               'assets/quests/10_label_bar_blank.png',
                             ),
+                            // Stretch only the quiet middle of the title bar.
+                            // The end caps contain blossoms and must keep their
+                            // proportions when cards grow wider.
+                            centerSlice: Rect.fromLTWH(56, 2, 191, 70),
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -522,7 +528,15 @@ class _QuestCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (done) uiPart('24_badge_clear', width: 34, height: 34),
+                    if (done)
+                      Image.asset(
+                        'assets/kotohogu/24_badge_clear.png',
+                        key: ValueKey('mission-clear-${mission.name}'),
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.contain,
+                        excludeFromSemantics: true,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 8),
