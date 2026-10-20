@@ -421,6 +421,73 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     });
   }
 
+  Future<void> _editPlayerName() async {
+    final current = controller.progress;
+    if (current == null || controller.busy || controller.failure != null) return;
+    final input = TextEditingController(text: current.playerName);
+    final formKey = GlobalKey<FormState>();
+    var saving = false;
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => StatefulBuilder(
+          builder: (dialogContext, updateDialog) => AlertDialog(
+            title: const Text('名前を変える'),
+            content: Form(
+              key: formKey,
+              child: TextFormField(
+                key: const ValueKey('player-name-input'),
+                controller: input,
+                autofocus: true,
+                maxLength: maxPlayerNameLength,
+                textInputAction: TextInputAction.done,
+                decoration: const InputDecoration(
+                  labelText: '名前',
+                  hintText: '新しい名前',
+                ),
+                validator: (value) {
+                  final name = value ?? '';
+                  if (name.isEmpty) return '名前を入力してください';
+                  if (name != name.trim()) {
+                    return '前後の空白を取り除いてください';
+                  }
+                  if (!isValidPlayerName(name)) {
+                    return '12文字以内の名前を入力してください';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                key: const ValueKey('cancel-player-name'),
+                onPressed: saving ? null : () => Navigator.of(dialogContext).pop(),
+                child: const Text('やめる'),
+              ),
+              FilledButton(
+                key: const ValueKey('save-player-name'),
+                onPressed: saving ? null : () async {
+                  if (!formKey.currentState!.validate()) return;
+                  updateDialog(() => saving = true);
+                  final saved = await controller.setPlayerName(input.text);
+                  if (!dialogContext.mounted) return;
+                  if (saved || controller.failure != null) {
+                    Navigator.of(dialogContext).pop();
+                  } else {
+                    updateDialog(() => saving = false);
+                  }
+                },
+                child: const Text('保存'),
+              ),
+            ],
+          ),
+        ),
+      );
+    } finally {
+      input.dispose();
+    }
+  }
+
   Future<void> _showDialogue(TownResident resident, {bool inSalon = false, bool inBakery = false}) async {
     if (controller.busy || controller.failure != null ||
         controller.progress == null) {
@@ -652,6 +719,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         ),
       ),
       PinnedGachaHud(
+        displayName: progress.playerName,
         points: progress.residents.availableKotohogi(progress.points),
         contentBuilder: (context, availableHeight) => page,
       ),
@@ -757,6 +825,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                     )
                   : _page == 2
                   ? PinnedGachaHud(
+                      displayName: progress.playerName,
                       points: progress.residents.availableKotohogi(
                         progress.points,
                       ),
@@ -875,6 +944,16 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                             ),
                           ),
                           const SizedBox(height: 18),
+                          Card(
+                            child: ListTile(
+                              key: const ValueKey('menu-change-name'),
+                              leading: const Icon(Icons.edit_rounded),
+                              title: const Text('名前を変える'),
+                              subtitle: Text(progress.playerName),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: controller.busy ? null : _editPlayerName,
+                            ),
+                          ),
                           Card(
                             child: ListTile(
                               key: const ValueKey('menu-history'),
