@@ -5753,6 +5753,24 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "026_farmer_008",
+      "residentId": "026_farmer",
+      "text": "食事の最初に油をとると、血糖値が上がりにくくなるんじゃって？ごはんの前に油を飲めばいいのか？",
+      "priority": 40,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "009_chef"
+        }
+      ],
+      "reply": {
+        "residentId": "009_chef",
+        "text": "マウスの研究ですね。油が胃の動きをゆっくりにする仕組みがわかってきたんですよ。たとえば、オリーブ油を使ったおかずを先に食べる、という応用が考えられますね"
+      }
     }
   ]
 }
