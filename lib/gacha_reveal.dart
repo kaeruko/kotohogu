@@ -277,7 +277,7 @@ class _GachaRevealState extends State<GachaReveal>
                     ),
                     // Reuse exactly the same HUD during the resident reveal.
                     Positioned.fill(
-                      child: GameHeaderOverlay(points: balance),
+                      child: GameHeaderOverlay(points: balance, displayName: progress.playerName),
                     ),
                   ],
                 );
