@@ -144,6 +144,35 @@ class EventTests(unittest.TestCase):
         invalid['restingDialogue']=['one','two','three']*3
         with self.assertRaises(ValueError):events.validate(invalid)
 
+    def test_mosaedo_night_patrol_is_solo_and_requires_ownership(self):
+        cfg=events.load()
+        patrol=cfg['nightPatrol']
+        self.assertEqual(patrol['residentId'],events.MOSA)
+        self.assertIn('今宵も町は平和でござる！ あおんあおん！',patrol['dialogues'])
+        base=dict(config=cfg,completed=0,lastNight=None,
+                  now='2026-10-20T19:00',owned=[events.HOST,events.MOSA])
+        night=events.preview(base)
+        self.assertEqual(night['cast'],[events.HOST])
+        self.assertEqual(night['passersby'],[events.MOSA])
+        self.assertEqual(night['positions'][events.MOSA],
+                         [patrol['route']['x'],patrol['route']['y']])
+        self.assertEqual(night['patrolDialogues'],patrol['dialogues'])
+        self.assertEqual(events.preview({**base,'owned':[events.HOST]})['passersby'],[])
+        self.assertEqual(events.preview({**base,'owned':[events.MOSA]})['passersby'],[])
+        self.assertEqual(events.preview({**base,'now':'2026-10-20T12:00'})['passersby'],[])
+        self.assertEqual(events.preview({**base,'owned':[events.HOST,events.FROG,events.MOSA]})['stage'],'solo')
+        for mutation in [
+            lambda d:d['nightPatrol'].update(residentId=events.FROG),
+            lambda d:d['nightPatrol']['route'].update(x=.82,width=.15),
+            lambda d:d['nightPatrol']['route'].update(height=float('nan')),
+            lambda d:d['nightPatrol'].update(dialogues=[]),
+            lambda d:d['nightPatrol'].update(dialogues=['こんにちは',{'turns':[]}]),
+        ]:
+            modified=copy.deepcopy(cfg)
+            mutation(modified)
+            with self.assertRaises(ValueError):
+                events.validate(modified)
+
     def test_preview_never_saves(self):
         with patch.object(events,'commit_files',side_effect=AssertionError('preview wrote data')):
             self.preview();self.preview(3,'2026-10-19')

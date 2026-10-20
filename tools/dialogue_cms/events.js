@@ -114,6 +114,34 @@ function renderEditor(){
     });
     $('stages').append(detail);
   });
+  const patrol=config.nightPatrol;
+  const watch=el('details');
+  watch.append(el('summary','夜回りのモサエド（通行人・ひとり会話）'));
+  const desc=el('p','モサエド所持中は夜の広場を歩きます。おやすみクラブの進行には参加しません。');
+  desc.className='hint';watch.append(desc);
+  const walk=el('div');walk.className='row';
+  for(const axis of ['x','y','width','height']){
+    const field=el('label',axis+' '),input=el('input');
+    input.type='number';input.min='0';input.max='.82';input.step='.01';
+    input.value=patrol.route[axis];
+    input.oninput=()=>{patrol.route[axis]=Number(input.value);change();};
+    field.append(input);walk.append(field);
+  }
+  watch.append(walk);
+  patrol.dialogues.forEach((line,i)=>textField(watch,`ひとり会話 ${i+1}`,line,value=>{
+    patrol.dialogues[i]=value;
+  }));
+  const addPatrol=el('button','＋ ひとり会話を追加（最大4本）');
+  addPatrol.type='button';addPatrol.disabled=patrol.dialogues.length>=4;
+  addPatrol.onclick=()=>{patrol.dialogues.push('よまわりでござる！');renderEditor();change();};
+  watch.append(addPatrol);
+  if(patrol.dialogues.length>1){
+    const removePatrol=el('button','最後の会話を削除');
+    removePatrol.type='button';removePatrol.className='secondary';
+    removePatrol.onclick=()=>{patrol.dialogues.pop();renderEditor();change();};
+    watch.append(removePatrol);
+  }
+  $('stages').append(watch);
   const rest=el('details');
   rest.append(el('summary','参加後のかえる：昼間・通常会話'));
   rest.append(el('p','最初の発言はかえる。次の発言から、やすぞうさん・おやすみくんなどを選べます。同じ場所にいない場合は、その掛け合いを出さず、一人用の会話を使います。'));
@@ -128,7 +156,7 @@ function renderConversation(parent,item,primary,index){
     block.append(el('p',`${names[turn.speaker]||turn.speaker}「${turn.text}」`)));
   parent.append(block);
 }
-function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[])],peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked};}
+function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[])],peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked};}
 async function preview(){
   if(!config)return;
   const version=++revision;$('read').disabled=true;
@@ -148,7 +176,7 @@ async function preview(){
     bg.alt=data.active?'夜のひろば':'昼のひろば';
     bg.src=data.active?'/api/event-background':'/api/area-background?id=plaza';
     $('scene').append(bg);
-    data.cast.forEach(id=>{
+    [...data.cast,...data.passersby].forEach(id=>{
       const image=el('img');image.className='person';image.alt=names[id]||id;
       image.src='/api/runtime/sprites/'+folders[id]+'/idle_front_01.png';
       const [x,y]=data.positions[id],scale=y<.55?1.2:y<.72?1.4:1.5;
@@ -163,6 +191,12 @@ async function preview(){
     $('lines').replaceChildren();
     if(data.intro){
       $('lines').append(el('strong',(names[data.intro.speaker]||data.intro.speaker)+'の導入（最初に表示）'),el('p',data.intro.text));
+    }
+    if(data.patrolDialogues.length){
+      const patrol=el('details');patrol.open=true;
+      patrol.append(el('summary','モサエドの夜回り（通行人・ひとり会話）'));
+      data.patrolDialogues.forEach((item,i)=>renderConversation(patrol,item,'036_mosa',i));
+      $('lines').append(patrol);
     }
     Object.entries(data.dialogues).forEach(([id,items])=>{
       const detail=el('details');detail.open=true;
@@ -201,7 +235,7 @@ async function load(){
   }catch(error){$('saveStatus').textContent=error.message;}
 }
 $('start').oninput=()=>{config.night.startHour=Number($('start').value);change();};$('end').oninput=()=>{config.night.endHour=Number($('end').value);change();};
-['host','frog','now','last','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
+['host','frog','mosa','now','last','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
 $('completed').onchange=()=>{$('last').disabled=$('completed').value==='0';$('last').value=$('last').disabled?'':$('now').value.slice(0,10);preview();};
 $('preview').onclick=preview;
 $('read').onclick=async()=>{if(!result?.canComplete)return;$('completed').value=result.nextCompleted;$('last').disabled=false;$('last').value=result.nightKey;await preview();};

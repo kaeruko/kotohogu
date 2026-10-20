@@ -18,6 +18,7 @@ import 'progress_test.dart' show MemoryStore;
 
 const host = OyasumiScene.host;
 const frog = OyasumiScene.frog;
+const mosa = OyasumiScene.nightPatroller;
 OyasumiScene scene(
   int day, {
   int hour = 19,
@@ -192,6 +193,51 @@ void main() {
     } finally {
       messages[0] = original;
     }
+  });
+
+  test('owned Mosaedo makes a walking solo night patrol, not a club member', () {
+    final withPatrol = OyasumiScene(
+      saved: const OyasumiProgress(),
+      owned: [host, frog, mosa],
+      now: DateTime(2026, 10, 20, 19),
+    );
+    expect(withPatrol.stage, 'solo');
+    expect(withPatrol.cast, [host]);
+    expect(withPatrol.passersby, [mosa]);
+    expect(withPatrol.residents(TownArea.plaza, [TownResident.shiba, mosa]),
+      [host, mosa]);
+    expect(withPatrol.residents(TownArea.park, [TownResident.shiba, mosa]),
+      [TownResident.shiba]);
+    final route = withPatrol.route(TownArea.plaza, mosa)!;
+    expect(route.stay, isFalse);
+    expect(route.width, greaterThan(0));
+    expect(withPatrol.route(TownArea.park, mosa), isNull);
+    expect(withPatrol.group(mosa, inPlaza: true), 'patrol');
+    expect(withPatrol.group(mosa, inPlaza: false), isNull);
+    expect(withPatrol.introduction(mosa, 'patrol'), isFalse);
+    final line = withPatrol.dialogue(mosa, 'patrol', 0);
+    expect(line.turns.length, 1);
+    expect(line.turns.single.resident, mosa);
+    expect(line.text, '今宵も町は平和でござる！ あおんあおん！');
+    expect(withPatrol.completeIntroduction(mosa, 'patrol'),
+      same(withPatrol.saved));
+    final noMosa = scene(20);
+    expect(noMosa.passersby, isEmpty);
+    expect(noMosa.residents(TownArea.plaza, [mosa]), [host]);
+    final daytime = OyasumiScene(
+      saved: const OyasumiProgress(),
+      owned: [host, frog, mosa],
+      now: DateTime(2026, 10, 20, 12),
+    );
+    expect(daytime.passersby, isEmpty);
+    expect(daytime.group(mosa, inPlaza: true), isNull);
+    expect(daytime.residents(TownArea.plaza, [mosa]), [mosa]);
+    final withoutHost = OyasumiScene(
+      saved: const OyasumiProgress(),
+      owned: [mosa], now: DateTime(2026, 10, 20, 19),
+    );
+    expect(withoutHost.passersby, isEmpty);
+    expect(withoutHost.group(mosa, inPlaza: true), isNull);
   });
 
   test('night boundaries and missing host do not activate club', () {

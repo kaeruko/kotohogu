@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'assets/events/oyasumi_club.json'
 DART = ROOT / 'lib/oyasumi_config.g.dart'
 STAGES = ('solo', 'watching', 'joining', 'joined')
-HOST, FROG = '027_daydreamer', '029_office_worker'
+HOST, FROG, MOSA = '027_daydreamer', '029_office_worker', '036_mosa'
 
 
 def load():
@@ -16,7 +16,7 @@ def load():
 
 
 def validate(doc):
-    if not isinstance(doc, dict) or set(doc) != {'version','id','label','night','background','stages','restingDialogue'}:
+    if not isinstance(doc, dict) or set(doc) != {'version','id','label','night','background','stages','restingDialogue','nightPatrol'}:
         raise ValueError('イベントの項目が不正です')
     if doc['version'] != 1 or doc['id'] != 'oyasumi_club' or doc['background'] != 'assets/kotohogu/town_background_night.jpg':
         raise ValueError('イベントID・背景は固定です')
@@ -76,6 +76,15 @@ def validate(doc):
             lines(items, speaker, cast)
     if not lines(doc['restingDialogue'], FROG, outdoor, max_patterns=8, job_gate=True):
         raise ValueError('昼のかえるの会話には、一人で話せる候補を1本以上残してください')
+    patrol=doc['nightPatrol']
+    if not isinstance(patrol,dict) or set(patrol) != {'residentId','route','dialogues'} or patrol['residentId'] != MOSA:
+        raise ValueError('夜回りの住民はモサエド固定です')
+    route=patrol['route']
+    if not isinstance(route,dict) or set(route) != {'x','y','width','height'} or any(type(v) not in (int,float) or not 0<=v<=.82 for v in route.values()) or route['x']+route['width']>.86 or route['y']+route['height']>.82:
+        raise ValueError('夜回りの経路は歩行可能範囲に設定してください')
+    if not isinstance(patrol['dialogues'],list) or not 1<=len(patrol['dialogues'])<=4:
+        raise ValueError('夜回りの独り言は1〜4本で設定してください')
+    for line in patrol['dialogues']: text(line)
     return doc
 
 
@@ -100,7 +109,7 @@ def preview(payload):
     if (completed==0)!=(last is None): raise ValueError('完了段階と最終開催日をセットで指定してください')
     if last: datetime.strptime(last,'%Y-%m-%d')
     owned=payload['owned']
-    if not isinstance(owned,list) or any(i not in (HOST,FROG) for i in owned): raise ValueError('所持設定が不正です')
+    if not isinstance(owned,list) or any(i not in (HOST,FROG,MOSA) for i in owned): raise ValueError('所持設定が不正です')
     peers=payload.get('peers',[])
     park_cleaner_started=payload.get('parkCleanerStarted', False)
     if type(park_cleaner_started) is not bool:
@@ -116,6 +125,8 @@ def preview(payload):
     key=STAGES[step-1]
     stage=doc['stages'][key]
     cast=([HOST]+([FROG] if step>1 and FROG in owned else [])) if active else []
+    passersby=[MOSA] if active and MOSA in owned else []
+    positions=({**stage['positions'], **({MOSA:[doc['nightPatrol']['route']['x'],doc['nightPatrol']['route']['y']]} if passersby else {})}) if active else {}
     intro=active and step<=3 and completed<step
     reason=('昼のためクラブはお休みです' if not night else 'おやすみくん未所持のため開催しません' if HOST not in owned else 'かえる未所持：一人のクラブを続けます' if FROG not in owned else '今夜の導入会話を読み終えると進行します' if intro else '次の開催夜を待っています' if step<4 else '参加後のクラブを続けます')
     def turn_speakers(item):
@@ -125,4 +136,4 @@ def preview(payload):
         if (not isinstance(item, dict) or item.get('requires') != 'parkCleaner' or park_cleaner_started)
         and set(turn_speakers(item)).issubset(set(peers)|{FROG})
     ] if completed==3 and FROG in owned and not active else []
-    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,positions=stage['positions'] if active else {},intro=stage['intro'] if intro else None,canComplete=intro and later,completed=completed,lastNight=last,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},restingOptions=rest,nextCompleted=step if intro and later else completed)
+    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro and later,completed=completed,lastNight=last,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},patrolDialogues=doc['nightPatrol']['dialogues'] if passersby else [],restingOptions=rest,nextCompleted=step if intro and later else completed)

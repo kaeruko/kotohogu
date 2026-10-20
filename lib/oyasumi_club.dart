@@ -68,6 +68,7 @@ class OyasumiScene {
   static const parkCleanerUnlockId = 'frog_park_cleaner_started';
   static const host = TownResident.c027_daydreamer;
   static const frog = TownResident.c029_office_worker;
+  static const nightPatroller = TownResident.c036_mosa;
   int get startHour => oyasumiConfig['night']['startHour'] as int;
   int get endHour => oyasumiConfig['night']['endHour'] as int;
   bool get night => now.hour >= startHour || now.hour < endHour;
@@ -99,8 +100,13 @@ class OyasumiScene {
   List<TownResident> get cast =>
       !active ? [] : [host, if (step > 1 && owned.contains(frog)) frog];
 
-  /// During the event, the night plaza is reserved for the scripted cast.
-  /// Other neighborhoods continue their ordinary routines.
+  // A passing night watchman is never part of the club story or its progress.
+  bool get nightPatrolVisible => active && owned.contains(nightPatroller);
+  List<TownResident> get passersby =>
+      nightPatrolVisible ? [nightPatroller] : [];
+
+  /// During the event, the night plaza hosts the scripted cast and one
+  /// optional passerby. Other neighborhoods continue their ordinary routines.
   bool takesOver(TownArea area) => active && area == TownArea.plaza;
 
   String? background(TownArea area) => takesOver(area)
@@ -112,11 +118,20 @@ class OyasumiScene {
     Iterable<TownResident> ordinary,
   ) {
     if (!active) return ordinary.toList();
-    if (takesOver(area)) return cast;
-    // Cast members are attending the event instead of appearing elsewhere.
-    return ordinary.where((r) => r != host && r != frog).toList();
+    if (takesOver(area)) return [...cast, ...passersby];
+    // No duplication across areas while the club and patrol are active.
+    return ordinary.where((r) => r != host && r != frog &&
+        !(nightPatrolVisible && r == nightPatroller)).toList();
   }
   TownWalkRoute? route(TownArea area, TownResident resident) {
+    if (takesOver(area) && nightPatrolVisible && resident == nightPatroller) {
+      final values = oyasumiConfig['nightPatrol']['route'] as Map;
+      return TownWalkRoute(
+        (values['x'] as num).toDouble(), (values['y'] as num).toDouble(),
+        width: (values['width'] as num).toDouble(),
+        height: (values['height'] as num).toDouble(),
+      );
+    }
     if (frogResting && !active && resident == frog) {
       return const TownWalkRoute(.58, .64, stay: true);
     }
@@ -132,6 +147,9 @@ class OyasumiScene {
   }
 
   String? group(TownResident resident, {required bool inPlaza}) {
+    if (active && inPlaza && nightPatrolVisible && resident == nightPatroller) {
+      return 'patrol';
+    }
     if (active && inPlaza && cast.contains(resident)) return stage;
     if (frogResting && resident == frog) return 'resting';
     return null;
@@ -175,10 +193,14 @@ class OyasumiScene {
     }
     final options = group == 'resting'
         ? oyasumiConfig['restingDialogue'] as List
-        : definition['chatter'][resident.id] as List;
+        : group == 'patrol' && nightPatrolVisible && resident == nightPatroller
+            ? oyasumiConfig['nightPatrol']['dialogues'] as List
+            : definition['chatter'][resident.id] as List;
     final peers = group == 'resting'
         ? (availableResidentIds ?? {resident.id})
-        : cast.map((character) => character.id).toSet();
+        : group == 'patrol'
+            ? {nightPatroller.id} // Solo lines, never club back-and-forth.
+            : cast.map((character) => character.id).toSet();
     final eligible = [
       for (final item in options)
         if ((item is! Map ||

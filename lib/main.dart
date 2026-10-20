@@ -565,7 +565,11 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         context: context,
         builder: (_) => PagedConversationDialog(
           conversationId: line.id, reportCompletion: true,
-          badge: group == 'resting' ? null : 'ゆうぐれおやすみクラブ',
+          badge: group == 'resting'
+              ? null
+              : group == 'patrol'
+                  ? 'よまわり'
+                  : 'ゆうぐれおやすみクラブ',
           turns: [
             for (final turn in line.turns)
               ConversationTurn(
