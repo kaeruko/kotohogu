@@ -9,6 +9,15 @@ import 'resident_collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const defaultPlayerName = 'ハル';
+const maxPlayerNameLength = 12;
+
+bool isValidPlayerName(String name) =>
+    name.isNotEmpty &&
+    name == name.trim() &&
+    name.runes.length <= maxPlayerNameLength &&
+    !RegExp(r'[\x00-\x1F\x7F]').hasMatch(name);
+
 enum MissionPeriod { daily, weekly, monthly }
 
 enum Mission {
@@ -58,6 +67,7 @@ class Progress {
     required this.day,
     required this.lastCompletedDay,
     required this.points,
+    this.playerName = defaultPlayerName,
     ResidentCollection? residents,
     required Set<Mission> completed,
     Map<String, Set<Mission>> history = const {},
@@ -94,6 +104,7 @@ class Progress {
   final String day;
   final String? lastCompletedDay;
   final int points;
+  final String playerName;
   final ResidentCollection residents;
   final Set<Mission> completed;
   final Map<String, Set<Mission>> history;
@@ -135,6 +146,7 @@ class Progress {
     }
     if (today == day) return this;
     return Progress(
+      playerName: playerName,
       day: today,
       lastCompletedDay: lastCompletedDay,
       points: points,
@@ -164,6 +176,7 @@ class Progress {
   Progress complete(Mission mission) {
     if (completedFor(mission.period).contains(mission)) return this;
     return Progress(
+      playerName: playerName,
       day: day,
       lastCompletedDay: day,
       points: points + 10,
@@ -191,6 +204,7 @@ class Progress {
   /// Restore all mission buttons without deleting points or the journal.
   /// Re-completing a mission in this debug state earns another 10 points.
   Progress resetMissionsForDebug() => Progress(
+      playerName: playerName,
     day: day,
     lastCompletedDay: lastCompletedDay,
     points: points,
@@ -211,6 +225,7 @@ class Progress {
 
   /// Remove the journal only; keep points and current-period completion flags.
   Progress clearHistory() => Progress(
+      playerName: playerName,
     day: day,
     lastCompletedDay: lastCompletedDay,
     points: points,
@@ -226,6 +241,7 @@ class Progress {
 
   /// Add test-only gacha tickets without changing contributions or history.
   Progress grantTicketsForDebug(int amount) => Progress(
+      playerName: playerName,
     day: day,
     lastCompletedDay: lastCompletedDay,
     points: points,
@@ -241,6 +257,7 @@ class Progress {
   );
 
   Progress acquireResident(TownResident resident) => Progress(
+      playerName: playerName,
     day: day,
     lastCompletedDay: lastCompletedDay,
     points: points,
@@ -257,6 +274,7 @@ class Progress {
 
   /// One durable transaction for ten tickets and eleven residents.
   Progress acquireResidentsTenPlusOne(List<TownResident> results) => Progress(
+      playerName: playerName,
     day: day,
     lastCompletedDay: lastCompletedDay,
     points: points,
@@ -275,6 +293,7 @@ class Progress {
     if (id.isEmpty) throw ArgumentError.value(id, 'id');
     if (seenDialogues.contains(id)) return this;
     return Progress(
+      playerName: playerName,
       day: day,
       lastCompletedDay: lastCompletedDay,
       points: points,
@@ -291,6 +310,7 @@ class Progress {
   }
 
   Progress withOyasumi(OyasumiProgress value) => Progress(
+      playerName: playerName,
     day: day, lastCompletedDay: lastCompletedDay, points: points,
     residents: residents, completed: completed, history: history,
     weeklyCompleted: weeklyCompleted, monthlyCompleted: monthlyCompleted,
@@ -298,8 +318,31 @@ class Progress {
     seenDialogues: seenDialogues, oyasumi: value,
   );
 
+  Progress withPlayerName(String name) {
+    if (!isValidPlayerName(name)) {
+      throw ArgumentError.value(name, 'name', 'Invalid player name (1-$maxPlayerNameLength characters).');
+    }
+    if (name == playerName) return this;
+    return Progress(
+      day: day,
+      lastCompletedDay: lastCompletedDay,
+      points: points,
+      playerName: name,
+      residents: residents,
+      completed: completed,
+      weeklyCompleted: weeklyCompleted,
+      monthlyCompleted: monthlyCompleted,
+      history: history,
+      missionCounts: missionCounts,
+      seenDialogues: seenDialogues,
+      oyasumi: oyasumi,
+      debugResets: debugResets,
+    );
+  }
+
   String encode() => jsonEncode({
     'version': 5,
+    'playerName': playerName,
     if (oyasumi.completed > 0) 'oyasumi': oyasumi.toJson(),
     'residents': residents.encode(),
     'missionCounts': {
@@ -344,6 +387,7 @@ class Progress {
     }
     final keys = {
       if (version >= 5 && data.containsKey('oyasumi')) 'oyasumi',
+      if (version >= 5 && data.containsKey('playerName')) 'playerName',
       if (version >= 4) 'residents',
       if (version >= 5) ...['missionCounts', 'seenDialogues'],
       'version',
@@ -362,6 +406,12 @@ class Progress {
             !_validDay(data['lastCompletedDay'])) ||
         data['points'] is! int) {
       throw const FormatException('Invalid FutureLift save schema.');
+    }
+    if (data.containsKey('playerName') &&
+        (version < 5 ||
+            data['playerName'] is! String ||
+            !isValidPlayerName(data['playerName'] as String))) {
+      throw const FormatException('Invalid player name.');
     }
     final day = data['day'] as String;
     final last = data['lastCompletedDay'] as String?;
@@ -511,6 +561,8 @@ class Progress {
       day: day,
       lastCompletedDay: last,
       points: points,
+      playerName: version >= 5 && data.containsKey('playerName')
+          ? data['playerName'] as String : defaultPlayerName,
       residents: residents,
       completed: completed,
       weeklyCompleted: weekly,
@@ -652,6 +704,28 @@ class ProgressController extends ChangeNotifier {
       }
     } catch (error, stack) {
       failure = ProgressFailure('日付更新の保存', error, stack);
+    } finally {
+      _finishOperation();
+    }
+  }
+
+  Future<bool> setPlayerName(String name) async {
+    if (!isValidPlayerName(name)) {
+      throw ArgumentError.value(name, 'name', 'Invalid player name.');
+    }
+    if (busy || failure != null || progress == null) return false;
+    busy = true;
+    notifyListeners();
+    try {
+      final next = progress!.withPlayerName(name);
+      if (!identical(next, progress)) {
+        await store.save(next);
+        progress = next;
+      }
+      return true;
+    } catch (error, stack) {
+      failure = ProgressFailure('名前の保存', error, stack);
+      return false;
     } finally {
       _finishOperation();
     }
