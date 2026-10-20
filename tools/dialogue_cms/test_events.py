@@ -45,11 +45,17 @@ class EventTests(unittest.TestCase):
             with self.assertRaises(ValueError):events.validate(doc)
     def test_multi_character_replies_and_daytime_peer_filtering(self):
         doc=copy.deepcopy(events.load())
-        doc['restingDialogue'][1]={'turns':[
-            {'speaker':events.FROG,'text':'やすぞうさん、畑を手伝ってもいいですか？'},
-            {'speaker':'026_farmer','text':'ほっほ、やってみるかね'},
-            {'speaker':events.FROG,'text':'はい、少しだけ！'},
-        ]}
+        # Use a controlled fixture, independent of the live dialogue mix.
+        doc['restingDialogue']=[
+            'ひとりで公園を歩いたよ。',
+            '今日は何しようかな。',
+            'お昼ごはんがおいしかったよ。',
+            {'turns':[
+                {'speaker':events.FROG,'text':'やすぞうさん、畑を手伝ってもいいですか？'},
+                {'speaker':'026_farmer','text':'ほっほ、やってみるかね'},
+                {'speaker':events.FROG,'text':'はい、少しだけ！'},
+            ]},
+        ]
         doc['stages']['watching']['chatter'][events.FROG][0]={'turns':[
             {'speaker':events.FROG,'text':'あそこに座ってもいいかな'},
             {'speaker':events.HOST,'text':'いつでもどうぞ〜'},
@@ -58,10 +64,10 @@ class EventTests(unittest.TestCase):
         base={'config':doc,'completed':3,'lastNight':'2026-10-19','now':'2026-10-20T12:00','owned':[events.HOST,events.FROG]}
         alone=events.preview({**base,'peers':[]})
         self.assertEqual(len(alone['restingOptions']),3)
-        self.assertNotIn(doc['restingDialogue'][1],alone['restingOptions'])
+        self.assertNotIn(doc['restingDialogue'][3],alone['restingOptions'])
         with_yasuzo=events.preview({**base,'peers':['026_farmer']})
         self.assertEqual(len(with_yasuzo['restingOptions']),4)
-        self.assertEqual(with_yasuzo['restingOptions'][1]['turns'][1]['speaker'],'026_farmer')
+        self.assertEqual(with_yasuzo['restingOptions'][3]['turns'][1]['speaker'],'026_farmer')
         with self.assertRaises(ValueError):
             events.preview({**base,'peers':['035_beaty']})
         self.assertEqual(events.preview({**base,'now':'2026-10-20T19:00'})['restingOptions'],[])
