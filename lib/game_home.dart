@@ -230,7 +230,7 @@ class _GameHomeState extends State<GameHome> {
                                 child: _LobbySign(
                                   key: const ValueKey('open-missions'),
                                   asset: '10_nav_quest',
-                                  title: '本日のミッション',
+                                  title: '今日のセルフケア',
                                   detail:
                                       '${widget.progress.completed.length} / ${Mission.forPeriod(MissionPeriod.daily).length} 達成',
                                   onTap: widget.onMissions,
