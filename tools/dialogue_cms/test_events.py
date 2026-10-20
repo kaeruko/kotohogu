@@ -112,6 +112,7 @@ class EventTests(unittest.TestCase):
         self.assertIn('におう',joined[0]['turns'][0]['text'])
         self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host,frog,host,frog])
         self.assertEqual(len(joined),4)
+        self.assertNotIn('辞め',doc['stages']['joining']['intro']['text'])
         self.assertIn('会社を辞め',doc['restingDialogue'][0])
         self.assertTrue(any(not isinstance(x,str) for x in doc['restingDialogue']))
         # The existing stage progression contract must remain unchanged.

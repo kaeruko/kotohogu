@@ -94,9 +94,14 @@ void main() {
     expect(scene(23, saved: saved).stage, 'watching');
     var third = scene(24, saved: saved);
     expect(third.stage, 'joining');
+    // Entering the club doesn't mean quitting the job.
+    expect(third.dialogue(frog, 'joining', 0).text, isNot(contains('辞め')));
     saved = third.completeIntroduction(frog, 'joining');
     expect(saved.completed, 3);
     expect(scene(24, saved: saved).stage, 'joined');
+    // The overnight club remains the same until the morning clock boundary.
+    expect(scene(25, hour: 4, saved: saved).group(frog, inPlaza: true), 'joined');
+    expect(scene(25, hour: 5, saved: saved).group(frog, inPlaza: false), 'resting');
     var daytime = scene(25, hour: 12, saved: saved);
     expect(daytime.active, isFalse);
     expect(daytime.group(frog, inPlaza: false), 'resting');
