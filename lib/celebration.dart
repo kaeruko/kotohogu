@@ -97,7 +97,7 @@ class _CelebrationState extends State<Celebration>
                         curve: const Interval(0, .7, curve: Curves.elasticOut),
                       ),
                       child: Semantics(
-                        label: 'ミッション達成！ 日本の社会保障に貢献！',
+                        label: 'ミッション達成！ あなたの一歩に、ありがとう！',
                         excludeSemantics: true,
                         liveRegion: true,
                         child: const _OutlinedHeadline(),
@@ -138,7 +138,7 @@ class _CelebrationState extends State<Celebration>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Text(
-                            '社会保障に貢献しました！',
+                            'みんなの未来にも、うれしい一歩です！',
                             key: ValueKey('social-contribution-message'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -148,10 +148,22 @@ class _CelebrationState extends State<Celebration>
                             ),
                           ),
                           const SizedBox(height: 4),
+                          const Text(
+                            '健康づくりや人とのつながりは、'
+                            '将来の医療・介護費を抑えることにもつながるかもしれません。',
+                            key: ValueKey('social-contribution-reason'),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF63351F),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
                           Text(
-                            '参考推計：医療・介護費 年間約'
-                            '${SocialSecurityStudyIllustration.illustratedYenLabel}円'
-                            '（研究集団の比較）',
+                            '参考試算：研究集団の医療・介護費の差 年間約'
+                            '${SocialSecurityStudyIllustration.illustratedYenLabel}円',
                             key: const ValueKey('social-contribution-reference'),
                             textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -286,7 +298,7 @@ class _OutlinedHeadline extends StatelessWidget {
       children: [
         ExcludeSemantics(
           child: Text(
-            '🎊 日本の社会保障に貢献！ 🎊',
+            '🎊 あなたの一歩に、ありがとう！ 🎊',
             style: TextStyle(
               fontSize: 33,
               fontWeight: FontWeight.w900,
@@ -298,7 +310,7 @@ class _OutlinedHeadline extends StatelessWidget {
           ),
         ),
         const Text(
-          '🎊 日本の社会保障に貢献！ 🎊',
+          '🎊 あなたの一歩に、ありがとう！ 🎊',
           style: TextStyle(
             fontSize: 33,
             fontWeight: FontWeight.w900,
