@@ -133,7 +133,7 @@ class _GachaScreenState extends State<GachaScreen> {
                 ),
               ),
               // Draw the same pinned header above this scene.
-              Positioned.fill(child: GameHeaderOverlay(points: balance)),
+              Positioned.fill(child: GameHeaderOverlay(points: balance, displayName: progress.playerName)),
             ],
           ),
         ),
@@ -170,6 +170,7 @@ class GachaBundleReveal extends StatelessWidget {
         ),
         SafeArea(
           child: PinnedGachaHud(
+            displayName: controller.progress!.playerName,
             points: controller.progress!.residents.availableKotohogi(
               controller.progress!.points,
             ),
