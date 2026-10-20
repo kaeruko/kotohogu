@@ -51,7 +51,8 @@ void main() {
       expect(nameRect.right, lessThan(pointRect.left));
       expect((nameRect.width / nameRect.height), closeTo(788 / 209, .01));
       expect(find.text('FutureLift'), findsNothing);
-      expect(find.text('みんなのまち'), findsNothing);
+      expect(find.text('みんなのまち'), findsOneWidget);
+    expect(find.text('あいにいく'), findsOneWidget);
       final scenery = find.byKey(const ValueKey('open-town-scenery'));
       expect(scenery, findsOneWidget);
       expect(tester.getRect(scenery).top, greaterThan(nameRect.bottom));
@@ -82,7 +83,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('FutureLift'), findsNothing);
-    expect(find.text('みんなのまち'), findsNothing);
+    expect(find.text('みんなのまち'), findsOneWidget);
+    expect(find.text('あいにいく'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('open-town-scenery')));
     expect(townVisits, 1);
     expect(missionVisits, 0);
