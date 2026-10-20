@@ -78,7 +78,7 @@ void main() {
     expect(find.text('みんなの未来にも、うれしい一歩です！'), findsOneWidget);
     expect(
       find.text(
-        '健康づくりや人とのつながりは、将来の医療・介護費を抑えることにもつながるかもしれません。',
+        '健康づくりや人とのつながりは、将来の医療・介護費を抑えることにもつながります。',
       ),
       findsOneWidget,
     );
@@ -318,6 +318,12 @@ void main() {
     expect((background.image as AssetImage).assetName,
         MissionsScreen.backgroundAsset);
     expect(background.fit, BoxFit.cover);
+    final title = tester.widget<Container>(
+      find.byKey(const ValueKey('mission-label-strength')),
+    );
+    final artwork = (title.decoration! as BoxDecoration).image!;
+    expect(artwork.centerSlice, const Rect.fromLTWH(56, 2, 191, 70));
+    expect(artwork.fit, BoxFit.fill);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -577,7 +583,7 @@ void main() {
     expect(find.text('みんなの未来にも、うれしい一歩です！'), findsOneWidget);
     expect(
       find.text(
-        '健康づくりや人とのつながりは、将来の医療・介護費を抑えることにもつながるかもしれません。',
+        '健康づくりや人とのつながりは、将来の医療・介護費を抑えることにもつながります。',
       ),
       findsOneWidget,
     );
@@ -609,6 +615,11 @@ void main() {
     );
     expect(button.onPressed, isNull);
     expect(find.text('できた！  達成済み'), findsOneWidget);
+    final clearBadge = tester.widget<Image>(
+      find.byKey(const ValueKey('mission-clear-strength')),
+    );
+    expect(clearBadge.width, 60);
+    expect(clearBadge.height, 60);
     await tester.tap(find.byKey(const ValueKey('footer-home')));
     await tester.pumpAndSettle();
     // On shorter screens, the larger currency/ticket HUD reserves more
