@@ -75,6 +75,17 @@ void main() {
     }
   });
 
+  test('patissier calls his wife およめちゃん in their joint dialogue',
+      () async {
+    final catalog = await DialogueCatalog.load();
+    final conversation = catalog.entries.singleWhere(
+      (entry) => entry.id == '047_patisie_019',
+    );
+    expect(conversation.residentId, TownResident.c047_patisie.id);
+    expect(conversation.text, startsWith('およめちゃん、家計のことも'));
+    expect(conversation.reply?.residentId, TownResident.rabbit.id);
+  });
+
   test('designated introductions always come before one-time stories', () {
     final c = catalog([
       row('intro', '001_shiba', 'はじめまして！',
