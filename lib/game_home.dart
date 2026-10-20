@@ -220,42 +220,42 @@ class _GameHomeState extends State<GameHome> {
                   right: 14,
                   child: Column(
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomLeft,
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 175),
-                                child: _LobbySign(
-                                  key: const ValueKey('open-missions'),
-                                  asset: '10_nav_quest',
-                                  title: '今日のセルフケア',
-                                  detail:
-                                      '${widget.progress.completed.length} / ${Mission.forPeriod(MissionPeriod.daily).length} 達成',
-                                  onTap: widget.onMissions,
+                      // Match both cards to the taller label and share width.
+                      // The previous Align wrappers shrink-wrapped each card,
+                      // so the town sign grew when its detail wrapped.
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        heightFactor: 1,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 360),
+                          child: IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: _LobbySign(
+                                    key: const ValueKey('open-missions'),
+                                    asset: '10_nav_quest',
+                                    title: '今日のセルフケア',
+                                    detail:
+                                        '${widget.progress.completed.length} / ${Mission.forPeriod(MissionPeriod.daily).length} 達成',
+                                    onTap: widget.onMissions,
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _LobbySign(
+                                    key: const ValueKey('open-town'),
+                                    asset: '11_nav_town',
+                                    title: 'みんなのまち',
+                                    detail: 'あいにいく',
+                                    onTap: widget.onTown,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomRight,
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 175),
-                                child: _LobbySign(
-                                  key: const ValueKey('open-town'),
-                                  asset: '11_nav_town',
-                                  title: 'みんなのまちへ',
-                                  detail: 'みんなに会いにいこう',
-                                  onTap: widget.onTown,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Container(
