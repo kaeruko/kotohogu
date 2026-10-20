@@ -30,7 +30,7 @@ void main() {
         (tester.widget<Image>(mascot).image as AssetImage).assetName;
 
     expect(find.byKey(const ValueKey('mission-kotohogisu')), findsOneWidget);
-    expect(find.text('ミッション一覧'), findsWidgets);
+    expect(find.text('セルフケア一覧'), findsWidgets);
     expect(asset(), 'assets/characters/013_kotohogisu/walk_right_01.png');
 
     final initialPosition = tester.getTopLeft(mascot);
