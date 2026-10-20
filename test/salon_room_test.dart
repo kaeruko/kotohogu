@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/resident_collection.dart';
 import 'package:future_lift/salon_room.dart';
+import 'package:future_lift/facility_layout.dart';
 import 'package:future_lift/town_areas.dart';
 
 void main() {
@@ -53,6 +54,29 @@ void main() {
     expect(salonResidents(const [], previewUnowned: true),
         [TownResident.c035_beaty, TownResident.c031_kimono_fox,
          TownResident.c038_lion_lady]);
+  });
+
+  test('one shared display size applies to every facility resident', () {
+    final salon = facilityPlacements('salon');
+    expect(salon.map((p) => p.residentId), [
+      TownResident.c035_beaty.id,
+      TownResident.c031_kimono_fox.id,
+      TownResident.c038_lion_lady.id,
+    ]);
+    expect(salon.map((p) => p.size).toSet(), {230.0});
+    expect(facilityPlacements('bakery').map((p) => p.size).toSet(), {235.0});
+    expect(
+      (salon.singleWhere((p) => p.residentId == TownResident.c035_beaty.id).y
+          + 230),
+      710,
+      reason: 'Resizing must keep the owner at the original floor position',
+    );
+    expect(
+      (salon.singleWhere((p) => p.residentId == TownResident.c038_lion_lady.id).y
+          + 230),
+      1005,
+      reason: 'Resizing must keep the other resident at the original floor position',
+    );
   });
 
   testWidgets('forced preview renders all unowned salon characters',
@@ -145,13 +169,12 @@ void main() {
     expect(tester.getRect(foxOnly), foxPosition,
         reason: 'Acquiring the owner must not relocate the fox');
     final owner = station('salon-resident-035_beaty');
-    expect(owner.left, 360);
-    expect(owner.top, 500);
-    expect(owner.width, 210);
-    expect(owner.height, 210);
-    expect(station('salon-fox-resident').width!,
-        greaterThan(owner.width!),
-        reason: 'The fox frame should be slightly larger at its nearer depth');
+    expect(owner.left, 350);
+    expect(owner.top, 480);
+    expect(owner.width, 230);
+    expect(owner.height, 230);
+    expect(station('salon-fox-resident').width, owner.width,
+        reason: 'All salon characters must use one shared sprite size');
     expect(tester.getRect(
         find.byKey(const ValueKey('salon-resident-035_beaty')))
         .overlaps(tester.getRect(foxOnly)), isFalse);
