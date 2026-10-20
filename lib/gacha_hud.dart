@@ -3,17 +3,20 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'home_skin.dart';
+import 'progress.dart' show defaultPlayerName;
 import 'resident_collection.dart';
 
-/// Compact, responsive game HUD. A temporary display name is used until the
-/// app offers editable profiles; ranks and experience are not invented.
+/// Compact, responsive game HUD. The player's saved name appears in all
+/// screens, using the existing decorative nameplate.
 class GachaHud extends StatelessWidget {
   const GachaHud({
     super.key,
     required this.points,
+    this.displayName = defaultPlayerName,
   });
 
   final int points;
+  final String displayName;
 
   // Share available HUD width so currency values remain legible on phones.
   static const double nameplateShare = .38;
@@ -40,7 +43,7 @@ class GachaHud extends StatelessWidget {
           children: [
             SizedBox(
               width: leftWidth,
-              child: const PlayerNameplate(),
+              child: PlayerNameplate(displayName: displayName),
             ),
             const SizedBox(width: horizontalGap),
             SizedBox(
@@ -64,10 +67,9 @@ class GachaHud extends StatelessWidget {
 class PlayerNameplate extends StatelessWidget {
   const PlayerNameplate({
     super.key,
-    this.displayName = 'ハル',
+    this.displayName = defaultPlayerName,
   });
 
-  /// Placeholder from the visual mockup until the app stores a player name.
   final String displayName;
 
   @override
@@ -141,10 +143,12 @@ class PinnedGachaHud extends StatelessWidget {
     super.key,
     required this.points,
     required this.contentBuilder,
+    this.displayName = defaultPlayerName,
     this.contentBehindHud = false,
   });
 
   final int points;
+  final String displayName;
   final Widget Function(BuildContext, double) contentBuilder;
 
   /// Allow a full-bleed scene to paint behind the pinned HUD.
@@ -205,6 +209,7 @@ class PinnedGachaHud extends StatelessWidget {
                   width: width,
                   child: GachaHud(
                     points: points,
+                    displayName: displayName,
                   ),
                 ),
               ),
@@ -218,15 +223,17 @@ class PinnedGachaHud extends StatelessWidget {
 /// The identical header on modal consultation and reveal routes.
 /// Ignoring taps prevents this decorative overlay from blocking scene actions.
 class GameHeaderOverlay extends StatelessWidget {
-  const GameHeaderOverlay({super.key, required this.points});
+  const GameHeaderOverlay({super.key, required this.points, this.displayName = defaultPlayerName});
 
   final int points;
+  final String displayName;
 
   @override
   Widget build(BuildContext context) => SafeArea(
     child: IgnorePointer(
       child: PinnedGachaHud(
         points: points,
+        displayName: displayName,
         contentBehindHud: true,
         contentBuilder: (context, availableHeight) => const SizedBox.expand(),
       ),
