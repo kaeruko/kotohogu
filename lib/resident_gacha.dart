@@ -52,7 +52,7 @@ class _ResidentGachaState extends State<ResidentGacha> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'まちの仲間 ${collection.owned.length}/$ownedResidentLimit人',
+            'まちの仲間 ${collection.owned.length}人',
             style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
