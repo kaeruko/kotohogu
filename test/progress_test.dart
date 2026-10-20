@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/progress.dart';
+import 'package:future_lift/oyasumi_club.dart';
 
 class MemoryStore implements ProgressStore {
   String? raw;
@@ -28,6 +29,57 @@ class MemoryStore implements ProgressStore {
 
 void main() {
   final today = DateTime(2026, 10, 9, 12);
+
+  test('player name is saved and preserved by progress transitions', () async {
+    final store = MemoryStore();
+    final controller = ProgressController(store, clock: () => today);
+    await controller.initialize();
+    expect(controller.progress!.playerName, 'ハル');
+    expect(await controller.setPlayerName('もふ'), isTrue);
+    expect(Progress.decode(store.raw!).playerName, 'もふ');
+    expect(await controller.complete(Mission.strength), isTrue);
+    expect(controller.progress!.playerName, 'もふ');
+    final restarted = ProgressController(
+      store, clock: () => today.add(const Duration(days: 1)),
+    );
+    await restarted.initialize();
+    expect(restarted.progress!.playerName, 'もふ');
+    expect(restarted.progress!.day, '2026-10-10');
+    expect(restarted.progress!.withOyasumi(const OyasumiProgress()).playerName, 'もふ');
+    expect(restarted.progress!.clearHistory().playerName, 'もふ');
+    expect(restarted.progress!.resetMissionsForDebug().playerName, 'もふ');
+  });
+
+  test('invalid names and corrupted name storage fail fast', () async {
+    final store = MemoryStore();
+    final controller = ProgressController(store, clock: () => today);
+    await controller.initialize();
+    for (final name in ['', '  ', ' もふ', 'もふ ', '1234567890123', 'abc\n']) {
+      expect(() => controller.setPlayerName(name), throwsArgumentError);
+    }
+    expect(store.writes, 0);
+    final valid = jsonDecode(Progress.empty(today).encode()) as Map<String, dynamic>;
+    for (final bad in [null, 42, '', ' もふ', '1234567890123']) {
+      expect(() => Progress.decode(jsonEncode({...valid, 'playerName': bad})),
+          throwsFormatException);
+    }
+    final oldV5 = Map<String, dynamic>.from(valid)..remove('playerName');
+    expect(Progress.decode(jsonEncode(oldV5)).playerName, 'ハル');
+  });
+
+  test('failed name save retains old name and original exception', () async {
+    final error = StateError('storage rejected name');
+    final store = MemoryStore();
+    final controller = ProgressController(store, clock: () => today);
+    await controller.initialize();
+    store.saveError = error;
+    expect(await controller.setPlayerName('もふ'), isFalse);
+    expect(controller.progress!.playerName, 'ハル');
+    expect(controller.failure!.error, same(error));
+    expect(controller.failure!.stackTrace.toString(), contains('MemoryStore.save'));
+    expect(await controller.setPlayerName('次'), isFalse);
+    expect(store.writes, 1);
+  });
 
   test(
     'midnight refresh waits for an in-flight save without losing earned points',
