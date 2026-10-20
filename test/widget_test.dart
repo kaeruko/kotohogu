@@ -675,7 +675,9 @@ void main() {
       // for semantics and identification.
       expect(tester.widget<NavigationBar>(find.byType(NavigationBar))
           .selectedIndex, 3);
-      expect(find.text('中央ひろば'), findsOneWidget);
+      // With only the first area unlocked, the removable lower panel
+      // must not leave a redundant area label behind.
+      expect(find.text('中央ひろば'), findsNothing);
       expect(find.textContaining('LEVEL '), findsNothing);
       expect(find.byKey(const ValueKey('town-page-title-panel')), findsNothing);
       expect(find.byKey(const ValueKey('town-page-shrine-background')),
