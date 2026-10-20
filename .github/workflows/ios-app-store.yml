@@ -120,7 +120,7 @@ jobs:
           if [[ "$ENABLE_DEVELOPER_MENU" == "true" ]]; then
             dev_args+=(--dart-define=KOTOHOGU_ENABLE_DEV_TOOLS=true)
             echo "::warning::This IPA contains local developer controls. Use for TestFlight testing only; never submit it to the public App Store."
-            echo "- Developer tools: enabled for TestFlight (tap History 7 times within 8 seconds)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Developer tools: enabled for TestFlight (visible in Menu)" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- Developer tools: excluded (safe production default)" >> "$GITHUB_STEP_SUMMARY"
           fi
