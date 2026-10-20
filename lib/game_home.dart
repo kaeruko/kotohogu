@@ -79,6 +79,7 @@ class _GameHomeState extends State<GameHome> {
             ),
           ),
           PinnedGachaHud(
+            displayName: widget.progress.playerName,
             points: widget.progress.residents.availableKotohogi(widget.progress.points),
             contentBuilder: (context, availableHeight) {
               // Fit the scene to the actual space below the pinned HUD and
