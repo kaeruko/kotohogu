@@ -132,9 +132,9 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   final _townSceneKey = GlobalKey();
   final ScrollController _townScrollController = ScrollController();
   late int _page;
-  // In an opted-in signed build the tools stay hidden until the local gesture.
-  // A regular debug run retains its familiar visible fifth tab.
-  bool _developerMenuUnlocked = kDebugMode;
+  // A debug run or explicitly opted-in TestFlight build shows the
+  // developer entry directly. Store builds never include it.
+  bool _developerMenuUnlocked = developerToolsAvailable;
   final _developerUnlockSequence = DeveloperMenuUnlockSequence();
   MissionPeriod _missionPeriod = MissionPeriod.daily;
   Mission _previewMission = Mission.strength;
