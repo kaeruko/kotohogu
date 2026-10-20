@@ -114,7 +114,7 @@ class MissionsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              '${progress.completedFor(period).length}/${Mission.forPeriod(period).length} セルフケア',
+              '${progress.completedFor(period).length}/${Mission.forPeriod(period).length} 達成',
               key: const ValueKey('mission-period-progress'),
               textAlign: TextAlign.center,
               style: const TextStyle(color: wood, fontWeight: FontWeight.bold),
