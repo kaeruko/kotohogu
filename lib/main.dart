@@ -155,7 +155,11 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   Timer? _clubClock;
   OyasumiScene _clubScene(Progress progress) => OyasumiScene(
     saved: progress.oyasumi, owned: progress.residents.owned,
-    now: controller.clock(), enabled: _debugTownResidents == null,
+    now: controller.clock(),
+    enabled: _debugTownResidents == null,
+    parkCleanerStarted: progress.seenDialogues.contains(
+      OyasumiScene.parkCleanerUnlockId,
+    ),
   );
   /// Debug-only town cast kept in memory; never written to the save file.
   List<TownResident>? _debugTownResidents;

@@ -149,6 +149,28 @@ void main() {
     }
   });
 
+  test('park cleaner dialogue needs future job marker and present friend', () {
+    const saved = OyasumiProgress(completed: 3, lastNight: '2026-10-24');
+    final before = OyasumiScene(
+      saved: saved, owned: [host, frog], now: DateTime(2026, 10, 25, 12),
+    );
+    final after = OyasumiScene(
+      saved: saved, owned: [host, frog], now: DateTime(2026, 10, 25, 12),
+      parkCleanerStarted: true,
+    );
+    expect(before.dialogue(
+      frog, 'resting', 6, availableResidentIds: {frog.id, host.id},
+    ).text, isNot(contains('おそうじをすることになった')));
+    final together=after.dialogue(
+      frog, 'resting', 6, availableResidentIds: {frog.id, host.id},
+    );
+    expect(together.turns.length, 4);
+    expect(together.turns.last.text, 'ぼくはこうえんじゃないもふ！！');
+    expect(after.dialogue(
+      frog, 'resting', 6, availableResidentIds: {frog.id},
+    ).text, isNot(contains('おそうじをすることになった')));
+  });
+
   test('night chatter can be a multi-turn exchange within the event cast', () {
     final messages = (oyasumiConfig['stages']!['watching']!['chatter']!
         [frog.id] as List);

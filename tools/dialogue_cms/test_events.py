@@ -119,6 +119,31 @@ class EventTests(unittest.TestCase):
         self.assertEqual(self.preview(2,'2026-10-19')['stage'],'joining')
         self.assertEqual(self.preview(3,'2026-10-19')['stage'],'joined')
 
+    def test_park_cleaner_gated_and_post_club_lines(self):
+        doc=events.load()
+        self.assertEqual(len(doc['restingDialogue']),7)
+        self.assertIn('筋肉痛',doc['restingDialogue'][5])
+        cleaner=doc['restingDialogue'][6]
+        self.assertEqual(cleaner['requires'],'parkCleaner')
+        self.assertEqual(cleaner['turns'][-1]['text'],'ぼくはこうえんじゃないもふ！！')
+        base={'config':doc,'completed':3,'lastNight':'2026-10-19',
+              'now':'2026-10-20T12:00','owned':[events.HOST,events.FROG],
+              'peers':[events.HOST]}
+        self.assertNotIn(cleaner,events.preview(base)['restingOptions'])
+        self.assertIn(cleaner,events.preview({**base,'parkCleanerStarted':True})['restingOptions'])
+        self.assertNotIn(cleaner,events.preview({**base,'parkCleanerStarted':True,'peers':[]})['restingOptions'])
+        with self.assertRaises(ValueError):
+            events.preview({**base,'parkCleanerStarted':'yes'})
+        invalid=copy.deepcopy(doc)
+        invalid['restingDialogue'][6]['requires']='unknown'
+        with self.assertRaises(ValueError):events.validate(invalid)
+        invalid=copy.deepcopy(doc)
+        invalid['stages']['joined']['chatter'][events.FROG][0]['requires']='parkCleaner'
+        with self.assertRaises(ValueError):events.validate(invalid)
+        invalid=copy.deepcopy(doc)
+        invalid['restingDialogue']=['one','two','three']*3
+        with self.assertRaises(ValueError):events.validate(invalid)
+
     def test_preview_never_saves(self):
         with patch.object(events,'commit_files',side_effect=AssertionError('preview wrote data')):
             self.preview();self.preview(3,'2026-10-19')

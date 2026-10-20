@@ -12,11 +12,31 @@ function textField(parent,label,value,onChange){const field=el('label',label),in
 // that one conversation to {turns:[{speaker,text}, ...]}, not other lines.
 const turnsFor=(item,primary)=>typeof item==='string'
   ? [{speaker:primary,text:item}] : item.turns;
-function editLines(parent,lines,primary,allowed){
+function editLines(parent,lines,primary,allowed,{isResting=false}={}){
+  const limit=isResting?8:4;
   const permitted=allowed.map(id=>[id,names[id]||id]);
   lines.forEach((item,i)=>{
     const block=el('div');block.className='conversation';
     block.append(el('h4',`会話 ${i+1}（発言の順番）`));
+    if(isResting){
+      const gateLabel=el('label','');
+      const gate=el('input');
+      gate.type='checkbox';
+      gate.checked=typeof item!=='string'&&item.requires==='parkCleaner';
+      gate.onchange=()=>{
+        if(gate.checked){
+          if(typeof lines[i]==='string'){
+            lines[i]={turns:[{speaker:primary,text:lines[i]}]};
+          }
+          lines[i].requires='parkCleaner';
+        }else if(typeof lines[i]!=='string'){
+          delete lines[i].requires;
+        }
+        change();
+      };
+      gateLabel.append(gate,document.createTextNode(' 公園のおそうじやさんになった後だけ'));
+      block.append(gateLabel);
+    }
     const turns=turnsFor(item,primary);
     turns.forEach((turn,j)=>{
       const row=el('div');row.className='talk-turn';
@@ -61,8 +81,8 @@ function editLines(parent,lines,primary,allowed){
     }
     parent.append(block);
   });
-  const add=el('button','＋ 会話パターンを追加（最大4本）');
-  add.disabled=lines.length>=4;
+  const add=el('button',`＋ 会話パターンを追加（最大${limit}本）`);
+  add.disabled=lines.length>=limit;
   add.onclick=()=>{lines.push('新しい会話');renderEditor();change();};
   parent.append(add);
   if(lines.length>3){
@@ -98,17 +118,17 @@ function renderEditor(){
   rest.append(el('summary','参加後のかえる：昼間・通常会話'));
   rest.append(el('p','最初の発言はかえる。次の発言から、やすぞうさん・おやすみくんなどを選べます。同じ場所にいない場合は、その掛け合いを出さず、一人用の会話を使います。'));
   rest.lastChild.className='hint';
-  editLines(rest,config.restingDialogue,'029_office_worker',outdoorResidents);
+  editLines(rest,config.restingDialogue,'029_office_worker',outdoorResidents,{isResting:true});
   $('stages').append(rest);
 }
 function renderConversation(parent,item,primary,index){
   const block=el('div');block.className='preview-talk';
-  block.append(el('strong',`会話 ${index+1}`));
+  block.append(el('strong',`会話 ${index+1}${typeof item!=='string'&&item.requires==='parkCleaner'?'（おそうじやさん就職後）':''}`));
   turnsFor(item,primary).forEach(turn=>
     block.append(el('p',`${names[turn.speaker]||turn.speaker}「${turn.text}」`)));
   parent.append(block);
 }
-function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[])],peers:$('previewPeer').value?[$('previewPeer').value]:[]};}
+function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[])],peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked};}
 async function preview(){
   if(!config)return;
   const version=++revision;$('read').disabled=true;
@@ -181,7 +201,7 @@ async function load(){
   }catch(error){$('saveStatus').textContent=error.message;}
 }
 $('start').oninput=()=>{config.night.startHour=Number($('start').value);change();};$('end').oninput=()=>{config.night.endHour=Number($('end').value);change();};
-['host','frog','now','last','previewPeer'].forEach(id=>$(id).onchange=preview);
+['host','frog','now','last','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
 $('completed').onchange=()=>{$('last').disabled=$('completed').value==='0';$('last').value=$('last').disabled?'':$('now').value.slice(0,10);preview();};
 $('preview').onclick=preview;
 $('read').onclick=async()=>{if(!result?.canComplete)return;$('completed').value=result.nextCompleted;$('last').disabled=false;$('last').value=result.nightKey;await preview();};

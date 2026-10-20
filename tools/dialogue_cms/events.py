@@ -33,23 +33,25 @@ def validate(doc):
         row['id'] for row in load_catalog()['characters']
         if row['walkInTown'] and row['homeAreaId'] != 'salon'
     }
-    def lines(items, speaker, allowed):
-        if not isinstance(items,list) or not 3 <= len(items) <= 4:
-            raise ValueError('繰り返し会話は3〜4本で設定してください')
+    def lines(items, speaker, allowed, *, max_patterns=4, job_gate=False):
+        if not isinstance(items,list) or not 3 <= len(items) <= max_patterns:
+            raise ValueError(f'繰り返し会話は3〜{max_patterns}本で設定してください')
         has_solo = False
         for item in items:
             if isinstance(item,str):
                 text(item)
                 has_solo = True
                 continue
-            if not isinstance(item,dict) or set(item) != {'turns'} or not isinstance(item['turns'],list) or not 1 <= len(item['turns']) <= 8:
+            if not isinstance(item,dict) or set(item) not in ({'turns'}, {'turns', 'requires'}) or not isinstance(item['turns'],list) or not 1 <= len(item['turns']) <= 8:
                 raise ValueError('掛け合いは1〜8発言の順番で登録してください')
+            if 'requires' in item and (not job_gate or item['requires'] != 'parkCleaner'):
+                raise ValueError('この掛け合いの表示条件は指定できません')
             turns = item['turns']
             for index,turn in enumerate(turns):
                 if not isinstance(turn,dict) or set(turn) != {'speaker','text'} or not isinstance(turn['speaker'],str) or turn['speaker'] not in allowed or (index==0 and turn['speaker']!=speaker):
                     raise ValueError('掛け合いの話者が不正です')
                 text(turn['text'])
-            if len(turns)==1 and turns[0]['speaker']==speaker:
+            if len(turns)==1 and turns[0]['speaker']==speaker and not item.get('requires'):
                 has_solo=True
         return has_solo
     for key in STAGES:
@@ -72,7 +74,7 @@ def validate(doc):
             text(intro['text'])
         for speaker,items in stage['chatter'].items():
             lines(items, speaker, cast)
-    if not lines(doc['restingDialogue'], FROG, outdoor) :
+    if not lines(doc['restingDialogue'], FROG, outdoor, max_patterns=8, job_gate=True):
         raise ValueError('昼のかえるの会話には、一人で話せる候補を1本以上残してください')
     return doc
 
@@ -100,6 +102,9 @@ def preview(payload):
     owned=payload['owned']
     if not isinstance(owned,list) or any(i not in (HOST,FROG) for i in owned): raise ValueError('所持設定が不正です')
     peers=payload.get('peers',[])
+    park_cleaner_started=payload.get('parkCleanerStarted', False)
+    if type(park_cleaner_started) is not bool:
+        raise ValueError('公園清掃の開始状態が不正です')
     outdoor={c['id'] for c in load_catalog()['characters'] if c['walkInTown'] and c['homeAreaId']!='salon'}
     if not isinstance(peers,list) or any(type(i) is not str or i not in outdoor for i in peers):
         raise ValueError('同席者の設定が不正です')
@@ -115,5 +120,9 @@ def preview(payload):
     reason=('昼のためクラブはお休みです' if not night else 'おやすみくん未所持のため開催しません' if HOST not in owned else 'かえる未所持：一人のクラブを続けます' if FROG not in owned else '今夜の導入会話を読み終えると進行します' if intro else '次の開催夜を待っています' if step<4 else '参加後のクラブを続けます')
     def turn_speakers(item):
         return [FROG] if isinstance(item,str) else [turn['speaker'] for turn in item['turns']]
-    rest = [item for item in doc['restingDialogue'] if set(turn_speakers(item)).issubset(set(peers)|{FROG})] if completed==3 and FROG in owned and not active else []
+    rest = [
+        item for item in doc['restingDialogue']
+        if (not isinstance(item, dict) or item.get('requires') != 'parkCleaner' or park_cleaner_started)
+        and set(turn_speakers(item)).issubset(set(peers)|{FROG})
+    ] if completed==3 and FROG in owned and not active else []
     return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,positions=stage['positions'] if active else {},intro=stage['intro'] if intro else None,canComplete=intro and later,completed=completed,lastNight=last,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},restingOptions=rest,nextCompleted=step if intro and later else completed)

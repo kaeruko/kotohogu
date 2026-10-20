@@ -56,12 +56,16 @@ class OyasumiScene {
     required Iterable<TownResident> owned,
     required DateTime now,
     this.enabled = true,
+    this.parkCleanerStarted = false,
   }) : owned = Set.of(owned),
        now = now.toLocal();
   final OyasumiProgress saved;
   final Set<TownResident> owned;
   final DateTime now;
   final bool enabled;
+  /// Unlocked by the future park-cleaning job story, not elapsed days.
+  final bool parkCleanerStarted;
+  static const parkCleanerUnlockId = 'frog_park_cleaner_started';
   static const host = TownResident.c027_daydreamer;
   static const frog = TownResident.c029_office_worker;
   int get startHour => oyasumiConfig['night']['startHour'] as int;
@@ -177,9 +181,12 @@ class OyasumiScene {
         : cast.map((character) => character.id).toSet();
     final eligible = [
       for (final item in options)
-        if (_dialogueTurns(item, resident).every(
-          (turn) => peers.contains(turn.resident.id),
-        ))
+        if ((item is! Map ||
+                item['requires'] == null ||
+                (item['requires'] == 'parkCleaner' && parkCleanerStarted)) &&
+            _dialogueTurns(item, resident).every(
+              (turn) => peers.contains(turn.resident.id),
+            ))
           item,
     ];
     if (eligible.isEmpty) {
