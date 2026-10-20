@@ -96,6 +96,22 @@ class EventTests(unittest.TestCase):
                                text=True,capture_output=True,check=False,timeout=15)
         self.assertEqual(process.returncode,0,process.stderr)
 
+    def test_playful_frog_dialogue_and_readable_replies(self):
+        doc=events.load()
+        frog=events.FROG
+        host=events.HOST
+        watching=doc['stages']['watching']['chatter'][frog]
+        joined=doc['stages']['joined']['chatter'][frog]
+        self.assertTrue(all(isinstance(item,str) for item in watching))
+        self.assertIn('におう',joined[0]['turns'][0]['text'])
+        self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host,frog,host,frog])
+        self.assertEqual(len(joined),4)
+        self.assertIn('会社を辞め',doc['restingDialogue'][0])
+        self.assertTrue(any(not isinstance(x,str) for x in doc['restingDialogue']))
+        # The existing stage progression contract must remain unchanged.
+        self.assertEqual(self.preview(2,'2026-10-19')['stage'],'joining')
+        self.assertEqual(self.preview(3,'2026-10-19')['stage'],'joined')
+
     def test_preview_never_saves(self):
         with patch.object(events,'commit_files',side_effect=AssertionError('preview wrote data')):
             self.preview();self.preview(3,'2026-10-19')
