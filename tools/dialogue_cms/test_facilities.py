@@ -8,10 +8,17 @@ import facilities
 class FacilityScaleTests(unittest.TestCase):
     def test_shared_size_is_single_source_of_truth(self):
         doc = facilities.load()
-        salon, bakery = doc["facilities"]
+        salon, bakery, center = doc["facilities"]
         self.assertEqual(salon["spriteSize"], 230)
         self.assertEqual(bakery["spriteSize"], 235)
-        for room in (salon, bakery):
+        self.assertEqual(center["spriteSize"], 200)
+        self.assertEqual(center["background"], "assets/kotohogu/community_center_background_001.png")
+        self.assertEqual((center["width"], center["height"]), (941, 1672))
+        self.assertEqual([p["residentId"] for p in center["placements"]],
+                         ["031_kimono_fox", "037_tora"])
+        self.assertLess(center["placements"][0]["x"] + center["spriteSize"],
+                        center["placements"][1]["x"])
+        for room in (salon, bakery, center):
             self.assertTrue(all("size" not in p for p in room["placements"]))
             size = room["spriteSize"]
             for placement in room["placements"]:
@@ -41,6 +48,7 @@ class FacilityScaleTests(unittest.TestCase):
                     facilities.validate(doc)
         doc = copy.deepcopy(good)
         doc["facilities"][0]["spriteSize"] = 400
+        doc["facilities"][0]["placements"][0]["x"] = 700
         with self.assertRaisesRegex(ValueError, "背景内"):
             facilities.validate(doc)
 
