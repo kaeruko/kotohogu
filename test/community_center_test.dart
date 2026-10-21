@@ -14,9 +14,13 @@ void main() {
     expect(isCommunityCenterUnlocked(240), isTrue);
     expect(isCommunityCenterUnlocked(300), isTrue);
     expect(communityCenterResidents(),
-        [TownResident.c031_kimono_fox, TownResident.c037_tora]);
+        [TownResident.c031_kimono_fox, TownResident.c037_tora,
+         TownResident.c051_dog_aunt]);
     final flower = facilityPlacement('community_center', '031_kimono_fox');
     final exercise = facilityPlacement('community_center', '037_tora');
+    final attendee = facilityPlacement('community_center', '051_dog_aunt');
+    expect(attendee.y, greaterThan(exercise.y + exercise.size));
+    expect(attendee.x + attendee.size, lessThanOrEqualTo(941));
     expect(flower.x + flower.size, lessThan(exercise.x));
     expect(flower.y + flower.size, lessThan(1000));
     expect(exercise.y + exercise.size, lessThan(1000));
@@ -53,6 +57,8 @@ void main() {
         findsOneWidget);
     expect(find.byKey(const ValueKey('community-center-resident-037_tora')),
         findsOneWidget);
+    expect(find.byKey(const ValueKey('community-center-resident-051_dog_aunt')),
+        findsOneWidget);
     await tester.tap(find.byKey(
         const ValueKey('community-center-return-shopping')));
     await tester.pump();
@@ -62,7 +68,7 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('both instructors can be spoken to regardless of ownership',
+  testWidgets('instructors and attendees can be spoken to regardless of ownership',
       (tester) async {
     tester.view.physicalSize = const Size(430, 930);
     tester.view.devicePixelRatio = 1;
@@ -78,13 +84,20 @@ void main() {
     final exercise = find.byKey(
         const ValueKey('community-center-resident-037_tora'));
     expect(flower, findsOneWidget);
+    final attendee = find.byKey(
+        const ValueKey('community-center-resident-051_dog_aunt'));
     expect(exercise, findsOneWidget);
+    expect(attendee, findsOneWidget);
     expect(tester.getRect(flower).overlaps(tester.getRect(exercise)), isFalse);
+    expect(tester.getRect(exercise).overlaps(tester.getRect(attendee)), isFalse);
     await tester.tap(flower);
     await tester.pump();
     await tester.tap(exercise);
     await tester.pump();
-    expect(spoken, [TownResident.c031_kimono_fox, TownResident.c037_tora]);
+    await tester.tap(attendee);
+    await tester.pump();
+    expect(spoken, [TownResident.c031_kimono_fox, TownResident.c037_tora,
+      TownResident.c051_dog_aunt]);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
