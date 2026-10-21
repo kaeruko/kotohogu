@@ -176,7 +176,15 @@
               },
               {
                 "speaker": "029_office_worker",
-                "text": "……それは何周にもならないよ おやすみくん、今日は何してた？"
+                "text": "……それは何周にもならないよ"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "おやすみくん、今日は何してた？"
               },
               {
                 "speaker": "027_daydreamer",
@@ -193,26 +201,6 @@
               {
                 "speaker": "029_office_worker",
                 "text": "待ってないじゃん！"
-              }
-            ]
-          },
-          {
-            "turns": [
-              {
-                "speaker": "029_office_worker",
-                "text": "おやすみくんといると、なんだか気が楽だなぁ。"
-              },
-              {
-                "speaker": "027_daydreamer",
-                "text": "もふ〜。"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "……聞いてる？"
-              },
-              {
-                "speaker": "027_daydreamer",
-                "text": "きいてたもふ。……なんだっけ？"
               }
             ]
           },
@@ -274,6 +262,26 @@
         }
       ],
       "requires": "parkCleaner"
+    },
+    {
+      "turns": [
+        {
+          "speaker": "029_office_worker",
+          "text": "おやすみくんといると、なんだか気が楽だなぁ。"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "もふ〜。"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "……聞いてる？"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "きいてたもふ。……なんだっけ？"
+        }
+      ]
     }
   ],
   "nightPatrol": {

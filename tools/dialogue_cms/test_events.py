@@ -149,16 +149,20 @@ class EventTests(unittest.TestCase):
         joined=doc['stages']['joined']['chatter'][frog]
         self.assertTrue(all(isinstance(item,str) for item in watching))
         self.assertIn('におう',joined[0]['turns'][0]['text'])
-        self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host,frog,host,frog])
+        self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host])
         self.assertEqual(len(joined),4)
-        merged=joined[1]['turns']
-        self.assertEqual(len(merged),7)
-        self.assertIn('公園を二周',merged[0]['text'])
-        self.assertIn('かえるくんをまってた',merged[3]['text'])
-        self.assertIn('待ってないじゃん',merged[-1]['text'])
+        park=joined[1]['turns']
+        today=joined[2]['turns']
+        self.assertEqual([t['speaker'] for t in park], [frog,host,frog])
+        self.assertEqual([t['speaker'] for t in today], [frog,host,frog,host,frog])
+        self.assertEqual(park[0]['text'],'おやすみくん、今日は公園を二周したんだ！')
+        self.assertFalse(any('今日は何してた？' in turn['text'] for turn in park))
+        self.assertEqual(today[0]['text'],'おやすみくん、今日は何してた？')
+        self.assertIn('かえるくんをまってた',today[1]['text'])
+        self.assertIn('待ってないじゃん',today[-1]['text'])
         reunion=joined[-1]['turns']
         self.assertEqual([turn['speaker'] for turn in reunion],
-                         [frog, frog, frog, frog, host, frog])
+                         [frog, frog, frog, frog, host])
         self.assertIn('会いに来たんだけど', reunion[1]['text'])
         self.assertIn('起こさないでおこうね', reunion[2]['text'])
         self.assertIn('……すぅ……もふ……', reunion[4]['text'])
@@ -176,7 +180,7 @@ class EventTests(unittest.TestCase):
 
     def test_park_cleaner_gated_and_post_club_lines(self):
         doc=events.load()
-        self.assertEqual(len(doc['restingDialogue']),7)
+        self.assertEqual(len(doc['restingDialogue']),8)
         self.assertIn('筋肉痛',doc['restingDialogue'][5])
         cleaner=doc['restingDialogue'][6]
         self.assertEqual(cleaner['requires'],'parkCleaner')
@@ -187,6 +191,10 @@ class EventTests(unittest.TestCase):
         self.assertNotIn(cleaner,events.preview(base)['restingOptions'])
         self.assertIn(cleaner,events.preview({**base,'parkCleanerStarted':True})['restingOptions'])
         self.assertNotIn(cleaner,events.preview({**base,'parkCleanerStarted':True,'peers':[]})['restingOptions'])
+        relaxed=doc['restingDialogue'][-1]
+        self.assertIn('気が楽',relaxed['turns'][0]['text'])
+        self.assertIn(relaxed,events.preview(base)['restingOptions'])
+        self.assertNotIn(relaxed,events.preview({**base,'peers':[]})['restingOptions'])
         with self.assertRaises(ValueError):
             events.preview({**base,'parkCleanerStarted':'yes'})
         invalid=copy.deepcopy(doc)
