@@ -43,6 +43,27 @@ class EventTests(unittest.TestCase):
         for mutate in [lambda d:d['night'].update(startHour=5),lambda d:d.update(background='../private'),lambda d:d['stages']['solo']['positions'].update({events.FROG:[.5,.5]}),lambda d:d['stages']['solo']['chatter'].update({events.HOST:['only one']}),lambda d:d['stages']['watching']['positions'].update({events.FROG:[float('nan'),.5]})]:
             doc=copy.deepcopy(events.load());mutate(doc)
             with self.assertRaises(ValueError):events.validate(doc)
+
+    def test_oyasumi_kun_dinner_dialogue_is_available_at_night(self):
+        doc = events.load()
+        for stage in events.STAGES:
+            lines = doc['stages'][stage]['chatter'][events.HOST]
+            dinner = [item for item in lines
+                      if isinstance(item, dict)
+                      and any('おにぎりと、あったかいおみそ汁' in turn['text']
+                              for turn in item['turns'])]
+            self.assertEqual(len(dinner), 1, stage)
+            self.assertEqual([turn['speaker'] for turn in dinner[0]['turns']],
+                             [events.HOST] * 5)
+            self.assertIn('いっしょに起きてるよ', dinner[0]['turns'][-1]['text'])
+        self.assertEqual(len(doc['stages']['solo']['chatter'][events.HOST]), 5)
+        self.assertEqual(len(doc['stages']['joined']['chatter'][events.HOST]), 5)
+        events.validate(doc)
+        over_limit = copy.deepcopy(doc)
+        over_limit['stages']['solo']['chatter'][events.HOST].append('6本目')
+        with self.assertRaisesRegex(ValueError, '3〜5本'):
+            events.validate(over_limit)
+
     def test_multi_character_replies_and_daytime_peer_filtering(self):
         doc=copy.deepcopy(events.load())
         # Use a controlled fixture, independent of the live dialogue mix.
