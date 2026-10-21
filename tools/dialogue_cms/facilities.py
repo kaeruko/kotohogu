@@ -10,14 +10,15 @@ DART=ROOT/'lib/facility_config.g.dart'
 FIXED={
  'salon':dict(label='桜の美容室',background='assets/kotohogu/salon_background_001.jpg',width=941,height=1672,owner='035_beaty'),
  'bakery':dict(label='洋菓子店',background='assets/kotohogu/backaly_background_001.png',width=937,height=1679,owner='047_patisie'),
+ 'community_center':dict(label='ことほぎ公民館',background='assets/kotohogu/community_center_background_001.png',width=941,height=1672,owner='031_kimono_fox'),
 }
 
 def validate(doc):
     if not isinstance(doc,dict) or set(doc)!={'version','facilities'} or type(doc['version']) is not int or doc['version']!=1:
         raise ValueError('施設データの形式が不正です')
     rooms=doc['facilities']
-    if not isinstance(rooms,list) or len(rooms)!=2 or [r.get('id') if isinstance(r,dict) else None for r in rooms]!=list(FIXED):
-        raise ValueError('美容室と洋菓子店のID・順序は固定です')
+    if not isinstance(rooms,list) or len(rooms)!=len(FIXED) or [r.get('id') if isinstance(r,dict) else None for r in rooms]!=list(FIXED):
+        raise ValueError('美容室・洋菓子店・公民館のID・順序は固定です')
     active={r['id']:r for r in load_catalog()['characters'] if not r.get('archived')}
     for room in rooms:
         expected=FIXED[room['id']]

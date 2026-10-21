@@ -71,6 +71,18 @@ List<TownResident> salonResidents(Iterable<TownResident> owned,
 List<TownResident> bakeryResidents(Iterable<TownResident> owned) =>
     facilityResidents('bakery', owned);
 
+/// A public community centre: its instructors are present once the building
+/// opens, even when they have not yet been obtained from the gacha.
+const communityCenterUnlockPoints = 240;
+
+bool isCommunityCenterUnlocked(int lifetimePoints) =>
+    lifetimePoints >= communityCenterUnlockPoints;
+
+List<TownResident> communityCenterResidents() => List.unmodifiable([
+  for (final placement in facilityPlacements('community_center'))
+    TownResident.fromId(placement.residentId),
+]);
+
 const applauseResidentLimit = 8;
 
 /// Maximum spendable kotohogi; contribution totals keep growing.

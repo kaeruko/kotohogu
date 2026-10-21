@@ -42,6 +42,27 @@
           "y": 760
         }
       ]
+    },
+    {
+      "id": "community_center",
+      "label": "ことほぎ公民館",
+      "background": "assets/kotohogu/community_center_background_001.png",
+      "width": 941,
+      "height": 1672,
+      "owner": "031_kimono_fox",
+      "spriteSize": 200,
+      "placements": [
+        {
+          "residentId": "031_kimono_fox",
+          "x": 105,
+          "y": 635
+        },
+        {
+          "residentId": "037_tora",
+          "x": 635,
+          "y": 650
+        }
+      ]
     }
   ]
 }
