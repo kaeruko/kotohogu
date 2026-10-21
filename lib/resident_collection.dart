@@ -137,7 +137,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c050_nailist("050_nailist", "ネイリスト", "050_nailist", true, false, "桜の美容室で働く若いひつじのネイリスト。かわいいネイル、洋服、ヘアアクセサリーが大好きな、おしゃれで明るい女の子。お客さんが指先を見て笑顔になるのがうれしい。時々接客に疲れて家事や身だしなみが億劫になることもあるけれど、準備の手間を減らすなど、自分をいたわる小さな工夫を楽しんでいる。", "salon", archived: false),
   // ignore: constant_identifier_names
-  c051_dog_aunt("051_dog_aunt", "おしゃべりさん", "051_dog_aunt", true, true, "", "plaza", archived: false)
+  c051_dog_aunt("051_dog_aunt", "おしゃべりさん", "051_dog_aunt", true, true, "ことほぎ公民館の体操教室に通う、にこにこしたおしゃべり好きのおばさま。運動が得意なわけではないけれど、顔なじみと会うのが楽しみで通っている。人の話を聞くのも好きで、静かに過ごしたい人には無理に話しかけない。はじめは知り合いがいなかったからこそ、初参加の人の気持ちがわかる。", "plaza", archived: false)
   // END CMS RESIDENTS
   ;
 
