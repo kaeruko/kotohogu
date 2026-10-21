@@ -75,6 +75,36 @@ void main() {
     }
   });
 
+  test('Oshaberi-san has an introduction and same-day mission chatter', () async {
+    final live = await DialogueCatalog.load();
+    const resident = TownResident.c051_dog_aunt;
+    final today = DateTime.utc(2026, 10, 21, 2);
+    final nextDay = DateTime.utc(2026, 10, 22, 2);
+    final progress = Progress.empty(DateTime(2026, 10, 21));
+    final intro = live.select(resident: resident, progress: progress,
+        now: today, random: const FixedRoll(last: false));
+    expect(intro.id, '051_dog_aunt_001');
+    expect(intro.firstGreeting, isTrue);
+
+    final greeted = progress.markDialogueSeen(intro.id);
+    expect(live.selectById(id: '051_dog_aunt_010',
+        resident: resident, progress: greeted, now: today).once, isFalse);
+    final missions = [
+      (Mission.movement, '051_dog_aunt_017'),
+      (Mission.conversation, '051_dog_aunt_018'),
+      (Mission.monthlyCommunity, '051_dog_aunt_019'),
+    ];
+    for (final (mission, id) in missions) {
+      expect(() => live.selectById(id: id, resident: resident,
+          progress: greeted, now: today), throwsStateError);
+      final completed = greeted.complete(mission);
+      expect(live.selectById(id: id, resident: resident,
+          progress: completed, now: today).id, id);
+      expect(() => live.selectById(id: id, resident: resident,
+          progress: completed, now: nextDay), throwsStateError);
+    }
+  });
+
   test('patissier calls his wife およめちゃん in their joint dialogue',
       () async {
     final catalog = await DialogueCatalog.load();
