@@ -99,7 +99,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c035_beaty("035_beaty", "つやこ", "035_beaty", true, false, "美容家", "salon", archived: false),
   // ignore: constant_identifier_names
-  c031_kimono_fox("031_kimono_fox", "きものぎつね", "031_kimono_fox", true, false, "桜の美容室の看板娘。和装が好きで、みんなを笑顔で迎える。", "salon", archived: false),
+  c031_kimono_fox("031_kimono_fox", "おししょうさん", "031_kimono_fox", true, false, "", "salon", archived: false),
   // ignore: constant_identifier_names
   c037_tora("037_tora", "とらお", "037_tora", true, true, "", "park", archived: false),
   // ignore: constant_identifier_names

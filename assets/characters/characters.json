@@ -136,8 +136,8 @@
     {
       "key": "c031_kimono_fox",
       "id": "031_kimono_fox",
-      "label": "きものぎつね",
-      "profile": "桜の美容室の看板娘。和装が好きで、みんなを笑顔で迎える。",
+      "label": "おししょうさん",
+      "profile": "",
       "artFolder": "031_kimono_fox",
       "nextDialogueNumber": 3,
       "inGacha": true,
