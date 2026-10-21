@@ -137,7 +137,7 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
     <p class="hint">各エリアの名前と開放条件を管理します。住民の出現場所は固定しません。</p>
     <h3>特別な出現ルール（固定）</h3>
     <p class="hint">とんこ：開店の会話（041_pig_middle_033）を見た後は中央ひろばで店番します。</p>
-    <p class="hint">つやこ：所持すると桜の美容室が開放。美容室所属の子は室内だけ。きものぎつねだけでは開放しません。</p>
+    <p class="hint">おしゃれさん：所持すると桜の美容室が開放。美容室所属の子は室内だけ。おししょうさんは公民館のお花教室にいます。</p>
     <p class="hint">通常の屋外住民は、まちを訪れるたびに開放済みエリアから等確率で1か所へお出かけ。エリア間の移動や会話中には再抽選されません。</p>
   </section>
   <section class="panel">
@@ -678,7 +678,7 @@ function renderCharacterEditor(){
   };
   append(box,"p","通常の住民に出現エリアの指定はありません。まちに入るたび、開放済みエリアのどこかにランダムで現れます。").className="hint";
   if(isSalonOwner)append(box,"p",
-    "つやこさんは美容室のオーナーです。美容室所属・ガチャ・屋外表示は固定です。").className="hint";
+    "おしゃれさんは美容室のオーナーです。美容室所属・ガチャ・屋外表示は固定です。").className="hint";
   edit("キャラID（所持・セリフの参照用）","id",locked);
   const folderHint=append(box,"p",locked
     ? `画像フォルダ: assets/characters/${row.artFolder}/（登録済みの設定を維持）`
@@ -707,7 +707,7 @@ function renderCharacterEditor(){
  // Outdoor values are not used to choose a resident's outing destination.
 function setSalonMembership(row,indoor){
   if(row.id==="035_beaty"&&!indoor)
-    throw Error("つやこさんの美容室所属は固定です");
+    throw Error("おしゃれさんの美容室所属は固定です");
   if(indoor){
     row.homeAreaId="salon";
   }else if(row.homeAreaId==="salon"){
@@ -813,7 +813,7 @@ function renderAreaPreview(){
     append(line,"p",areaOpen(area.id)?(groups[area.id].join("、")||"住民なし"):"入場不可").className="hint";
   }
   const salon=append(other,"div");salon.className="area-result";
-  append(salon,"strong","桜の美容室（つやこさんの所持で開放）");
+  append(salon,"strong","桜の美容室（おしゃれさんの所持で開放）");
   append(salon,"p",groups.salon.join("、")||"住民なし").className="hint";
   if(hidden.length)append(other,"p","屋外表示OFF: "+hidden.join("、")).className="hint";
 }

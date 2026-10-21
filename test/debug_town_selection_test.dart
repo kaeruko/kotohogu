@@ -240,7 +240,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('salon-resident-035_beaty')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('こんにちは、つやこです。'), findsOneWidget);
+    expect(find.text('こんにちは、おしゃれさんです。'), findsOneWidget);
     await tester.tap(find.text('また話そう'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));

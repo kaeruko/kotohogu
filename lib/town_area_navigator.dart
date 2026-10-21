@@ -188,7 +188,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                     SnackBar(
                       content: Text(forcedClosed
                           ? 'デバッグ設定で桜の美容室を未開放にしています'
-                          : 'つやこさんをガチャでお迎えすると、桜の美容室が開放されるよ'),
+                          : 'おしゃれさんをガチャでお迎えすると、桜の美容室が開放されるよ'),
                     ),
                   );
                   return;

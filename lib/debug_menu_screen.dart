@@ -313,7 +313,7 @@ class DebugMenuScreen extends StatelessWidget {
                           fontWeight: FontWeight.bold)),
                   Text(
                     '通常の状態：${isSalonUnlocked(progress.residents.owned) ? "開放" : "未開放"}'
-                    '（つやこさんの所持で判定）',
+                    '（おしゃれさんの所持で判定）',
                     key: const ValueKey('debug-salon-actual-status'),
                     style: const TextStyle(color: wood),
                   ),

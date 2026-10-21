@@ -247,7 +247,7 @@ void main() {
         reason: 'The employee alone does not open the salon');
     await tester.tap(entrance);
     await tester.pump();
-    expect(find.textContaining('つやこさんをガチャでお迎えすると'),
+    expect(find.textContaining('おしゃれさんをガチャでお迎えすると'),
         findsOneWidget);
     expect(find.byType(SalonRoom), findsNothing);
 

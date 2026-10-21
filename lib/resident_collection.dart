@@ -109,7 +109,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c036_mosa("036_mosa", "モサエド", "036_mosa", true, true, "拙者、猛者江戸（モサエド）と申す！", "plaza", archived: false),
   // ignore: constant_identifier_names
-  c035_beaty("035_beaty", "つやこ", "035_beaty", true, false, "美容家", "salon", archived: false),
+  c035_beaty("035_beaty", "おしゃれさん", "035_beaty", true, false, "美容家", "salon", archived: false),
   // ignore: constant_identifier_names
   c031_kimono_fox("031_kimono_fox", "おししょうさん", "031_kimono_fox", true, false, "", "salon", archived: false),
   // ignore: constant_identifier_names
@@ -133,7 +133,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c047_patisie("047_patisie", "パティシエ", "047_patisie", true, true, "ことほぎ商店街に新しく小さなケーキ屋さんを開いたパティシエ。お菓子作りが大好きで、自分の店を持つのが長年の夢だった。およめさんの夫で、小さな子どもの父親。味や仕上がりにこだわる一方で、仕入れ、値付け、売れ残りや家計のことまで考えなくてはならず、毎日試行錯誤している。妻がときどき店を手伝ってくれることに感謝しているが、家事も大事な仕事と考えている。忙しくても子どもと過ごす時間を大切にしたい、穏やかで働き者の人。", "plaza", archived: false),
   // ignore: constant_identifier_names
-  c048_advicer("048_advicer", "しんだんし", "048_advicer", true, true, "ことほぎのまちの商店街で、個人商店や小さな会社の経営相談に乗ってきた中小企業診断士。つやこさんが桜の美容室を開くときも、事業計画や設備投資の相談を受けていた。今は開店したばかりのケーキ屋さんや、マルシェでお茶を売るとんこさんの話にも耳を傾ける。穏やかで数字には細かいが、夢を否定したり決断を押しつけたりはしない。店主が望む暮らしと、商売を続けるための現実を一緒に考える。税務・年金など専門外の相談では適切な専門家につなぐ。", "plaza", archived: false),
+  c048_advicer("048_advicer", "しんだんし", "048_advicer", true, true, "ことほぎのまちの商店街で、個人商店や小さな会社の経営相談に乗ってきた中小企業診断士。おしゃれさんが桜の美容室を開くときも、事業計画や設備投資の相談を受けていた。今は開店したばかりのケーキ屋さんや、マルシェでお茶を売るとんこさんの話にも耳を傾ける。穏やかで数字には細かいが、夢を否定したり決断を押しつけたりはしない。店主が望む暮らしと、商売を続けるための現実を一緒に考える。税務・年金など専門外の相談では適切な専門家につなぐ。", "plaza", archived: false),
   // ignore: constant_identifier_names
   c050_nailist("050_nailist", "ネイリスト", "050_nailist", true, false, "桜の美容室で働く若いひつじのネイリスト。かわいいネイル、洋服、ヘアアクセサリーが大好きな、おしゃれで明るい女の子。お客さんが指先を見て笑顔になるのがうれしい。時々接客に疲れて家事や身だしなみが億劫になることもあるけれど、準備の手間を減らすなど、自分をいたわる小さな工夫を楽しんでいる。", "salon", archived: false),
   // ignore: constant_identifier_names
