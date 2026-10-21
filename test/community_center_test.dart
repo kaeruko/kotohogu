@@ -56,7 +56,8 @@ void main() {
     await tester.tap(find.byKey(
         const ValueKey('community-center-return-shopping')));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pump(const Duration(milliseconds: 650));
+    await tester.pump();
     expect(find.byType(CommunityCenterRoom), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
