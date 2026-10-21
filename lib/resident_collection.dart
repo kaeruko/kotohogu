@@ -119,7 +119,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c038_lion_lady("038_lion_lady", "リオコ", "038_lion_lady", true, true, "", "salon", archived: false),
   // ignore: constant_identifier_names
-  c034_artist("034_artist", "くまりん", "034_artist", true, true, "絵を描くのが大好きな女の子。自分の描きたい絵と、みんなに喜んでもらえる絵の間で悩みながら、少しずつ自分らしい表現を探している。", "village", archived: false),
+  c034_artist("034_artist", "えかきさん", "034_artist", true, true, "絵を描くのが大好きな女の子。自分の描きたい絵と、みんなに喜んでもらえる絵の間で悩みながら、少しずつ自分らしい表現を探している。", "village", archived: false),
   // ignore: constant_identifier_names
   c015_office_worker("015_office_worker", "ぶちょう", "015_office_worker", true, true, "", "plaza", archived: false),
   // ignore: constant_identifier_names
