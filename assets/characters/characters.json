@@ -280,9 +280,9 @@
       "key": "c051_dog_aunt",
       "id": "051_dog_aunt",
       "label": "おしゃべりさん",
-      "profile": "",
+      "profile": "ことほぎ公民館の体操教室に通う、にこにこしたおしゃべり好きのおばさま。運動が得意なわけではないけれど、顔なじみと会うのが楽しみで通っている。人の話を聞くのも好きで、静かに過ごしたい人には無理に話しかけない。はじめは知り合いがいなかったからこそ、初参加の人の気持ちがわかる。",
       "artFolder": "051_dog_aunt",
-      "nextDialogueNumber": 2,
+      "nextDialogueNumber": 20,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
