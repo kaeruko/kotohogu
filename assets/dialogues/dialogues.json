@@ -4372,7 +4372,7 @@
     {
       "id": "026_farmer_003",
       "residentId": "026_farmer",
-      "text": "わしは多賀康三。みんなには、やすぞうと呼ばれとる。畑で土に触ってる時間が好きなんじゃ。よろしくのう。",
+      "text": "わしは、たがやすぞう（多賀康三）。みんなには、やすぞうと呼ばれとる。畑で土に触ってる時間が好きなんじゃ。よろしくのう。",
       "priority": 0,
       "once": true,
       "firstGreeting": true,
@@ -5777,6 +5777,15 @@
       "residentId": "038_lion_lady",
       "text": "この前、同窓会に行ったの。そこで気づいたことがあってね。\n明らかに若々しい人って、世間体にとらわれずに、『自分で選んだ』と納得できる人生を歩んでいるのよ。\n……不思議ね。そういう生き方って、顔にも出るのかしら。",
       "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_001",
+      "residentId": "051_dog_aunt",
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
       "once": false,
       "logic": "all",
       "conditions": []

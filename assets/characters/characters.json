@@ -275,6 +275,17 @@
       "inGacha": true,
       "walkInTown": false,
       "homeAreaId": "salon"
+    },
+    {
+      "key": "c051_dog_aunt",
+      "id": "051_dog_aunt",
+      "label": "おしゃべりさん",
+      "profile": "",
+      "artFolder": "051_dog_aunt",
+      "nextDialogueNumber": 2,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
     }
   ]
 }
