@@ -209,7 +209,7 @@ class CmsTests(unittest.TestCase):
         row["archived"] = True
         self.assertIs(validate_catalog(retired, previous=original), retired)
         generated = generate_dart(DART.read_text("utf-8"), retired["characters"])
-        self.assertIn('c037_tora("037_tora", "とらお", "037_tora", false, false, "", "plaza", archived: true)',
+        self.assertIn('c037_tora("037_tora", "コーチ", "037_tora", false, false, "", "plaza", archived: true)',
                       generated)
         self.assertIn("assets/characters/037_tora/", generate_pubspec(
             PUBSPEC.read_text("utf-8"), retired["characters"]))

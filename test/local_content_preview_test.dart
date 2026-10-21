@@ -7,7 +7,7 @@ import 'package:future_lift/local_content_preview.dart';
 Map<String, Object?> resident(String id, String folder) => {
   'key': 'c$id',
   'id': id,
-  'label': id == '037_tora' ? 'とらお' : '新しい住民',
+  'label': id == '037_tora' ? 'コーチ' : '新しい住民',
   'artFolder': folder,
   'nextDialogueNumber': 2,
   'inGacha': true, 'walkInTown': true,
