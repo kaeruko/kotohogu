@@ -156,23 +156,11 @@
             "turns": [
               {
                 "speaker": "029_office_worker",
-                "text": "おやすみくん、ちょっとにおう……。"
-              },
-              {
-                "speaker": "027_daydreamer",
-                "text": "もふ？"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "最後にお風呂に入ったの、いつ？"
+                "text": "おやすみくん、ちょっとにおう……。最後にお風呂に入ったの、いつ？"
               },
               {
                 "speaker": "027_daydreamer",
                 "text": "おみずいやもふ～。"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "……聞くまでもなかったね。"
               }
             ]
           },
@@ -225,10 +213,6 @@
               {
                 "speaker": "027_daydreamer",
                 "text": "きいてたもふ。……なんだっけ？"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "あはは、早いなぁ！"
               }
             ]
           },
@@ -253,10 +237,6 @@
               {
                 "speaker": "027_daydreamer",
                 "text": "……すぅ……もふ……"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "ふふ。おやすみ。"
               }
             ]
           }
