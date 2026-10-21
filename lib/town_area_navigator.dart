@@ -9,6 +9,7 @@ import 'oyasumi_club.dart';
 import 'local_content_preview.dart';
 import 'salon_room.dart';
 import 'bakery_room.dart';
+import 'community_center_room.dart';
 import 'town.dart';
 import 'town_areas.dart';
 
@@ -31,6 +32,7 @@ class TownAreaNavigator extends StatefulWidget {
     this.oyasumi,
     this.onSalonResident,
     this.onBakeryResident,
+    this.onCommunityCenterResident,
     this.marcheOpen = false,
     this.onVisitMarche,
   });
@@ -52,6 +54,7 @@ class TownAreaNavigator extends StatefulWidget {
   final OyasumiScene? oyasumi;
   final Future<void> Function(TownResident)? onSalonResident;
   final Future<void> Function(TownResident)? onBakeryResident;
+  final Future<void> Function(TownResident)? onCommunityCenterResident;
   final bool marcheOpen;
   final VoidCallback? onVisitMarche;
 
@@ -218,6 +221,25 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                 debugOverride: widget.debugTownResidents,
               ),
               onResident: widget.onResident,
+            ),
+          if (area == TownArea.shopping && accessible &&
+              isCommunityCenterUnlocked(widget.lifetimePoints))
+            Positioned(
+              bottom: math.max(86, constraints.maxHeight * .10),
+              right: 12,
+              child: FilledButton.tonalIcon(
+                key: const ValueKey('shopping-community-center-entrance'),
+                onPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    settings: const RouteSettings(name: '/shopping/community-center'),
+                    builder: (_) => CommunityCenterRoom(
+                      onResident: widget.onCommunityCenterResident,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.home_work_outlined),
+                label: const Text('公民館へ'),
+              ),
             ),
           if (showNavigation)
             Positioned(

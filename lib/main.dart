@@ -488,14 +488,14 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     );
   }
 
-  Future<void> _showDialogue(TownResident resident, {bool inSalon = false, bool inBakery = false}) async {
+  Future<void> _showDialogue(TownResident resident, {bool inSalon = false, bool inBakery = false, bool inCommunityCenter = false}) async {
     if (controller.busy || controller.failure != null ||
         controller.progress == null) {
       return;
     }
     final scene = _clubScene(controller.progress!);
     final clubGroup = scene.group(resident,
-      inPlaza: !inSalon && !inBakery && _page == 2 && _townArea == TownArea.plaza);
+      inPlaza: !inSalon && !inBakery && !inCommunityCenter && _page == 2 && _townArea == TownArea.plaza);
     if (clubGroup != null) {
       await _showClubDialogue(scene, resident, clubGroup);
       return;
@@ -507,14 +507,16 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       oyasumi: _clubScene(controller.progress!),
       debugTownResidents: _debugTownResidents);
     final visibleIds = rules.conversationPeers(
-      inBakery
+      inCommunityCenter
+          ? ConversationSite.communityCenter
+          : inBakery
           ? ConversationSite.bakery
           : inSalon
           ? ConversationSite.salon
           : _page == 2
               ? ConversationSite.town
               : ConversationSite.roster,
-      area: !inSalon && !inBakery && _page == 2 ? _townArea : null,
+      area: !inSalon && !inBakery && !inCommunityCenter && _page == 2 ? _townArea : null,
       previewSalonUnowned: inSalon && developerToolsAvailable &&
           _salonUnlockMode == SalonUnlockDebugMode.forceOpen,
     );
@@ -1125,6 +1127,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
               _showDialogue(resident, inBakery: true),
           onSalonResident: (resident) =>
               _showDialogue(resident, inSalon: true),
+          onCommunityCenterResident: (resident) =>
+              _showDialogue(resident, inCommunityCenter: true),
           marcheOpen: rules.marcheOpen,
           oyasumi: rules.oyasumi,
           onVisitMarche: _visitMarche,
