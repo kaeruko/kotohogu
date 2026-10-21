@@ -52,12 +52,17 @@ class EventTests(unittest.TestCase):
                       if isinstance(item, dict)
                       and any('おにぎりと、あったかいおみそ汁' in turn['text']
                               for turn in item['turns'])]
-            self.assertEqual(len(dinner), 1, stage)
-            self.assertEqual([turn['speaker'] for turn in dinner[0]['turns']],
-                             [events.HOST] * 5)
-            self.assertIn('いっしょに起きてるよ', dinner[0]['turns'][-1]['text'])
+            self.assertEqual(len(dinner), 1 if stage == 'solo' else 0, stage)
+            if stage == 'solo':
+                self.assertEqual([turn['speaker'] for turn in dinner[0]['turns']],
+                                 [events.HOST] * 5)
+                self.assertIn('いっしょに起きてるよ', dinner[0]['turns'][-1]['text'])
         self.assertEqual(len(doc['stages']['solo']['chatter'][events.HOST]), 4)
-        self.assertEqual(len(doc['stages']['joined']['chatter'][events.HOST]), 4)
+        self.assertEqual(len(doc['stages']['joined']['chatter'][events.HOST]), 3)
+        for stage in ('watching', 'joining', 'joined'):
+            self.assertEqual(len(self.preview(1 if stage == 'watching' else 2 if stage == 'joining' else 3,
+                                               '2026-10-19')['dialogues'][events.HOST]),
+                             3)
         events.validate(doc)
         over_limit = copy.deepcopy(doc)
         over_limit['stages']['solo']['chatter'][events.HOST].append('5本目')
