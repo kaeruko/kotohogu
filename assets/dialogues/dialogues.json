@@ -4527,9 +4527,10 @@
     {
       "id": "007_hitsuji_001",
       "residentId": "007_hitsuji",
-      "text": "こんにちは！よろしくね。",
-      "priority": 0,
-      "once": false,
+      "text": "はじめまして！おしゃべりさんって呼ばれているの。体操に来たはずなのに、ついお話ししすぎちゃうのよ。うふふ。",
+      "priority": 40,
+      "once": true,
+      "firstGreeting": true,
       "logic": "all",
       "conditions": []
     },
@@ -5789,6 +5790,189 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_002",
+      "residentId": "051_dog_aunt",
+      "text": "あら、こんにちは！体操教室へようこそ。……って、わたしも先生じゃないのよ。常連なの。うふふ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_003",
+      "residentId": "051_dog_aunt",
+      "text": "ねえねえ、昨日ね……あら、もう体操が始まるの？続きはあとでね！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_004",
+      "residentId": "051_dog_aunt",
+      "text": "右手を上げて、左足を……あら？みなさんと逆向きだわ。ふふ、もう一回！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_005",
+      "residentId": "051_dog_aunt",
+      "text": "とらお先生の掛け声って元気が出るわよね。わたし、ついつい大きな声でお返事しちゃうの。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_006",
+      "residentId": "051_dog_aunt",
+      "text": "体操のあとのお茶が楽しみでねえ。これって動機としては不純かしら？うふふ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_007",
+      "residentId": "051_dog_aunt",
+      "text": "あのね、ここへ来ると誰かの顔が見られるでしょう。それがうれしくって。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_008",
+      "residentId": "051_dog_aunt",
+      "text": "最初のころは知り合いがいなくてね。端っこで体操してたの。今じゃ名前を覚えるのが大変よ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_009",
+      "residentId": "051_dog_aunt",
+      "text": "話しかけられたくない日もあるわよね。そんなときは、いっしょに黙って体操しましょ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_010",
+      "residentId": "051_dog_aunt",
+      "text": "来られない週もあるけれど、また来ればいいのよね。『お久しぶり』って言ってくれる人がいるの。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_011",
+      "residentId": "051_dog_aunt",
+      "text": "あら、そのお話もっと聞きたいわ！……ええ、体操が終わってからにしましょう。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_012",
+      "residentId": "051_dog_aunt",
+      "text": "体操の順番、ようやく覚えたと思ったのに、今日はいつもと違うの！あらあら、頭の体操にもなるわね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_013",
+      "residentId": "051_dog_aunt",
+      "text": "みんな動き方がちがうのねえ。先生も『無理のない範囲で』って言ってるものね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_014",
+      "residentId": "051_dog_aunt",
+      "text": "廊下の展示の絵、ご覧になった？色がきれいでねえ。帰りにもう一度見ていこうかしら。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_015",
+      "residentId": "051_dog_aunt",
+      "text": "お花のお稽古も楽しそうよね。わたしが行ったら、お花よりおしゃべりに夢中になっちゃうかも！",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_016",
+      "residentId": "051_dog_aunt",
+      "text": "隣の方が新しい靴をはいててね。すてきですねって言ったら、にこっとしてくださったの。うれしいわぁ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "051_dog_aunt_017",
+      "residentId": "051_dog_aunt",
+      "text": "今日は体を動かしたのね！わたしもよ。とらお先生のかけ声につられて、腕をぶんぶん動かしちゃった。うふふ。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "movement",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "051_dog_aunt_018",
+      "residentId": "051_dog_aunt",
+      "text": "今日は誰かとお話ししたのね。ちょっとしたごあいさつでも、声を交わすのってうれしいことがあるわよね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "conversation",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "051_dog_aunt_019",
+      "residentId": "051_dog_aunt",
+      "text": "地域の集まりに参加したのね。おつかれさま！見ているだけの日があってもいいのよ。わたしも最初はそうだったもの。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "monthlyCommunity",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
     }
   ]
 }
