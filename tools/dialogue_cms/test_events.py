@@ -56,13 +56,26 @@ class EventTests(unittest.TestCase):
             self.assertEqual([turn['speaker'] for turn in dinner[0]['turns']],
                              [events.HOST] * 5)
             self.assertIn('いっしょに起きてるよ', dinner[0]['turns'][-1]['text'])
-        self.assertEqual(len(doc['stages']['solo']['chatter'][events.HOST]), 5)
-        self.assertEqual(len(doc['stages']['joined']['chatter'][events.HOST]), 5)
+        self.assertEqual(len(doc['stages']['solo']['chatter'][events.HOST]), 4)
+        self.assertEqual(len(doc['stages']['joined']['chatter'][events.HOST]), 4)
         events.validate(doc)
         over_limit = copy.deepcopy(doc)
-        over_limit['stages']['solo']['chatter'][events.HOST].append('6本目')
-        with self.assertRaisesRegex(ValueError, '3〜5本'):
+        over_limit['stages']['solo']['chatter'][events.HOST].append('5本目')
+        with self.assertRaisesRegex(ValueError, '3〜4本'):
             events.validate(over_limit)
+
+    def test_night_conversation_patterns_are_3_to_4_and_previewable(self):
+        doc=events.load()
+        for stage in doc['stages'].values():
+            for patterns in stage['chatter'].values():
+                self.assertGreaterEqual(len(patterns),3)
+                self.assertLessEqual(len(patterns),4)
+        merged=doc['stages']['solo']['chatter'][events.HOST][0]
+        self.assertEqual(len(merged['turns']),2)
+        self.assertIn('おほしさま',merged['turns'][1]['text'])
+        self.assertEqual(len(self.preview()['dialogues'][events.HOST]),4)
+        page=(events.ROOT/'tools/dialogue_cms/events.html').read_text(encoding='utf-8')
+        self.assertLess(page.index('id="lines"'),page.index('id="scene"'))
 
     def test_multi_character_replies_and_daytime_peer_filtering(self):
         doc=copy.deepcopy(events.load())
@@ -132,7 +145,12 @@ class EventTests(unittest.TestCase):
         self.assertTrue(all(isinstance(item,str) for item in watching))
         self.assertIn('におう',joined[0]['turns'][0]['text'])
         self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host,frog,host,frog])
-        self.assertEqual(len(joined),5)
+        self.assertEqual(len(joined),4)
+        merged=joined[1]['turns']
+        self.assertEqual(len(merged),7)
+        self.assertIn('公園を二周',merged[0]['text'])
+        self.assertIn('かえるくんをまってた',merged[3]['text'])
+        self.assertIn('待ってないじゃん',merged[-1]['text'])
         reunion=joined[-1]['turns']
         self.assertEqual([turn['speaker'] for turn in reunion],
                          [frog, frog, frog, frog, host, frog])

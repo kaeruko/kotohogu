@@ -33,7 +33,7 @@ def validate(doc):
         row['id'] for row in load_catalog()['characters']
         if row['walkInTown'] and row['homeAreaId'] != 'salon'
     }
-    def lines(items, speaker, allowed, *, max_patterns=5, job_gate=False):
+    def lines(items, speaker, allowed, *, max_patterns=4, job_gate=False):
         if not isinstance(items,list) or not 3 <= len(items) <= max_patterns:
             raise ValueError(f'繰り返し会話は3〜{max_patterns}本で設定してください')
         has_solo = False

@@ -13,7 +13,7 @@ function textField(parent,label,value,onChange){const field=el('label',label),in
 const turnsFor=(item,primary)=>typeof item==='string'
   ? [{speaker:primary,text:item}] : item.turns;
 function editLines(parent,lines,primary,allowed,{isResting=false}={}){
-  const limit=isResting?8:5;
+  const limit=isResting?8:4;
   const permitted=allowed.map(id=>[id,names[id]||id]);
   lines.forEach((item,i)=>{
     const block=el('div');block.className='conversation';
@@ -204,6 +204,9 @@ async function preview(){
       items.forEach((item,index)=>renderConversation(detail,item,id,index));
       $('lines').append(detail);
     });
+    if(!data.active && !data.frogResting){
+      $('lines').append(el('p','今は会話候補がありません。開催日時と所持状況を確認してください。'));
+    }
     if(data.frogResting&&!data.active){
       $('lines').append(el('h3','かえる・昼間の会話候補'));
       (data.restingOptions||[]).forEach((item,i)=>
@@ -213,7 +216,13 @@ async function preview(){
     }
   }catch(error){
     if(version!==revision)return;
-    result=null;$('reason').textContent=error.message;$('reason').className='error';
+    result=null;
+    $('reason').textContent='プレビューに失敗しました：'+error.message;
+    $('reason').className='error';
+    $('stageName').textContent='プレビュー失敗';
+    $('scene').replaceChildren();
+    $('dayChange').textContent='';
+    $('lines').replaceChildren(el('p','会話候補を表示できません。上のエラーを確認してください。'));
   }
 }
 async function load(){
@@ -232,7 +241,13 @@ async function load(){
     $('start').value=config.night.startHour;$('end').value=config.night.endHour;
     renderEditor();$('saveStatus').textContent='保存済みの設定を読み込みました';
     await preview();
-  }catch(error){$('saveStatus').textContent=error.message;}
+  }catch(error){
+    $('saveStatus').textContent='読み込みに失敗しました：'+error.message;
+    $('saveStatus').className='status error';
+    $('reason').textContent='イベント設定を読み込めないため、会話プレビューを表示できません。';
+    $('reason').className='error';
+    $('lines').replaceChildren(el('p','上の読み込みエラーを確認してください。'));
+  }
 }
 $('start').oninput=()=>{config.night.startHour=Number($('start').value);change();};$('end').oninput=()=>{config.night.endHour=Number($('end').value);change();};
 ['host','frog','mosa','now','last','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
