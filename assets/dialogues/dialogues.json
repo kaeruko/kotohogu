@@ -4527,10 +4527,9 @@
     {
       "id": "007_hitsuji_001",
       "residentId": "007_hitsuji",
-      "text": "はじめまして！おしゃべりさんって呼ばれているの。体操に来たはずなのに、ついお話ししすぎちゃうのよ。うふふ。",
-      "priority": 40,
-      "once": true,
-      "firstGreeting": true,
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
+      "once": false,
       "logic": "all",
       "conditions": []
     },
@@ -5785,11 +5784,12 @@
     {
       "id": "051_dog_aunt_001",
       "residentId": "051_dog_aunt",
-      "text": "こんにちは！よろしくね。",
-      "priority": 0,
-      "once": false,
+      "text": "はじめまして！おしゃべりさんって呼ばれているの。体操に来たはずなのに、ついお話ししすぎちゃうのよ。うふふ。",
+      "priority": 40,
+      "once": true,
       "logic": "all",
-      "conditions": []
+      "conditions": [],
+      "firstGreeting": true
     },
     {
       "id": "051_dog_aunt_002",
