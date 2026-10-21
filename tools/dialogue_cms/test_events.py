@@ -132,7 +132,18 @@ class EventTests(unittest.TestCase):
         self.assertTrue(all(isinstance(item,str) for item in watching))
         self.assertIn('におう',joined[0]['turns'][0]['text'])
         self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host,frog,host,frog])
-        self.assertEqual(len(joined),4)
+        self.assertEqual(len(joined),5)
+        reunion=joined[-1]['turns']
+        self.assertEqual([turn['speaker'] for turn in reunion],
+                         [frog, frog, frog, frog, host, frog])
+        self.assertIn('会いに来たんだけど', reunion[1]['text'])
+        self.assertIn('起こさないでおこうね', reunion[2]['text'])
+        self.assertIn('……すぅ……もふ……', reunion[4]['text'])
+        self.assertEqual(
+            self.preview(3,'2026-10-19')['dialogues'][frog][-1]['turns'],
+            reunion)
+        self.assertFalse(self.preview(3,'2026-10-19',
+                                      now='2026-10-20T12:00')['active'])
         self.assertNotIn('辞め',doc['stages']['joining']['intro']['text'])
         self.assertIn('会社を辞め',doc['restingDialogue'][0])
         self.assertTrue(any(not isinstance(x,str) for x in doc['restingDialogue']))
