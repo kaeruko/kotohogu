@@ -61,6 +61,11 @@
           "residentId": "037_tora",
           "x": 635,
           "y": 650
+        },
+        {
+          "residentId": "051_dog_aunt",
+          "x": 695,
+          "y": 875
         }
       ]
     }
