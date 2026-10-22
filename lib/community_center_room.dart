@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 
 import 'facility_layout.dart';
 import 'resident_collection.dart';
+import 'town_areas.dart';
 
 /// The public community center, reached from the shopping street after
 /// earning 240 lifetime kotohogi points. The resident placements follow the
 /// uploaded 941x1672 artwork, not the screen's pixel coordinates.
 class CommunityCenterRoom extends StatefulWidget {
-  const CommunityCenterRoom({super.key, this.onResident});
+  const CommunityCenterRoom({
+    super.key,
+    this.onResident,
+    this.hideShoppingMother = false,
+  });
 
   static const backgroundAsset =
       'assets/kotohogu/community_center_background_001.png';
 
   final Future<void> Function(TownResident)? onResident;
+  final bool hideShoppingMother;
 
   @override
   State<CommunityCenterRoom> createState() => _CommunityCenterRoomState();
@@ -82,7 +88,9 @@ class _CommunityCenterRoomState extends State<CommunityCenterRoom> {
                     ),
                   ),
                   for (final resident in communityCenterResidents())
-                    _instructor(resident),
+                    if (!widget.hideShoppingMother ||
+                        resident != familyOutingMother)
+                      _instructor(resident),
                 ],
               ),
             ),

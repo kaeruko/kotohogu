@@ -24,6 +24,7 @@ class TownAreaNavigator extends StatefulWidget {
     required this.lifetimePoints,
     required this.residents,
     this.debugTownResidents,
+    this.afterOyasumiClub = false,
     this.remoteVisitors = const [],
     this.remoteContentBaseUri,
     this.onRemoteVisitor,
@@ -46,6 +47,7 @@ class TownAreaNavigator extends StatefulWidget {
   final int lifetimePoints;
   final List<TownResident> residents;
   final List<TownResident>? debugTownResidents;
+  final bool afterOyasumiClub;
   final List<RemoteResident> remoteVisitors;
   final Uri? remoteContentBaseUri;
   final Future<void> Function(RemoteResident)? onRemoteVisitor;
@@ -150,6 +152,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
               lifetimePoints: widget.lifetimePoints,
               residents: widget.residents,
               debugTownResidents: widget.debugTownResidents,
+              afterOyasumiClub: widget.afterOyasumiClub,
               remoteVisitors: widget.remoteVisitors,
               remoteContentBaseUri: widget.remoteContentBaseUri,
               onRemoteVisitor: widget.onRemoteVisitor,
@@ -202,6 +205,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                         widget.debugTownResidents != null ||
                         !_visit.isFamilyOuting(
                           widget.residents, widget.lifetimePoints,
+                          afterOyasumiClub: widget.afterOyasumiClub,
                         )).toList(),
                       previewUnownedResidents: developerToolsAvailable &&
                           widget.salonUnlockMode == SalonUnlockDebugMode.forceOpen,
@@ -224,6 +228,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                 lifetimePoints: widget.lifetimePoints,
                 visit: _visit,
                 debugOverride: widget.debugTownResidents,
+                afterOyasumiClub: widget.afterOyasumiClub,
               ),
               onResident: widget.onResident,
             ),
@@ -239,6 +244,10 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                     settings: const RouteSettings(name: '/shopping/community-center'),
                     builder: (_) => CommunityCenterRoom(
                       onResident: widget.onCommunityCenterResident,
+                      hideShoppingMother: widget.debugTownResidents == null &&
+                          _visit.isFamilyOuting(
+                            widget.residents, widget.lifetimePoints,
+                            afterOyasumiClub: widget.afterOyasumiClub),
                     ),
                   ),
                 ),

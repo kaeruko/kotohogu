@@ -48,7 +48,8 @@ List<TownArea> unlockedTownAreas(int lifetimePoints,
       TownArea.values.where((area) => area.isUnlocked(lifetimePoints, owned: owned)),
     );
 
-/// The salon daughter joins her mother only on occasional shopping outings.
+/// After the Oyasumi Club story, the daughter starts relying on her mother
+/// and they sometimes go shopping together. No explicit breakup scene.
 /// IDs and persisted gacha ownership remain unchanged.
 const familyOutingMother = TownResident.c051_dog_aunt;
 const familyOutingDaughter = TownResident.c050_nailist;
@@ -68,10 +69,15 @@ class TownVisit {
   bool? _familyOuting;
   final Map<String, int> _familyConversations = {};
 
-  /// No save migration: each new visit has a 1-in-4 chance of a family outing
-  /// once the shopping street is unlocked and both family members are owned.
-  /// The result stays fixed across area changes, dialogue and rebuilds.
-  bool isFamilyOuting(Iterable<TownResident> owned, int lifetimePoints) {
+  /// Each eligible visit has a 1-in-4 chance of a shopping outing after
+  /// the existing club progress reaches 3. No new save data is needed.
+  bool isFamilyOuting(
+    Iterable<TownResident> owned,
+    int lifetimePoints, {
+    bool afterOyasumiClub = false,
+  }) {
+    // Never draw or reuse a prior draw before the story is complete.
+    if (!afterOyasumiClub) return false;
     if (_familyOuting != null) return _familyOuting!;
     final family = owned.toSet();
     if (!TownArea.shopping.isUnlocked(lifetimePoints) ||
@@ -153,10 +159,12 @@ List<TownResident> areaResidents(
   required TownVisit visit,
   List<TownResident>? debugOverride,
   bool marcheOpen = false,
+  bool afterOyasumiClub = false,
 }) {
   final candidates = visibleTownResidents(owned, debugOverride: debugOverride);
   final familyOuting = debugOverride == null &&
-      visit.isFamilyOuting(owned, lifetimePoints);
+      visit.isFamilyOuting(
+        owned, lifetimePoints, afterOyasumiClub: afterOyasumiClub);
   return List<TownResident>.unmodifiable([
     for (final resident in candidates)
       if (!(familyOuting && resident == familyOutingMother) &&

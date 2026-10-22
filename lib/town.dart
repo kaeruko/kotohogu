@@ -42,6 +42,7 @@ class TownScene extends StatefulWidget {
     this.visit,
     required this.lifetimePoints,
     this.debugTownResidents,
+    this.afterOyasumiClub = false,
     this.onResident,
     this.oyasumi,
     this.remoteVisitors = const [],
@@ -64,6 +65,8 @@ class TownScene extends StatefulWidget {
   final int lifetimePoints;
   /// A temporary debug-only cast; null uses the owned residents.
   final List<TownResident>? debugTownResidents;
+  /// Derived from the saved Oyasumi Club stage.
+  final bool afterOyasumiClub;
   final Future<void> Function(TownResident)? onResident;
   final OyasumiScene? oyasumi;
   final List<RemoteResident> remoteVisitors;
@@ -213,6 +216,7 @@ class _TownSceneState extends State<TownScene> {
       visit: widget.visit ?? _standaloneVisit,
       debugOverride: widget.debugTownResidents,
       marcheOpen: widget.marcheOpen,
+      afterOyasumiClub: widget.afterOyasumiClub,
     );
     final visibleResidents = widget.oyasumi?.residents(widget.area, ordinaryResidents) ?? ordinaryResidents;
     final clubTakesOver = widget.oyasumi?.takesOver(widget.area) ?? false;
@@ -460,7 +464,8 @@ class _TownSceneState extends State<TownScene> {
     final familyOuting = widget.area == TownArea.shopping &&
         widget.debugTownResidents == null &&
         (widget.visit ?? _standaloneVisit).isFamilyOuting(
-          widget.residents, widget.lifetimePoints);
+          widget.residents, widget.lifetimePoints,
+          afterOyasumiClub: widget.afterOyasumiClub);
     final route = familyOuting && resident == familyOutingMother
         ? const TownWalkRoute(.36, .67, stay: true)
         : familyOuting && resident == familyOutingDaughter

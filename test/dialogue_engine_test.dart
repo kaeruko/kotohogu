@@ -98,6 +98,37 @@ void main() {
       resident: frog, progress: after, now: now), isA<DialogueEntry>());
   });
 
+  test('after club, mother and daughter have more dependent chatter', () async {
+    final catalog = await DialogueCatalog.load();
+    final before = Progress.empty(DateTime(2026, 10, 22));
+    final after = before.withOyasumi(
+      const OyasumiProgress(completed: 3, lastNight: '2026-10-22'));
+    final now = DateTime.utc(2026, 10, 22);
+    for (final (id, speaker) in [
+      ('050_nailist_030', TownResident.c050_nailist),
+      ('050_nailist_031', TownResident.c050_nailist),
+      ('051_dog_aunt_022', TownResident.c051_dog_aunt),
+    ]) {
+      expect(() => catalog.selectById(
+        id: id, resident: speaker, progress: before, now: now),
+        throwsStateError);
+      expect(catalog.selectById(
+        id: id, resident: speaker, progress: after, now: now).id, id);
+    }
+    for (final (id, speaker, peer) in [
+      ('050_nailist_028', TownResident.c050_nailist, '051_dog_aunt'),
+      ('051_dog_aunt_020', TownResident.c051_dog_aunt, '050_nailist'),
+    ]) {
+      final ids = {speaker.id, peer};
+      expect(() => catalog.selectById(
+        id: id, resident: speaker, progress: before, now: now,
+        townResidentIds: ids), throwsStateError);
+      expect(catalog.selectById(
+        id: id, resident: speaker, progress: after, now: now,
+        townResidentIds: ids).id, id);
+    }
+  });
+
   test('oyasumi club condition rejects malformed values', () {
     final bad = row('invalidClub', '001_shiba', 'test',
       conditions: [{'type': 'oyasumiClub', 'completed': 'yes'}]);

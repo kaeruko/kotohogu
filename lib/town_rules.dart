@@ -36,6 +36,7 @@ class TownRules {
       visit: visit,
       debugOverride: debugTownResidents,
       marcheOpen: marcheOpen,
+      afterOyasumiClub: progress.oyasumi.completed == 3,
     );
     return oyasumi?.residents(area, ordinary) ?? ordinary;
   }
@@ -61,7 +62,9 @@ class TownRules {
         participants = outdoors(area!);
       case ConversationSite.salon:
         final familyOuting = debugTownResidents == null &&
-            visit.isFamilyOuting(progress.residents.owned, progress.points);
+            visit.isFamilyOuting(
+              progress.residents.owned, progress.points,
+              afterOyasumiClub: progress.oyasumi.completed == 3);
         participants = salonResidents(
           progress.residents.owned,
           previewUnowned: previewSalonUnowned,
@@ -70,7 +73,12 @@ class TownRules {
       case ConversationSite.bakery:
         participants = bakeryResidents(progress.residents.owned);
       case ConversationSite.communityCenter:
-        participants = communityCenterResidents();
+        final familyOuting = debugTownResidents == null &&
+            visit.isFamilyOuting(
+              progress.residents.owned, progress.points,
+              afterOyasumiClub: progress.oyasumi.completed == 3);
+        participants = communityCenterResidents().where((resident) =>
+            !familyOuting || resident != familyOutingMother);
       case ConversationSite.roster:
         participants = visibleTownResidents(
           progress.residents.owned,

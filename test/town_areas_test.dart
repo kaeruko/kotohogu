@@ -156,17 +156,23 @@ void main() {
     const owned = [mother, daughter];
     final visit = TownVisit(
       random: ScriptedTownRandom([]), familyOutingOverride: true);
-    expect(visit.isFamilyOuting(owned, 179), false,
-      reason: 'Shopping must be unlocked first');
-    expect(visit.isFamilyOuting([mother], 180), false,
-      reason: 'The daughter must be acquired');
-    expect(visit.isFamilyOuting(owned, 180), true);
+    expect(visit.isFamilyOuting(owned, 180), false,
+      reason: 'The story has not ended; do not draw even in debug override');
     expect(areaResidents(owned, TownArea.shopping,
-      lifetimePoints: 180, visit: visit), [mother, daughter]);
+      lifetimePoints: 180, visit: visit), isEmpty);
+    expect(visit.isFamilyOuting(owned, 179, afterOyasumiClub: true), false,
+      reason: 'Shopping must be unlocked first');
+    expect(visit.isFamilyOuting([mother], 180, afterOyasumiClub: true), false,
+      reason: 'The daughter must be acquired');
+    expect(visit.isFamilyOuting(owned, 180, afterOyasumiClub: true), true);
+    expect(areaResidents(owned, TownArea.shopping,
+      lifetimePoints: 180, visit: visit, afterOyasumiClub: true),
+      [mother, daughter]);
     for (final area in [TownArea.plaza, TownArea.park, TownArea.village]) {
-      expect(areaResidents(owned, area, lifetimePoints: 180, visit: visit), isEmpty);
+      expect(areaResidents(owned, area,
+        lifetimePoints: 180, visit: visit, afterOyasumiClub: true), isEmpty);
     }
-    expect(visit.isFamilyOuting(owned, 180), true,
+    expect(visit.isFamilyOuting(owned, 180, afterOyasumiClub: true), true,
       reason: 'The selection remains stable during the same town visit');
     expect(visit.nextFamilyOutingDialogueId(mother), '051_dog_aunt_020');
     expect(visit.nextFamilyOutingDialogueId(mother), '051_dog_aunt_021');
@@ -176,9 +182,11 @@ void main() {
     final ordinary = TownVisit(
       random: ScriptedTownRandom([2]), familyOutingOverride: false);
     expect(areaResidents(owned, TownArea.shopping,
-      lifetimePoints: 180, visit: ordinary), [mother]);
+      lifetimePoints: 180, visit: ordinary, afterOyasumiClub: true),
+      [mother]);
     expect(areaResidents(owned, TownArea.plaza,
-      lifetimePoints: 180, visit: ordinary), isEmpty);
+      lifetimePoints: 180, visit: ordinary, afterOyasumiClub: true),
+      isEmpty);
   });
 
   test('debug preview keeps CMS homes even before area unlock', () {

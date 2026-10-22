@@ -524,7 +524,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         _page == 2 && _townArea == TownArea.shopping &&
         _debugTownResidents == null &&
         _townVisit.isFamilyOuting(
-          controller.progress!.residents.owned, controller.progress!.points) &&
+          controller.progress!.residents.owned, controller.progress!.points,
+          afterOyasumiClub: controller.progress!.oyasumi.completed == 3) &&
         (resident == familyOutingMother || resident == familyOutingDaughter);
     final line = familyOuting
         ? catalog.selectById(
@@ -1128,6 +1129,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           lifetimePoints: progress.points,
           residents: progress.residents.owned,
           debugTownResidents: _debugTownResidents,
+          afterOyasumiClub: progress.oyasumi.completed == 3,
           remoteVisitors: visitors,
           remoteContentBaseUri: hosted?.baseUri,
           onRemoteVisitor: hosted == null ||
