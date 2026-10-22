@@ -1,4 +1,7 @@
 name: Flutter quality checks
+
+# Single required CI: includes Flutter, community-center, dialogue/story,
+# CMS condition overview, Python, Android/iOS tooling, and web build tests.
 on:
   push:
     branches: [main]
