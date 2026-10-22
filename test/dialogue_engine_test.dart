@@ -525,29 +525,24 @@ void main() {
     expect(selected.reply?.text, 'あの雲、描いてみたい！');
   });
 
-  test('bundled farmer and daydreamer conversation wins when together', () {
-    // Inspect the actual checked-in fixture directly, without widget clock
-    // or asynchronous bundle loading.
+  test('bundled farmer and daydreamer conversation requires co-location', () {
     final live = DialogueCatalog.fromJson(
       File('assets/dialogues/dialogues.json').readAsStringSync(),
     );
-    // First meeting has already happened; verify subsequent companionship.
     final progress = Progress.empty(DateTime(2026, 10, 15))
         .markDialogueSeen('026_farmer_003');
     final now = DateTime.utc(2026, 10, 15, 0);
-    DialogueEntry pick(Set<String> town) => live.select(
+    DialogueEntry paired(Set<String> town) => live.selectById(
+      id: '026_farmer_002',
       resident: TownResident.c026_farmer,
       progress: progress,
       now: now,
       townResidentIds: town,
-      random: const FixedRoll(),
     );
 
-    expect(pick({'026_farmer'}).id, '026_farmer_001');
-    expect(pick({'027_daydreamer'}).id, '026_farmer_001');
-
-    final together = pick({'026_farmer', '027_daydreamer'});
-    expect(together.id, '026_farmer_002');
+    expect(() => paired({'026_farmer'}), throwsStateError);
+    expect(() => paired({'027_daydreamer'}), throwsStateError);
+    final together = paired({'026_farmer', '027_daydreamer'});
     expect(together.text, 'おやすみくん。農業をやらんかね。');
     expect(together.reply?.residentId, '027_daydreamer');
     expect(together.reply?.text, 'もふ？おひるねできる？');

@@ -146,8 +146,39 @@ void main() {
             lifetimePoints: points, visit: visit), isEmpty);
       }
     }
-    expect(salonResidents(owned),
-        [TownResident.c035_beaty, TownResident.c031_kimono_fox]);
+    // おししょうさん is now assigned to the public community center.
+    expect(salonResidents(owned), [TownResident.c035_beaty]);
+  });
+
+  test('mother and daughter share a shopping visit but keep ordinary locations otherwise', () {
+    const mother = TownResident.c051_dog_aunt;
+    const daughter = TownResident.c050_nailist;
+    const owned = [mother, daughter];
+    final visit = TownVisit(
+      random: ScriptedTownRandom([]), familyOutingOverride: true);
+    expect(visit.isFamilyOuting(owned, 179), false,
+      reason: 'Shopping must be unlocked first');
+    expect(visit.isFamilyOuting([mother], 180), false,
+      reason: 'The daughter must be acquired');
+    expect(visit.isFamilyOuting(owned, 180), true);
+    expect(areaResidents(owned, TownArea.shopping,
+      lifetimePoints: 180, visit: visit), [mother, daughter]);
+    for (final area in [TownArea.plaza, TownArea.park, TownArea.village]) {
+      expect(areaResidents(owned, area, lifetimePoints: 180, visit: visit), isEmpty);
+    }
+    expect(visit.isFamilyOuting(owned, 180), true,
+      reason: 'The selection remains stable during the same town visit');
+    expect(visit.nextFamilyOutingDialogueId(mother), '051_dog_aunt_020');
+    expect(visit.nextFamilyOutingDialogueId(mother), '051_dog_aunt_021');
+    expect(visit.nextFamilyOutingDialogueId(daughter), '050_nailist_028');
+    expect(visit.nextFamilyOutingDialogueId(daughter), '050_nailist_029');
+
+    final ordinary = TownVisit(
+      random: ScriptedTownRandom([2]), familyOutingOverride: false);
+    expect(areaResidents(owned, TownArea.shopping,
+      lifetimePoints: 180, visit: ordinary), [mother]);
+    expect(areaResidents(owned, TownArea.plaza,
+      lifetimePoints: 180, visit: ordinary), isEmpty);
   });
 
   test('debug preview keeps CMS homes even before area unlock', () {
@@ -196,7 +227,7 @@ void main() {
     expect(find.byKey(const ValueKey('salon-resident-035_beaty')),
         findsOneWidget);
     expect(find.byKey(const ValueKey('salon-fox-resident')),
-        findsOneWidget);
+        findsNothing, reason: 'おししょうさん teaches at the community center');
     await tester.tap(find.byKey(const ValueKey('salon-return-village')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));

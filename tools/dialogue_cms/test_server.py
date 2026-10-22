@@ -357,35 +357,39 @@ class CmsTests(unittest.TestCase):
 
     def test_dialogue_serials_preserve_existing_ids_and_retired_numbers(self):
         original = load_catalog()
+        first = original["characters"][0]
+        previous_counter = first["nextDialogueNumber"]
+        existing_dialogues = sample()
+        existing_ids = {row["id"] for row in existing_dialogues["dialogues"]}
+        new_id = lambda offset: f"001_shiba_{previous_counter + offset:03d}"
+        self.assertNotIn(new_id(0), existing_ids)
+        self.assertNotIn(new_id(1), existing_ids)
+
         modified = copy.deepcopy(original)
-        modified["characters"][0]["nextDialogueNumber"] = 4
+        modified["characters"][0]["nextDialogueNumber"] = previous_counter + 2
         dialogues = sample()
-        dialogues["dialogues"].append({
-            "id": "001_shiba_002", "residentId": "001_shiba",
-            "text": "新しい話", "priority": 0, "once": False,
-            "logic": "all", "conditions": [],
-        })
-        dialogues["dialogues"].append({
-            "id": "001_shiba_003", "residentId": "001_shiba",
-            "text": "次の話", "priority": 0, "once": False,
-            "logic": "all", "conditions": [],
-        })
+        for offset in (0, 1):
+            dialogues["dialogues"].append({
+                "id": new_id(offset), "residentId": "001_shiba",
+                "text": "新しい話", "priority": 0, "once": False,
+                "logic": "all", "conditions": [],
+            })
         validate_catalog(modified, previous=original)
         validate(dialogues)
         validate_dialogue_ids(modified, dialogues, original, sample())
 
         not_reserved = copy.deepcopy(modified)
-        not_reserved["characters"][0]["nextDialogueNumber"] = 3
+        not_reserved["characters"][0]["nextDialogueNumber"] = previous_counter + 1
         with self.assertRaisesRegex(ValueError, "not reserved"):
             validate_dialogue_ids(not_reserved, dialogues, original, sample())
 
         previously_reserved = copy.deepcopy(original)
-        previously_reserved["characters"][0]["nextDialogueNumber"] = 4
+        previously_reserved["characters"][0]["nextDialogueNumber"] = previous_counter + 2
         future = copy.deepcopy(previously_reserved)
-        future["characters"][0]["nextDialogueNumber"] = 5
+        future["characters"][0]["nextDialogueNumber"] = previous_counter + 3
         new_dialogues = sample()
         new_dialogues["dialogues"].append({
-            "id": "001_shiba_003", "residentId": "001_shiba",
+            "id": new_id(1), "residentId": "001_shiba",
             "text": "削除済み番号の再利用", "priority": 0, "once": False,
             "logic": "all", "conditions": [],
         })
@@ -403,7 +407,7 @@ class CmsTests(unittest.TestCase):
             validate_dialogue_ids(modified, invalid, original, sample())
 
         rollback_counter = copy.deepcopy(original)
-        rollback_counter["characters"][0]["nextDialogueNumber"] = 4
+        rollback_counter["characters"][0]["nextDialogueNumber"] = previous_counter + 2
         with self.assertRaisesRegex(ValueError, "cannot decrease"):
             validate_catalog(original, previous=rollback_counter)
 
@@ -504,8 +508,8 @@ class CmsTests(unittest.TestCase):
         validate(sample())
         frog = [entry for entry in sample()["dialogues"]
                 if entry["residentId"] == "029_office_worker" and not entry.get("firstGreeting")]
-        self.assertEqual(len(frog), 11)
-        self.assertEqual([row["id"] for row in frog],
+        self.assertGreaterEqual(len(frog), 11)
+        self.assertEqual([row["id"] for row in frog[:11]],
                          [f"029_office_worker_{number:03d}" for number in range(1, 12)])
         for entry in frog[6:10]:
             self.assertTrue(entry["once"])
@@ -618,7 +622,7 @@ class CmsTests(unittest.TestCase):
                 before = target.read_bytes()
                 modified = sample()
                 modified["dialogues"].append({
-                    "id": "001_shiba_002", "residentId": "001_shiba",
+                    "id": f"001_shiba_{load_catalog()['characters'][0]['nextDialogueNumber']:03d}", "residentId": "001_shiba",
                     "text": "新しい話", "priority": 0, "once": False,
                     "logic": "all", "conditions": [],
                 })

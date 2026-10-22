@@ -153,7 +153,7 @@ class EventTests(unittest.TestCase):
         self.assertEqual(len(joined),4)
         park=joined[1]['turns']
         today=joined[2]['turns']
-        self.assertEqual([t['speaker'] for t in park], [frog,host,frog])
+        self.assertEqual([t['speaker'] for t in park], [frog,host])
         self.assertEqual([t['speaker'] for t in today], [frog,host,frog,host,frog])
         self.assertEqual(park[0]['text'],'おやすみくん、今日は公園を二周したんだ！')
         self.assertFalse(any('今日は何してた？' in turn['text'] for turn in park))
@@ -162,10 +162,10 @@ class EventTests(unittest.TestCase):
         self.assertIn('待ってないじゃん',today[-1]['text'])
         reunion=joined[-1]['turns']
         self.assertEqual([turn['speaker'] for turn in reunion],
-                         [frog, frog, frog, frog, host])
+                         [frog, frog, frog, frog])
         self.assertIn('会いに来たんだけど', reunion[1]['text'])
         self.assertIn('起こさないでおこうね', reunion[2]['text'])
-        self.assertIn('……すぅ……もふ……', reunion[4]['text'])
+        self.assertIn('……すぅ……もふ……', reunion[-1]['text'])
         self.assertEqual(
             self.preview(3,'2026-10-19')['dialogues'][frog][-1]['turns'],
             reunion)
