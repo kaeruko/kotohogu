@@ -179,7 +179,6 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
 "use strict";
 let residents={};
 const areaLabels={"plaza":"⛩️ 中央ひろば","park":"🌳 ふれあい公園","shopping":"🏮 ことほぎ商店街","village":"🌱 のんびり里","salon":"💇 桜の美容室（里山の室内）"};
-const siteLabels={"roster":"住民一覧","town":"屋外のまち","salon":"桜の美容室","bakery":"洋菓子店","community_center":"ことほぎ公民館"};
 const missions={"all":"全ミッション合計","strength":"筋力を使った","outside":"外に出た・歩いた","conversation":"人と話した","movement":"身体を動かした","sittingBreak":"座りっぱなしを途中でやめた","food":"食事をひとつ整えた","hobby":"趣味や学びを楽しんだ","weeklyStrength":"筋トレをした","weeklyActive":"息が弾む運動を楽しんだ","weeklyTogether":"誰かと一緒に活動した","weeklyLearn":"新しいことを学んだ・試した","monthlyCommunity":"地域の活動に参加した","monthlyHabit":"健康習慣をひとつ工夫した","monthlyReview":"今月の言祝ぎを振り返った"};
 const modes={"exact":"指定日","range":"指定期間","annual":"毎年の指定日","annual_range":"毎年の期間","weekday":"毎週の曜日"};
 const byId=id=>document.getElementById(id);
@@ -245,6 +244,7 @@ function fresh(row){
 }
 function current(){if(selected===null)return null;return data.dialogues.find(e=>e.id===selected)||null}
 // BEGIN CMS DIALOGUE OVERVIEW HELPERS
+const siteLabels={"roster":"住民一覧","town":"屋外のまち","salon":"桜の美容室","bakery":"洋菓子店","community_center":"ことほぎ公民館"};
 // Reading-only helpers: do not alter how the Flutter app selects dialogue.
 function dialogueCategoryMatches(entry, category) {
   if (category === "all") return true;
