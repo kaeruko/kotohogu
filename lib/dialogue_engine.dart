@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'progress.dart';
 import 'resident_collection.dart';
 
+const dialogueSites = {'roster', 'town', 'salon', 'bakery', 'community_center'};
+
 class DialogueCatalog {
   DialogueCatalog._(this.entries);
   static const assetPath = 'assets/dialogues/dialogues.json';
@@ -57,14 +59,18 @@ class DialogueCatalog {
     required Progress progress,
     required DateTime now,
     Set<String> townResidentIds = const {},
+    String site = 'roster',
     math.Random? random,
   }) {
+    if (!dialogueSites.contains(site)) {
+      throw ArgumentError.value(site, 'site', 'Unknown dialogue site');
+    }
     // -1000 is reserved for explicit facility conversations, never a random draw.
     final available = entries.where((entry) =>
       entry.residentId == resident.id &&
       entry.priority != -1000 &&
       (!entry.once || !progress.seenDialogues.contains(entry.id)) &&
-      entry.matches(progress, now, townResidentIds)).toList();
+      entry.matches(progress, now, townResidentIds, site)).toList();
     if (available.isEmpty) throw StateError('No dialogue: ${resident.id}');
 
     // A first greeting outranks achievements, stories and weighted chatter.
@@ -81,16 +87,20 @@ class DialogueCatalog {
       return top[generator.nextInt(top.length)];
     }
 
+    // Initial greetings and one-time stories take precedence; then prefer local chatter.
+    final local = available.where((entry) => entry.conditions.any(
+        (condition) => condition.fields['type'] == 'site')).toList();
+    final repeatable = local.isNotEmpty ? local : available;
     // Every eligible repeatable line retains a nonzero chance to be selected.
     // Priority adds one ticket per ten points; consecutive repeats are allowed.
     final weights = [
-      for (final entry in available)
+      for (final entry in repeatable)
         1 + (math.max(0, entry.priority) ~/ 10),
     ];
     final total = weights.fold<int>(0, (sum, weight) => sum + weight);
     var ticket = generator.nextInt(total);
-    for (var i = 0; i < available.length; i++) {
-      if (ticket < weights[i]) return available[i];
+    for (var i = 0; i < repeatable.length; i++) {
+      if (ticket < weights[i]) return repeatable[i];
       ticket -= weights[i];
     }
     throw StateError('Dialogue draw exceeded total weight: ${resident.id}');
@@ -105,7 +115,11 @@ class DialogueCatalog {
     required Progress progress,
     required DateTime now,
     Set<String> townResidentIds = const {},
+    String site = 'roster',
   }) {
+    if (!dialogueSites.contains(site)) {
+      throw ArgumentError.value(site, 'site', 'Unknown dialogue site');
+    }
     final found = entries.where((entry) => entry.id == id).toList();
     if (found.length != 1) {
       throw StateError('Expected one dialogue for $id, found ${found.length}');
@@ -113,7 +127,7 @@ class DialogueCatalog {
     final line = found.single;
     if (line.residentId != resident.id ||
         (line.once && progress.seenDialogues.contains(line.id)) ||
-        !line.matches(progress, now, townResidentIds)) {
+        !line.matches(progress, now, townResidentIds, site)) {
       throw StateError('Dialogue $id is not available for ${resident.id}');
     }
     return line;
@@ -160,6 +174,10 @@ class DialogueEntry {
     }
     final parsedConditions = List<DialogueCondition>.unmodifiable(
       conditions.map(DialogueCondition.parse));
+    if (logic != 'all' && parsedConditions.any(
+        (condition) => condition.fields['type'] == 'site')) {
+      throw FormatException('Location-specific dialogue requires AND conditions: $id');
+    }
     for (final condition in parsedConditions) {
       if (condition.fields['type'] == 'townTogether' &&
           condition.fields['otherResidentId'] == resident) {
@@ -181,13 +199,14 @@ class DialogueEntry {
       parsedConditions, reply, greeting);
   }
 
-  bool matches(Progress progress, DateTime now, Set<String> townResidentIds) {
+  bool matches(Progress progress, DateTime now, Set<String> townResidentIds,
+      [String site = 'roster']) {
     if (conditions.isEmpty) return true;
     return logic == 'all'
         ? conditions.every((c) => c.matches(
-            progress, now, townResidentIds, residentId))
+            progress, now, townResidentIds, residentId, site))
         : conditions.any((c) => c.matches(
-            progress, now, townResidentIds, residentId));
+            progress, now, townResidentIds, residentId, site));
   }
 }
 
@@ -226,6 +245,11 @@ class DialogueCondition {
           threshold is! int || threshold < 1 || threshold > 1000000 ||
           (data.containsKey('withinDays') && data['withinDays'] != 1)) {
         throw const FormatException('Invalid mission condition');
+      }
+    } else if (data['type'] == 'site') {
+      _keys(data, {'type', 'siteId'}, 'conversation site');
+      if (data['siteId'] is! String || !dialogueSites.contains(data['siteId'])) {
+        throw const FormatException('Invalid conversation site');
       }
     } else if (data['type'] == 'seenDialogue') {
       _keys(data, {'type', 'dialogueId'}, 'seen dialogue condition');
@@ -295,8 +319,9 @@ class DialogueCondition {
   }
 
   bool matches(Progress progress, DateTime now,
-      Set<String> townResidentIds, String speakerId) {
+      Set<String> townResidentIds, String speakerId, String site) {
     final kind = fields['type'];
+    if (kind == 'site') return site == fields['siteId'];
     if (kind == 'seenDialogue') {
       return progress.seenDialogues.contains(fields['dialogueId']);
     }

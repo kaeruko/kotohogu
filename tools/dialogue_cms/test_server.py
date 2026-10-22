@@ -71,6 +71,18 @@ class CmsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Invalid resident ownership"):
             validate(unknown)
 
+    def test_conversation_site_validation(self):
+        for bad in ("invalid", 22, None):
+            doc = sample()
+            doc["dialogues"][0]["conditions"] = [{"type": "site", "siteId": bad}]
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, "Invalid conversation site"):
+                validate(doc)
+        doc = sample()
+        doc["dialogues"][0]["conditions"] = [{"type": "site", "siteId": "community_center"}]
+        doc["dialogues"][0]["logic"] = "any"
+        with self.assertRaisesRegex(ValueError, "requires AND"):
+            validate(doc)
+
     def test_character_portrait_resolves_idle_png_only(self):
         catalog = load_catalog()
         folder = next(row["artFolder"] for row in catalog["characters"]

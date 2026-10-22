@@ -30,6 +30,10 @@ test('all local dialogue types have a readable rule summary',()=>{
     assert.ok(!description.includes('[object Object]'),row.id);
     assert.ok(!description.includes('undefined'),row.id);
     if(row.firstGreeting)assert.match(description,/初対面/);
+    if(row.conditions.some(c=>c.type==='site')){
+      assert.equal(dialogueCategoryMatches(row,'site'),true);
+      assert.match(description,/ことほぎ公民館で話しかけたときだけ/);
+    }
     if(row.priority===-1000){
       assert.equal(dialogueCategoryMatches(row,'facility'),true);
       assert.match(description,/通常抽選には出ない/);
