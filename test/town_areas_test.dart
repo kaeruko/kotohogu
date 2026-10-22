@@ -155,7 +155,7 @@ void main() {
     const daughter = TownResident.c050_nailist;
     const owned = [mother, daughter];
     final visit = TownVisit(
-      random: ScriptedTownRandom([]), familyOutingOverride: true);
+      random: ScriptedTownRandom([0]), familyOutingOverride: true);
     expect(visit.isFamilyOuting(owned, 180), false,
       reason: 'The story has not ended; do not draw even in debug override');
     expect(areaResidents(owned, TownArea.shopping,
