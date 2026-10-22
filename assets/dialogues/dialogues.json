@@ -883,7 +883,12 @@
       "priority": 0,
       "once": false,
       "logic": "all",
-      "conditions": []
+      "conditions": [
+        {
+          "type": "oyasumiClub",
+          "completed": false
+        }
+      ]
     },
     {
       "id": "029_office_worker_003",

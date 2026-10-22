@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/dialogue_engine.dart';
 import 'package:future_lift/progress.dart';
+import 'package:future_lift/oyasumi_club.dart';
 import 'package:future_lift/resident_collection.dart';
 
 Map<String, Object> row(String id, String resident, String text, {
@@ -73,6 +74,34 @@ void main() {
       expect(live.select(resident: resident, progress: p,
         now: DateTime.utc(2026, 10, 12, 15)), isA<DialogueEntry>());
     }
+  });
+
+  test('frog stops referring to Nailist as his girlfriend when club completes', () async {
+    final live = await DialogueCatalog.load();
+    const frog = TownResident.c029_office_worker;
+    final now = DateTime.utc(2026, 10, 22);
+    final before = Progress.empty(now);
+    final during = before.withOyasumi(
+      const OyasumiProgress(completed: 2, lastNight: '2026-10-21'));
+    final after = before.withOyasumi(
+      const OyasumiProgress(completed: 3, lastNight: '2026-10-22'));
+    for (final progress in [before, during]) {
+      expect(live.selectById(
+        id: '029_office_worker_002', resident: frog,
+        progress: progress, now: now).text, contains('つきあってる'));
+    }
+    expect(() => live.selectById(
+      id: '029_office_worker_002', resident: frog,
+      progress: after, now: now), throwsStateError);
+    // No new breakup event or dialogue is required at the story threshold.
+    expect(live.select(
+      resident: frog, progress: after, now: now), isA<DialogueEntry>());
+  });
+
+  test('oyasumi club condition rejects malformed values', () {
+    final bad = row('invalidClub', '001_shiba', 'test',
+      conditions: [{'type': 'oyasumiClub', 'completed': 'yes'}]);
+    expect(() => catalog([bad]), throwsFormatException);
   });
 
   test('Oshaberi-san has an introduction and same-day mission chatter', () async {

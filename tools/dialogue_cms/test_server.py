@@ -33,6 +33,22 @@ class CmsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must match"):
             validate_catalog(mismatched, previous=original)
 
+    def test_oyasumi_club_condition_is_validated(self):
+        current = sample()
+        original = next(line for line in current["dialogues"]
+                        if line["id"] == "029_office_worker_002")
+        self.assertEqual(original["conditions"],
+                         [{"type": "oyasumiClub", "completed": False}])
+        self.assertIs(validate(current), current)
+        for broken in ("no", 1, None):
+            invalid = copy.deepcopy(current)
+            line = next(line for line in invalid["dialogues"]
+                        if line["id"] == "029_office_worker_002")
+            line["conditions"][0]["completed"] = broken
+            with self.subTest(broken=broken), self.assertRaisesRegex(
+                    ValueError, "Invalid oyasumi club completion"):
+                validate(invalid)
+
     def test_resident_ownership_conditions_validate_strictly(self):
         current = sample()
         self.assertIs(validate(current), current)

@@ -80,6 +80,7 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
     <option value="townTogether">住民同士の掛け合い</option>
     <option value="seenDialogue">物語・既読からの続き</option>
     <option value="residentOwned">住民の所持状況</option>
+    <option value="oyasumiClub">おやすみクラブの進行</option>
     <option value="date">日付・曜日</option>
     <option value="kotohogi">累計ことほぎ</option>
     <option value="once">一度きり（初対面を除く）</option>
@@ -112,6 +113,7 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
   <label>仮の日付（日本時間）</label><input id="previewDay" type="date" value="2026-10-13">
   <label>累計ミッション総数</label><input id="previewTotal" type="number" value="0" min="0">
   <label>ことほぎ</label><input id="previewPoints" type="number" value="0" min="0">
+  <label class="controls"><input id="previewOyasumiCompleted" type="checkbox" style="width:auto"> ゆうぐれおやすみクラブの物語を完了済み（仮設定）</label>
   <details><summary>種類別の累計回数を設定</summary><div id="previewMissions"></div></details>
   <details><summary>ミッション達成当日の確認（仮設定）</summary>
     <p class="hint">達成セリフは当日だけ表示されます。仮の達成日と種類、累計回数を設定して確認できます。実際の履歴は変更しません。</p>
@@ -261,6 +263,8 @@ function conditionDescription(condition) {
         "と同じ場所にいる";
     case "seenDialogue":
       return "「" + condition.dialogueId + "」を読んだ";
+    case "oyasumiClub":
+      return condition.completed ? "おやすみクラブの物語完了後" : "おやすみクラブの物語完了前";
     case "residentOwned":
       return (residents[condition.residentId] || condition.residentId) +
         (condition.owned ? "をお迎え済み" : "をまだお迎えしていない");
@@ -394,7 +398,8 @@ function renderCondition(area,entry,condition,index){
   const kind=append(top,"select");
   opts(kind,{"mission":"ミッション累計","date":"日付","kotohogi":"ことほぎ累計",
     "townTogether":"まちで2人そろう","seenDialogue":"指定セリフを見たことがある",
-    "residentOwned":"キャラの所持状況"},condition.type);
+    "residentOwned":"キャラの所持状況",
+    "oyasumiClub":"おやすみクラブの進行"},condition.type);
   kind.onchange=()=>{
     if(kind.value==="townTogether"){
       const other=registry.characters.find(row=>row.id!==entry.residentId);
@@ -404,6 +409,8 @@ function renderCondition(area,entry,condition,index){
       const target=registry.characters[0];
       if(!target)throw Error("所持条件に指定できるキャラがいません");
       entry.conditions[index]={type:"residentOwned",residentId:target.id,owned:true};
+    }else if(kind.value==="oyasumiClub"){
+      entry.conditions[index]={type:"oyasumiClub",completed:true};
     }else if(kind.value==="seenDialogue"){
       const target=data.dialogues.find(row=>row.id!==entry.id);
       if(!target){kind.value=condition.type;setStatus("参照できる他のセリフがありません",true);return}
@@ -417,7 +424,11 @@ function renderCondition(area,entry,condition,index){
   const remove=append(top,"button","削除");remove.className="danger";
   remove.onclick=()=>{entry.conditions.splice(index,1);dirty=true;refresh()};
   const change=(field,convert)=>(v)=>{condition[field]=convert?convert(v):v};
-  if(condition.type==="residentOwned"){
+  if(condition.type==="oyasumiClub"){
+    labelControl(box,"おやすみクラブの物語","select",String(condition.completed),
+      v=>{condition.completed=v==="true";runPreview()},
+      {options:{"true":"完了した後","false":"完了する前"}});
+  }else if(condition.type==="residentOwned"){
     const options=Object.fromEntries(registry.characters.map(row=>[row.id,row.label]));
     labelControl(box,"対象キャラ","select",condition.residentId,change("residentId"),{options});
     labelControl(box,"条件","select",String(condition.owned),v=>{condition.owned=v==="true";runPreview()},
@@ -471,6 +482,7 @@ function renderCondition(area,entry,condition,index){
   }
 }
 function match(condition,context){
+  if(condition.type==="oyasumiClub")return context.oyasumiCompleted===condition.completed;
   if(condition.type==="residentOwned")return context.ownedIds.has(condition.residentId)===condition.owned;
   if(condition.type==="seenDialogue")return context.seenIds.has(condition.dialogueId);
   if(condition.type==="townTogether")return context.townIds.has(context.speakerId)&&context.townIds.has(condition.otherResidentId);
@@ -517,6 +529,7 @@ function runPreview(){
     for(const k of Object.keys(missions))if(k!=="all")missionsValues[k]=Number(byId("m_"+k).value);
     const context={day:byId("previewDay").value,total:Number(byId("previewTotal").value),
       points:Number(byId("previewPoints").value),missions:missionsValues,
+      oyasumiCompleted:byId("previewOyasumiCompleted").checked,
       townIds:previewTownIds,ownedIds:previewOwnedIds,seenIds:previewSeenIds,speakerId:byId("previewResident").value,
       recentDay:byId("previewRecentDay").value,recentMissions:previewRecentMissions};
     if(!context.day||!context.recentDay)throw Error("日付と直近の達成日を入力してください");
@@ -1082,7 +1095,7 @@ byId("filter").onchange=refresh;
 byId("conditionFilter").onchange=refresh;
 byId("runPreview").onclick=runPreview;
 byId("rerollAreaPreview").onclick=()=>{areaPreviewDestinations=new Map();renderAreaPreview()};
-for(const e of [byId("previewDay"),byId("previewRecentDay"),byId("previewResident"),byId("previewTotal"),byId("previewPoints")])e.addEventListener("change",runPreview);
+for(const e of [byId("previewDay"),byId("previewRecentDay"),byId("previewResident"),byId("previewTotal"),byId("previewPoints"),byId("previewOyasumiCompleted")])e.addEventListener("change",runPreview);
 // Character options are loaded from the resident catalog at startup.
 for(const [key,title] of Object.entries(missions)){
   if(key==="all")continue;

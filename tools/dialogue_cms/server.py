@@ -176,6 +176,10 @@ def validate(doc, residents=None):
                 if not isinstance(prerequisite, str) or not re.fullmatch(
                         r"[A-Za-z0-9_-]{1,80}", prerequisite):
                     raise ValueError(f"Invalid prerequisite dialogue ID: {loc}")
+            elif kind == "oyasumiClub":
+                require_keys(condition, {"type", "completed"}, loc)
+                if type(condition["completed"]) is not bool:
+                    raise ValueError(f"Invalid oyasumi club completion: {loc}")
             elif kind == "residentOwned":
                 require_keys(condition, {"type", "residentId", "owned"}, loc)
                 if condition["residentId"] not in residents or type(condition["owned"]) is not bool:

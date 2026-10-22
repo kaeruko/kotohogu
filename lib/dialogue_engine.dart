@@ -234,6 +234,11 @@ class DialogueCondition {
           !RegExp(r'^[A-Za-z0-9_-]{1,80}$').hasMatch(prerequisite)) {
         throw const FormatException('Invalid prerequisite dialogue ID');
       }
+    } else if (data['type'] == 'oyasumiClub') {
+      _keys(data, {'type', 'completed'}, 'oyasumi club progress');
+      if (data['completed'] is! bool) {
+        throw const FormatException('Invalid oyasumi club completion condition');
+      }
     } else if (data['type'] == 'residentOwned') {
       _keys(data, {'type', 'residentId', 'owned'}, 'resident ownership');
       final resident = data['residentId'];
@@ -294,6 +299,11 @@ class DialogueCondition {
     final kind = fields['type'];
     if (kind == 'seenDialogue') {
       return progress.seenDialogues.contains(fields['dialogueId']);
+    }
+    if (kind == 'oyasumiClub') {
+      // The third completed introduction is the existing, saved story ending.
+      // No breakup scene, new save flag or forced follow-up is needed.
+      return (progress.oyasumi.completed == 3) == fields['completed'];
     }
     if (kind == 'residentOwned') {
       final owned = (progress.residents.counts[fields['residentId']] ?? 0) > 0;
