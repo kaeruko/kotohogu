@@ -1,0 +1,26 @@
+name: Dialogue condition overview checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dialogue-overview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tools/dialogue_cms/test_dialogue_overview.mjs
+      - name: Check embedded CMS JavaScript syntax
+        run: |
+          node <<'JS'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const html = fs.readFileSync('tools/dialogue_cms/index.html', 'utf8');
+          const script = html.match(/<script>([\s\S]*?)<\/script>/);
+          if (!script) throw new Error('CMS inline script missing');
+          new vm.Script(script[1]);
+          JS
