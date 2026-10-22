@@ -11,7 +11,7 @@ class FacilityScaleTests(unittest.TestCase):
         salon, bakery, center = doc["facilities"]
         self.assertEqual(salon["spriteSize"], 230)
         self.assertEqual(bakery["spriteSize"], 235)
-        self.assertEqual(center["spriteSize"], 200)
+        self.assertEqual(center["spriteSize"], 150)
         self.assertEqual(center["background"], "assets/kotohogu/community_center_background_001.png")
         self.assertEqual((center["width"], center["height"]), (941, 1672))
         self.assertEqual([p["residentId"] for p in center["placements"]],
