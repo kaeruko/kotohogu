@@ -6297,7 +6297,7 @@
     {
       "id": "001_shiba_004",
       "residentId": "001_shiba",
-      "text": "あっ、お花がいっぱいだわん！ ぼくも一輪、いけてみたいわん！",
+      "text": "わんわん！ぼくもお花すきわん！\n…たべないわん！",
       "priority": 80,
       "once": false,
       "logic": "all",
@@ -6325,7 +6325,7 @@
     {
       "id": "042_senior_dog_023",
       "residentId": "042_senior_dog",
-      "text": "ほう、ええ絵じゃのう。描いた人は、どんな景色を見とったんじゃろうなぁ。",
+      "text": "ほほ～よい絵じゃのう",
       "priority": 80,
       "once": false,
       "logic": "all",
