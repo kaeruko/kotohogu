@@ -735,7 +735,7 @@
     {
       "id": "031_kimono_fox_001",
       "residentId": "031_kimono_fox",
-      "text": "いらっしゃいませ♪ 桜の美容室へようこそ。今日はゆっくりしていってね。",
+      "text": "ようおこしやす。ここは公民館のお花教室どす。気張らんと、好きなお花を一輪選んでみておくれやす。",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -6115,6 +6115,182 @@
         {
           "type": "oyasumiClub",
           "completed": true
+        }
+      ]
+    },
+    {
+      "id": "031_kimono_fox_003",
+      "residentId": "031_kimono_fox",
+      "text": "上手に生けなあかん、なんて思わんでよろし。花の顔をよう見てあげるのが、最初のお稽古どす。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_004",
+      "residentId": "031_kimono_fox",
+      "text": "一輪だけでも立派な生け花どすえ。花瓶にすっと立てて、横からも眺めてみまひょ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_005",
+      "residentId": "031_kimono_fox",
+      "text": "長い枝と短いお花を合わせると、景色に奥行きが生まれますえ。ちょっと試してみてな。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_006",
+      "residentId": "031_kimono_fox",
+      "text": "左右がそろってへん？ それもええんどす。自然の枝は、一本ずつ違う形をしてますからなぁ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_007",
+      "residentId": "031_kimono_fox",
+      "text": "お花は、茎の曲がり方や葉っぱの向きも面白いんどす。よく見ると、発見がありますえ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_008",
+      "residentId": "031_kimono_fox",
+      "text": "花瓶のお水を替えるときは、器もきれいに洗っておくとええですよ。お花を長く楽しむためのひと手間どす。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_009",
+      "residentId": "031_kimono_fox",
+      "text": "お水につかるところの葉っぱは、先に取っておくとええですよ。水が傷みにくうなります。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_010",
+      "residentId": "031_kimono_fox",
+      "text": "切り花の茎の先を少し切り戻すと、水を吸いやすくなることがありますえ。はさみには気をつけてな。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_011",
+      "residentId": "031_kimono_fox",
+      "text": "お花を生けたら、ちょっと離れて眺めてみて。さっき気づかへんかった表情が見えますえ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_012",
+      "residentId": "031_kimono_fox",
+      "text": "今日はつぼみが少しひらいてますなぁ。昨日と違う姿に出会えるのも、お花の楽しみどす。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_013",
+      "residentId": "031_kimono_fox",
+      "text": "名前がわからへんお花でも、好きやなぁと思えたらそれで十分。あとから覚えてもよろし。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_014",
+      "residentId": "031_kimono_fox",
+      "text": "人と同じに生けんでもよろし。あんさんが『きれいや』と思う形を、大事にしておくれやす。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_015",
+      "residentId": "031_kimono_fox",
+      "text": "お花を生けると、手が止まって、じっと眺める時間ができますやろ。わたしはあの時間が好きどす。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_016",
+      "residentId": "031_kimono_fox",
+      "text": "今日のお稽古は、ちょっと短めでもよろし。無理せず、楽しいところで終えるのも大事どす。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_017",
+      "residentId": "031_kimono_fox",
+      "text": "ちょっとお花を見に来ただけ？ もちろん大歓迎どす。どうぞ、ゆっくりしていってな。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_018",
+      "residentId": "031_kimono_fox",
+      "text": "教室で誰かのお花を見せてもらうと、自分にはない発想に出会えますえ。ええ刺激になりますなぁ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "031_kimono_fox_019",
+      "residentId": "031_kimono_fox",
+      "text": "好きなことを楽しめたんどすね。お花も趣味も、誰かと比べんと、自分のペースを大切にしてな。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "hobby",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "031_kimono_fox_020",
+      "residentId": "031_kimono_fox",
+      "text": "誰かとお話しできたんどすね。お稽古のあとのおしゃべりも、わたしは楽しみにしてるんどすえ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "conversation",
+          "minCount": 1,
+          "withinDays": 1
         }
       ]
     }
