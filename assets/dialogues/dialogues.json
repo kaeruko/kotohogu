@@ -6293,6 +6293,62 @@
           "withinDays": 1
         }
       ]
+    },
+    {
+      "id": "001_shiba_004",
+      "residentId": "001_shiba",
+      "text": "あっ、お花がいっぱいだわん！ ぼくも一輪、いけてみたいわん！",
+      "priority": 80,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "site",
+          "siteId": "community_center"
+        }
+      ]
+    },
+    {
+      "id": "001_shiba_005",
+      "residentId": "001_shiba",
+      "text": "このおはな、きれいだわん。おししょうに名前を聞いてみようかな。",
+      "priority": 80,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "site",
+          "siteId": "community_center"
+        }
+      ]
+    },
+    {
+      "id": "042_senior_dog_023",
+      "residentId": "042_senior_dog",
+      "text": "ほう、ええ絵じゃのう。描いた人は、どんな景色を見とったんじゃろうなぁ。",
+      "priority": 80,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "site",
+          "siteId": "community_center"
+        }
+      ]
+    },
+    {
+      "id": "042_senior_dog_024",
+      "residentId": "042_senior_dog",
+      "text": "絵を見ておると、昔のことまで思い出すのう。あの色づかい、好きじゃよ。",
+      "priority": 80,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "site",
+          "siteId": "community_center"
+        }
+      ]
     }
   ]
 }

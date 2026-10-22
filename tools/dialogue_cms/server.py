@@ -85,6 +85,7 @@ def runtime_sprite_path(folder, filename):
 
 def resident_ids():
     return {row["id"] for row in validate_catalog(load_catalog())["characters"]}
+DIALOGUE_SITES = {'roster', 'town', 'salon', 'bakery', 'community_center'}
 MISSIONS = {
     "all", "strength", "outside", "conversation", "movement", "sittingBreak",
     "food", "hobby", "weeklyStrength", "weeklyActive", "weeklyTogether",
@@ -163,6 +164,9 @@ def validate(doc, residents=None):
         conditions = entry["conditions"]
         if not isinstance(conditions, list) or len(conditions) > 8:
             raise ValueError(f"Invalid conditions: {identifier}")
+        if entry["logic"] != "all" and any(
+                isinstance(c, dict) and c.get("type") == "site" for c in conditions):
+            raise ValueError(f"Location-specific dialogue requires AND: {identifier}")
         if not conditions and not entry["once"]:
             defaults.add(entry["residentId"])
         for j, condition in enumerate(conditions):
@@ -170,7 +174,11 @@ def validate(doc, residents=None):
             if not isinstance(condition, dict):
                 raise ValueError(f"Invalid condition: {loc}")
             kind = condition.get("type")
-            if kind == "seenDialogue":
+            if kind == "site":
+                require_keys(condition, {"type", "siteId"}, loc)
+                if type(condition["siteId"]) is not str or condition["siteId"] not in DIALOGUE_SITES:
+                    raise ValueError(f"Invalid conversation site: {loc}")
+            elif kind == "seenDialogue":
                 require_keys(condition, {"type", "dialogueId"}, loc)
                 prerequisite = condition["dialogueId"]
                 if not isinstance(prerequisite, str) or not re.fullmatch(

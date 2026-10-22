@@ -506,6 +506,9 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       controller.progress!, visit: _townVisit,
       oyasumi: _clubScene(controller.progress!),
       debugTownResidents: _debugTownResidents);
+    final site = inCommunityCenter ? 'community_center' :
+        inBakery ? 'bakery' : inSalon ? 'salon' :
+        _page == 2 ? 'town' : 'roster';
     final visibleIds = rules.conversationPeers(
       inCommunityCenter
           ? ConversationSite.communityCenter
@@ -534,12 +537,14 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             progress: controller.progress!,
             now: controller.clock(),
             townResidentIds: visibleIds,
+            site: site,
           )
         : catalog.select(
             resident: resident,
             progress: controller.progress!,
             now: controller.clock(),
             townResidentIds: visibleIds,
+            site: site,
           );
     // Conversations in the debug-only cast must not alter saved seen IDs.
     if (_debugTownResidents == null &&
