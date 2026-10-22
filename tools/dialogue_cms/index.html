@@ -26,6 +26,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .entry{width:100%;text-align:left;background:#fff9ed;border:1px solid #ead7b5;color:#543627;line-height:1.4}
 .entry.active{background:#f7d9a5;border-color:#ac742d}
 .entry small{display:block;font-size:11px;color:#836150;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry small.rule-summary{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.45}
 .condition{border:1px solid #e4d6bc;border-radius:12px;padding:10px;margin:10px 0;background:#fffaf3}
 .condition .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .condition .top select{flex:1}.condition .top button{flex:none}
@@ -70,7 +71,22 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
 <section class="panel">
   <h2>セリフ一覧 <span id="count"></span></h2>
   <label for="filter">キャラクターで絞る</label><select id="filter"></select>
-  <p class="hint">追加先のキャラクターを選ぶと、キャラID＋連番（例: 009_chef_001）を自動採番します。</p>
+  <label for="conditionFilter">会話の種類で絞る</label>
+  <select id="conditionFilter">
+    <option value="all">すべての会話</option>
+    <option value="everyday">ふだんの会話（条件なし）</option>
+    <option value="greeting">初対面のあいさつ</option>
+    <option value="mission">ミッション達成</option>
+    <option value="townTogether">住民同士の掛け合い</option>
+    <option value="seenDialogue">物語・既読からの続き</option>
+    <option value="residentOwned">住民の所持状況</option>
+    <option value="date">日付・曜日</option>
+    <option value="kotohogi">累計ことほぎ</option>
+    <option value="once">一度きり（初対面を除く）</option>
+    <option value="facility">施設専用の会話</option>
+  </select>
+  <p class="hint" id="dialogueOverviewStats" aria-live="polite"></p>
+  <p class="hint">追加先のキャラクターを選ぶと、キャラID＋連番（例: 009_chef_001）を自動採番します。ゆうぐれおやすみクラブの専用会話は「🌙 イベント仕様」で管理します。</p>
   <div class="actions"><button id="add">＋ セリフ追加</button><button class="secondary" id="reload">保存済みを再読込</button></div>
   <div id="entries"></div>
 </section>
@@ -223,19 +239,87 @@ function fresh(row){
   return{id,residentId:row.id,text:"新しいセリフ",priority:10,once:false,logic:"all",conditions:[]};
 }
 function current(){if(selected===null)return null;return data.dialogues.find(e=>e.id===selected)||null}
+// BEGIN CMS DIALOGUE OVERVIEW HELPERS
+// Reading-only helpers: do not alter how the Flutter app selects dialogue.
+function dialogueCategoryMatches(entry, category) {
+  if (category === "all") return true;
+  if (category === "greeting") return !!entry.firstGreeting;
+  if (category === "facility") return entry.priority === -1000;
+  if (category === "everyday") return !entry.firstGreeting &&
+    entry.priority !== -1000 && entry.conditions.length === 0;
+  if (category === "once") return entry.once && !entry.firstGreeting;
+  return entry.conditions.some(condition => condition.type === category);
+}
+function conditionDescription(condition) {
+  switch (condition.type) {
+    case "mission":
+      return (missions[condition.missionId] || condition.missionId) +
+        "を" + condition.minCount + "回達成" +
+        (condition.withinDays === 1 ? "（今日の達成が必要）" : "");
+    case "townTogether":
+      return (residents[condition.otherResidentId] || condition.otherResidentId) +
+        "と同じ場所にいる";
+    case "seenDialogue":
+      return "「" + condition.dialogueId + "」を読んだ";
+    case "residentOwned":
+      return (residents[condition.residentId] || condition.residentId) +
+        (condition.owned ? "をお迎え済み" : "をまだお迎えしていない");
+    case "kotohogi":
+      return "累計" + condition.min + "ことほぎ以上";
+    case "date": {
+      if (condition.mode === "exact") return condition.date + "だけ";
+      if (condition.mode === "range") return condition.start + "〜" + condition.end;
+      if (condition.mode === "annual") return "毎年" + condition.date;
+      if (condition.mode === "annual_range") return "毎年" + condition.start + "〜" + condition.end;
+      if (condition.mode === "weekday") {
+        const weekdays = ["月", "火", "水", "木", "金", "土", "日"];
+        return condition.days.map(day => weekdays[day - 1] || "?").join("・") + "曜日";
+      }
+      return "日付条件（" + condition.mode + "）";
+    }
+    default:
+      return "未対応の条件（" + condition.type + "）";
+  }
+}
+function dialogueRuleText(entry) {
+  if (entry.firstGreeting) return "初対面で必ず表示（初回のみ）";
+  const parts = entry.conditions.map(conditionDescription);
+  const joined = parts.length ?
+    parts.join(entry.logic === "any" ? " または " : " かつ ") : "条件なし";
+  return (entry.priority === -1000 ? "施設専用・通常抽選には出ない｜" : "") +
+    joined + (entry.once ? "｜一度きり" : "｜繰り返し可");
+}
+// END CMS DIALOGUE OVERVIEW HELPERS
+function jumpToDialogue(dialogueId) {
+  const target = data.dialogues.find(entry => entry.id === dialogueId);
+  if (!target) { setStatus("参照先のセリフが見つかりません: " + dialogueId, true); return; }
+  byId("filter").value = target.residentId;
+  byId("conditionFilter").value = "all";
+  selected = target.id;
+  refresh();
+}
 function refresh(){
   const filter=byId("filter").value;
+  const category=byId("conditionFilter").value;
   const list=byId("entries");list.replaceChildren();
   const valid=new Set(activeCharacters().map(row=>row.id));
-  const visible=data.dialogues.filter(e=>valid.has(e.residentId));
-  const showing=visible.filter(e=>filter==="all"||e.residentId===filter);
+  const visible=data.dialogues.filter(entry=>valid.has(entry.residentId));
+  const showing=visible.filter(entry=>
+    (filter==="all"||entry.residentId===filter) &&
+    dialogueCategoryMatches(entry,category));
   byId("count").textContent="("+showing.length+"/"+visible.length+")";
+  const greetingCount=visible.filter(entry=>entry.firstGreeting).length;
+  const conditionalCount=visible.filter(entry=>entry.conditions.length>0).length;
+  const facilityCount=visible.filter(entry=>entry.priority===-1000).length;
+  byId("dialogueOverviewStats").textContent=
+    "全"+visible.length+"件｜初対面"+greetingCount+"件｜条件付き"+conditionalCount+
+    "件｜施設専用"+facilityCount+"件（絞り込み結果 "+showing.length+"件）";
   for(const entry of showing){
     const btn=append(list,"button",residents[entry.residentId]+"｜"+entry.text.substring(0,32));
     btn.className="entry"+(entry.id===selected?" active":"");
-    append(btn,"small",entry.id+" ｜ 優先 "+entry.priority+
-      (entry.firstGreeting?" ｜ 🌸 初対面":entry.conditions.length?" ｜ 条件 "+entry.conditions.length:" ｜ 通常"));
-    btn.onclick=()=>{selected=entry.id;renderEditor();refresh()};
+    append(btn,"small",entry.id+" ｜ 優先 "+entry.priority);
+    append(btn,"small",dialogueRuleText(entry)).className="rule-summary";
+    btn.onclick=()=>{selected=entry.id;refresh()};
   }
   renderEditor();
   renderPreviewSeen();
@@ -249,6 +333,23 @@ function renderEditor(){
   const speaker=registry.characters.find(row=>row.id===entry.residentId);
   if(!speaker)throw Error("セリフに対応するキャラがいません: "+entry.residentId);
   renderPortrait(area,speaker,true);
+  const overview=append(area,"div");overview.className="condition";
+  append(overview,"strong","🧭 このセリフが表示される条件");
+  append(overview,"p",dialogueRuleText(entry)).className="hint";
+  const prereqs=[...new Set(entry.conditions.filter(c=>c.type==="seenDialogue").map(c=>c.dialogueId))];
+  const followers=data.dialogues.filter(row=>row.id!==entry.id &&
+    row.conditions.some(c=>c.type==="seenDialogue"&&c.dialogueId===entry.id));
+  if(prereqs.length || followers.length){
+    const refs=append(overview,"div");refs.className="actions";
+    for(const id of prereqs){
+      const link=append(refs,"button","← 前提: "+id);
+      link.type="button";link.className="secondary";link.onclick=()=>jumpToDialogue(id);
+    }
+    for(const row of followers){
+      const link=append(refs,"button","次の会話 → "+row.id);
+      link.type="button";link.className="secondary";link.onclick=()=>jumpToDialogue(row.id);
+    }
+  }
   labelControl(area,"セリフ","textarea",entry.text,v=>{entry.text=v;});
   if(entry.firstGreeting)append(area,"p","🌸 初対面に必ず表示。1回だけ・条件なしで固定されます。内容はキャラ管理からも編集できます。").className="hint";
   const line=append(area,"div");line.className="row";
@@ -978,6 +1079,7 @@ byId("delete").onclick=()=>{
 byId("save").onclick=saveAll;
 byId("reload").onclick=()=>{if(!dirty||confirm("未保存の変更を破棄しますか？"))load()};
 byId("filter").onchange=refresh;
+byId("conditionFilter").onchange=refresh;
 byId("runPreview").onclick=runPreview;
 byId("rerollAreaPreview").onclick=()=>{areaPreviewDestinations=new Map();renderAreaPreview()};
 for(const e of [byId("previewDay"),byId("previewRecentDay"),byId("previewResident"),byId("previewTotal"),byId("previewPoints")])e.addEventListener("change",runPreview);
