@@ -15,7 +15,8 @@ class FacilityScaleTests(unittest.TestCase):
         self.assertEqual(center["background"], "assets/kotohogu/community_center_background_001.png")
         self.assertEqual((center["width"], center["height"]), (941, 1672))
         self.assertEqual([p["residentId"] for p in center["placements"]],
-                         ["031_kimono_fox", "037_tora", "051_dog_aunt"])
+                         ["031_kimono_fox", "037_tora", "051_dog_aunt",
+                          "001_shiba", "042_senior_dog"])
         self.assertLess(center["placements"][0]["x"] + center["spriteSize"],
                         center["placements"][1]["x"])
         for room in (salon, bakery, center):

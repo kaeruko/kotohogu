@@ -15,12 +15,17 @@ void main() {
     expect(isCommunityCenterUnlocked(300), isTrue);
     expect(communityCenterResidents(),
         [TownResident.c031_kimono_fox, TownResident.c037_tora,
-         TownResident.c051_dog_aunt]);
+         TownResident.c051_dog_aunt, TownResident.shiba,
+         TownResident.c042_senior_dog]);
     final flower = facilityPlacement('community_center', '031_kimono_fox');
     final exercise = facilityPlacement('community_center', '037_tora');
     final attendee = facilityPlacement('community_center', '051_dog_aunt');
-    expect(attendee.y, greaterThan(exercise.y + exercise.size));
+    expect(attendee.y, greaterThan(exercise.y));
     expect(attendee.x + attendee.size, lessThanOrEqualTo(941));
+    expect(facilityPlacement('community_center', '001_shiba').y,
+        lessThan(flower.y));
+    expect(facilityPlacement('community_center', '042_senior_dog').y,
+        lessThan(exercise.y));
     expect(flower.x + flower.size, lessThan(exercise.x));
     expect(flower.y + flower.size, lessThan(1000));
     expect(exercise.y + exercise.size, lessThan(1000));
@@ -59,6 +64,10 @@ void main() {
         findsOneWidget);
     expect(find.byKey(const ValueKey('community-center-resident-051_dog_aunt')),
         findsOneWidget);
+    expect(find.byKey(const ValueKey('community-center-resident-001_shiba')),
+        findsOneWidget);
+    expect(find.byKey(const ValueKey('community-center-resident-042_senior_dog')),
+        findsOneWidget);
     await tester.tap(find.byKey(
         const ValueKey('community-center-return-shopping')));
     await tester.pump();
@@ -89,7 +98,8 @@ void main() {
     expect(exercise, findsOneWidget);
     expect(attendee, findsOneWidget);
     expect(tester.getRect(flower).overlaps(tester.getRect(exercise)), isFalse);
-    expect(tester.getRect(exercise).overlaps(tester.getRect(attendee)), isFalse);
+    expect(tester.getRect(exercise).center.dy,
+        lessThan(tester.getRect(attendee).center.dy));
     await tester.tap(flower);
     await tester.pump();
     await tester.tap(exercise);
