@@ -72,7 +72,7 @@ void main() {
     final walkers = visibleTownResidents(all);
     final visit = TownVisit(random: ScriptedTownRandom([
       for (var i = 0; i < walkers.length; i++) i % 4,
-    ]));
+    ]), familyOutingOverride: false);
     final together = [
       for (final area in TownArea.values)
         ...areaResidents(all, area, lifetimePoints: 300, visit: visit),

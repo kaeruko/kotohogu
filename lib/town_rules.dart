@@ -60,10 +60,13 @@ class TownRules {
       case ConversationSite.town:
         participants = outdoors(area!);
       case ConversationSite.salon:
+        final familyOuting = debugTownResidents == null &&
+            visit.isFamilyOuting(progress.residents.owned, progress.points);
         participants = salonResidents(
           progress.residents.owned,
           previewUnowned: previewSalonUnowned,
-        );
+        ).where((resident) => !familyOuting ||
+            resident != familyOutingDaughter);
       case ConversationSite.bakery:
         participants = bakeryResidents(progress.residents.owned);
       case ConversationSite.communityCenter:

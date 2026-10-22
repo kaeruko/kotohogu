@@ -457,7 +457,15 @@ class _TownSceneState extends State<TownScene> {
     final isShopkeeper = widget.area == TownArea.plaza &&
         widget.marcheOpen && widget.debugTownResidents == null &&
         resident == tonkoMarcheOwner;
-    final route = widget.oyasumi?.route(widget.area, resident) ?? (widget.area == TownArea.hospital
+    final familyOuting = widget.area == TownArea.shopping &&
+        widget.debugTownResidents == null &&
+        (widget.visit ?? _standaloneVisit).isFamilyOuting(
+          widget.residents, widget.lifetimePoints);
+    final route = familyOuting && resident == familyOutingMother
+        ? const TownWalkRoute(.36, .67, stay: true)
+        : familyOuting && resident == familyOutingDaughter
+            ? const TownWalkRoute(.49, .67, stay: true)
+            : widget.oyasumi?.route(widget.area, resident) ?? (widget.area == TownArea.hospital
         ? const TownWalkRoute(.52, .65, stay: true)
         : isShopkeeper
         ? plazaMarcheStaffRoute

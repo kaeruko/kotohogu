@@ -5973,6 +5973,78 @@
           "withinDays": 1
         }
       ]
+    },
+    {
+      "id": "051_dog_aunt_020",
+      "residentId": "051_dog_aunt",
+      "text": "今日は娘とお買い物なのよ〜♡ お休みの日はママと一緒がいいんですって。うふふ。",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "050_nailist"
+        }
+      ],
+      "reply": {
+        "residentId": "050_nailist",
+        "text": "ママ〜！みんなに言わないでよ〜！……でも、ママだいすき♡"
+      }
+    },
+    {
+      "id": "051_dog_aunt_021",
+      "residentId": "051_dog_aunt",
+      "text": "今日は娘がわたしの洋服も選んでくれるのよ。こんな色、似合うかしら？",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "050_nailist"
+        }
+      ],
+      "reply": {
+        "residentId": "050_nailist",
+        "text": "似合うに決まってるじゃん！ ママ、これも着てみて〜♡"
+      }
+    },
+    {
+      "id": "050_nailist_028",
+      "residentId": "050_nailist",
+      "text": "ママ〜！ あのお洋服かわいくない？ 一緒に見に行こ♡",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "051_dog_aunt"
+        }
+      ],
+      "reply": {
+        "residentId": "051_dog_aunt",
+        "text": "あら、かわいい！ あなたに似合いそうねえ。ママにも選んでくれる？"
+      }
+    },
+    {
+      "id": "050_nailist_029",
+      "residentId": "050_nailist",
+      "text": "今日はママとお出かけなの！ えへへ、ママといると楽しいんだ♡",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "051_dog_aunt"
+        }
+      ],
+      "reply": {
+        "residentId": "051_dog_aunt",
+        "text": "まあ♡ ママもあなたと一緒だとうれしいわ〜！"
+      }
     }
   ]
 }

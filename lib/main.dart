@@ -520,12 +520,26 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       previewSalonUnowned: inSalon && developerToolsAvailable &&
           _salonUnlockMode == SalonUnlockDebugMode.forceOpen,
     );
-    final line = catalog.select(
-      resident: resident,
-      progress: controller.progress!,
-      now: controller.clock(),
-      townResidentIds: visibleIds,
-    );
+    final familyOuting = !inSalon && !inBakery && !inCommunityCenter &&
+        _page == 2 && _townArea == TownArea.shopping &&
+        _debugTownResidents == null &&
+        _townVisit.isFamilyOuting(
+          controller.progress!.residents.owned, controller.progress!.points) &&
+        (resident == familyOutingMother || resident == familyOutingDaughter);
+    final line = familyOuting
+        ? catalog.selectById(
+            id: _townVisit.nextFamilyOutingDialogueId(resident),
+            resident: resident,
+            progress: controller.progress!,
+            now: controller.clock(),
+            townResidentIds: visibleIds,
+          )
+        : catalog.select(
+            resident: resident,
+            progress: controller.progress!,
+            now: controller.clock(),
+            townResidentIds: visibleIds,
+          );
     // Conversations in the debug-only cast must not alter saved seen IDs.
     if (_debugTownResidents == null &&
         !(inSalon && developerToolsAvailable &&

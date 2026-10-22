@@ -197,7 +197,12 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                   MaterialPageRoute<void>(
                     settings: const RouteSettings(name: '/village/salon'),
                     builder: (_) => SalonRoom(
-                      ownedResidents: widget.residents,
+                      ownedResidents: widget.residents.where((resident) =>
+                        resident != familyOutingDaughter ||
+                        widget.debugTownResidents != null ||
+                        !_visit.isFamilyOuting(
+                          widget.residents, widget.lifetimePoints,
+                        )).toList(),
                       previewUnownedResidents: developerToolsAvailable &&
                           widget.salonUnlockMode == SalonUnlockDebugMode.forceOpen,
                       onResident: widget.onSalonResident,

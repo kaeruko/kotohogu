@@ -48,15 +48,51 @@ List<TownArea> unlockedTownAreas(int lifetimePoints,
       TownArea.values.where((area) => area.isUnlocked(lifetimePoints, owned: owned)),
     );
 
+/// The salon daughter joins her mother only on occasional shopping outings.
+/// IDs and persisted gacha ownership remain unchanged.
+const familyOutingMother = TownResident.c051_dog_aunt;
+const familyOutingDaughter = TownResident.c050_nailist;
+
 /// One in-memory outing, shared by rendering and conversation conditions.
 /// Each walker draws once from the actually unlocked areas. New walkers can
 /// join without redrawing existing destinations. Re-entering town creates a
 /// new visit; area navigation, rebuilds and conversations keep this instance.
 class TownVisit {
-  TownVisit({math.Random? random}) : _random = random ?? math.Random();
+  TownVisit({math.Random? random, this.familyOutingOverride})
+      : _random = random ?? math.Random();
 
   final math.Random _random;
+  /// Deterministic override for tests. Production draws once per eligible visit.
+  final bool? familyOutingOverride;
   final Map<String, TownArea> _destinations = {};
+  bool? _familyOuting;
+  final Map<String, int> _familyConversations = {};
+
+  /// No save migration: each new visit has a 1-in-4 chance of a family outing
+  /// once the shopping street is unlocked and both family members are owned.
+  /// The result stays fixed across area changes, dialogue and rebuilds.
+  bool isFamilyOuting(Iterable<TownResident> owned, int lifetimePoints) {
+    if (_familyOuting != null) return _familyOuting!;
+    final family = owned.toSet();
+    if (!TownArea.shopping.isUnlocked(lifetimePoints) ||
+        !family.contains(familyOutingMother) ||
+        !family.contains(familyOutingDaughter)) {
+      return false;
+    }
+    return _familyOuting = familyOutingOverride ?? _random.nextInt(4) == 0;
+  }
+
+  /// Dedicated two-voice CMS lines cycle independently for mother and daughter.
+  String nextFamilyOutingDialogueId(TownResident speaker) {
+    final options = switch (speaker) {
+      familyOutingMother => const ['051_dog_aunt_020', '051_dog_aunt_021'],
+      familyOutingDaughter => const ['050_nailist_028', '050_nailist_029'],
+      _ => throw ArgumentError.value(speaker, 'speaker'),
+    };
+    final count = _familyConversations[speaker.id] ?? 0;
+    _familyConversations[speaker.id] = count + 1;
+    return options[count % options.length];
+  }
 
   TownArea? destinationFor({
     required String residentId,
@@ -119,14 +155,21 @@ List<TownResident> areaResidents(
   bool marcheOpen = false,
 }) {
   final candidates = visibleTownResidents(owned, debugOverride: debugOverride);
-  return List<TownResident>.unmodifiable(
-    candidates.where((resident) {
-      // Debug-only selections retain legacy area assignments for old tests.
-      if (debugOverride != null) {
-        return resident.walkInTown && resident.homeAreaId == area.id;
-      }
-      return residentCurrentArea(
-        resident, lifetimePoints, visit: visit, marcheOpen: marcheOpen) == area;
-    }),
-  );
+  final familyOuting = debugOverride == null &&
+      visit.isFamilyOuting(owned, lifetimePoints);
+  return List<TownResident>.unmodifiable([
+    for (final resident in candidates)
+      if (!(familyOuting && resident == familyOutingMother) &&
+          (debugOverride != null
+              // Debug-only selections retain legacy area assignments.
+              ? resident.walkInTown && resident.homeAreaId == area.id
+              : residentCurrentArea(
+                  resident, lifetimePoints, visit: visit,
+                  marcheOpen: marcheOpen) == area))
+        resident,
+    if (familyOuting && area == TownArea.shopping)
+      familyOutingMother,
+    if (familyOuting && area == TownArea.shopping)
+      familyOutingDaughter,
+  ]);
 }
