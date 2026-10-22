@@ -1,0 +1,21 @@
+name: Dialogue story checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  story:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run flutter_launcher_icons -f pubspec.yaml
+      - run: flutter analyze
+      - run: flutter test test/dialogue_engine_test.dart test/town_areas_test.dart test/town_rules_test.dart
