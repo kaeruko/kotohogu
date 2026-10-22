@@ -50,22 +50,32 @@
       "width": 941,
       "height": 1672,
       "owner": "031_kimono_fox",
-      "spriteSize": 200,
+      "spriteSize": 150,
       "placements": [
         {
           "residentId": "031_kimono_fox",
-          "x": 105,
-          "y": 635
+          "x": 130,
+          "y": 685
         },
         {
           "residentId": "037_tora",
-          "x": 635,
-          "y": 650
+          "x": 660,
+          "y": 607
         },
         {
           "residentId": "051_dog_aunt",
-          "x": 695,
-          "y": 875
+          "x": 740,
+          "y": 750
+        },
+        {
+          "residentId": "001_shiba",
+          "x": 150,
+          "y": 417
+        },
+        {
+          "residentId": "042_senior_dog",
+          "x": 500,
+          "y": 220
         }
       ]
     }
