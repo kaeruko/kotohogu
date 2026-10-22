@@ -891,7 +891,9 @@ class ProgressController extends ChangeNotifier {
       throw StateError('Oyasumi debug reset is unavailable in release builds.');
     }
     if (busy || failure != null || progress == null ||
-        progress!.oyasumi.completed == 0) return false;
+        progress!.oyasumi.completed == 0) {
+      return false;
+    }
     busy = true;
     notifyListeners();
     try {
