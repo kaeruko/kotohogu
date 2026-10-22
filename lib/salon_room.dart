@@ -7,8 +7,8 @@ import 'resident_collection.dart';
 
 /// An interior reached by tapping the door of the right-hand village house.
 /// Route navigation preserves the selected village and resident positions.
-/// The owner unlocks entry through gacha. The fox employee appears only
-/// after being acquired separately, and neither resident walks outdoors.
+/// The owner unlocks entry through gacha; room occupants are CMS placements.
+/// The flower-arranging teacher now teaches at the community center.
 class SalonRoom extends StatefulWidget {
   const SalonRoom({
     super.key,
@@ -18,7 +18,7 @@ class SalonRoom extends StatefulWidget {
   });
 
   static const backgroundAsset = 'assets/kotohogu/salon_background_001.jpg';
-  static const host = TownResident.c031_kimono_fox;
+  static const host = TownResident.c035_beaty;
 
   /// Uses the same CMS-backed conversations and seen-ID tracking as town NPCs.
   final Future<void> Function(TownResident)? onResident;
@@ -93,7 +93,6 @@ class _SalonRoomState extends State<SalonRoom> {
       throw StateError('Salon supports at most 7 visible residents');
     }
     final station = _stationFor(resident);
-    final isHost = resident == SalonRoom.host;
     return Positioned(
       left: station.left,
       top: station.top,
@@ -105,14 +104,12 @@ class _SalonRoomState extends State<SalonRoom> {
         child: Tooltip(
           message: resident.label,
           child: InkWell(
-            key: ValueKey(isHost
-                ? 'salon-fox-resident' : 'salon-resident-${resident.id}'),
+            key: ValueKey('salon-resident-${resident.id}'),
             borderRadius: BorderRadius.circular(36),
             onTap: widget.onResident == null ? null : () => _talk(resident),
             child: Image.asset(
               _spriteAsset(context, resident, index),
-              key: ValueKey(isHost
-                  ? 'salon-fox-sprite' : 'salon-sprite-${resident.id}'),
+              key: ValueKey('salon-sprite-${resident.id}'),
               fit: BoxFit.contain,
               gaplessPlayback: true,
               excludeFromSemantics: true,

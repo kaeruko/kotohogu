@@ -16,7 +16,8 @@ void main() {
       final random = ScriptedTownRandom([
         for (var i = 0; i < walkers.length; i++) i % unlocked.length,
       ]);
-      final visit = TownVisit(random: random);
+      // The separate mother/daughter outing is tested explicitly elsewhere.
+      final visit = TownVisit(random: random, familyOutingOverride: false);
       final placements = {
         for (final area in TownArea.values)
           area: areaResidents(owned, area,

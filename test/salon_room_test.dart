@@ -11,10 +11,11 @@ import 'package:future_lift/town_areas.dart';
 
 void main() {
   test('salon residents need to be acquired and never walk outdoors', () {
-    expect(SalonRoom.host.id, '031_kimono_fox');
-    expect(SalonRoom.host.inGacha, true);
-    expect(SalonRoom.host.walkInTown, false);
-    expect(SalonRoom.host.homeAreaId, 'salon');
+    expect(SalonRoom.host, TownResident.c035_beaty);
+    expect(TownResident.c038_lion_lady.id, '038_lion_lady');
+    expect(TownResident.c038_lion_lady.inGacha, true);
+    expect(TownResident.c038_lion_lady.walkInTown, true);
+    expect(TownResident.c038_lion_lady.homeAreaId, 'salon');
     expect(TownResident.c035_beaty.homeAreaId, 'salon');
     expect(TownResident.c035_beaty.inGacha, true);
     expect(TownResident.c035_beaty.walkInTown, false);
@@ -26,16 +27,16 @@ void main() {
     expect(salonResidents([TownResident.c035_beaty, nailist]),
         [TownResident.c035_beaty, nailist]);
     expect(isSalonUnlocked(const []), isFalse);
-    expect(isSalonUnlocked([SalonRoom.host]), isFalse);
+    expect(isSalonUnlocked([TownResident.c038_lion_lady]), isFalse);
     expect(isSalonUnlocked([TownResident.c035_beaty]), isTrue);
     expect(salonResidents(const []), isEmpty);
-    expect(salonResidents([SalonRoom.host]), [SalonRoom.host]);
+    expect(salonResidents([TownResident.c038_lion_lady]), [TownResident.c038_lion_lady]);
     expect(salonResidents([TownResident.c035_beaty]),
         [TownResident.c035_beaty]);
-    expect(salonResidents([SalonRoom.host, TownResident.c035_beaty]),
-        [TownResident.c035_beaty, SalonRoom.host]);
+    expect(salonResidents([TownResident.c038_lion_lady, TownResident.c035_beaty]),
+        [TownResident.c035_beaty, TownResident.c038_lion_lady]);
     expect(TownResident.gachaPool, contains(TownResident.c035_beaty));
-    expect(TownResident.gachaPool, contains(SalonRoom.host));
+    expect(TownResident.gachaPool, contains(TownResident.c038_lion_lady));
     expect(TownResident.gachaPool, contains(TownResident.c050_nailist));
     expect(isSalonUnlocked([TownResident.c050_nailist]), isFalse);
     expect(visibleTownResidents(TownResident.values),
@@ -45,9 +46,9 @@ void main() {
         isNot(contains(TownResident.c050_nailist)));
     expect(areaResidents(TownResident.values, TownArea.village,
         lifetimePoints: 300, visit: TownVisit()),
-        isNot(contains(SalonRoom.host)));
+        isNot(contains(TownResident.c038_lion_lady)));
     expect(visibleTownResidents(TownResident.values),
-        isNot(contains(SalonRoom.host)));
+        isNot(contains(TownResident.c038_lion_lady)));
     expect(visibleTownResidents(TownResident.values),
         isNot(contains(TownResident.c035_beaty)));
     expect(areaResidents(TownResident.values, TownArea.shopping,
@@ -56,7 +57,7 @@ void main() {
   });
 
   test('debug salon modes respect ownership in normal mode', () {
-    const foxOnly = [TownResident.c031_kimono_fox];
+    const foxOnly = [TownResident.c038_lion_lady];
     const ownerOnly = [TownResident.c035_beaty];
     expect(isSalonAccessible(foxOnly), isFalse);
     expect(isSalonAccessible(foxOnly,
@@ -68,15 +69,14 @@ void main() {
     expect(isSalonUnlocked(ownerOnly), isTrue);
     expect(salonResidents(foxOnly), foxOnly);
     expect(salonResidents(const [], previewUnowned: true),
-        [TownResident.c035_beaty, TownResident.c031_kimono_fox,
-         TownResident.c038_lion_lady, TownResident.c050_nailist]);
+        [TownResident.c035_beaty, TownResident.c038_lion_lady,
+         TownResident.c050_nailist]);
   });
 
   test('one shared display size applies to every facility resident', () {
     final salon = facilityPlacements('salon');
     expect(salon.map((p) => p.residentId), [
       TownResident.c035_beaty.id,
-      TownResident.c031_kimono_fox.id,
       TownResident.c038_lion_lady.id,
       TownResident.c050_nailist.id,
     ]);
@@ -105,8 +105,6 @@ void main() {
       home: SalonRoom(previewUnownedResidents: true),
     ));
     expect(find.byKey(const ValueKey('salon-resident-035_beaty')),
-        findsOneWidget);
-    expect(find.byKey(const ValueKey('salon-fox-resident')),
         findsOneWidget);
     expect(find.byKey(const ValueKey('salon-resident-038_lion_lady')),
         findsOneWidget);
@@ -161,14 +159,14 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: SalonRoom(
         ownedResidents: const [
-          TownResident.c035_beaty, TownResident.c031_kimono_fox,
+          TownResident.c035_beaty, TownResident.c038_lion_lady,
         ],
         onResident: (resident) async {
           spoken.add(resident);
         },
       ),
     ));
-    final fox = find.byKey(const ValueKey('salon-fox-resident'));
+    final fox = find.byKey(const ValueKey('salon-resident-038_lion_lady'));
     final tsuya = find.byKey(const ValueKey('salon-resident-035_beaty'));
     expect(fox, findsOneWidget);
     expect(tsuya, findsOneWidget);
@@ -178,7 +176,7 @@ void main() {
     await tester.pump();
     await tester.tap(fox);
     await tester.pump();
-    expect(spoken, [TownResident.c035_beaty, SalonRoom.host]);
+    expect(spoken, [TownResident.c035_beaty, TownResident.c038_lion_lady]);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -204,22 +202,22 @@ void main() {
       ).first,
     );
 
-    await show(const [TownResident.c031_kimono_fox]);
-    final foxOnly = find.byKey(const ValueKey('salon-fox-resident'));
+    await show(const [TownResident.c038_lion_lady]);
+    final foxOnly = find.byKey(const ValueKey('salon-resident-038_lion_lady'));
     expect(foxOnly, findsOneWidget);
-    expect(station('salon-fox-resident').left, 560);
-    expect(station('salon-fox-resident').top, 755);
-    expect(station('salon-fox-resident').width, 230);
-    expect(station('salon-fox-resident').height, 230);
+    expect(station('salon-resident-038_lion_lady').left, 182);
+    expect(station('salon-resident-038_lion_lady').top, 775);
+    expect(station('salon-resident-038_lion_lady').width, 230);
+    expect(station('salon-resident-038_lion_lady').height, 230);
     // Enlarging changes neither the center nor the feet position.
-    expect(station('salon-fox-resident').left! +
-        station('salon-fox-resident').width! / 2, 675);
-    expect(station('salon-fox-resident').top! +
-        station('salon-fox-resident').height!, 985);
+    expect(station('salon-resident-038_lion_lady').left! +
+        station('salon-resident-038_lion_lady').width! / 2, 297);
+    expect(station('salon-resident-038_lion_lady').top! +
+        station('salon-resident-038_lion_lady').height!, 1005);
     final foxPosition = tester.getRect(foxOnly);
 
     await show(const [
-      TownResident.c035_beaty, TownResident.c031_kimono_fox,
+      TownResident.c035_beaty, TownResident.c038_lion_lady,
     ]);
     expect(tester.getRect(foxOnly), foxPosition,
         reason: 'Acquiring the owner must not relocate the fox');
@@ -228,7 +226,7 @@ void main() {
     expect(owner.top, 480);
     expect(owner.width, 230);
     expect(owner.height, 230);
-    expect(station('salon-fox-resident').width, owner.width,
+    expect(station('salon-resident-038_lion_lady').width, owner.width,
         reason: 'All salon characters must use one shared sprite size');
     expect(tester.getRect(
         find.byKey(const ValueKey('salon-resident-035_beaty')))
@@ -246,34 +244,34 @@ void main() {
     var conversations = 0;
     await tester.pumpWidget(MaterialApp(
       home: SalonRoom(
-        ownedResidents: const [TownResident.c031_kimono_fox],
+        ownedResidents: const [TownResident.c038_lion_lady],
         onResident: (_) {
         conversations++;
         return gate.future;
       }),
     ));
-    final fox = find.byKey(const ValueKey('salon-fox-resident'));
-    final sprite = find.byKey(const ValueKey('salon-fox-sprite'));
+    final fox = find.byKey(const ValueKey('salon-resident-038_lion_lady'));
+    final sprite = find.byKey(const ValueKey('salon-sprite-038_lion_lady'));
     String asset() => (tester.widget<Image>(sprite).image as AssetImage).assetName;
     final position = tester.getRect(fox);
 
-    expect(asset(), SalonRoom.host.idleAsset);
+    expect(asset(), TownResident.c038_lion_lady.idleAsset);
     await tester.pump(const Duration(milliseconds: 800));
-    expect(asset(), SalonRoom.host.walkAsset(WalkDirection.front, 0));
+    expect(asset(), TownResident.c038_lion_lady.walkAsset(WalkDirection.front, 0));
     await tester.pump(const Duration(milliseconds: 200));
-    expect(asset(), SalonRoom.host.walkAsset(WalkDirection.front, 1));
+    expect(asset(), TownResident.c038_lion_lady.walkAsset(WalkDirection.front, 1));
     await tester.pump(const Duration(milliseconds: 5400));
-    expect(asset(), SalonRoom.host.clapAssets[0]);
+    expect(asset(), TownResident.c038_lion_lady.clapAssets[0]);
     await tester.pump(const Duration(milliseconds: 400));
-    expect(asset(), SalonRoom.host.clapAssets[1]);
+    expect(asset(), TownResident.c038_lion_lady.clapAssets[1]);
     expect(tester.getRect(fox), position);
 
     await tester.tap(fox);
     await tester.pump();
     expect(conversations, 1);
-    expect(asset(), SalonRoom.host.idleAsset);
+    expect(asset(), TownResident.c038_lion_lady.idleAsset);
     await tester.pump(const Duration(seconds: 3));
-    expect(asset(), SalonRoom.host.idleAsset);
+    expect(asset(), TownResident.c038_lion_lady.idleAsset);
     await tester.tap(fox);
     await tester.pump();
     expect(conversations, 1, reason: 'Do not start overlapping conversations');
@@ -281,7 +279,7 @@ void main() {
     gate.complete();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
-    expect(asset(), SalonRoom.host.clapAssets[1]);
+    expect(asset(), TownResident.c038_lion_lady.clapAssets[1]);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -294,15 +292,15 @@ void main() {
       home: MediaQuery(
         data: const MediaQueryData(disableAnimations: true),
         child: const SalonRoom(
-          ownedResidents: [TownResident.c031_kimono_fox],
+          ownedResidents: [TownResident.c038_lion_lady],
         ),
       ),
     ));
-    final sprite = find.byKey(const ValueKey('salon-fox-sprite'));
+    final sprite = find.byKey(const ValueKey('salon-sprite-038_lion_lady'));
     String asset() => (tester.widget<Image>(sprite).image as AssetImage).assetName;
-    expect(asset(), SalonRoom.host.idleAsset);
+    expect(asset(), TownResident.c038_lion_lady.idleAsset);
     await tester.pump(const Duration(seconds: 10));
-    expect(asset(), SalonRoom.host.idleAsset);
+    expect(asset(), TownResident.c038_lion_lady.idleAsset);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -316,7 +314,7 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: SalonRoom(
-        ownedResidents: const [TownResident.c031_kimono_fox],
+        ownedResidents: const [TownResident.c038_lion_lady],
         onResident: (resident) async {
         spokenTo = resident;
       }),
@@ -324,11 +322,11 @@ void main() {
     await tester.pump();
 
     expect(find.byKey(const ValueKey('salon-background')), findsOneWidget);
-    final host = find.byKey(const ValueKey('salon-fox-resident'));
+    final host = find.byKey(const ValueKey('salon-resident-038_lion_lady'));
     expect(host, findsOneWidget);
     await tester.tap(host);
     await tester.pump();
-    expect(spokenTo, SalonRoom.host);
+    expect(spokenTo, TownResident.c038_lion_lady);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });

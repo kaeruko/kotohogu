@@ -236,6 +236,8 @@ void main() {
     expect(find.byKey(const ValueKey('salon-resident-035_beaty')),
         findsOneWidget);
     expect(find.byKey(const ValueKey('salon-fox-resident')),
+        findsNothing);
+    expect(find.byKey(const ValueKey('salon-resident-038_lion_lady')),
         findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('salon-resident-035_beaty')));
     await tester.pump();
