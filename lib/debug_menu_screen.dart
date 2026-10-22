@@ -16,6 +16,8 @@ class DebugMenuScreen extends StatelessWidget {
     required this.onReplayTutorial,
     required this.onResetAll,
     required this.onAddTickets,
+    required this.onAdvanceOyasumi,
+    required this.onResetOyasumi,
     required this.debugTownResidents,
     required this.onDebugTownEnabled,
     required this.onDebugTownResidentChanged,
@@ -35,6 +37,8 @@ class DebugMenuScreen extends StatelessWidget {
   final VoidCallback onReplayTutorial;
   final Future<bool> Function() onResetAll;
   final Future<bool> Function(int) onAddTickets;
+  final Future<bool> Function() onAdvanceOyasumi;
+  final Future<bool> Function() onResetOyasumi;
   /// Null means the normal owned-resident display is used.
   final List<TownResident>? debugTownResidents;
   final ValueChanged<bool> onDebugTownEnabled;
@@ -86,6 +90,47 @@ class DebugMenuScreen extends StatelessWidget {
     if (!context.mounted || !succeeded) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('全ミッションの達成状態をリセットしました')),
+    );
+  }
+
+  Future<void> _advanceOyasumi(BuildContext context) async {
+    if (busy || progress.oyasumi.completed >= 3) return;
+    final succeeded = await onAdvanceOyasumi();
+    if (!context.mounted || !succeeded) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('おやすみクラブを次の段階へ進めました')),
+    );
+  }
+
+  Future<void> _confirmResetOyasumi(BuildContext context) async {
+    if (busy || progress.oyasumi.completed == 0) return;
+    final reset = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('おやすみクラブを最初からやり直しますか？'),
+        content: const Text(
+          'ゆうぐれおやすみクラブの進行を0/3に戻します。'
+          '通常のプレイでも最初の場面からになります。\n\n'
+          'ことほぎ・ミッション・ガチャ所持・ほかの会話の既読は変更しません。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            key: const ValueKey('debug-confirm-reset-oyasumi'),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('最初からやり直す'),
+          ),
+        ],
+      ),
+    );
+    if (!context.mounted || reset != true) return;
+    final succeeded = await onResetOyasumi();
+    if (!context.mounted || !succeeded) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('おやすみクラブを最初に戻しました')),
     );
   }
 
@@ -352,6 +397,77 @@ class DebugMenuScreen extends StatelessWidget {
                     '強制開放中は2人を仮表示して会話も試せます。'
                     '里山にも一時的に入れます。アプリ再起動で通常に戻ります。',
                     style: TextStyle(color: wood, fontSize: 12, height: 1.6),
+                  ),
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                ],
+                if (developerToolsAvailable) ...[
+                  const Text(
+                    'ゆうぐれおやすみクラブ（デバッグ）',
+                    style: TextStyle(
+                      color: wood,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '読了した導入：${progress.oyasumi.completed}/3',
+                    key: const ValueKey('debug-oyasumi-progress'),
+                    style: const TextStyle(
+                      color: wood, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '次に確認できる場面：${const [
+                      '一人でのんびり',
+                      '遠巻きに見ている',
+                      '参加する夜',
+                      '参加後',
+                    ][progress.oyasumi.completed]}',
+                    key: const ValueKey('debug-oyasumi-stage'),
+                    style: const TextStyle(color: wood),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    '「次の段階へ」で導入を1つ読了済みにして保存します。'
+                    '次の夜を待たずに次の場面を確認できます。'
+                    '\n実際にクラブが現れるのは18時〜翌5時の夜で、'
+                    'おやすみくんとカエルくんをガチャで所持している必要があります。'
+                    '\nほかのセーブ内容は変えません。進行は再起動後も残ります。',
+                    style: TextStyle(color: wood, fontSize: 12, height: 1.6),
+                  ),
+                  if (!progress.residents.owned.contains(TownResident.c027_daydreamer) ||
+                      !progress.residents.owned.contains(TownResident.c029_office_worker))
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text(
+                        '※ おやすみくんとカエルくんの両方を所持していない場合、'
+                        '進行を変えても次の場面は表示されません。',
+                        style: TextStyle(color: Color(0xFF9C351C)),
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      FilledButton.icon(
+                        key: const ValueKey('debug-oyasumi-advance'),
+                        onPressed: busy || progress.oyasumi.completed >= 3
+                            ? null : () => _advanceOyasumi(context),
+                        icon: const Icon(Icons.skip_next_rounded),
+                        label: const Text('次の段階へ'),
+                      ),
+                      OutlinedButton.icon(
+                        key: const ValueKey('debug-oyasumi-reset'),
+                        onPressed: busy || progress.oyasumi.completed == 0
+                            ? null : () => _confirmResetOyasumi(context),
+                        icon: const Icon(Icons.restart_alt_rounded),
+                        label: const Text('最初からやり直す'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   const Divider(),

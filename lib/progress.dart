@@ -844,6 +844,70 @@ class ProgressController extends ChangeNotifier {
     }
   }
 
+  /// Skip exactly one club introduction for development previews.
+  ///
+  /// A previous night is recorded deliberately so the next stage can be
+  /// inspected tonight without changing the device's clock or residents.
+  Future<bool> advanceOyasumiForDebug() async {
+    if (!developerToolsAvailable) {
+      throw StateError('Oyasumi debug progression is unavailable in release builds.');
+    }
+    if (busy || failure != null || progress == null) return false;
+    final completed = progress!.oyasumi.completed;
+    if (completed < 0 || completed >= 3) {
+      throw StateError('No further Oyasumi Club stage: $completed');
+    }
+    busy = true;
+    notifyListeners();
+    try {
+      final today = progress!.onDay(clock());
+      final scene = OyasumiScene(
+        saved: today.oyasumi,
+        owned: today.residents.owned,
+        now: clock(),
+      );
+      final currentNight = DateTime.parse(scene.nightKey);
+      final previousNight = DateTime.utc(
+        currentNight.year, currentNight.month, currentNight.day - 1);
+      final date = '${previousNight.year.toString().padLeft(4, '0')}-'
+          '${previousNight.month.toString().padLeft(2, '0')}-'
+          '${previousNight.day.toString().padLeft(2, '0')}';
+      final next = today.withOyasumi(OyasumiProgress(
+        completed: completed + 1, lastNight: date));
+      await store.save(next);
+      progress = next;
+      return true;
+    } catch (error, stack) {
+      failure = ProgressFailure('デバッグ用おやすみクラブ進行保存', error, stack);
+      return false;
+    } finally {
+      _finishOperation();
+    }
+  }
+
+  /// Return only the club story to the beginning; preserve other game data.
+  Future<bool> resetOyasumiForDebug() async {
+    if (!developerToolsAvailable) {
+      throw StateError('Oyasumi debug reset is unavailable in release builds.');
+    }
+    if (busy || failure != null || progress == null ||
+        progress!.oyasumi.completed == 0) return false;
+    busy = true;
+    notifyListeners();
+    try {
+      final next = progress!.onDay(clock())
+          .withOyasumi(const OyasumiProgress());
+      await store.save(next);
+      progress = next;
+      return true;
+    } catch (error, stack) {
+      failure = ProgressFailure('デバッグ用おやすみクラブ初期化保存', error, stack);
+      return false;
+    } finally {
+      _finishOperation();
+    }
+  }
+
   Future<bool> completeOyasumi(OyasumiScene scene, TownResident speaker, String group) async {
     if (busy || failure != null || progress == null ||
         progress!.oyasumi.completed != scene.saved.completed ||

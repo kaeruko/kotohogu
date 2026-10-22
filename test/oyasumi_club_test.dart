@@ -431,6 +431,60 @@ void main() {
     expect(retry.progress!.oyasumi.completed, 1);
     retry.dispose();
   });
+  test('debug skip advances story by one beat without another night', () async {
+    final now = DateTime(2026, 10, 20, 20);
+    final store = MemoryStore();
+    final controller = ProgressController(store, clock: () => now);
+    await controller.initialize();
+    final before = controller.progress!;
+    expect(await controller.advanceOyasumiForDebug(), isTrue);
+    expect(controller.progress!.oyasumi.completed, 1);
+    expect(controller.progress!.oyasumi.lastNight, '2026-10-19');
+    expect(controller.progress!.points, before.points);
+    expect(controller.progress!.residents.counts, before.residents.counts);
+    expect(controller.progress!.seenDialogues, before.seenDialogues);
+    final restored = Progress.decode(store.raw!);
+    expect(restored.oyasumi.completed, 1);
+    expect(scene(20, saved: restored.oyasumi).stage, 'watching');
+    expect(await controller.advanceOyasumiForDebug(), isTrue);
+    expect(scene(20, saved: controller.progress!.oyasumi).stage, 'joining');
+    expect(await controller.advanceOyasumiForDebug(), isTrue);
+    expect(scene(20, saved: controller.progress!.oyasumi).stage, 'joined');
+    expect(() => controller.advanceOyasumiForDebug(), throwsStateError);
+    expect(await controller.resetOyasumiForDebug(), isTrue);
+    expect(controller.progress!.oyasumi.completed, 0);
+    expect(Progress.decode(store.raw!).oyasumi.lastNight, isNull);
+    expect(controller.progress!.points, before.points);
+    expect(controller.progress!.seenDialogues, before.seenDialogues);
+    controller.dispose();
+  });
+
+  test('debug skip uses prior event night for before-dawn hours', () async {
+    final now = DateTime(2026, 10, 21, 2);
+    final store = MemoryStore();
+    final controller = ProgressController(store, clock: () => now);
+    await controller.initialize();
+    expect(await controller.advanceOyasumiForDebug(), isTrue);
+    expect(controller.progress!.oyasumi.lastNight, '2026-10-19');
+    controller.dispose();
+  });
+
+  test('debug skip fails safely without committing after save error', () async {
+    final now = DateTime(2026, 10, 20, 20);
+    final store = MemoryStore();
+    final controller = ProgressController(store, clock: () => now);
+    await controller.initialize();
+    final original = store.raw;
+    final diskError = StateError('test save failure');
+    store.saveError = diskError;
+    expect(await controller.advanceOyasumiForDebug(), isFalse);
+    expect(controller.progress!.oyasumi.completed, 0);
+    expect(store.raw, original);
+    expect(controller.failure!.error, same(diskError));
+    expect(controller.failure!.stackTrace.toString(), contains('MemoryStore.save'));
+    controller.dispose();
+  });
+
   testWidgets('actual game uses night art and saves only after final page', (
     tester,
   ) async {

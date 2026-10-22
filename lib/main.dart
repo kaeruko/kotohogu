@@ -911,6 +911,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                         onReplayTutorial: _replayTutorial,
                         onResetAll: controller.resetAllMissionsForDebug,
                         onAddTickets: controller.grantTicketsForDebug,
+                        onAdvanceOyasumi: controller.advanceOyasumiForDebug,
+                        onResetOyasumi: controller.resetOyasumiForDebug,
                         debugTownResidents: _debugTownResidents,
                         onDebugTownEnabled: _setDebugTownEnabled,
                         onDebugTownResidentChanged: _setDebugTownResident,
