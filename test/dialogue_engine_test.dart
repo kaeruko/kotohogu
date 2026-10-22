@@ -433,6 +433,32 @@ void main() {
       progress: p, now: now).id, 'facility');
   });
 
+  test('hall-only chatter is excluded elsewhere and preferred in the hall', () {
+    final bySite = catalog([row('flower', '001_shiba', 'お花だわん！',
+        conditions: [{'type': 'site', 'siteId': 'community_center'}])]);
+    final p = completed([]);
+    final now = DateTime.utc(2026, 10, 22);
+    expect(bySite.select(resident: TownResident.shiba, progress: p,
+        now: now, site: 'town', random: const FixedRoll()).id,
+        '001_shiba_default');
+    expect(bySite.select(resident: TownResident.shiba, progress: p,
+        now: now, site: 'community_center', random: const FixedRoll()).id,
+        'flower');
+    expect(() => bySite.selectById(id: 'flower', resident: TownResident.shiba,
+        progress: p, now: now, site: 'bakery'), throwsStateError);
+    expect(() => bySite.select(resident: TownResident.shiba,
+        progress: p, now: now, site: 'unknown'), throwsArgumentError);
+  });
+
+  test('location conditions reject OR and unknown sites', () {
+    expect(() => catalog([row('invalid', '001_shiba', 'bad',
+        conditions: [{'type': 'site', 'siteId': 'unknown'}])]),
+        throwsFormatException);
+    expect(() => catalog([row('or', '001_shiba', 'bad', logic: 'any',
+        conditions: [{'type': 'site', 'siteId': 'community_center'}])]),
+        throwsFormatException);
+  });
+
   test('explicit facility dialogue respects owner, conditions and once', () {
     final c = catalog([
       row('counter', '041_pig_middle', 'いらっしゃいませ',
