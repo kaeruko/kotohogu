@@ -70,15 +70,24 @@ class TownVisit {
   final Map<String, int> _familyConversations = {};
 
   bool _farmerScarePlayed = false;
+  bool _farmerScareRequested = false;
 
-  /// A farmer/daydreamer encounter is played just once during this visit,
-  /// even if the player leaves the area and comes back. No save flag.
+  /// The normal farm-invitation dialogue comes first. A completed dialogue
+  /// requests the sprint, which the visible town scene consumes next frame.
+  bool get canOfferFarmerScare =>
+      !_farmerScarePlayed && !_farmerScareRequested;
+
+  void requestFarmerScare() {
+    if (canOfferFarmerScare) _farmerScareRequested = true;
+  }
+
+  /// The escape is shown once per town visit and needs no saved progress.
   bool claimFarmerScare() {
-    if (_farmerScarePlayed) return false;
+    if (!_farmerScareRequested || _farmerScarePlayed) return false;
+    _farmerScareRequested = false;
     _farmerScarePlayed = true;
     return true;
   }
-
 
   /// Each eligible visit has a 1-in-4 chance of a shopping outing after
   /// the existing club progress reaches 3. No new save data is needed.
