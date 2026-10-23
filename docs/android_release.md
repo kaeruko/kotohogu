@@ -70,6 +70,23 @@ keyPassword=YOUR_KEY_PASSWORD
 .\scripts\build_aab.ps1
 ```
 
+ローカルビルド前に `jarsigner` を確認します。PATHから見つからない場合は、
+`JAVA_HOME\bin\jarsigner.exe` を使用します。いずれにも存在しない場合は、
+ビルド前に停止します（署名検証のスキップや別方式への自動切り替えはしません）。
+Flutterのビルドだけが成功する場合は `flutter doctor -v` で使用中のJavaを確認し、
+`jarsigner.exe` を含むJDKのルートディレクトリを `JAVA_HOME` に設定してください。
+
+```powershell
+$env:JAVA_HOME = 'C:\path\to\your\jdk'
+if (-not (Test-Path (Join-Path $env:JAVA_HOME 'bin\jarsigner.exe') -PathType Leaf)) {
+    throw 'The selected JAVA_HOME does not contain jarsigner.exe'
+}
+.\scripts\build_aab.ps1
+```
+
+**すでにGoogle Playへ公開済みの場合、新しいキーストアを作り直さないでください。**
+初回公開に使用したアップロード鍵で署名する必要があります。
+
 署名検証とAAB生成が成功した場合だけ `pubspec.yaml` を+1します。
 複数PCやGitHub Actionsで同時にAABを作ると番号の衝突が起きるため、
 公開ビルドは片方ずつ実行してください。
