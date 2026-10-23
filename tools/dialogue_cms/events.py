@@ -73,7 +73,9 @@ def validate(doc):
                 raise ValueError('導入会話の話者が不正です')
             text(intro['text'])
         for speaker,items in stage['chatter'].items():
-            lines(items, speaker, cast)
+            # The post-joining frog has one additional resignation story.
+            lines(items, speaker, cast,
+                  max_patterns=5 if key == 'joined' and speaker == FROG else 4)
     if not lines(doc['restingDialogue'], FROG, outdoor, max_patterns=8, job_gate=True):
         raise ValueError('昼のかえるの会話には、一人で話せる候補を1本以上残してください')
     patrol=doc['nightPatrol']
