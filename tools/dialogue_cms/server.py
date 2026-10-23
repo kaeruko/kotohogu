@@ -9,6 +9,7 @@ from datetime import date
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import events
+import timed_events
 import facilities
 from urllib.parse import parse_qs, urlsplit
 from characters import (archive_code_blockers, load_catalog, validate_catalog,
@@ -332,6 +333,17 @@ class Handler(BaseHTTPRequestHandler):
                 self.wfile.write(raw)
             except (OSError, ValueError, TypeError) as exc:
                 self._send(400, {"error": str(exc)})
+        elif path in {"/timed-events", "/timed-events.js", "/api/timed-events"}:
+            try:
+                if path == "/api/timed-events":
+                    return self._send(200, timed_events.load())
+                file = Path(__file__).parent / ("timed_events.html" if path == "/timed-events" else "timed_events.js")
+                mime = "text/html; charset=utf-8" if path == "/timed-events" else "text/javascript; charset=utf-8"
+                raw = file.read_bytes()
+                self._headers(200, mime, len(raw))
+                self.wfile.write(raw)
+            except (OSError, ValueError, TypeError) as exc:
+                self._send(400, {"error": str(exc)})
         elif path in {"/events", "/events.js", "/api/events", "/api/event-background"}:
             try:
                 if path == "/api/events":
@@ -446,7 +458,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         endpoint = urlsplit(self.path).path
-        if endpoint not in {"/api/dialogues", "/api/cms", "/api/events", "/api/facilities"}:
+        if endpoint not in {"/api/dialogues", "/api/cms", "/api/events", "/api/facilities", "/api/timed-events"}:
             return self._send(404, {"error": "Not found"})
         # A cross-origin website must not be able to modify local files.
         expected = f"http://127.0.0.1:{self.server.server_port}"
@@ -463,6 +475,9 @@ class Handler(BaseHTTPRequestHandler):
             if endpoint == "/api/facilities":
                 facilities.save(value)
                 self._send(200, {"ok": True})
+            elif endpoint == "/api/timed-events":
+                timed_events.save(value)
+                self._send(200, {"ok": True})
             elif endpoint == "/api/events":
                 events.save(value)
                 self._send(200, {"ok": True})
@@ -478,14 +493,15 @@ class Handler(BaseHTTPRequestHandler):
             self._send(500, {"error": str(exc)})
 
     def do_POST(self):
-        if self.path != "/api/event-preview":
+        if self.path not in {"/api/event-preview", "/api/timed-events-preview"}:
             return self._send(405, {"error": "Method not allowed"})
         if self.headers.get("Origin") != f"http://127.0.0.1:{self.server.server_port}":
             return self._send(403, {"error": "Same-origin editor only"})
         try:
             size = int(self.headers.get("Content-Length", "-1"))
             if not 0 < size <= 1024 * 1024: raise ValueError("Invalid document size")
-            result = events.preview(json.loads(self.rfile.read(size).decode("utf-8")))
+            data = json.loads(self.rfile.read(size).decode("utf-8"))
+            result = timed_events.preview(data) if self.path == "/api/timed-events-preview" else events.preview(data)
             self._send(200, result)
         except (ValueError, TypeError, KeyError, OverflowError) as exc:
             self._send(400, {"error": str(exc)})

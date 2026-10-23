@@ -355,3 +355,20 @@ CMSの判定は `events.py`、アプリの判定は `oyasumi_club.dart` にあ�
 セリフの「＋条件を追加」から「おやすみクラブの進行」を選び、**完了する前／完了した後**を設定できる（JSON `{"type":"oyasumiClub","completed":false}` / `true`）。プレビューでは「ゆうぐれおやすみクラブの物語を完了済み（仮設定）」で切り替えて確認できます。
 
 カエルくんの交際中のセリフ `029_office_worker_002` は、クラブの三回目の導入会話を最後まで読んだ後、抽選されなくなります。別れ話の会話やイベントは作りません。保存形式は既存の `Progress.oyasumi.completed` のままです。
+
+## 汎用の時限イベント（朝の公園など）
+
+CMS の `/timed-events` でイベントを追加・編集できます。設定の正本は
+`assets/events/timed_events.json`、生成ファイルは `lib/timed_events_config.g.dart`。
+保存時に両方を検証・更新し、アプリの再ビルドで反映します。
+
+- 場所、開始・終了（分単位）、曜日（月=1〜日=7、空欄なら毎日）を指定。日付をまたぐ開催は開始曜日に属します。
+- 出演者のX/Y座標と「その場にいる」を設定。所持条件をONにすると全出演者の所持が開催条件になります。
+- 「入れ替える」は普通の住民を隠して出演者だけ表示、「一緒に」は追加、「隠す」は指定住民を非表示。出演者は別のエリアに同時出現しません。
+- 同一場所・同一時刻のイベント重複は保存時に拒否します。専用進行のあるおやすみクラブとの重複はアプリ側で停止します。
+- 朝の公園は毎日06:00〜09:00、ごんすけ（`042_senior_dog`）だけが登場する初期設定。所持不要、09:00以降は通常配置に復帰。
+- おやすみクラブの物語進行は従来どおり `/events` に残し、時間帯の判定は共通の `EventTimeWindow` を利用します。
+
+検証: `python -m unittest discover -s tools/dialogue_cms -p 'test_*.py'`、
+`flutter test test/timed_events_test.dart test/oyasumi_club_test.dart`、
+`flutter analyze`。

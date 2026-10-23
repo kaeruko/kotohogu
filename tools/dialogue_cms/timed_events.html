@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>時限イベント｜コトホグCMS</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f1e8;color:#443a3b;font:15px/1.6 system-ui,sans-serif}
+header{background:#65465a;color:white;padding:18px 24px}header a{color:#fff0ca;margin-right:15px}
+main{max-width:1120px;margin:18px auto;padding:0 14px;display:grid;grid-template-columns:minmax(280px,400px) 1fr;gap:18px}
+section{background:#fffdf8;border:1px solid #e7d6c7;border-radius:14px;padding:20px;margin-bottom:14px}
+h1{font-size:24px;margin:8px 0}h2{font-size:19px}label{display:block;font-weight:650;margin:10px 0 3px}
+input,select,button{font:inherit;padding:8px;border-radius:8px;border:1px solid #c7b5af;max-width:100%}
+button{cursor:pointer;background:#75546c;color:white;border:0;padding:9px 14px;margin:4px}button.secondary{background:#eee0d5;color:#4a3c3a}
+input[type=checkbox]{width:auto}input[type=number]{width:90px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.row>*{flex:1}
+.day{display:inline-flex;align-items:center;gap:3px;margin-right:12px;font-weight:400}
+.person{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:8px 0;padding:8px;border:1px solid #ede0d4;border-radius:8px}
+.person select{min-width:150px;flex:1}.hint{color:#746963;font-size:13px}
+#status,#previewResult{white-space:pre-wrap}#previewResult{padding:12px;background:#f5efdf;border-radius:10px}
+@media(max-width:790px){main{display:block}}
+</style>
+<header><a href="/">キャラ・セリフ管理</a><a href="/events">ゆうぐれおやすみクラブ</a><h1>⏰ まちの時限イベント</h1>朝・夜・曜日ごとの住民出現を管理</header>
+<main>
+<div><section><h2>イベント一覧</h2><select id="eventList" size="8" style="width:100%"></select><p>
+<button id="add">＋ 新しいイベント</button><button class="secondary" id="remove">選択を削除</button></p>
+<p class="hint">同じ場所・時間に複数のイベントを重ねることはできません。</p>
+<button id="save">設定を保存</button><button id="reload" class="secondary">再読み込み</button>
+<p id="status" role="status"></p><p class="hint">保存するとJSONとDart設定を更新します。公開アプリへの反映には再ビルドが必要です。</p></section>
+<section><h2>仮の日時でプレビュー</h2>
+<label>日時（端末現地時刻）<input id="previewTime" type="datetime-local" value="2026-10-23T07:00"></label>
+<label>エリア<select id="previewArea"></select></label>
+<p class="hint">通常住民を2人いると仮定して、表示の入れ替わりを試します。実際のセーブデータには影響しません。</p>
+<div id="previewPeople"></div>
+<button id="preview">出現を判定</button><p id="previewResult" role="status"></p>
+</section></div>
+<div><section><h2>イベント編集</h2><div id="editor">
+<label>イベントID（英小文字・数字・_）<input id="id" required></label>
+<label>イベント名<input id="label" required></label>
+<label>開催場所<select id="area"></select></label>
+<div class="row"><label>開始<input id="start" type="time" required></label>
+<label>終了<input id="end" type="time" required></label></div>
+<label>開催曜日（すべて未選択なら毎日）</label><div id="days"></div>
+<label>通常住民との関係<select id="mode">
+<option value="replace">入れ替える（出演者のみ）</option>
+<option value="add">一緒に登場する</option>
+<option value="exclude">指定した住民を隠す</option></select></label>
+<label><input type="checkbox" id="requiresOwned"> 全出演者をガチャ所持している場合だけ開催</label>
+<h2>出演者・対象住民</h2><div id="participants"></div><button id="addPerson" class="secondary">＋ 住民を追加</button>
+<p class="hint">X/Yは背景幅・高さに対する比率（0〜0.82）。「その場にいる」で待機、オフで近くを歩きます。</p>
+</div></section></div>
+</main><script src="/timed-events.js"></script></html>
