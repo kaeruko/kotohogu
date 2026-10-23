@@ -576,31 +576,59 @@ class _TownSceneState extends State<TownScene> {
       gaplessPlayback: true,
       excludeFromSemantics: true,
     );
+    // The invitation and 'いやもふ～～' are shown in the normal dialog.
+    // Only the sweat emoji follows Oyasumi-kun while he scurries away.
+    final sweating = resident == TownResident.c027_daydreamer &&
+        scareAge != null && scareAge >= 450 && scareAge < 1800;
     return Positioned(
       left: footX - scaledSize / 2,
       top: footY - scaledSize,
-      child: Semantics(
-        button: isShopkeeper
-            ? widget.onVisitMarche != null
-            : widget.onResident != null,
-        label: isShopkeeper
-            ? 'とんこの薬草茶房でおはなし'
-            : '${resident.label}のおはなし',
-        child: Tooltip(
-          message: isShopkeeper ? 'とんこ（店番中）' : resident.label,
-          child: InkWell(
-            key: isShopkeeper
-                ? const ValueKey('marche-shopkeeper')
-                : ValueKey('resident-$index'),
-            borderRadius: BorderRadius.circular(20),
-            onTap: isShopkeeper
-                ? widget.onVisitMarche
-                : widget.onResident == null ? null : () => _talk(resident),
-            child: walking && resident.mirrorWalk(direction)
-                ? Transform.flip(flipX: true, child: sprite)
-                : sprite,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Semantics(
+            button: isShopkeeper
+                ? widget.onVisitMarche != null
+                : widget.onResident != null,
+            label: isShopkeeper
+                ? 'とんこの薬草茶房でおはなし'
+                : '${resident.label}のおはなし',
+            child: Tooltip(
+              message: isShopkeeper ? 'とんこ（店番中）' : resident.label,
+              child: InkWell(
+                key: isShopkeeper
+                    ? const ValueKey('marche-shopkeeper')
+                    : ValueKey('resident-$index'),
+                borderRadius: BorderRadius.circular(20),
+                onTap: isShopkeeper
+                    ? widget.onVisitMarche
+                    : widget.onResident == null ? null : () => _talk(resident),
+                child: walking && resident.mirrorWalk(direction)
+                    ? Transform.flip(flipX: true, child: sprite)
+                    : sprite,
+              ),
+            ),
           ),
-        ),
+          if (sweating)
+            Positioned(
+              left: scaledSize * .35,
+              bottom: scaledSize * .88,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  key: const ValueKey('farmer-scare-sweat'),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(13),
+                    border: Border.all(color: Colors.brown, width: 1),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    child: Text('💦', style: TextStyle(fontSize: 22)),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
