@@ -216,6 +216,30 @@ void main() {
     expect(together.turns.last.text, 'ぼくはこうえんじゃないもふ！！');
   });
 
+  test('perfect attendance chatter belongs to the faraway frog night', () {
+    final watching = scene(
+      24,
+      saved: const OyasumiProgress(completed: 1, lastNight: '2026-10-23'),
+    );
+    expect(watching.stage, 'watching');
+    final conversation = watching.dialogue(host, 'watching', 3);
+    expect(conversation.turns.map((turn) => turn.text).toList(), [
+      'もふ〜。きょうも、おやすみくらぶをはじめるもふ〜',
+      '……さんかしゃ、ぼくひとりもふ',
+      '……ぜんいんしゅっせきもふ〜！',
+    ]);
+    expect(conversation.turns.every((turn) => turn.resident == host), isTrue);
+    expect(watching.dialogue(host, 'watching', 7).turns.last.text,
+        '……ぜんいんしゅっせきもふ〜！');
+
+    final solo = scene(24, hasFrog: false);
+    expect(solo.stage, 'solo');
+    for (var rotation = 0; rotation < 4; rotation++) {
+      expect(solo.dialogue(host, 'solo', rotation).turns
+          .any((turn) => turn.text.contains('ぜんいんしゅっせき')), isFalse);
+    }
+  });
+
   test('night chatter can be a multi-turn exchange within the event cast', () {
     final messages = (oyasumiConfig['stages']!['watching']!['chatter']!
         [frog.id] as List);
@@ -307,11 +331,103 @@ void main() {
     expect(withoutHost.group(mosa, inPlaza: true), isNull);
   });
 
+  test('Tonko visits the two club members every third night after joining', () {
+    const tonko = TownResident.c041_pig_middle;
+    const joined = OyasumiProgress(completed: 3, lastNight: '2026-10-20');
+    OyasumiScene guest(int day, {
+      int hour = 19,
+      bool stall = true,
+      bool tonkoOwned = true,
+      bool frogOwned = true,
+      OyasumiProgress? saved,
+    }) => OyasumiScene(
+      saved: saved ?? joined,
+      owned: [host, if (frogOwned) frog, if (tonkoOwned) tonko],
+      now: DateTime(2026, 10, day, hour),
+      marcheOpen: stall,
+    );
+
+    final visit = guest(21);
+    expect(visit.teaVisitorVisible, isTrue);
+    expect(visit.cast, [host, frog]);
+    expect(visit.passersby, [tonko]);
+    expect(visit.residents(TownArea.plaza, [tonko, host, frog]),
+        [host, frog, tonko]);
+    expect(visit.residents(TownArea.park, [tonko, TownResident.shiba]),
+        [TownResident.shiba]);
+    expect(visit.route(TownArea.plaza, tonko)!.stay, isTrue);
+    expect(visit.group(tonko, inPlaza: true), OyasumiScene.teaVisitGroup);
+    expect(visit.group(tonko, inPlaza: false), isNull);
+    expect(visit.introduction(tonko, OyasumiScene.teaVisitGroup), isFalse);
+    expect(visit.completeIntroduction(tonko, OyasumiScene.teaVisitGroup),
+        same(joined));
+    final line = visit.dialogue(tonko, OyasumiScene.teaVisitGroup, 0);
+    expect(line.turns.map((turn) => turn.resident).toList(),
+        [tonko, frog, host, tonko]);
+    expect(line.turns.first.text, 'ふたりともさむくない？はい、お茶🍵');
+    for (final off in [
+      guest(22),
+      guest(23),
+      guest(21, hour: 12),
+      guest(21, stall: false),
+      guest(21, tonkoOwned: false),
+      guest(21, frogOwned: false),
+      guest(21, saved: const OyasumiProgress(
+        completed: 2, lastNight: '2026-10-20',
+      )),
+    ]) {
+      expect(off.teaVisitorVisible, isFalse);
+      expect(off.group(tonko, inPlaza: true), isNull);
+      expect(() => off.dialogue(tonko, OyasumiScene.teaVisitGroup, 0),
+          throwsStateError);
+    }
+    expect(guest(24).teaVisitorVisible, isTrue);
+    expect(guest(22, hour: 2).teaVisitorVisible, isTrue);
+  });
+
+  testWidgets('Tonko is a tappable club guest rather than stallkeeper', (tester) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const tonko = TownResident.c041_pig_middle;
+    final visit = OyasumiScene(
+      saved: const OyasumiProgress(completed: 3, lastNight: '2026-10-20'),
+      owned: [host, frog, tonko],
+      now: DateTime(2026, 10, 21, 19),
+      marcheOpen: true,
+    );
+    TownResident? tapped;
+    var shopVisits = 0;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(body: TownScene(
+        area: TownArea.plaza,
+        lifetimePoints: 0,
+        residents: const [host, frog, tonko],
+        oyasumi: visit,
+        marcheOpen: true,
+        fillViewport: true,
+        onResident: (resident) async {
+          tapped = resident;
+        },
+        onVisitMarche: () => shopVisits++,
+      )),
+    ));
+    await tester.pump();
+    expect(find.byTooltip(tonko.label), findsOneWidget);
+    expect(find.byKey(const ValueKey('marche-shopkeeper')), findsNothing);
+    expect(find.byKey(const ValueKey('plaza-marche-entrance')), findsNothing);
+    await tester.tap(find.byTooltip(tonko.label));
+    expect(tapped, tonko);
+    expect(shopVisits, 0);
+    expect(tester.takeException(), isNull);
+  });
+
   test('night boundaries and missing host do not activate club', () {
     expect(scene(20, hour: 17).active, isFalse);
     expect(scene(20, hour: 18).active, isTrue);
     expect(scene(21, hour: 4).active, isTrue);
-    expect(scene(21, hour: 5).active, isFalse);
+    expect(scene(21, hour: 5).active, isTrue);
+    expect(scene(21, hour: 6).active, isFalse);
     expect(
       OyasumiScene(
         saved: const OyasumiProgress(),

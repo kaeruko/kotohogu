@@ -164,6 +164,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     parkCleanerStarted: progress.seenDialogues.contains(
       OyasumiScene.parkCleanerUnlockId,
     ),
+    marcheOpen: isMarcheOpen(progress),
   );
   TownTimedEvents _timedEvents(Progress progress) => TownTimedEvents(
     now: controller.clock(), owned: progress.residents.owned,
@@ -634,7 +635,9 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
               ? null
               : group == 'patrol'
                   ? 'よまわり'
-                  : 'ゆうぐれおやすみクラブ',
+                  : group == OyasumiScene.teaVisitGroup
+                      ? scene.teaVisitLabel
+                      : 'ゆうぐれおやすみクラブ',
           turns: [
             for (final turn in line.turns)
               ConversationTurn(

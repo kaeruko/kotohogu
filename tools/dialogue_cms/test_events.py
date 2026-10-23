@@ -27,7 +27,8 @@ class EventTests(unittest.TestCase):
         self.assertFalse(self.preview(2,'2026-10-20')['canComplete'])
         self.assertTrue(self.preview(3,'2026-10-19',now='2026-10-20T12:00')['frogResting'])
         self.assertFalse(self.preview(host=False)['active'])
-        self.assertFalse(self.preview(now='2026-10-21T05:00')['active'])
+        self.assertTrue(self.preview(now='2026-10-21T05:59')['active'])
+        self.assertFalse(self.preview(now='2026-10-21T06:00')['active'])
     def test_config_generated_data_is_current(self):
         self.assertEqual(events.DART.read_text(encoding='utf-8'),events.generated(events.load()))
     def test_save_edits_both_files_and_escapes_dart(self):
@@ -62,12 +63,30 @@ class EventTests(unittest.TestCase):
         for stage in ('watching', 'joining', 'joined'):
             self.assertEqual(len(self.preview(1 if stage == 'watching' else 2 if stage == 'joining' else 3,
                                                '2026-10-19')['dialogues'][events.HOST]),
-                             3)
+                             4 if stage == 'watching' else 3)
         events.validate(doc)
         over_limit = copy.deepcopy(doc)
         over_limit['stages']['solo']['chatter'][events.HOST].append('5本目')
         with self.assertRaisesRegex(ValueError, '3〜4本'):
             events.validate(over_limit)
+
+    def test_faraway_frog_sees_the_club_of_one(self):
+        doc = events.load()
+        solo = doc['stages']['solo']['chatter'][events.HOST]
+        watching = doc['stages']['watching']['chatter'][events.HOST]
+        self.assertEqual(len(solo), 4)
+        self.assertEqual(len(watching), 4)
+        expected = [
+            'もふ〜。きょうも、おやすみくらぶをはじめるもふ〜',
+            '……さんかしゃ、ぼくひとりもふ',
+            '……ぜんいんしゅっせきもふ〜！',
+        ]
+        self.assertEqual(watching[3]['turns'], [
+            {'speaker': events.HOST, 'text': text} for text in expected
+        ])
+        self.assertEqual(self.preview(1, '2026-10-19')['dialogues'][events.HOST][3]['turns'],
+                         watching[3]['turns'])
+        self.assertTrue(all(item != watching[3] for item in solo))
 
     def test_night_conversation_pattern_limits_and_preview(self):
         doc=events.load()
@@ -252,6 +271,51 @@ class EventTests(unittest.TestCase):
             mutation(modified)
             with self.assertRaises(ValueError):
                 events.validate(modified)
+
+    def test_tonko_tea_delivery_is_gated_and_editable(self):
+        doc=events.load()
+        tea=doc['teaVisit']
+        self.assertEqual(tea['residentId'],events.TONKO)
+        self.assertEqual(tea['intervalNights'],3)
+        self.assertEqual([row['speaker'] for row in tea['turns']],
+                         [events.TONKO,events.FROG,events.HOST,events.TONKO])
+        base=dict(config=doc,completed=3,lastNight='2026-10-20',
+                  now='2026-10-21T19:00',
+                  owned=[events.HOST,events.FROG,events.TONKO],
+                  marcheOpen=True)
+        active=events.preview(base)
+        self.assertEqual(active['stage'],'joined')
+        self.assertEqual(active['cast'],[events.HOST,events.FROG])
+        self.assertEqual(active['passersby'],[events.TONKO])
+        self.assertEqual(active['positions'][events.TONKO],tea['position'])
+        self.assertEqual(active['teaVisit'],tea)
+        for change in [
+            {'now':'2026-10-22T19:00'},
+            {'now':'2026-10-23T19:00'},
+            {'now':'2026-10-21T12:00'},
+            {'marcheOpen':False},
+            {'owned':[events.HOST,events.FROG]},
+            {'owned':[events.HOST,events.TONKO]},
+            {'completed':2},
+        ]:
+            params={**base,**change}
+            self.assertIsNone(events.preview(params)['teaVisit'],params)
+        self.assertEqual(events.preview({**base,'now':'2026-10-24T19:00'})['passersby'],[events.TONKO])
+        midnight=events.preview({**base,'now':'2026-10-22T02:00'})
+        self.assertEqual(midnight['nightKey'],'2026-10-21')
+        self.assertEqual(midnight['passersby'],[events.TONKO])
+        for change in [
+            lambda d:d['teaVisit'].update(residentId=events.FROG),
+            lambda d:d['teaVisit'].update(intervalNights=0),
+            lambda d:d['teaVisit'].update(position=[.95,.4]),
+            lambda d:d['teaVisit'].update(turns=[]),
+            lambda d:d['teaVisit']['turns'][0].update(speaker=events.FROG),
+            lambda d:d['teaVisit']['turns'][2].update(speaker=events.TONKO),
+        ]:
+            invalid=copy.deepcopy(doc);change(invalid)
+            with self.assertRaises(ValueError):events.validate(invalid)
+        with self.assertRaises(ValueError):
+            events.preview({**base,'marcheOpen':'yes'})
 
     def test_preview_never_saves(self):
         with patch.object(events,'commit_files',side_effect=AssertionError('preview wrote data')):

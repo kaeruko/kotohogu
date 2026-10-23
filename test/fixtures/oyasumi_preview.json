@@ -72,7 +72,7 @@
       "completed": 0,
       "lastNight": null,
       "owned": [],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -190,7 +190,7 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -306,7 +306,7 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -431,7 +431,7 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -538,7 +538,7 @@
       "completed": 1,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -656,7 +656,7 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -772,7 +772,7 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -897,7 +897,7 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -1005,7 +1005,7 @@
       "completed": 2,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -1123,7 +1123,7 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -1239,7 +1239,7 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -1367,7 +1367,7 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -1475,7 +1475,7 @@
       "completed": 3,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -1593,7 +1593,7 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -1709,7 +1709,7 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,
@@ -1837,7 +1837,7 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T05:00"
+      "now": "2026-10-21T06:00"
     },
     "expected": {
       "active": false,

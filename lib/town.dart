@@ -251,7 +251,8 @@ class _TownSceneState extends State<TownScene> {
     }
     // Paint Tonko in front of the stall, not behind its transparent sprite.
     final shopkeeperIndex = widget.area == TownArea.plaza &&
-            widget.marcheOpen && widget.debugTownResidents == null
+            widget.marcheOpen && !eventTakesOver &&
+            widget.debugTownResidents == null
         ? visibleResidents.indexOf(tonkoMarcheOwner)
         : -1;
     final count = visibleResidents.length + visibleVisitors.length;
@@ -501,8 +502,11 @@ class _TownSceneState extends State<TownScene> {
     double size,
     bool reduced,
   ) {
+    // At night Tonko is a club guest; tapping her must not open the stall.
     final isShopkeeper = widget.area == TownArea.plaza &&
         widget.marcheOpen && widget.debugTownResidents == null &&
+        !(widget.oyasumi?.takesOver(widget.area) ?? false) &&
+        !(widget.timedEvents?.takesOver(widget.area) ?? false) &&
         resident == tonkoMarcheOwner;
     final familyOuting = widget.area == TownArea.shopping &&
         widget.debugTownResidents == null &&
