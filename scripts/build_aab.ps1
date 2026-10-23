@@ -12,6 +12,22 @@ if (-not (Test-Path -LiteralPath $properties -PathType Leaf)) {
 if (-not (Get-Command flutter -ErrorAction SilentlyContinue)) {
     throw 'Flutter executable not found.'
 }
+# Check the JDK signer before spending time building a release bundle.
+# JAVA_HOME is an alternate location for the same jarsigner executable,
+# not an alternate signing or verification method.
+$jarsignerCommand = Get-Command jarsigner -CommandType Application -ErrorAction SilentlyContinue
+if ($jarsignerCommand) {
+    $jarsignerPath = $jarsignerCommand.Source
+}
+elseif (-not [string]::IsNullOrWhiteSpace($env:JAVA_HOME)) {
+    $jarsignerPath = Join-Path $env:JAVA_HOME 'bin\jarsigner.exe'
+    if (-not (Test-Path -LiteralPath $jarsignerPath -PathType Leaf)) {
+        throw "jarsigner (JDK) not found at JAVA_HOME: $jarsignerPath. Set JAVA_HOME to a complete JDK with jarsigner.exe."
+    }
+}
+else {
+    throw 'jarsigner (JDK) not found on PATH; JAVA_HOME is not set. Configure a complete JDK before building.'
+}
 Push-Location $root
 try {
     $json = python tools/android/release_version.py plan --format json
@@ -33,14 +49,12 @@ try {
     if ((Get-Item -LiteralPath $aab).Length -le 0) {
         throw 'AAB is empty; pubspec.yaml was not changed.'
     }
-    $jarsigner = Get-Command jarsigner -ErrorAction SilentlyContinue
-    if (-not $jarsigner) { throw 'jarsigner (JDK) not found: signature verification required.' }
     # jarsigner localizes its output. Pin English only for this verification
     # so the strict jar verified / sm checks work on non-English Windows.
     $previousJavaToolOptions = [Environment]::GetEnvironmentVariable('JAVA_TOOL_OPTIONS', 'Process')
     try {
         $env:JAVA_TOOL_OPTIONS = ("$previousJavaToolOptions -Duser.language=en -Duser.country=US").Trim()
-        $verification = & $jarsigner.Source -verify -verbose $aab
+        $verification = & $jarsignerPath -verify -verbose $aab
         $verificationExitCode = $LASTEXITCODE
     }
     finally {
