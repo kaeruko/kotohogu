@@ -620,10 +620,22 @@ class _TownSceneState extends State<TownScene> {
           if (scareLine != null)
             Positioned(
               bottom: scaledSize + 5,
-              right: _farmerScareRight ? 0 : null,
-              left: _farmerScareRight ? null : 0,
+              // Keep the bubbles inside the screen instead of
+              // extending past its edges on narrow phones.
+              right: (resident == TownResident.c027_daydreamer) ==
+                      _farmerScareRight
+                  ? 0
+                  : null,
+              left: (resident == TownResident.c027_daydreamer) ==
+                      _farmerScareRight
+                  ? null
+                  : 0,
               child: IgnorePointer(
-                child: DecoratedBox(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: math.min(width * .48, 220),
+                  ),
+                  child: DecoratedBox(
                   key: ValueKey('farmer-scare-${resident.id}'),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -639,6 +651,7 @@ class _TownSceneState extends State<TownScene> {
                           color: Colors.brown, fontSize: 21,
                           fontWeight: FontWeight.bold),
                     ),
+                  ),
                   ),
                 ),
               ),
