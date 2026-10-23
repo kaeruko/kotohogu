@@ -268,16 +268,20 @@ class ResidentConversationDialog extends StatelessWidget {
     super.key,
     required this.speaker,
     required this.dialogue,
+    this.reportCompletion = false,
   });
 
   final TownResident speaker;
   final DialogueEntry dialogue;
+  /// When enabled, finishing the last page returns true to the caller.
+  final bool reportCompletion;
 
   @override
   Widget build(BuildContext context) {
     final reply = dialogue.reply;
     return PagedConversationDialog(
       conversationId: 'resident:${speaker.id}:${dialogue.id}',
+      reportCompletion: reportCompletion,
       turns: [
         ConversationTurn(
           label: speaker.label,
