@@ -93,7 +93,9 @@ void main() {
       'priority': 100,
       'once': false,
       'logic': 'all',
-      'conditions': [],
+      'conditions': [
+        {'type': 'townTogether', 'otherResidentId': '027_daydreamer'},
+      ],
       'reply': {'residentId': '027_daydreamer', 'text': 'いやもふ～～💦'},
     });
     Widget town(TownVisit v, {Key? key, List<TownResident> cast = owned}) =>
@@ -184,7 +186,9 @@ void main() {
       'id': '026_farmer_002', 'residentId': '026_farmer',
       'text': '農業をやらんかね。',
       'priority': 100, 'once': false, 'logic': 'all',
-      'conditions': [],
+      'conditions': [
+        {'type': 'townTogether', 'otherResidentId': '027_daydreamer'},
+      ],
       'reply': {'residentId': '027_daydreamer', 'text': 'いやもふ～～💦'},
     });
     await tester.pumpWidget(MaterialApp(
