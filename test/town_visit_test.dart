@@ -36,11 +36,18 @@ void main() {
     }
   });
 
-  test('farmer scare is claimed at most once per town visit', () {
+  test('farmer scare starts only when conversation has finished', () {
     final visit = TownVisit();
-    expect(visit.claimFarmerScare(), isTrue);
-    expect(visit.claimFarmerScare(), isFalse);
-    expect(TownVisit().claimFarmerScare(), isTrue);
+    expect(visit.canOfferFarmerScare, true);
+    expect(visit.claimFarmerScare(), false,
+        reason: 'Just meeting in town must not trigger the animation');
+    visit.requestFarmerScare();
+    expect(visit.canOfferFarmerScare, false);
+    expect(visit.claimFarmerScare(), true);
+    expect(visit.claimFarmerScare(), false);
+    visit.requestFarmerScare();
+    expect(visit.claimFarmerScare(), false);
+    expect(TownVisit().canOfferFarmerScare, true);
   });
 
   test('miner and daydreamer can meet after park unlock, using the painted visit', () {
