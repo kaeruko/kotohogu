@@ -4,7 +4,7 @@
   "label": "ゆうぐれおやすみクラブ",
   "night": {
     "startHour": 18,
-    "endHour": 5
+    "endHour": 6
   },
   "background": "assets/kotohogu/town_background_night.jpg",
   "stages": {
