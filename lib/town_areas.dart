@@ -69,6 +69,17 @@ class TownVisit {
   bool? _familyOuting;
   final Map<String, int> _familyConversations = {};
 
+  bool _farmerScarePlayed = false;
+
+  /// A farmer/daydreamer encounter is played just once during this visit,
+  /// even if the player leaves the area and comes back. No save flag.
+  bool claimFarmerScare() {
+    if (_farmerScarePlayed) return false;
+    _farmerScarePlayed = true;
+    return true;
+  }
+
+
   /// Each eligible visit has a 1-in-4 chance of a shopping outing after
   /// the existing club progress reaches 3. No new save data is needed.
   bool isFamilyOuting(
