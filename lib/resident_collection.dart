@@ -123,7 +123,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c015_office_worker("015_office_worker", "ぶちょう", "015_office_worker", true, true, "", "plaza", archived: false),
   // ignore: constant_identifier_names
-  c028_caregiver("028_caregiver", "ぱんこ先生", "028_caregiver", true, true, "", "shopping", archived: false),
+  c028_caregiver("028_caregiver", "ぱんこ先生", "028_caregiver", true, true, "67歳の女性。長年、介護の現場で高齢者の食事や暮らしを支えてきた。今も地域の介護予防活動に関わり、毎日のごはんや健康のことを住民と話すのが好き。お気に入りのピンクのエプロンがトレードマーク。食べる楽しみを大切にし、できることから少しずつ取り組むよう勧める。知識をひけらかさず、相手の気持ちを聞く頼れる先生。自分自身も40代のころ、生理が止まったのを閉経と決めつけかけた経験があり、健康の心配は専門の医師に相談する大切さを実感している。", "shopping", archived: false),
   // ignore: constant_identifier_names
   c041_pig_middle("041_pig_middle", "とんこ", "041_pig_middle", true, true, "", "village", archived: false),
   // ignore: constant_identifier_names
