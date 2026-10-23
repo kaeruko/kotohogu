@@ -12,8 +12,8 @@ function textField(parent,label,value,onChange){const field=el('label',label),in
 // that one conversation to {turns:[{speaker,text}, ...]}, not other lines.
 const turnsFor=(item,primary)=>typeof item==='string'
   ? [{speaker:primary,text:item}] : item.turns;
-function editLines(parent,lines,primary,allowed,{isResting=false}={}){
-  const limit=isResting?8:4;
+function editLines(parent,lines,primary,allowed,{isResting=false,maxNightPatterns=4}={}){
+  const limit=isResting?8:maxNightPatterns;
   const permitted=allowed.map(id=>[id,names[id]||id]);
   lines.forEach((item,i)=>{
     const block=el('div');block.className='conversation';
