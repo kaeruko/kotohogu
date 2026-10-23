@@ -6,6 +6,7 @@ import 'dev_tools.dart';
 import 'gacha_hud.dart';
 import 'resident_collection.dart';
 import 'oyasumi_club.dart';
+import 'timed_events.dart';
 import 'local_content_preview.dart';
 import 'salon_room.dart';
 import 'bakery_room.dart';
@@ -31,6 +32,7 @@ class TownAreaNavigator extends StatefulWidget {
     this.salonUnlockMode = SalonUnlockDebugMode.normal,
     this.onResident,
     this.oyasumi,
+    this.timedEvents,
     this.onSalonResident,
     this.onBakeryResident,
     this.onCommunityCenterResident,
@@ -54,6 +56,7 @@ class TownAreaNavigator extends StatefulWidget {
   final SalonUnlockDebugMode salonUnlockMode;
   final Future<void> Function(TownResident)? onResident;
   final OyasumiScene? oyasumi;
+  final TownTimedEvents? timedEvents;
   final Future<void> Function(TownResident)? onSalonResident;
   final Future<void> Function(TownResident)? onBakeryResident;
   final Future<void> Function(TownResident)? onCommunityCenterResident;
@@ -158,6 +161,7 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
               onRemoteVisitor: widget.onRemoteVisitor,
               onResident: widget.onResident,
               oyasumi: widget.oyasumi,
+              timedEvents: widget.timedEvents,
               marcheOpen: widget.marcheOpen,
               onVisitMarche: widget.onVisitMarche,
               showBakeryEntranceMarker: isBakeryUnlocked(widget.residents),

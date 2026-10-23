@@ -1,6 +1,7 @@
 import 'resident_collection.dart';
 import 'town_areas.dart';
 import 'town_walk.dart';
+import 'timed_events.dart';
 import 'oyasumi_config.g.dart';
 
 /// One selectable event conversation may contain multiple speaking residents.
@@ -71,13 +72,10 @@ class OyasumiScene {
   static const nightPatroller = TownResident.c036_mosa;
   int get startHour => oyasumiConfig['night']['startHour'] as int;
   int get endHour => oyasumiConfig['night']['endHour'] as int;
-  bool get night => now.hour >= startHour || now.hour < endHour;
+  EventTimeWindow get schedule => EventTimeWindow.fromHours(startHour, endHour);
+  bool get night => schedule.includes(now);
   String get nightKey {
-    final date = DateTime(
-      now.year,
-      now.month,
-      now.day - (now.hour < endHour ? 1 : 0),
-    );
+    final date = schedule.occurrenceDay(now);
     return '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 

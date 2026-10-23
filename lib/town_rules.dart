@@ -1,5 +1,6 @@
 import 'marche.dart';
 import 'oyasumi_club.dart';
+import 'timed_events.dart';
 import 'progress.dart';
 import 'resident_collection.dart';
 import 'town_areas.dart';
@@ -18,9 +19,11 @@ class TownRules {
     required this.visit,
     this.debugTownResidents,
     this.oyasumi,
+    this.timedEvents,
   });
 
   final OyasumiScene? oyasumi;
+  final TownTimedEvents? timedEvents;
   final Progress progress;
   final TownVisit visit;
   final List<TownResident>? debugTownResidents;
@@ -38,7 +41,9 @@ class TownRules {
       marcheOpen: marcheOpen,
       afterOyasumiClub: progress.oyasumi.completed == 3,
     );
-    return oyasumi?.residents(area, ordinary) ?? ordinary;
+    final scripted = oyasumi?.residents(area, ordinary) ?? ordinary;
+    return timedEvents?.residents(area, scripted,
+        scriptedEventActive: oyasumi?.takesOver(area) ?? false) ?? scripted;
   }
 
   /// All speakers considered "together" for a particular conversation.

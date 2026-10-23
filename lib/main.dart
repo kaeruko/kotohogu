@@ -10,6 +10,7 @@ import 'dialogue_engine.dart';
 import 'marche.dart';
 import 'town_rules.dart';
 import 'oyasumi_club.dart';
+import 'timed_events.dart';
 import 'local_content_preview.dart';
 import 'google_drive_content_source.dart';
 import 'local_town_visitors.dart';
@@ -159,6 +160,10 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     parkCleanerStarted: progress.seenDialogues.contains(
       OyasumiScene.parkCleanerUnlockId,
     ),
+  );
+  TownTimedEvents _timedEvents(Progress progress) => TownTimedEvents(
+    now: controller.clock(), owned: progress.residents.owned,
+    enabled: _debugTownResidents == null,
   );
   /// Debug-only town cast kept in memory; never written to the save file.
   List<TownResident>? _debugTownResidents;
@@ -505,6 +510,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     final rules = TownRules(
       controller.progress!, visit: _townVisit,
       oyasumi: _clubScene(controller.progress!),
+      timedEvents: _timedEvents(controller.progress!),
       debugTownResidents: _debugTownResidents);
     final site = inCommunityCenter ? 'community_center' :
         inBakery ? 'bakery' : inSalon ? 'salon' :
@@ -575,6 +581,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             controller.progress!,
             visit: _townVisit,
             oyasumi: _clubScene(controller.progress!),
+            timedEvents: _timedEvents(controller.progress!),
             debugTownResidents: _debugTownResidents,
           ).conversationPeers(ConversationSite.town, area: _townArea)
         : {resident.id};
@@ -1113,7 +1120,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       Progress progress, HostedTownContent? hosted) {
     final rules = TownRules(
       progress, visit: _townVisit,
-      oyasumi: _clubScene(progress), debugTownResidents: _debugTownResidents);
+      oyasumi: _clubScene(progress), timedEvents: _timedEvents(progress),
+      debugTownResidents: _debugTownResidents);
     final visitors = hosted == null
         ? const <RemoteResident>[]
         : localVisitorsForArea(
@@ -1154,6 +1162,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
               _showDialogue(resident, inCommunityCenter: true),
           marcheOpen: rules.marcheOpen,
           oyasumi: rules.oyasumi,
+          timedEvents: rules.timedEvents,
           onVisitMarche: _visitMarche,
         ),
         if (widget.remoteContentLoader != null)

@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "events": [
+    {
+      "id": "morning_exercises",
+      "label": "朝の公園の体操",
+      "areaId": "park",
+      "schedule": {
+        "start": "06:00",
+        "end": "09:00",
+        "weekdays": []
+      },
+      "mode": "replace",
+      "requiresOwned": false,
+      "residents": [
+        {
+          "residentId": "042_senior_dog",
+          "x": 0.48,
+          "y": 0.66,
+          "stay": true
+        }
+      ]
+    }
+  ]
+}

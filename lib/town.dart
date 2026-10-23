@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'resident_collection.dart';
 import 'oyasumi_club.dart';
+import 'timed_events.dart';
 import 'marche.dart';
 import 'local_content_preview.dart';
 import 'town_walk.dart';
@@ -45,6 +46,7 @@ class TownScene extends StatefulWidget {
     this.afterOyasumiClub = false,
     this.onResident,
     this.oyasumi,
+    this.timedEvents,
     this.remoteVisitors = const [],
     this.remoteContentBaseUri,
     this.onRemoteVisitor,
@@ -69,6 +71,7 @@ class TownScene extends StatefulWidget {
   final bool afterOyasumiClub;
   final Future<void> Function(TownResident)? onResident;
   final OyasumiScene? oyasumi;
+  final TownTimedEvents? timedEvents;
   final List<RemoteResident> remoteVisitors;
   final Uri? remoteContentBaseUri;
   final Future<void> Function(RemoteResident)? onRemoteVisitor;
@@ -218,10 +221,14 @@ class _TownSceneState extends State<TownScene> {
       marcheOpen: widget.marcheOpen,
       afterOyasumiClub: widget.afterOyasumiClub,
     );
-    final visibleResidents = widget.oyasumi?.residents(widget.area, ordinaryResidents) ?? ordinaryResidents;
+    final scripted = widget.oyasumi?.residents(widget.area, ordinaryResidents) ?? ordinaryResidents;
     final clubTakesOver = widget.oyasumi?.takesOver(widget.area) ?? false;
+    final visibleResidents = widget.timedEvents?.residents(widget.area, scripted,
+        scriptedEventActive: clubTakesOver) ?? scripted;
+    final eventTakesOver = clubTakesOver ||
+        (widget.timedEvents?.takesOver(widget.area) ?? false);
     // Debug-only remote previews must not leak extra characters into the club.
-    final visibleVisitors = clubTakesOver
+    final visibleVisitors = eventTakesOver
         ? const <RemoteResident>[]
         : widget.remoteVisitors;
     if (widget.remoteVisitors.isNotEmpty && widget.remoteContentBaseUri == null) {
@@ -279,7 +286,7 @@ class _TownSceneState extends State<TownScene> {
             size,
             reduced,
           ),
-        if (widget.area == TownArea.plaza && widget.marcheOpen && !clubTakesOver)
+        if (widget.area == TownArea.plaza && widget.marcheOpen && !eventTakesOver)
           Positioned(
             left: width * plazaMarcheRect.left / 768,
             top: height * plazaMarcheRect.top / 1376,
@@ -470,7 +477,8 @@ class _TownSceneState extends State<TownScene> {
         ? const TownWalkRoute(.36, .67, stay: true)
         : familyOuting && resident == familyOutingDaughter
             ? const TownWalkRoute(.49, .67, stay: true)
-            : widget.oyasumi?.route(widget.area, resident) ?? (widget.area == TownArea.hospital
+            : widget.timedEvents?.route(widget.area, resident) ??
+                widget.oyasumi?.route(widget.area, resident) ?? (widget.area == TownArea.hospital
         ? const TownWalkRoute(.52, .65, stay: true)
         : isShopkeeper
         ? plazaMarcheStaffRoute
