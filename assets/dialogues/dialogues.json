@@ -6412,6 +6412,16 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "052_pome_002",
+      "residentId": "052_pome",
+      "text": "ぽむぽむだよ！おさんぽも体操もだいすき！よろしくね〜！",
+      "priority": 40,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }
