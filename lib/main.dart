@@ -536,7 +536,22 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           controller.progress!.residents.owned, controller.progress!.points,
           afterOyasumiClub: controller.progress!.oyasumi.completed == 3) &&
         (resident == familyOutingMother || resident == familyOutingDaughter);
-    final line = familyOuting
+    // Keep the actual town dialogue in the ordinary conversation viewer.
+    // Only this completed invitation asks the scene to play the escape.
+    final farmerInvitation = site == 'town' &&
+        resident == TownResident.c026_farmer &&
+        visibleIds.contains(TownResident.c027_daydreamer.id) &&
+        _townVisit.canOfferFarmerScare;
+    final line = farmerInvitation
+        ? catalog.selectById(
+            id: '026_farmer_002',
+            resident: resident,
+            progress: controller.progress!,
+            now: controller.clock(),
+            townResidentIds: visibleIds,
+            site: site,
+          )
+        : familyOuting
         ? catalog.selectById(
             id: _townVisit.nextFamilyOutingDialogueId(resident),
             resident: resident,
@@ -560,13 +575,19 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       final persisted = await controller.recordDialogueSeen(line.id);
       if (!persisted || !mounted) return;
     }
-    await showDialog<void>(
+    final completed = await showDialog<bool>(
       context: context,
       builder: (context) => ResidentConversationDialog(
         speaker: resident,
         dialogue: line,
+        reportCompletion: farmerInvitation,
       ),
     );
+    // Tapping the final 'また話そう' returns true. A back press or tap
+    // outside the dialog returns null and must not start an escape.
+    if (completed == true && mounted && farmerInvitation) {
+      _townVisit.requestFarmerScare();
+    }
   }
 
   Future<void> _showClubDialogue(OyasumiScene scene, TownResident resident, String group) async {
