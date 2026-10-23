@@ -108,6 +108,32 @@ void main() {
     expect(daytime.group(frog, inPlaza: false), 'resting');
     expect(daytime.dialogue(frog, 'resting', 0).text, contains('会社を辞めて'));
   });
+  test('debug cast never reverts retired frog to office-worker dialogue', () {
+    const completed = OyasumiProgress(
+      completed: 3, lastNight: '2026-10-23');
+    final preview = OyasumiScene(
+      saved: completed,
+      owned: [host, frog],
+      now: DateTime(2026, 10, 24, 19),
+      enabled: false,
+    );
+    expect(preview.active, false, reason: 'Developer preview disables night events');
+    expect(preview.frogResting, true,
+        reason: 'Disabling events must not undo saved story progress');
+    expect(preview.group(frog, inPlaza: true), 'resting');
+    expect(preview.group(frog, inPlaza: false), 'resting');
+    expect(preview.dialogue(frog, 'resting', 0).text,
+        contains('会社を辞めて'));
+    final before = OyasumiScene(
+      saved: const OyasumiProgress(),
+      owned: [host, frog],
+      now: DateTime(2026, 10, 24, 19),
+      enabled: false,
+    );
+    expect(before.frogResting, false);
+    expect(before.group(frog, inPlaza: true), isNull);
+  });
+
   test('post-club dialogue shows absent companions only when actually present', () {
     final previous = oyasumiConfig['restingDialogue'];
     oyasumiConfig['restingDialogue'] = [
