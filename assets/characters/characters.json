@@ -286,6 +286,17 @@
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
+    },
+    {
+      "key": "c052_pome",
+      "id": "052_pome",
+      "label": "ぽむぽむ",
+      "profile": "",
+      "artFolder": "052_pome",
+      "nextDialogueNumber": 2,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
     }
   ]
 }
