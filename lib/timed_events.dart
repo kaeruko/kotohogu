@@ -147,6 +147,11 @@ class TownTimedEvents {
     return matches.isEmpty ? null : matches.single;
   }
   bool takesOver(TownArea area) => eventFor(area)?.mode == 'replace';
+
+  // A scheduled event can take over an area while its cast is still unowned.
+  // Ownership never creates residents: an unowned sole cast leaves it empty.
+  List<TownResident> _ownedCast(TimedEventDefinition event) =>
+      event.cast.where(owned.contains).toList(growable: false);
   List<TownResident> residents(TownArea area, Iterable<TownResident> ordinary,
       {bool scriptedEventActive = false}) {
     final event = eventFor(area);
@@ -155,19 +160,21 @@ class TownTimedEvents {
     }
     final elsewhere = <TownResident>{
       for (final other in _active)
-        if (other.area != area && other.mode != 'exclude') ...other.cast,
+        if (other.area != area && other.mode != 'exclude') ..._ownedCast(other),
     };
     final normal = ordinary.where((resident) => !elsewhere.contains(resident)).toList();
     if (event == null) return List.unmodifiable(normal);
-    if (event.mode == 'replace') return List.unmodifiable(event.cast);
+    if (event.mode == 'replace') return List.unmodifiable(_ownedCast(event));
     if (event.mode == 'exclude') {
       return List.unmodifiable(normal.where((r) => !event.cast.contains(r)));
     }
-    return List.unmodifiable({...normal, ...event.cast});
+    return List.unmodifiable({...normal, ..._ownedCast(event)});
   }
   TownWalkRoute? route(TownArea area, TownResident resident) {
     final event = eventFor(area);
-    if (event == null || event.mode == 'exclude') return null;
+    if (event == null || event.mode == 'exclude' || !owned.contains(resident)) {
+      return null;
+    }
     for (final person in event.participants) {
       if (person.resident == resident) return person.route;
     }

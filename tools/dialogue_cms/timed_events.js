@@ -99,8 +99,8 @@ async function load() {
 }
 function postPreview() {
   const selectedPeople = [...$("previewPeople").querySelectorAll("input:checked")].map(x => x.value);
-  const active = current();
-  const owned = [...new Set([...selectedPeople, ...(active?.requiresOwned ? active.residents.map(p => p.residentId) : [])])];
+  // Preview must not silently grant ownership of an event's performers.
+  const owned = [...selectedPeople];
   return {config, now: $("previewTime").value, areaId: $("previewArea").value,
     owned, ordinary: selectedPeople};
 }

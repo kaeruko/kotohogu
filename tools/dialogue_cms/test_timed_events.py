@@ -12,13 +12,18 @@ class TimedEventTests(unittest.TestCase):
         self.assertEqual(timed_events.DART.read_text(encoding='utf-8'),
                          timed_events.generated(timed_events.load()))
 
-    def test_morning_park_is_only_gonsuke(self):
+    def test_morning_park_empty_without_gonsuke_and_only_gonsuke_when_owned(self):
         doc = timed_events.load()
-        common = {'config': doc, 'areaId': 'park', 'owned': [],
+        common = {'config': doc, 'areaId': 'park', 'owned': ['001_shiba'],
                   'ordinary': ['001_shiba']}
         morning = timed_events.preview({**common, 'now':'2026-10-23T06:00'})
-        self.assertEqual(morning['visible'], ['042_senior_dog'])
+        self.assertEqual(morning['activeId'], 'morning_exercises')
+        self.assertEqual(morning['visible'], [])
         self.assertEqual(morning['mode'], 'replace')
+        owned = timed_events.preview({**common,
+            'owned': ['001_shiba', '042_senior_dog'],
+            'now':'2026-10-23T06:00'})
+        self.assertEqual(owned['visible'], ['042_senior_dog'])
         afternoon = timed_events.preview({**common, 'now':'2026-10-23T09:00'})
         self.assertEqual(afternoon['visible'], ['001_shiba'])
 

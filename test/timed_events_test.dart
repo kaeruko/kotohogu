@@ -5,14 +5,21 @@ import 'package:future_lift/town_areas.dart';
 
 void main() {
   final gonsuke = TownResident.c042_senior_dog;
-  test('morning park is Gonsuke only regardless of gacha ownership', () {
-    final morning = TownTimedEvents(now: DateTime(2026, 10, 23, 6), owned: []);
+  test('morning park is empty without Gonsuke, exclusive with ownership', () {
+    final unowned = TownTimedEvents(now: DateTime(2026, 10, 23, 6),
+        owned: [TownResident.shiba]);
+    expect(unowned.eventFor(TownArea.park), isNotNull);
+    expect(unowned.takesOver(TownArea.park), true);
+    expect(unowned.residents(TownArea.park, [TownResident.shiba]), isEmpty);
+    expect(unowned.route(TownArea.park, gonsuke), isNull);
+    final morning = TownTimedEvents(now: DateTime(2026, 10, 23, 6),
+        owned: [gonsuke, TownResident.shiba]);
     expect(morning.residents(TownArea.park, [TownResident.shiba]), [gonsuke]);
     expect(morning.residents(TownArea.plaza, [gonsuke, TownResident.shiba]),
         [TownResident.shiba]);
     expect(morning.route(TownArea.park, gonsuke)!.stay, true);
-    expect(morning.takesOver(TownArea.park), true);
-    final daytime = TownTimedEvents(now: DateTime(2026, 10, 23, 9), owned: []);
+    final daytime = TownTimedEvents(now: DateTime(2026, 10, 23, 9),
+        owned: [TownResident.shiba]);
     expect(daytime.residents(TownArea.park, [TownResident.shiba]),
         [TownResident.shiba]);
   });
@@ -35,16 +42,22 @@ void main() {
         {'residentId': gonsuke.id, 'x': .4, 'y': .6, 'stay': true}
       ],
     };
-    TownTimedEvents fixture(String mode, {bool enabled = true}) =>
-        TownTimedEvents(now: DateTime(2026, 10, 23, 7), owned: [],
+    TownTimedEvents fixture(String mode, {bool enabled = true,
+        bool ownsGonsuke = true}) =>
+        TownTimedEvents(now: DateTime(2026, 10, 23, 7),
+            owned: [if (ownsGonsuke) gonsuke, TownResident.shiba],
             enabled: enabled, config: {'version': 1,
               'events': [event('first', mode)]});
     expect(fixture('add').residents(TownArea.park, [TownResident.shiba]),
         [TownResident.shiba, gonsuke]);
+    expect(fixture('add', ownsGonsuke: false).residents(
+        TownArea.park, [TownResident.shiba]), [TownResident.shiba]);
     expect(fixture('exclude').residents(TownArea.park,
         [TownResident.shiba, gonsuke]), [TownResident.shiba]);
     expect(fixture('replace', enabled: false).residents(
         TownArea.park, [TownResident.shiba]), [TownResident.shiba]);
+    expect(fixture('replace', ownsGonsuke: false).residents(
+        TownArea.park, [TownResident.shiba]), isEmpty);
     final conflict = TownTimedEvents(now: DateTime(2026, 10, 23, 7),
         owned: [], config: {'version': 1,
         'events': [event('one', 'replace'), event('two', 'add')]});

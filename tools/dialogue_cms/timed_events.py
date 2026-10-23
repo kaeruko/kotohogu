@@ -126,16 +126,16 @@ def preview(payload):
     if len(same) > 1:
         raise ValueError('同じ場所・時刻のイベントが重複しています')
     event = same[0] if same else None
-    relocated = {p['residentId'] for other in current if other['areaId'] != area and other['mode'] != 'exclude' for p in other['residents']}
+    relocated = {p['residentId'] for other in current if other['areaId'] != area and other['mode'] != 'exclude' for p in other['residents'] if p['residentId'] in payload['owned']}
     visible = [resident for resident in payload['ordinary'] if resident not in relocated]
     if event:
         cast = [p['residentId'] for p in event['residents']]
         if event['mode'] == 'replace':
-            visible = cast
+            visible = [resident for resident in cast if resident in payload['owned']]
         elif event['mode'] == 'exclude':
             visible = [resident for resident in visible if resident not in cast]
         else:
-            visible += [resident for resident in cast if resident not in visible]
+            visible += [resident for resident in cast if resident in payload['owned'] and resident not in visible]
     return {'activeId': event['id'] if event else None,
             'activeLabel': event['label'] if event else None,
             'areaId': area, 'visible': visible,

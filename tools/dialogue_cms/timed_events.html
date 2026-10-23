@@ -27,7 +27,7 @@ input[type=checkbox]{width:auto}input[type=number]{width:90px}
 <section><h2>仮の日時でプレビュー</h2>
 <label>日時（端末現地時刻）<input id="previewTime" type="datetime-local" value="2026-10-23T07:00"></label>
 <label>エリア<select id="previewArea"></select></label>
-<p class="hint">通常住民を2人いると仮定して、表示の入れ替わりを試します。実際のセーブデータには影響しません。</p>
+<p class="hint">チェックした住民を所持済み・通常住民として仮定して、入れ替わりを確認します。未所持の出演者は表示されません。実際のセーブデータには影響しません。</p>
 <div id="previewPeople"></div>
 <button id="preview">出現を判定</button><p id="previewResult" role="status"></p>
 </section></div>
@@ -42,7 +42,7 @@ input[type=checkbox]{width:auto}input[type=number]{width:90px}
 <option value="replace">入れ替える（出演者のみ）</option>
 <option value="add">一緒に登場する</option>
 <option value="exclude">指定した住民を隠す</option></select></label>
-<label><input type="checkbox" id="requiresOwned"> 全出演者をガチャ所持している場合だけ開催</label>
+<label><input type="checkbox" id="requiresOwned"> 全出演者をガチャ所持している場合だけ開催</label><p class="hint">OFFでもイベントの開催時間は有効ですが、未所持の出演者は表示されません。「入れ替える」では誰も所持していなければ空の場所になります。</p>
 <h2>出演者・対象住民</h2><div id="participants"></div><button id="addPerson" class="secondary">＋ 住民を追加</button>
 <p class="hint">X/Yは背景幅・高さに対する比率（0〜0.82）。「その場にいる」で待機、オフで近くを歩きます。</p>
 </div></section></div>
