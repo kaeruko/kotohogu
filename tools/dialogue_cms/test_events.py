@@ -271,6 +271,51 @@ class EventTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 events.validate(modified)
 
+    def test_tonko_tea_delivery_is_gated_and_editable(self):
+        doc=events.load()
+        tea=doc['teaVisit']
+        self.assertEqual(tea['residentId'],events.TONKO)
+        self.assertEqual(tea['intervalNights'],3)
+        self.assertEqual([row['speaker'] for row in tea['turns']],
+                         [events.TONKO,events.FROG,events.HOST,events.TONKO])
+        base=dict(config=doc,completed=3,lastNight='2026-10-20',
+                  now='2026-10-21T19:00',
+                  owned=[events.HOST,events.FROG,events.TONKO],
+                  marcheOpen=True)
+        active=events.preview(base)
+        self.assertEqual(active['stage'],'joined')
+        self.assertEqual(active['cast'],[events.HOST,events.FROG])
+        self.assertEqual(active['passersby'],[events.TONKO])
+        self.assertEqual(active['positions'][events.TONKO],tea['position'])
+        self.assertEqual(active['teaVisit'],tea)
+        for change in [
+            {'now':'2026-10-22T19:00'},
+            {'now':'2026-10-23T19:00'},
+            {'now':'2026-10-21T12:00'},
+            {'marcheOpen':False},
+            {'owned':[events.HOST,events.FROG]},
+            {'owned':[events.HOST,events.TONKO]},
+            {'completed':2},
+        ]:
+            params={**base,**change}
+            self.assertIsNone(events.preview(params)['teaVisit'],params)
+        self.assertEqual(events.preview({**base,'now':'2026-10-24T19:00'})['passersby'],[events.TONKO])
+        midnight=events.preview({**base,'now':'2026-10-22T02:00'})
+        self.assertEqual(midnight['nightKey'],'2026-10-21')
+        self.assertEqual(midnight['passersby'],[events.TONKO])
+        for change in [
+            lambda d:d['teaVisit'].update(residentId=events.FROG),
+            lambda d:d['teaVisit'].update(intervalNights=0),
+            lambda d:d['teaVisit'].update(position=[.95,.4]),
+            lambda d:d['teaVisit'].update(turns=[]),
+            lambda d:d['teaVisit']['turns'][0].update(speaker=events.FROG),
+            lambda d:d['teaVisit']['turns'][2].update(speaker=events.TONKO),
+        ]:
+            invalid=copy.deepcopy(doc);change(invalid)
+            with self.assertRaises(ValueError):events.validate(invalid)
+        with self.assertRaises(ValueError):
+            events.preview({**base,'marcheOpen':'yes'})
+
     def test_preview_never_saves(self):
         with patch.object(events,'commit_files',side_effect=AssertionError('preview wrote data')):
             self.preview();self.preview(3,'2026-10-19')

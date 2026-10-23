@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'assets/events/oyasumi_club.json'
 DART = ROOT / 'lib/oyasumi_config.g.dart'
 STAGES = ('solo', 'watching', 'joining', 'joined')
-HOST, FROG, MOSA = '027_daydreamer', '029_office_worker', '036_mosa'
+HOST, FROG, MOSA, TONKO = '027_daydreamer', '029_office_worker', '036_mosa', '041_pig_middle'
 
 
 def load():
@@ -16,7 +16,7 @@ def load():
 
 
 def validate(doc):
-    if not isinstance(doc, dict) or set(doc) != {'version','id','label','night','background','stages','restingDialogue','nightPatrol'}:
+    if not isinstance(doc, dict) or set(doc) != {'version','id','label','night','background','stages','restingDialogue','nightPatrol','teaVisit'}:
         raise ValueError('イベントの項目が不正です')
     if doc['version'] != 1 or doc['id'] != 'oyasumi_club' or doc['background'] != 'assets/kotohogu/town_background_night.jpg':
         raise ValueError('イベントID・背景は固定です')
@@ -87,6 +87,26 @@ def validate(doc):
     if not isinstance(patrol['dialogues'],list) or not 1<=len(patrol['dialogues'])<=4:
         raise ValueError('夜回りの独り言は1〜4本で設定してください')
     for line in patrol['dialogues']: text(line)
+    tea=doc['teaVisit']
+    if not isinstance(tea,dict) or set(tea) != {'label','residentId','intervalNights','position','turns'} or tea['residentId'] != TONKO:
+        raise ValueError('とんこの差し入れイベントが不正です')
+    text(tea['label'])
+    if type(tea['intervalNights']) is not int or not 1 <= tea['intervalNights'] <= 30:
+        raise ValueError('差し入れの間隔は1〜30夜で指定してください')
+    pos=tea['position']
+    if not isinstance(pos,list) or len(pos)!=2 or any(type(v) not in (int,float) or not .1 <= v <= .85 for v in pos):
+        raise ValueError('差し入れの位置が不正です')
+    turns=tea['turns']
+    if not isinstance(turns,list) or not 3 <= len(turns) <= 8:
+        raise ValueError('差し入れの会話は3〜8発言で指定してください')
+    speakers=[]
+    for i,turn in enumerate(turns):
+        if not isinstance(turn,dict) or set(turn) != {'speaker','text'} or turn['speaker'] not in (TONKO,HOST,FROG) or (i==0 and turn['speaker']!=TONKO):
+            raise ValueError('差し入れの話者が不正です')
+        text(turn['text'])
+        speakers.append(turn['speaker'])
+    if not {TONKO,HOST,FROG}.issubset(speakers):
+        raise ValueError('差し入れの会話は3人の発言が必要です')
     return doc
 
 
@@ -111,7 +131,10 @@ def preview(payload):
     if (completed==0)!=(last is None): raise ValueError('完了段階と最終開催日をセットで指定してください')
     if last: datetime.strptime(last,'%Y-%m-%d')
     owned=payload['owned']
-    if not isinstance(owned,list) or any(i not in (HOST,FROG,MOSA) for i in owned): raise ValueError('所持設定が不正です')
+    if not isinstance(owned,list) or any(i not in (HOST,FROG,MOSA,TONKO) for i in owned): raise ValueError('所持設定が不正です')
+    marche_open=payload.get('marcheOpen', False)
+    if type(marche_open) is not bool:
+        raise ValueError('茶房の開店状態が不正です')
     peers=payload.get('peers',[])
     park_cleaner_started=payload.get('parkCleanerStarted', False)
     if type(park_cleaner_started) is not bool:
@@ -127,8 +150,13 @@ def preview(payload):
     key=STAGES[step-1]
     stage=doc['stages'][key]
     cast=([HOST]+([FROG] if step>1 and FROG in owned else [])) if active else []
-    passersby=[MOSA] if active and MOSA in owned else []
-    positions=({**stage['positions'], **({MOSA:[doc['nightPatrol']['route']['x'],doc['nightPatrol']['route']['y']]} if passersby else {})}) if active else {}
+    tea=doc['teaVisit']
+    elapsed=(datetime.strptime(night_key,'%Y-%m-%d')-datetime.strptime(last,'%Y-%m-%d')).days if last else -1
+    tea_visible=active and completed==3 and FROG in owned and TONKO in owned and marche_open and elapsed>=1 and (elapsed-1)%tea['intervalNights']==0
+    passersby=([MOSA] if active and MOSA in owned else [])+([TONKO] if tea_visible else [])
+    positions=({**stage['positions'],
+                **({MOSA:[doc['nightPatrol']['route']['x'],doc['nightPatrol']['route']['y']]} if MOSA in passersby else {}),
+                **({TONKO:tea['position']} if tea_visible else {})}) if active else {}
     intro=active and step<=3 and completed<step
     reason=('昼のためクラブはお休みです' if not night else 'おやすみくん未所持のため開催しません' if HOST not in owned else 'かえる未所持：一人のクラブを続けます' if FROG not in owned else '今夜の導入会話を読み終えると進行します' if intro else '次の開催夜を待っています' if step<4 else '参加後のクラブを続けます')
     def turn_speakers(item):
@@ -138,4 +166,4 @@ def preview(payload):
         if (not isinstance(item, dict) or item.get('requires') != 'parkCleaner' or park_cleaner_started)
         and set(turn_speakers(item)).issubset(set(peers)|{FROG})
     ] if completed==3 and FROG in owned and not active else []
-    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro and later,completed=completed,lastNight=last,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},patrolDialogues=doc['nightPatrol']['dialogues'] if passersby else [],restingOptions=rest,nextCompleted=step if intro and later else completed)
+    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro and later,completed=completed,lastNight=last,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=step if intro and later else completed)

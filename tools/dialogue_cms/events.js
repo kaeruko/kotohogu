@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
-const names={'027_daydreamer':'おやすみくん','029_office_worker':'かえる'};
-const folders={'027_daydreamer':'027_daydreamer','029_office_worker':'029_office_worker'};
+const names={'027_daydreamer':'おやすみくん','029_office_worker':'かえる','041_pig_middle':'とんこ'};
+const folders={'027_daydreamer':'027_daydreamer','029_office_worker':'029_office_worker','041_pig_middle':'041_pig_middle'};
 let outdoorResidents=[];
 let config,result,revision=0;
 const el=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
@@ -144,6 +144,25 @@ function renderEditor(){
     watch.append(removePatrol);
   }
   $('stages').append(watch);
+  const tea=config.teaVisit;
+  const teaEditor=el('details');
+  teaEditor.append(el('summary','とんこの差し入れ（クラブ参加後・茶房開店後）'));
+  const hint=el('p','とんこさんは会員ではなく訪問客です。クラブ加入後の翌夜から指定した間隔で訪ねます。3人の話者は固定で、文章を編集できます。');
+  hint.className='hint';teaEditor.append(hint);
+  const intervalLabel=el('label','差し入れの間隔（夜） ');
+  const interval=el('input');interval.type='number';interval.min='1';interval.max='30';interval.step='1';interval.value=tea.intervalNights;
+  interval.oninput=()=>{tea.intervalNights=Number(interval.value);change();};intervalLabel.append(interval);teaEditor.append(intervalLabel);
+  textField(teaEditor,'イベント名',tea.label,value=>tea.label=value);
+  const position=el('div');position.className='row';
+  ['X','Y'].forEach((axis,i)=>{
+    const label=el('label','訪問位置'+axis+' ');
+    const field=el('input');field.type='number';field.min='.1';field.max='.85';field.step='.01';field.value=tea.position[i];
+    field.oninput=()=>{tea.position[i]=Number(field.value);change();};
+    label.append(field);position.append(label);
+  });
+  teaEditor.append(position);
+  tea.turns.forEach((turn,i)=>textField(teaEditor,'発言 '+(i+1)+'・'+(names[turn.speaker]||turn.speaker),turn.text,value=>tea.turns[i].text=value));
+  $('stages').append(teaEditor);
   const rest=el('details');
   rest.append(el('summary','参加後のかえる：昼間・通常会話'));
   rest.append(el('p','最初の発言はかえる。次の発言から、やすぞうさん・おやすみくんなどを選べます。同じ場所にいない場合は、その掛け合いを出さず、一人用の会話を使います。'));
@@ -158,7 +177,7 @@ function renderConversation(parent,item,primary,index){
     block.append(el('p',`${names[turn.speaker]||turn.speaker}「${turn.text}」`)));
   parent.append(block);
 }
-function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[])],peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked};}
+function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[]),...($('tonko').checked?['041_pig_middle']:[])],marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked};}
 async function preview(){
   if(!config)return;
   const version=++revision;$('read').disabled=true;
@@ -193,6 +212,12 @@ async function preview(){
     $('lines').replaceChildren();
     if(data.intro){
       $('lines').append(el('strong',(names[data.intro.speaker]||data.intro.speaker)+'の導入（最初に表示）'),el('p',data.intro.text));
+    }
+    if(data.teaVisit){
+      const tea=el('details');tea.open=true;
+      tea.append(el('summary','とんこさんのお茶の差し入れ'));
+      renderConversation(tea,{turns:data.teaVisit.turns},'041_pig_middle',0);
+      $('lines').append(tea);
     }
     if(data.patrolDialogues.length){
       const patrol=el('details');patrol.open=true;
@@ -252,7 +277,7 @@ async function load(){
   }
 }
 $('start').oninput=()=>{config.night.startHour=Number($('start').value);change();};$('end').oninput=()=>{config.night.endHour=Number($('end').value);change();};
-['host','frog','mosa','now','last','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
+['host','frog','mosa','tonko','marcheOpen','now','last','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
 $('completed').onchange=()=>{$('last').disabled=$('completed').value==='0';$('last').value=$('last').disabled?'':$('now').value.slice(0,10);preview();};
 $('preview').onclick=preview;
 $('read').onclick=async()=>{if(!result?.canComplete)return;$('completed').value=result.nextCompleted;$('last').disabled=false;$('last').value=result.nightKey;await preview();};
