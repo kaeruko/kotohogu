@@ -406,7 +406,9 @@ void main() {
         oyasumi: visit,
         marcheOpen: true,
         fillViewport: true,
-        onResident: (resident) => tapped = resident,
+        onResident: (resident) async {
+          tapped = resident;
+        },
         onVisitMarche: () => shopVisits++,
       )),
     ));
