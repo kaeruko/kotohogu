@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:future_lift/dialogue_engine.dart';
 import 'package:future_lift/resident_collection.dart';
+import 'package:future_lift/resident_conversation_dialog.dart';
 import 'package:future_lift/town.dart';
 import 'package:future_lift/town_areas.dart';
 import 'package:future_lift/town_walk.dart';
@@ -75,7 +77,7 @@ void main() {
         fleeRight: true).x, escaped.x);
   });
 
-  testWidgets('meeting Yasuzo starts one automatic escape without proximity',
+  testWidgets('normal farm invitation ends before Oyasumi-kun runs',
       (tester) async {
     tester.view.physicalSize = const Size(430, 1000);
     tester.view.devicePixelRatio = 1;
@@ -84,72 +86,152 @@ void main() {
       TownResident.c026_farmer, TownResident.c027_daydreamer,
     ];
     final visit = TownVisit(random: ScriptedTownRandom([0, 0]));
+    final invitation = DialogueEntry.parse({
+      'id': '026_farmer_002',
+      'residentId': '026_farmer',
+      'text': 'おやすみくん。農業をやらんかね。',
+      'priority': 100,
+      'once': false,
+      'logic': 'all',
+      'conditions': [],
+      'reply': {'residentId': '027_daydreamer', 'text': 'いやもふ～～💦'},
+    });
     Widget town(TownVisit v, {Key? key, List<TownResident> cast = owned}) =>
         MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              width: 360,
-              child: TownScene(
-                key: key,
-                area: TownArea.plaza,
-                visit: v,
-                lifetimePoints: 0,
-                residents: cast,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: SizedBox(
+                width: 360,
+                child: TownScene(
+                  key: key,
+                  area: TownArea.plaza,
+                  visit: v,
+                  lifetimePoints: 0,
+                  residents: cast,
+                  onResident: (resident) async {
+                    if (resident != TownResident.c026_farmer) return;
+                    final finished = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => ResidentConversationDialog(
+                        speaker: resident,
+                        dialogue: invitation,
+                        reportCompletion: true,
+                      ),
+                    );
+                    if (finished == true) v.requestFarmerScare();
+                  },
+                ),
               ),
             ),
           ),
         );
 
     await tester.pumpWidget(town(visit));
-    expect(find.text('おやすみくん、農業をやらんかね？'),
-        findsOneWidget);
-    final sloth = find.byKey(const ValueKey('resident-1'));
-    final initial = tester.getTopLeft(sloth);
-    await tester.pump(const Duration(milliseconds: 750));
-    expect(find.text('いやもふ～～💦'), findsOneWidget);
-    expect(tester.getTopLeft(sloth).dx, greaterThan(initial.dx));
-    final sprint = tester.widget<Image>(
-        find.byKey(const ValueKey('resident-sprite-1')));
-    expect((sprint.image as AssetImage).assetName, contains('walk_right_'));
-
-    await tester.pump(const Duration(seconds: 3));
+    expect(visit.canOfferFarmerScare, true);
     expect(find.text('いやもふ～～💦'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 750));
+    expect(visit.canOfferFarmerScare, true,
+        reason: 'Co-location alone must not play the animation');
+
+    await tester.tap(find.byKey(const ValueKey('resident-0')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(ResidentConversationDialog), findsOneWidget);
+    expect(find.text('おやすみくん。農業をやらんかね。'), findsOneWidget);
+    expect(find.text('いやもふ～～💦'), findsNothing);
+    expect(visit.canOfferFarmerScare, true);
+
+    await tester.tap(find.text('つぎへ'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('いやもふ～～💦'), findsOneWidget);
+    expect(find.text('また話そう'), findsOneWidget);
+    expect(visit.canOfferFarmerScare, true);
+
+    final sloth = find.byKey(const ValueKey('resident-1'));
+    final beforeEscape = tester.getTopLeft(sloth);
+    await tester.tap(find.text('また話そう'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(ResidentConversationDialog), findsNothing);
+    expect(find.text('いやもふ～～💦'), findsNothing,
+        reason: 'No duplicate town speech bubble');
+    expect(visit.canOfferFarmerScare, false);
+
+    await tester.pump(const Duration(milliseconds: 900));
+    expect(tester.getTopLeft(sloth).dx, greaterThan(beforeEscape.dx));
+    final sprite = tester.widget<Image>(
+        find.byKey(const ValueKey('resident-sprite-1')));
+    expect((sprite.image as AssetImage).assetName, contains('walk_right_'));
+
+    await tester.pump(const Duration(seconds: 2));
     expect(find.byKey(const ValueKey('resident-1')), findsOneWidget);
-
-    // A new scene during the same visit doesn't replay the event.
     await tester.pumpWidget(town(visit, key: const ValueKey('revisit')));
-    expect(find.text('おやすみくん、農業をやらんかね？'),
-        findsNothing);
+    expect(visit.canOfferFarmerScare, false);
 
-    // A new visit can start the same gag again.
-    await tester.pumpWidget(town(
-        TownVisit(random: ScriptedTownRandom([0, 0])),
-        key: const ValueKey('new-visit')));
-    expect(find.text('おやすみくん、農業をやらんかね？'),
-        findsOneWidget);
-
-    // No event if only one of the two is present.
-    await tester.pumpWidget(town(
-        TownVisit(random: ScriptedTownRandom([0])),
-        key: const ValueKey('farmer-only'),
-        cast: [TownResident.c026_farmer]));
-    expect(find.text('おやすみくん、農業をやらんかね？'),
-        findsNothing);
+    final newVisit = TownVisit(random: ScriptedTownRandom([0, 0]));
+    await tester.pumpWidget(town(newVisit, key: const ValueKey('new-visit')));
+    expect(newVisit.canOfferFarmerScare, true);
+    expect(find.text('いやもふ～～💦'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('debug-selected farmer and daydreamer still trigger the escape',
+  testWidgets('dismissed farm dialog does not start the escape',
       (tester) async {
     tester.view.physicalSize = const Size(430, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
+    final visit = TownVisit(random: ScriptedTownRandom([0, 0]));
+    final line = DialogueEntry.parse({
+      'id': '026_farmer_002', 'residentId': '026_farmer',
+      'text': '農業をやらんかね。',
+      'priority': 100, 'once': false, 'logic': 'all',
+      'conditions': [],
+      'reply': {'residentId': '027_daydreamer', 'text': 'いやもふ～～💦'},
+    });
+    await tester.pumpWidget(MaterialApp(
+      home: Builder(builder: (context) => Scaffold(
+        body: TownScene(
+          area: TownArea.plaza,
+          visit: visit,
+          lifetimePoints: 0,
+          residents: const [
+            TownResident.c026_farmer, TownResident.c027_daydreamer,
+          ],
+          onResident: (resident) async {
+            final finished = await showDialog<bool>(
+              context: context,
+              builder: (_) => ResidentConversationDialog(
+                speaker: resident, dialogue: line, reportCompletion: true,
+              ),
+            );
+            if (finished == true) visit.requestFarmerScare();
+          },
+        ),
+      )),
+    ));
+    await tester.tap(find.byKey(const ValueKey('resident-0')));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tapAt(const Offset(3, 500));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(ResidentConversationDialog), findsNothing);
+    expect(visit.canOfferFarmerScare, true);
+    await tester.pump(const Duration(seconds: 3));
+    expect(visit.canOfferFarmerScare, true);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('debug-selected visitors can play requested escape',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final visit = TownVisit();
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: TownScene(
             area: TownArea.park,
-            visit: TownVisit(),
+            visit: visit,
             lifetimePoints: 90,
             residents: const [],
             debugTownResidents: const [
@@ -160,10 +242,16 @@ void main() {
         ),
       ),
     );
-    expect(find.text('おやすみくん、農業をやらんかね？'),
-        findsOneWidget);
+    expect(visit.canOfferFarmerScare, true);
     await tester.pump(const Duration(milliseconds: 750));
-    expect(find.text('いやもふ～～💦'), findsOneWidget);
+    expect(visit.canOfferFarmerScare, true);
+    visit.requestFarmerScare();
+    await tester.pump(const Duration(milliseconds: 450));
+    expect(visit.canOfferFarmerScare, false);
+    await tester.pump(const Duration(milliseconds: 900));
+    final sprint = tester.widget<Image>(
+        find.byKey(const ValueKey('resident-sprite-1')));
+    expect((sprint.image as AssetImage).assetName, contains('walk_right_'));
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
