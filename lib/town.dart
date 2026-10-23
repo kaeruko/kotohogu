@@ -260,8 +260,8 @@ class _TownSceneState extends State<TownScene> {
         : math.min(.14, .64 / math.sqrt(count * 1.3).ceil())))
         .clamp(22.0, 76.0);
 
-    // Being in the same painted area is the entire encounter condition:
-    // no proximity polling, random chance, or new progress flag.
+    // The full conversation dialog requests this animation when closed.
+    // Co-location is enough; no proximity polling or additional save flag.
     final visit = widget.visit ?? _standaloneVisit;
     if (!reduced && !eventTakesOver &&
         visibleResidents.contains(TownResident.c026_farmer) &&
@@ -576,90 +576,35 @@ class _TownSceneState extends State<TownScene> {
       gaplessPlayback: true,
       excludeFromSemantics: true,
     );
-    String? scareLine;
-    if (scareAge != null && resident == TownResident.c026_farmer) {
-      if (scareAge < 900) {
-        scareLine = 'おやすみくん、農業をやらんかね？';
-      } else if (scareAge >= 1850 && scareAge < 3250) {
-        scareLine = 'ほっほ、元気じゃのう';
-      }
-    } else if (scareAge != null &&
-        resident == TownResident.c027_daydreamer &&
-        scareAge >= 450 && scareAge < 2400) {
-      scareLine = 'いやもふ～～💦';
-    }
     return Positioned(
       left: footX - scaledSize / 2,
       top: footY - scaledSize,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Semantics(
-            button: isShopkeeper
-                ? widget.onVisitMarche != null
-                : widget.onResident != null,
-            label: isShopkeeper
-                ? 'とんこの薬草茶房でおはなし'
-                : '${resident.label}のおはなし',
-            child: Tooltip(
-              message: isShopkeeper ? 'とんこ（店番中）' : resident.label,
-              child: InkWell(
-                key: isShopkeeper
-                    ? const ValueKey('marche-shopkeeper')
-                    : ValueKey('resident-$index'),
-                borderRadius: BorderRadius.circular(20),
-                onTap: isShopkeeper
-                    ? widget.onVisitMarche
-                    : widget.onResident == null ? null : () => _talk(resident),
-                child: walking && resident.mirrorWalk(direction)
-                    ? Transform.flip(flipX: true, child: sprite)
-                    : sprite,
-              ),
-            ),
+      child: Semantics(
+        button: isShopkeeper
+            ? widget.onVisitMarche != null
+            : widget.onResident != null,
+        label: isShopkeeper
+            ? 'とんこの薬草茶房でおはなし'
+            : '${resident.label}のおはなし',
+        child: Tooltip(
+          message: isShopkeeper ? 'とんこ（店番中）' : resident.label,
+          child: InkWell(
+            key: isShopkeeper
+                ? const ValueKey('marche-shopkeeper')
+                : ValueKey('resident-$index'),
+            borderRadius: BorderRadius.circular(20),
+            onTap: isShopkeeper
+                ? widget.onVisitMarche
+                : widget.onResident == null ? null : () => _talk(resident),
+            child: walking && resident.mirrorWalk(direction)
+                ? Transform.flip(flipX: true, child: sprite)
+                : sprite,
           ),
-          if (scareLine != null)
-            Positioned(
-              bottom: scaledSize + 5,
-              // Keep the bubbles inside the screen instead of
-              // extending past its edges on narrow phones.
-              right: (resident == TownResident.c027_daydreamer) ==
-                      _farmerScareRight
-                  ? 0
-                  : null,
-              left: (resident == TownResident.c027_daydreamer) ==
-                      _farmerScareRight
-                  ? null
-                  : 0,
-              child: IgnorePointer(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: math.min(width * .48, 220.0),
-                  ),
-                  child: DecoratedBox(
-                    key: ValueKey('farmer-scare-${resident.id}'),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.brown.shade300),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 13, vertical: 7),
-                      child: Text(
-                        scareLine,
-                        style: const TextStyle(
-                            color: Colors.brown, fontSize: 21,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
+
   Widget _visitor(
     RemoteResident resident,
     int index,
