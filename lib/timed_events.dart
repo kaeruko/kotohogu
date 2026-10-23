@@ -17,7 +17,9 @@ class EventTimeWindow {
       EventTimeWindow(startMinute: start * 60, endMinute: end * 60, weekdays: const []);
   factory EventTimeWindow.fromJson(Map<String, dynamic> data) {
     if (data.keys.toSet().difference({'start', 'end', 'weekdays'}).isNotEmpty ||
-        data.length != 3) throw const FormatException('Invalid event schedule');
+        data.length != 3) {
+      throw const FormatException('Invalid event schedule');
+    }
     return EventTimeWindow(startMinute: _clock(data['start']),
         endMinute: _clock(data['end']),
         weekdays: (data['weekdays'] as List).cast<int>());
@@ -77,11 +79,15 @@ class TimedEventDefinition {
     final data = source as Map<String, dynamic>;
     if (data.length != 7 || data.keys.toSet().difference({
       'id', 'label', 'areaId', 'schedule', 'mode', 'requiresOwned', 'residents',
-    }).isNotEmpty) throw const FormatException('Invalid timed event definition');
+    }).isNotEmpty) {
+      throw const FormatException('Invalid timed event definition');
+    }
     id = data['id'] as String;
     label = data['label'] as String;
     if (!RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(id) ||
-        label.trim().isEmpty) throw FormatException('Invalid event ID/label: $id');
+        label.trim().isEmpty) {
+      throw FormatException('Invalid event ID/label: $id');
+    }
     area = TownArea.fromId(data['areaId'] as String);
     schedule = EventTimeWindow.fromJson(data['schedule'] as Map<String, dynamic>);
     mode = data['mode'] as String;
