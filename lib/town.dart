@@ -101,6 +101,13 @@ class _TownSceneState extends State<TownScene> {
   final _remotePauseStarted = <String, int>{};
   final _remotePausedMillis = <String, int>{};
 
+  // This encounter is local to the visit; there is no persisted story flag.
+  TownVisit? _farmerScareVisit;
+  TownArea? _farmerScareArea;
+  int? _farmerScareStartTick;
+  TownWalkPose? _farmerScareStartPose;
+  bool _farmerScareRight = true;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -252,6 +259,35 @@ class _TownSceneState extends State<TownScene> {
         ? .14
         : math.min(.14, .64 / math.sqrt(count * 1.3).ceil())))
         .clamp(22.0, 76.0);
+
+    // Being in the same painted area is the entire encounter condition:
+    // no proximity polling, random chance, or new progress flag.
+    final visit = widget.visit ?? _standaloneVisit;
+    if (!reduced && widget.debugTownResidents == null && !eventTakesOver &&
+        visibleResidents.contains(TownResident.c026_farmer) &&
+        visibleResidents.contains(TownResident.c027_daydreamer) &&
+        visit.claimFarmerScare()) {
+      final sloth = TownResident.c027_daydreamer;
+      final farmer = TownResident.c026_farmer;
+      final slothIndex = visibleResidents.indexOf(sloth);
+      final farmerIndex = visibleResidents.indexOf(farmer);
+      TownWalkPose currentPose(TownResident resident, int index) =>
+          townWalkPose(
+            index,
+            Duration(milliseconds: _elapsedMillis(resident)),
+            totalSlots: count,
+            route: widget.area == TownArea.park
+                ? parkWalkRoute(resident.id, index, totalSlots: count)
+                : null,
+          );
+      _farmerScareStartPose = currentPose(sloth, slothIndex);
+      _farmerScareRight =
+          _farmerScareStartPose!.x >= currentPose(farmer, farmerIndex).x;
+      _farmerScareVisit = visit;
+      _farmerScareArea = widget.area;
+      _farmerScareStartTick = _ticks;
+    }
+
     return Stack(
       children: [
         Positioned.fill(
@@ -488,19 +524,31 @@ class _TownSceneState extends State<TownScene> {
     final origin = route == null
         ? townWalkOrigin(index, totalSlots: totalSlots)
         : (route.x, route.y);
-    final pose = reduced
-        ? TownWalkPose(
-            x: origin.$1,
-            y: origin.$2,
-            direction: null,
-            frame: 0,
+    final scareAge = _farmerScareStartTick != null &&
+            identical(_farmerScareVisit, widget.visit ?? _standaloneVisit) &&
+            _farmerScareArea == widget.area && !reduced
+        ? (_ticks - _farmerScareStartTick!) * _frameDuration.inMilliseconds
+        : null;
+    final pose = resident == TownResident.c027_daydreamer &&
+            scareAge != null
+        ? farmerScarePose(
+            _farmerScareStartPose!,
+            Duration(milliseconds: scareAge),
+            fleeRight: _farmerScareRight,
           )
-        : townWalkPose(
-            index,
-            Duration(milliseconds: _elapsedMillis(resident)),
-            totalSlots: totalSlots,
-            route: route,
-          );
+        : reduced
+            ? TownWalkPose(
+                x: origin.$1,
+                y: origin.$2,
+                direction: null,
+                frame: 0,
+              )
+            : townWalkPose(
+                index,
+                Duration(milliseconds: _elapsedMillis(resident)),
+                totalSlots: totalSlots,
+                route: route,
+              );
     final direction = pose.direction;
     final walking = direction != null &&
         !_pauseStarted.containsKey(resident) && !reduced;
@@ -528,31 +576,74 @@ class _TownSceneState extends State<TownScene> {
       gaplessPlayback: true,
       excludeFromSemantics: true,
     );
+    String? scareLine;
+    if (scareAge != null && resident == TownResident.c026_farmer) {
+      if (scareAge < 900) {
+        scareLine = 'おやすみくん、農業をやらんかね？';
+      } else if (scareAge >= 1850 && scareAge < 3250) {
+        scareLine = 'ほっほ、元気じゃのう';
+      }
+    } else if (scareAge != null &&
+        resident == TownResident.c027_daydreamer &&
+        scareAge >= 450 && scareAge < 2400) {
+      scareLine = 'いやもふ～～💦';
+    }
     return Positioned(
       left: footX - scaledSize / 2,
       top: footY - scaledSize,
-      child: Semantics(
-        button: isShopkeeper
-            ? widget.onVisitMarche != null
-            : widget.onResident != null,
-        label: isShopkeeper
-            ? 'とんこの薬草茶房でおはなし'
-            : '${resident.label}のおはなし',
-        child: Tooltip(
-          message: isShopkeeper ? 'とんこ（店番中）' : resident.label,
-          child: InkWell(
-            key: isShopkeeper
-                ? const ValueKey('marche-shopkeeper')
-                : ValueKey('resident-$index'),
-            borderRadius: BorderRadius.circular(20),
-            onTap: isShopkeeper
-                ? widget.onVisitMarche
-                : widget.onResident == null ? null : () => _talk(resident),
-            child: walking && resident.mirrorWalk(direction)
-                ? Transform.flip(flipX: true, child: sprite)
-                : sprite,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Semantics(
+            button: isShopkeeper
+                ? widget.onVisitMarche != null
+                : widget.onResident != null,
+            label: isShopkeeper
+                ? 'とんこの薬草茶房でおはなし'
+                : '${resident.label}のおはなし',
+            child: Tooltip(
+              message: isShopkeeper ? 'とんこ（店番中）' : resident.label,
+              child: InkWell(
+                key: isShopkeeper
+                    ? const ValueKey('marche-shopkeeper')
+                    : ValueKey('resident-$index'),
+                borderRadius: BorderRadius.circular(20),
+                onTap: isShopkeeper
+                    ? widget.onVisitMarche
+                    : widget.onResident == null ? null : () => _talk(resident),
+                child: walking && resident.mirrorWalk(direction)
+                    ? Transform.flip(flipX: true, child: sprite)
+                    : sprite,
+              ),
+            ),
           ),
-        ),
+          if (scareLine != null)
+            Positioned(
+              bottom: scaledSize + 5,
+              right: _farmerScareRight ? 0 : null,
+              left: _farmerScareRight ? null : 0,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  key: ValueKey('farmer-scare-${resident.id}'),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.brown.shade300),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 13, vertical: 7),
+                    child: Text(
+                      scareLine,
+                      style: const TextStyle(
+                          color: Colors.brown, fontSize: 21,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
