@@ -192,3 +192,30 @@ TownWalkPose townWalkPose(
   }
   throw StateError('Town walk cycle exceeded its duration.');
 }
+
+
+/// A brief sprint away from Yasuzo when he offers Oyasumi-kun farm work.
+/// Only the pose changes: no new animation assets or persisted state.
+TownWalkPose farmerScarePose(
+  TownWalkPose start,
+  Duration elapsed, {
+  required bool fleeRight,
+}) {
+  const hesitationMs = 450;
+  const sprintMs = 1350;
+  final sprintElapsed =
+      (elapsed.inMilliseconds - hesitationMs).clamp(0, sprintMs);
+  final stride = .22 * sprintElapsed / sprintMs;
+  final x = fleeRight
+      ? (start.x + stride).clamp(.02, .82).toDouble()
+      : (start.x - stride).clamp(.02, .82).toDouble();
+  final running = sprintElapsed > 0 && sprintElapsed < sprintMs;
+  return TownWalkPose(
+    x: x,
+    y: start.y,
+    direction: running
+        ? (fleeRight ? WalkDirection.right : WalkDirection.left)
+        : null,
+    frame: running ? (sprintElapsed ~/ 75) % 4 : 0,
+  );
+}
