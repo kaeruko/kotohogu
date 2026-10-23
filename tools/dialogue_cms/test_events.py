@@ -162,7 +162,7 @@ class EventTests(unittest.TestCase):
         self.assertIn('待ってないじゃん',today[-1]['text'])
         reunion=joined[-1]['turns']
         self.assertEqual([turn['speaker'] for turn in reunion],
-                         [frog, frog, frog, frog])
+                         [frog, frog, frog, host])
         self.assertIn('会いに来たんだけど', reunion[1]['text'])
         self.assertIn('起こさないでおこうね', reunion[2]['text'])
         self.assertIn('……すぅ……もふ……', reunion[-1]['text'])
