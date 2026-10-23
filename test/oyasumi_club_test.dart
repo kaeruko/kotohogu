@@ -216,6 +216,24 @@ void main() {
     expect(together.turns.last.text, 'ぼくはこうえんじゃないもふ！！');
   });
 
+  test('one-member club announces perfect attendance over three turns', () {
+    final solo = scene(
+      24,
+      hasFrog: false,
+      saved: const OyasumiProgress(completed: 1, lastNight: '2026-10-23'),
+    );
+    expect(solo.stage, 'solo');
+    final conversation = solo.dialogue(host, 'solo', 4);
+    expect(conversation.turns.map((turn) => turn.text).toList(), [
+      'もふ〜。きょうも、おやすみくらぶをはじめるもふ〜',
+      '……さんかしゃ、ぼくひとりもふ',
+      '……ぜんいんしゅっせきもふ〜！',
+    ]);
+    expect(conversation.turns.every((turn) => turn.resident == host), isTrue);
+    expect(solo.dialogue(host, 'solo', 9).turns.last.text,
+        '……ぜんいんしゅっせきもふ〜！');
+  });
+
   test('night chatter can be a multi-turn exchange within the event cast', () {
     final messages = (oyasumiConfig['stages']!['watching']!['chatter']!
         [frog.id] as List);
