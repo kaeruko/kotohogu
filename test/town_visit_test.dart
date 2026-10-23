@@ -36,6 +36,13 @@ void main() {
     }
   });
 
+  test('farmer scare is claimed at most once per town visit', () {
+    final visit = TownVisit();
+    expect(visit.claimFarmerScare(), isTrue);
+    expect(visit.claimFarmerScare(), isFalse);
+    expect(TownVisit().claimFarmerScare(), isTrue);
+  });
+
   test('miner and daydreamer can meet after park unlock, using the painted visit', () {
     const miner = TownResident.c032_miner;
     const daydreamer = TownResident.c027_daydreamer;
