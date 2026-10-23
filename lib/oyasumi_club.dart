@@ -80,8 +80,11 @@ class OyasumiScene {
   }
 
   bool get active => enabled && night && owned.contains(host);
+  // Finished story progress stays true even when the developer tools
+  // suppress live night events. Previewing residents must not resurrect
+  // the frog's old office-worker conversations.
   bool get frogResting =>
-      enabled && saved.completed == 3 && owned.contains(frog);
+      saved.completed == 3 && owned.contains(frog);
   bool get laterNight =>
       saved.lastNight == null || nightKey.compareTo(saved.lastNight!) > 0;
   int get step {
