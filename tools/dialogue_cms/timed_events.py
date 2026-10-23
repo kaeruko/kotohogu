@@ -37,7 +37,8 @@ def validate(doc):
     active_ids = {row['id'] for row in load_catalog()['characters'] if not row.get('archived')}
     event_ids = set()
     for event in rows:
-        if not isinstance(event, dict) or set(event) != {'id', 'label', 'areaId', 'schedule', 'mode', 'requiresOwned', 'residents'}:
+        base_fields = {'id', 'label', 'areaId', 'schedule', 'mode', 'requiresOwned', 'residents'}
+        if not isinstance(event, dict) or set(event) not in (base_fields, base_fields | {'hostResidentId'}):
             raise ValueError('イベントの項目が不正です')
         event_id = event['id']
         if not isinstance(event_id, str) or not re.fullmatch(r'[a-z][a-z0-9_]*', event_id) or event_id in event_ids:
@@ -61,13 +62,22 @@ def validate(doc):
             raise ValueError('出演者は1〜8人にしてください')
         seen = set()
         for p in participants:
-            if not isinstance(p, dict) or set(p) != {'residentId', 'x', 'y', 'stay'} or p['residentId'] not in active_ids:
+            participant_fields = {'residentId', 'x', 'y', 'stay'}
+            if (not isinstance(p, dict) or
+                    set(p) not in (participant_fields, participant_fields | {'stepInPlace'}) or
+                    p['residentId'] not in active_ids):
                 raise ValueError('出演者は有効なキャラクターから選択してください')
             if p['residentId'] in seen:
                 raise ValueError('出演者の重複はできません')
             seen.add(p['residentId'])
             if any(type(p[k]) not in (int, float) or not math.isfinite(p[k]) or not 0 <= p[k] <= .82 for k in ('x', 'y')) or type(p['stay']) is not bool:
                 raise ValueError('位置は0〜0.82の数値、待機は真偽値にしてください')
+            if ('stepInPlace' in p and type(p['stepInPlace']) is not bool) or (p.get('stepInPlace', False) and not p['stay']):
+                raise ValueError('足踏みには「その場にいる」を指定してください')
+        if 'hostResidentId' in event:
+            host = event['hostResidentId']
+            if type(host) is not str or host not in seen or event['mode'] == 'exclude':
+                raise ValueError('中心となる住民はイベント出演者から選択してください')
     # Reject overlap in the same area; runtime checks also fail fast if edited externally.
     monday = datetime(2026, 10, 19)
     for offset in range(7):
@@ -126,16 +136,22 @@ def preview(payload):
     if len(same) > 1:
         raise ValueError('同じ場所・時刻のイベントが重複しています')
     event = same[0] if same else None
-    relocated = {p['residentId'] for other in current if other['areaId'] != area and other['mode'] != 'exclude' for p in other['residents'] if p['residentId'] in payload['owned']}
+    def shown_cast(event):
+        if 'hostResidentId' in event and event['hostResidentId'] not in payload['owned']:
+            return []
+        return [p['residentId'] for p in event['residents'] if p['residentId'] in payload['owned']]
+
+    relocated = {resident for other in current if other['areaId'] != area and other['mode'] != 'exclude' for resident in shown_cast(other)}
     visible = [resident for resident in payload['ordinary'] if resident not in relocated]
     if event:
-        cast = [p['residentId'] for p in event['residents']]
+        cast = shown_cast(event)
         if event['mode'] == 'replace':
-            visible = [resident for resident in cast if resident in payload['owned']]
+            visible = cast
         elif event['mode'] == 'exclude':
-            visible = [resident for resident in visible if resident not in cast]
+            excluded = {p['residentId'] for p in event['residents']}
+            visible = [resident for resident in visible if resident not in excluded]
         else:
-            visible += [resident for resident in cast if resident in payload['owned'] and resident not in visible]
+            visible += [resident for resident in cast if resident not in visible]
     return {'activeId': event['id'] if event else None,
             'activeLabel': event['label'] if event else None,
             'areaId': area, 'visible': visible,

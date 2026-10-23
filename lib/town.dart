@@ -556,9 +556,11 @@ class _TownSceneState extends State<TownScene> {
     final direction = pose.direction;
     final walking = direction != null &&
         !_pauseStarted.containsKey(resident) && !reduced;
-    // Occasionally step in place; the foot anchor never moves.
-    final stepping = isShopkeeper && !reduced &&
-        !_pauseStarted.containsKey(resident) && _ticks % 56 < 12;
+    // Event exercises step continuously; the shopkeeper does so occasionally.
+    // Both use front walk frames while keeping the foot anchor fixed.
+    final stepping = !reduced && !_pauseStarted.containsKey(resident) &&
+        ((isShopkeeper && _ticks % 56 < 12) ||
+            (widget.timedEvents?.stepsInPlace(widget.area, resident) ?? false));
     final asset = stepping
         ? resident.walkAsset(WalkDirection.front, (_ticks ~/ 3) % 4)
         : walking

@@ -55,14 +55,20 @@ class EventTimeWindow {
 class TimedEventParticipant {
   TimedEventParticipant.fromJson(dynamic source) {
     final data = source as Map<String, dynamic>;
-    if (data.length != 4 || data.keys.toSet().difference({
-      'residentId', 'x', 'y', 'stay'}).isNotEmpty) {
+    if ((data.length != 4 && data.length != 5) ||
+        data.keys.toSet().difference({
+          'residentId', 'x', 'y', 'stay', 'stepInPlace'}).isNotEmpty) {
       throw const FormatException('Invalid timed event participant');
     }
     resident = TownResident.fromId(data['residentId'] as String);
     x = (data['x'] as num).toDouble();
     y = (data['y'] as num).toDouble();
     stay = data['stay'] as bool;
+    stepInPlace = data.containsKey('stepInPlace')
+        ? data['stepInPlace'] as bool : false;
+    if (stepInPlace && !stay) {
+      throw FormatException('Stepping participant must stay: ${resident.id}');
+    }
     if (!x.isFinite || !y.isFinite || x < 0 || x > .82 || y < 0 || y > .82) {
       throw FormatException('Invalid position for ${resident.id}');
     }
@@ -71,15 +77,18 @@ class TimedEventParticipant {
   late final double x;
   late final double y;
   late final bool stay;
+  late final bool stepInPlace;
   TownWalkRoute get route => TownWalkRoute(x, y, stay: stay);
 }
 
 class TimedEventDefinition {
   TimedEventDefinition.fromJson(dynamic source) {
     final data = source as Map<String, dynamic>;
-    if (data.length != 7 || data.keys.toSet().difference({
-      'id', 'label', 'areaId', 'schedule', 'mode', 'requiresOwned', 'residents',
-    }).isNotEmpty) {
+    if ((data.length != 7 && data.length != 8) ||
+        data.keys.toSet().difference({
+          'id', 'label', 'areaId', 'schedule', 'mode', 'requiresOwned',
+          'residents', 'hostResidentId',
+        }).isNotEmpty) {
       throw const FormatException('Invalid timed event definition');
     }
     id = data['id'] as String;
@@ -101,6 +110,13 @@ class TimedEventDefinition {
         participants.map((p) => p.resident).toSet().length != participants.length) {
       throw FormatException('Missing or duplicate event participants: $id');
     }
+    hostResident = data.containsKey('hostResidentId')
+        ? TownResident.fromId(data['hostResidentId'] as String) : null;
+    if (hostResident != null &&
+        (mode == 'exclude' ||
+            !participants.any((p) => p.resident == hostResident))) {
+      throw FormatException('Invalid event host: $id');
+    }
   }
   late final String id;
   late final String label;
@@ -109,6 +125,7 @@ class TimedEventDefinition {
   late final String mode;
   late final bool requiresOwned;
   late final List<TimedEventParticipant> participants;
+  late final TownResident? hostResident;
   List<TownResident> get cast => [for (final p in participants) p.resident];
 }
 
@@ -148,10 +165,14 @@ class TownTimedEvents {
   }
   bool takesOver(TownArea area) => eventFor(area)?.mode == 'replace';
 
-  // A scheduled event can take over an area while its cast is still unowned.
-  // Ownership never creates residents: an unowned sole cast leaves it empty.
-  List<TownResident> _ownedCast(TimedEventDefinition event) =>
-      event.cast.where(owned.contains).toList(growable: false);
+  // A scheduled event can take over an area even when its host is unowned.
+  // The host gates the optional participants, without granting ownership.
+  List<TownResident> _ownedCast(TimedEventDefinition event) {
+    if (event.hostResident != null && !owned.contains(event.hostResident)) {
+      return const [];
+    }
+    return event.cast.where(owned.contains).toList(growable: false);
+  }
   List<TownResident> residents(TownArea area, Iterable<TownResident> ordinary,
       {bool scriptedEventActive = false}) {
     final event = eventFor(area);
@@ -172,12 +193,23 @@ class TownTimedEvents {
   }
   TownWalkRoute? route(TownArea area, TownResident resident) {
     final event = eventFor(area);
-    if (event == null || event.mode == 'exclude' || !owned.contains(resident)) {
+    if (event == null || event.mode == 'exclude' || !owned.contains(resident) ||
+        (event.hostResident != null && !owned.contains(event.hostResident))) {
       return null;
     }
     for (final person in event.participants) {
       if (person.resident == resident) return person.route;
     }
     return null;
+  }
+
+  bool stepsInPlace(TownArea area, TownResident resident) {
+    final event = eventFor(area);
+    if (event == null || event.mode == 'exclude' || !owned.contains(resident) ||
+        (event.hostResident != null && !owned.contains(event.hostResident))) {
+      return false;
+    }
+    return event.participants.any(
+        (person) => person.resident == resident && person.stepInPlace);
   }
 }

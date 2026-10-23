@@ -17,9 +17,25 @@
           "residentId": "042_senior_dog",
           "x": 0.48,
           "y": 0.66,
-          "stay": true
+          "stay": true,
+          "stepInPlace": true
+        },
+        {
+          "residentId": "001_shiba",
+          "x": 0.34,
+          "y": 0.66,
+          "stay": true,
+          "stepInPlace": true
+        },
+        {
+          "residentId": "052_pome",
+          "x": 0.61,
+          "y": 0.66,
+          "stay": true,
+          "stepInPlace": true
         }
-      ]
+      ],
+      "hostResidentId": "042_senior_dog"
     }
   ]
 }

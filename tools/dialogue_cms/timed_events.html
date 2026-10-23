@@ -42,8 +42,11 @@ input[type=checkbox]{width:auto}input[type=number]{width:90px}
 <option value="replace">入れ替える（出演者のみ）</option>
 <option value="add">一緒に登場する</option>
 <option value="exclude">指定した住民を隠す</option></select></label>
-<label><input type="checkbox" id="requiresOwned"> 全出演者をガチャ所持している場合だけ開催</label><p class="hint">OFFでもイベントの開催時間は有効ですが、未所持の出演者は表示されません。「入れ替える」では誰も所持していなければ空の場所になります。</p>
+<label><input type="checkbox" id="requiresOwned"> 全出演者をガチャ所持している場合だけ開催</label>
+<label>中心となる住民<select id="hostResidentId"></select></label>
+<p class="hint">中心となる住民を指定すると、その子が未所持のときはほかの出演者も表示されません。所持済みの場合はほかの出演者も各自の所持状態で参加します。設定がなくても従来どおり個別に表示します。</p>
+<p class="hint">OFFでもイベントの開催時間は有効ですが、未所持の出演者は表示されません。「入れ替える」では誰も所持していなければ空の場所になります。</p>
 <h2>出演者・対象住民</h2><div id="participants"></div><button id="addPerson" class="secondary">＋ 住民を追加</button>
-<p class="hint">X/Yは背景幅・高さに対する比率（0〜0.82）。「その場にいる」で待機、オフで近くを歩きます。</p>
+<p class="hint">X/Yは背景幅・高さに対する比率（0〜0.82）。「その場にいる」で位置を固定。「足踏み」はその位置で正面歩行の4コマを繰り返します。</p>
 </div></section></div>
 </main><script src="/timed-events.js"></script></html>

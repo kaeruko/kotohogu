@@ -49,7 +49,12 @@ function renderParticipants(event) {
   event.residents.forEach((person, i) => {
     const row = el("div", root); row.className = "person";
     const selector = choose(person.residentId, characters[0].id, row);
-    selector.onchange = () => { person.residentId = selector.value; markDirty(); };
+    selector.onchange = () => {
+      const oldId = person.residentId;
+      person.residentId = selector.value;
+      if (event.hostResidentId === oldId) event.hostResidentId = selector.value;
+      renderHost(event); markDirty();
+    };
     for (const axis of ["x", "y"]) {
       const label = el("label", row, axis.toUpperCase() + " ");
       const inp = el("input", label); inp.type = "number"; inp.min = 0; inp.max = .82; inp.step = .01; inp.value = person[axis];
@@ -57,10 +62,37 @@ function renderParticipants(event) {
     }
     const stayLabel = el("label", row, "その場にいる ");
     const stay = el("input", stayLabel); stay.type = "checkbox"; stay.checked = person.stay;
-    stay.onchange = () => { person.stay = stay.checked; markDirty(); };
+    const stepLabel = el("label", row, "足踏み ");
+    const step = el("input", stepLabel); step.type = "checkbox";
+    step.checked = person.stepInPlace ?? false; step.disabled = !person.stay;
+    stay.onchange = () => {
+      person.stay = stay.checked;
+      if (!stay.checked) { person.stepInPlace = false; step.checked = false; }
+      step.disabled = !stay.checked; markDirty();
+    };
+    step.onchange = () => { person.stepInPlace = step.checked; markDirty(); };
     const remove = el("button", row, "削除"); remove.type = "button"; remove.className = "secondary";
-    remove.onclick = () => { event.residents.splice(i, 1); renderParticipants(event); markDirty(); };
+    remove.onclick = () => {
+      if (event.hostResidentId === person.residentId) delete event.hostResidentId;
+      event.residents.splice(i, 1); renderParticipants(event); renderHost(event); markDirty();
+    };
   });
+}
+function renderHost(event) {
+  const input = $("hostResidentId"); input.replaceChildren();
+  option(input, "", "なし（各出演者を個別に表示）");
+  event.residents.forEach(person =>
+      option(input, person.residentId,
+          names.get(person.residentId) + " (" + person.residentId + ")"));
+  input.value = event.hostResidentId ?? "";
+  if (input.selectedIndex < 0) {
+    throw new Error("中心となる住民は出演者から選択してください");
+  }
+  input.onchange = () => {
+    if (input.value) event.hostResidentId = input.value;
+    else delete event.hostResidentId;
+    markDirty();
+  };
 }
 function renderEditor() {
   renderList();
@@ -87,6 +119,7 @@ function renderEditor() {
     };
   });
   renderParticipants(event);
+  renderHost(event);
 }
 async function load() {
   [config, {characters: characters}] = await Promise.all([
@@ -144,7 +177,7 @@ function initialize() {
     const unused = characters.find(c => !event.residents.some(p => p.residentId === c.id));
     if (!unused) throw new Error("追加可能な住民がいません");
     event.residents.push({residentId:unused.id,x:.48,y:.66,stay:true});
-    markDirty();renderParticipants(event);
+    markDirty();renderParticipants(event);renderHost(event);
   };
   $("reload").onclick = () => { if (dirty && !confirm("未保存の変更を破棄しますか？")) return; load().catch(showError); };
   $("save").onclick = async () => {
