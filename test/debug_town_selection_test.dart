@@ -44,6 +44,120 @@ void main() {
     );
   });
 
+  testWidgets('debug cast remembers one-time conversations until preview reset',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    const aunt = TownResident.c051_dog_aunt;
+    final catalog = DialogueCatalog.fromJson(jsonEncode({
+      'version': 1,
+      'dialogues': [
+        for (final resident in TownResident.values)
+          {
+            'id': 'fallback_${resident.id}',
+            'residentId': resident.id,
+            'text': 'ふつうのおしゃべり',
+            'priority': 0,
+            'once': false,
+            'logic': 'all',
+            'conditions': [],
+          },
+        {
+          'id': 'aunt_first',
+          'residentId': aunt.id,
+          'text': 'はじめまして！',
+          'priority': 0,
+          'once': true,
+          'firstGreeting': true,
+          'logic': 'all',
+          'conditions': [],
+        },
+        {
+          'id': 'aunt_health',
+          'residentId': aunt.id,
+          'text': '健康診断のお話',
+          'priority': 30,
+          'once': true,
+          'logic': 'all',
+          'conditions': [],
+        },
+      ],
+    }));
+    final store = MemoryStore();
+    final controller = ProgressController(
+      store, clock: () => DateTime(2026, 10, 23, 12));
+    await tester.pumpWidget(FutureLiftApp(
+      controller: controller,
+      dialogueCatalog: catalog,
+      enableTutorial: false,
+    ));
+    await tester.pumpAndSettle();
+    final raw = store.raw;
+    final writes = store.writes;
+
+    await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
+    final toggle = find.byKey(const ValueKey('debug-town-enable'));
+    await tester.scrollUntilVisible(toggle, 160);
+    await tester.pumpAndSettle();
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    final auntToggle = find.byKey(
+        const ValueKey('debug-town-resident-051_dog_aunt'));
+    await tester.scrollUntilVisible(auntToggle, 160);
+    await tester.pumpAndSettle();
+    await tester.tap(auntToggle);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('footer-home')));
+    await tester.pumpAndSettle();
+    final sprite = find.byKey(
+        const ValueKey('home-resident-sprite-051_dog_aunt'));
+    expect(sprite, findsOneWidget);
+
+    Future<void> read(String text) async {
+      await tester.tap(sprite);
+      await tester.pumpAndSettle();
+      expect(find.text(text), findsOneWidget);
+      await tester.tap(find.text('また話そう'));
+      await tester.pumpAndSettle();
+    }
+    await read('はじめまして！');
+    await read('健康診断のお話');
+    await read('ふつうのおしゃべり');
+    await read('ふつうのおしゃべり');
+    expect(controller.progress!.seenDialogues, isEmpty);
+    expect(store.raw, raw);
+    expect(store.writes, writes);
+
+    // Switching preview off and back on intentionally starts a fresh read
+    // session, without changing permanent saved history.
+    await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-debug')));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(toggle, 160);
+    await tester.pumpAndSettle();
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(auntToggle, 160);
+    await tester.pumpAndSettle();
+    await tester.tap(auntToggle);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('footer-home')));
+    await tester.pumpAndSettle();
+    await read('はじめまして！');
+    expect(store.writes, writes);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('debug cast changes home and town without writing save data',
       (tester) async {
     tester.view.physicalSize = const Size(430, 1000);
