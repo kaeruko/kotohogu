@@ -152,6 +152,10 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   bool _marcheConversationOpen = false;
   bool _clubConversationOpen = false;
   final Map<String, int> _clubRotations = {};
+  // A debug-only resident cast does not write read history to the real save.
+  // Track it for this preview session so first greetings and one-time stories
+  // are not selected on every tap.
+  final Set<String> _previewSeenDialogues = {};
   Timer? _clubClock;
   OyasumiScene _clubScene(Progress progress) => OyasumiScene(
     saved: progress.oyasumi, owned: progress.residents.owned,
@@ -339,6 +343,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       return;
     }
     setState(() {
+      _previewSeenDialogues.clear();
       _debugTownResidents = enabled
           ? visibleTownResidents(controller.progress!.residents.owned)
           : null;
@@ -367,6 +372,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     }
     if (current.contains(resident) == selected) return;
     setState(() {
+      _previewSeenDialogues.clear();
       _debugTownResidents = List<TownResident>.unmodifiable(
         selected
             ? [...current, resident]
@@ -381,6 +387,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       return;
     }
     setState(() {
+      _previewSeenDialogues.clear();
       _salonUnlockMode = mode;
       _returnToUnlockedTownArea();
     });
@@ -529,6 +536,15 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       previewSalonUnowned: inSalon && developerToolsAvailable &&
           _salonUnlockMode == SalonUnlockDebugMode.forceOpen,
     );
+    final previewDialogue = _debugTownResidents != null ||
+        (inSalon && developerToolsAvailable &&
+            _salonUnlockMode == SalonUnlockDebugMode.forceOpen);
+    var dialogueProgress = controller.progress!;
+    if (previewDialogue) {
+      for (final seenId in _previewSeenDialogues) {
+        dialogueProgress = dialogueProgress.markDialogueSeen(seenId);
+      }
+    }
     final familyOuting = !inSalon && !inBakery && !inCommunityCenter &&
         _page == 2 && _townArea == TownArea.shopping &&
         _debugTownResidents == null &&
@@ -546,7 +562,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         ? catalog.selectById(
             id: '026_farmer_002',
             resident: resident,
-            progress: controller.progress!,
+            progress: dialogueProgress,
             now: controller.clock(),
             townResidentIds: visibleIds,
             site: site,
@@ -555,23 +571,23 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         ? catalog.selectById(
             id: _townVisit.nextFamilyOutingDialogueId(resident),
             resident: resident,
-            progress: controller.progress!,
+            progress: dialogueProgress,
             now: controller.clock(),
             townResidentIds: visibleIds,
             site: site,
           )
         : catalog.select(
             resident: resident,
-            progress: controller.progress!,
+            progress: dialogueProgress,
             now: controller.clock(),
             townResidentIds: visibleIds,
             site: site,
           );
-    // Conversations in the debug-only cast must not alter saved seen IDs.
-    if (_debugTownResidents == null &&
-        !(inSalon && developerToolsAvailable &&
-            _salonUnlockMode == SalonUnlockDebugMode.forceOpen) &&
-        !controller.progress!.seenDialogues.contains(line.id)) {
+    // Preview conversations still advance their *temporary* read history,
+    // while ordinary conversations use the durable saved history.
+    if (previewDialogue) {
+      _previewSeenDialogues.add(line.id);
+    } else if (!controller.progress!.seenDialogues.contains(line.id)) {
       final persisted = await controller.recordDialogueSeen(line.id);
       if (!persisted || !mounted) return;
     }
