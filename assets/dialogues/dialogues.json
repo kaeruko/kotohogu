@@ -6403,6 +6403,15 @@
       "once": true,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "052_pome_001",
+      "residentId": "052_pome",
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }
