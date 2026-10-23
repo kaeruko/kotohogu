@@ -98,6 +98,33 @@ void main() {
       resident: frog, progress: after, now: now), isA<DialogueEntry>());
   });
 
+  test('retired frog never offers former office-worker lines', () async {
+    final live = await DialogueCatalog.load();
+    const frog = TownResident.c029_office_worker;
+    final now = DateTime.utc(2026, 10, 24);
+    final before = Progress.empty(now);
+    final retired = before.withOyasumi(
+      const OyasumiProgress(completed: 3, lastNight: '2026-10-23'));
+    for (final id in [
+      '029_office_worker_004',
+      '029_office_worker_007',
+      '029_office_worker_015',
+    ]) {
+      expect(live.selectById(
+          id: id, resident: frog, progress: before, now: now).id, id);
+      expect(() => live.selectById(
+          id: id, resident: frog, progress: retired, now: now),
+          throwsStateError, reason: 'Former office work should stay in the past: $id');
+    }
+    final greeting = live.selectById(
+      id: '029_office_worker_012', resident: frog,
+      progress: retired, now: now);
+    expect(greeting.firstGreeting, isTrue);
+    expect(greeting.text, isNot(contains('会社で働いて')));
+    expect(live.select(
+      resident: frog, progress: retired, now: now), isA<DialogueEntry>());
+  });
+
   test('after club, mother and daughter have more dependent chatter', () async {
     final catalog = await DialogueCatalog.load();
     final before = Progress.empty(DateTime(2026, 10, 22));
