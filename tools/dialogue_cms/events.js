@@ -110,7 +110,9 @@ function renderEditor(){
         label.append(input);row.append(label);
       });
       detail.append(row);
-      editLines(detail,lines,id,allowed);
+      editLines(detail,lines,id,allowed,{
+        maxNightPatterns:key==='joined'&&id==='029_office_worker'?5:4,
+      });
     });
     $('stages').append(detail);
   });
