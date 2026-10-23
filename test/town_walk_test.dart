@@ -96,7 +96,7 @@ void main() {
       'conditions': [
         {'type': 'townTogether', 'otherResidentId': '027_daydreamer'},
       ],
-      'reply': {'residentId': '027_daydreamer', 'text': 'いやもふ～～💦'},
+      'reply': {'residentId': '027_daydreamer', 'text': 'いやもふ～～'},
     });
     Widget town(TownVisit v, {Key? key, List<TownResident> cast = owned}) =>
         MaterialApp(
@@ -130,7 +130,7 @@ void main() {
 
     await tester.pumpWidget(town(visit));
     expect(visit.canOfferFarmerScare, true);
-    expect(find.text('いやもふ～～💦'), findsNothing);
+    expect(find.text('いやもふ～～'), findsNothing);
     await tester.pump(const Duration(milliseconds: 750));
     expect(visit.canOfferFarmerScare, true,
         reason: 'Co-location alone must not play the animation');
@@ -139,12 +139,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(ResidentConversationDialog), findsOneWidget);
     expect(find.text('おやすみくん。農業をやらんかね。'), findsOneWidget);
-    expect(find.text('いやもふ～～💦'), findsNothing);
+    expect(find.text('いやもふ～～'), findsNothing);
     expect(visit.canOfferFarmerScare, true);
 
     await tester.tap(find.text('つぎへ'));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('いやもふ～～💦'), findsOneWidget);
+    expect(find.text('いやもふ～～'), findsOneWidget);
     expect(find.text('また話そう'), findsOneWidget);
     expect(visit.canOfferFarmerScare, true);
 
@@ -154,17 +154,20 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 350));
     expect(find.byType(ResidentConversationDialog), findsNothing);
-    expect(find.text('いやもふ～～💦'), findsNothing,
-        reason: 'No duplicate town speech bubble');
+    expect(find.text('いやもふ～～'), findsNothing,
+        reason: 'The town shows only a sweat emoji after the dialog');
     expect(visit.canOfferFarmerScare, false);
 
     await tester.pump(const Duration(milliseconds: 900));
+    expect(find.byKey(const ValueKey('farmer-scare-sweat')), findsOneWidget);
+    expect(find.text('💦'), findsOneWidget);
     expect(tester.getTopLeft(sloth).dx, greaterThan(beforeEscape.dx));
     final sprite = tester.widget<Image>(
         find.byKey(const ValueKey('resident-sprite-1')));
     expect((sprite.image as AssetImage).assetName, contains('walk_right_'));
 
     await tester.pump(const Duration(seconds: 2));
+    expect(find.byKey(const ValueKey('farmer-scare-sweat')), findsNothing);
     expect(find.byKey(const ValueKey('resident-1')), findsOneWidget);
     await tester.pumpWidget(town(visit, key: const ValueKey('revisit')));
     expect(visit.canOfferFarmerScare, false);
@@ -172,7 +175,7 @@ void main() {
     final newVisit = TownVisit(random: ScriptedTownRandom([0, 0]));
     await tester.pumpWidget(town(newVisit, key: const ValueKey('new-visit')));
     expect(newVisit.canOfferFarmerScare, true);
-    expect(find.text('いやもふ～～💦'), findsNothing);
+    expect(find.text('いやもふ～～'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
@@ -190,7 +193,7 @@ void main() {
       'conditions': [
         {'type': 'townTogether', 'otherResidentId': '027_daydreamer'},
       ],
-      'reply': {'residentId': '027_daydreamer', 'text': 'いやもふ～～💦'},
+      'reply': {'residentId': '027_daydreamer', 'text': 'いやもふ～～'},
     });
     await tester.pumpWidget(MaterialApp(
       home: Builder(builder: (context) => Scaffold(
@@ -220,6 +223,7 @@ void main() {
     expect(find.byType(ResidentConversationDialog), findsNothing);
     expect(visit.canOfferFarmerScare, true);
     await tester.pump(const Duration(seconds: 3));
+    expect(find.byKey(const ValueKey('farmer-scare-sweat')), findsNothing);
     expect(visit.canOfferFarmerScare, true);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
