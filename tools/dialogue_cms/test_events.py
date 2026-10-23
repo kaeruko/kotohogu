@@ -69,12 +69,13 @@ class EventTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '3〜4本'):
             events.validate(over_limit)
 
-    def test_night_conversation_patterns_are_3_to_4_and_previewable(self):
+    def test_night_conversation_pattern_limits_and_preview(self):
         doc=events.load()
-        for stage in doc['stages'].values():
-            for patterns in stage['chatter'].values():
+        for key,stage in doc['stages'].items():
+            for speaker,patterns in stage['chatter'].items():
                 self.assertGreaterEqual(len(patterns),3)
-                self.assertLessEqual(len(patterns),4)
+                limit=5 if key=='joined' and speaker==events.FROG else 4
+                self.assertLessEqual(len(patterns),limit)
         merged=doc['stages']['solo']['chatter'][events.HOST][0]
         self.assertEqual(len(merged['turns']),2)
         self.assertIn('おほしさま',merged['turns'][1]['text'])
@@ -150,7 +151,7 @@ class EventTests(unittest.TestCase):
         self.assertTrue(all(isinstance(item,str) for item in watching))
         self.assertIn('におう',joined[0]['turns'][0]['text'])
         self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host])
-        self.assertEqual(len(joined),4)
+        self.assertEqual(len(joined),5)
         park=joined[1]['turns']
         today=joined[2]['turns']
         self.assertEqual([t['speaker'] for t in park], [frog,host])
@@ -160,15 +161,31 @@ class EventTests(unittest.TestCase):
         self.assertEqual(today[0]['text'],'おやすみくん、今日は何してた？')
         self.assertIn('かえるくんをまってた',today[1]['text'])
         self.assertIn('待ってないじゃん',today[-1]['text'])
-        reunion=joined[-1]['turns']
+        reunion=joined[-2]['turns']
         self.assertEqual([turn['speaker'] for turn in reunion],
                          [frog, frog, frog, host])
         self.assertIn('会いに来たんだけど', reunion[1]['text'])
         self.assertIn('起こさないでおこうね', reunion[2]['text'])
         self.assertIn('……すぅ……もふ……', reunion[-1]['text'])
         self.assertEqual(
-            self.preview(3,'2026-10-19')['dialogues'][frog][-1]['turns'],
+            self.preview(3,'2026-10-19')['dialogues'][frog][-2]['turns'],
             reunion)
+        resignation=joined[-1]['turns']
+        self.assertEqual(len(resignation),8)
+        self.assertEqual([t['speaker'] for t in resignation],
+                         [frog,host,frog,host,frog,host,frog,frog])
+        self.assertIn('会社を辞めた', resignation[0]['text'])
+        self.assertIn('あしたもあそべる', resignation[1]['text'])
+        self.assertIn('しばらくゆっくり', resignation[2]['text'])
+        self.assertIn('また明日ね', resignation[-2]['text'])
+        # Frog voices his doubts only after leaving Oyasumi-kun.
+        self.assertIn('ひとりで', resignation[-1]['text'])
+        self.assertIn('決めたのは、ぼくだ', resignation[-1]['text'])
+        self.assertNotIn('仲良くならなかったら',
+                         ''.join(turn['text'] for turn in resignation[:-1]))
+        self.assertEqual(
+            self.preview(3,'2026-10-19')['dialogues'][frog][-1]['turns'],
+            resignation)
         self.assertFalse(self.preview(3,'2026-10-19',
                                       now='2026-10-20T12:00')['active'])
         self.assertNotIn('辞め',doc['stages']['joining']['intro']['text'])
