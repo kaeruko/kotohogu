@@ -49,6 +49,96 @@ void main() {
     );
   });
 
+  test('farmer scare pose hesitates, sprints away, and stops', () {
+    const start = TownWalkPose(
+        x: .60, y: .63, direction: null, frame: 0);
+    final waiting = farmerScarePose(
+        start, const Duration(milliseconds: 300), fleeRight: true);
+    expect(waiting.x, .60);
+    expect(waiting.walking, false);
+
+    final running = farmerScarePose(
+        start, const Duration(milliseconds: 1050), fleeRight: true);
+    expect(running.direction, WalkDirection.right);
+    expect(running.x, greaterThan(.60));
+    expect(running.frame, inInclusiveRange(0, 3));
+
+    final escaped = farmerScarePose(
+        start, const Duration(seconds: 2), fleeRight: true);
+    expect(escaped.x, .82);
+    expect(escaped.walking, false);
+    final left = farmerScarePose(
+        start, const Duration(seconds: 2), fleeRight: false);
+    expect(left.x, closeTo(.38, .0001));
+    expect(left.walking, false);
+    expect(farmerScarePose(start, const Duration(seconds: 9),
+        fleeRight: true).x, escaped.x);
+  });
+
+  testWidgets('meeting Yasuzo starts one automatic escape without proximity',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const owned = [
+      TownResident.c026_farmer, TownResident.c027_daydreamer,
+    ];
+    final visit = TownVisit(random: ScriptedTownRandom([0, 0]));
+    Widget town(TownVisit v, {Key? key, List<TownResident> cast = owned}) =>
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 360,
+              child: TownScene(
+                key: key,
+                area: TownArea.plaza,
+                visit: v,
+                lifetimePoints: 0,
+                residents: cast,
+              ),
+            ),
+          ),
+        );
+
+    await tester.pumpWidget(town(visit));
+    expect(find.text('おやすみくん、農業をやらんかね？'),
+        findsOneWidget);
+    final sloth = find.byKey(const ValueKey('resident-1'));
+    final initial = tester.getTopLeft(sloth);
+    await tester.pump(const Duration(milliseconds: 750));
+    expect(find.text('いやもふ～～💦'), findsOneWidget);
+    expect(tester.getTopLeft(sloth).dx, greaterThan(initial.dx));
+    final sprint = tester.widget<Image>(
+        find.byKey(const ValueKey('resident-sprite-1')));
+    expect((sprint.image as AssetImage).assetName, contains('walk_right_'));
+
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('いやもふ～～💦'), findsNothing);
+    expect(find.byKey(const ValueKey('resident-1')), findsOneWidget);
+
+    // A new scene during the same visit doesn't replay the event.
+    await tester.pumpWidget(town(visit, key: const ValueKey('revisit')));
+    expect(find.text('おやすみくん、農業をやらんかね？'),
+        findsNothing);
+
+    // A new visit can start the same gag again.
+    await tester.pumpWidget(town(
+        TownVisit(random: ScriptedTownRandom([0, 0])),
+        key: const ValueKey('new-visit')));
+    expect(find.text('おやすみくん、農業をやらんかね？'),
+        findsOneWidget);
+
+    // No event if only one of the two is present.
+    await tester.pumpWidget(town(
+        TownVisit(random: ScriptedTownRandom([0])),
+        key: const ValueKey('farmer-only'),
+        cast: [TownResident.c026_farmer]));
+    expect(find.text('おやすみくん、農業をやらんかね？'),
+        findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   test('more than eight walkers use distinct, bounded positions', () {
     for (final count in [9, 12, 25, 60]) {
       final origins = <(double, double)>{};
