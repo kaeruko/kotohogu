@@ -263,7 +263,7 @@ class _TownSceneState extends State<TownScene> {
     // Being in the same painted area is the entire encounter condition:
     // no proximity polling, random chance, or new progress flag.
     final visit = widget.visit ?? _standaloneVisit;
-    if (!reduced && widget.debugTownResidents == null && !eventTakesOver &&
+    if (!reduced && !eventTakesOver &&
         visibleResidents.contains(TownResident.c026_farmer) &&
         visibleResidents.contains(TownResident.c027_daydreamer) &&
         visit.claimFarmerScare()) {
