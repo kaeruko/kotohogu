@@ -58,6 +58,7 @@ class OyasumiScene {
     required DateTime now,
     this.enabled = true,
     this.parkCleanerStarted = false,
+    this.marcheOpen = false,
   }) : owned = Set.of(owned),
        now = now.toLocal();
   final OyasumiProgress saved;
@@ -66,10 +67,17 @@ class OyasumiScene {
   final bool enabled;
   /// Unlocked by the future park-cleaning job story, not elapsed days.
   final bool parkCleanerStarted;
+  /// Set from the actual tea-stall unlock, not from debug resident previews.
+  final bool marcheOpen;
   static const parkCleanerUnlockId = 'frog_park_cleaner_started';
   static const host = TownResident.c027_daydreamer;
   static const frog = TownResident.c029_office_worker;
   static const nightPatroller = TownResident.c036_mosa;
+  static const teaVisitor = TownResident.c041_pig_middle;
+  static const teaVisitGroup = 'teaVisit';
+  Map<String, dynamic> get teaVisitDefinition =>
+      oyasumiConfig['teaVisit'] as Map<String, dynamic>;
+  String get teaVisitLabel => teaVisitDefinition['label'] as String;
   int get startHour => oyasumiConfig['night']['startHour'] as int;
   int get endHour => oyasumiConfig['night']['endHour'] as int;
   EventTimeWindow get schedule => EventTimeWindow.fromHours(startHour, endHour);
@@ -103,8 +111,28 @@ class OyasumiScene {
 
   // A passing night watchman is never part of the club story or its progress.
   bool get nightPatrolVisible => active && owned.contains(nightPatroller);
-  List<TownResident> get passersby =>
-      nightPatrolVisible ? [nightPatroller] : [];
+  /// The first delivery is on the night AFTER joining. More visits follow
+  /// every N calendar nights, stable across midnight and app restarts.
+  /// Tonko remains a guest, not a club member or saved story stage.
+  bool get teaVisitorVisible {
+    if (!active || step != 4 || saved.completed != 3 ||
+        !owned.contains(frog) || !owned.contains(teaVisitor) ||
+        !marcheOpen || saved.lastNight == null) {
+      return false;
+    }
+    final joined = DateTime.parse(saved.lastNight!);
+    final day = schedule.occurrenceDay(now);
+    final elapsed = DateTime.utc(day.year, day.month, day.day)
+        .difference(DateTime.utc(joined.year, joined.month, joined.day))
+        .inDays;
+    final interval = teaVisitDefinition['intervalNights'] as int;
+    return elapsed >= 1 && (elapsed - 1) % interval == 0;
+  }
+
+  List<TownResident> get passersby => [
+        if (nightPatrolVisible) nightPatroller,
+        if (teaVisitorVisible) teaVisitor,
+      ];
 
   /// During the event, the night plaza hosts the scripted cast and one
   /// optional passerby. Other neighborhoods continue their ordinary routines.
@@ -120,11 +148,20 @@ class OyasumiScene {
   ) {
     if (!active) return ordinary.toList();
     if (takesOver(area)) return [...cast, ...passersby];
-    // No duplication across areas while the club and patrol are active.
+    // A visiting resident cannot also walk in another neighborhood.
     return ordinary.where((r) => r != host && r != frog &&
-        !(nightPatrolVisible && r == nightPatroller)).toList();
+        !(nightPatrolVisible && r == nightPatroller) &&
+        !(teaVisitorVisible && r == teaVisitor)).toList();
   }
   TownWalkRoute? route(TownArea area, TownResident resident) {
+    if (takesOver(area) && teaVisitorVisible && resident == teaVisitor) {
+      final point = teaVisitDefinition['position'] as List;
+      return TownWalkRoute(
+        (point[0] as num).toDouble(),
+        (point[1] as num).toDouble(),
+        stay: true,
+      );
+    }
     if (takesOver(area) && nightPatrolVisible && resident == nightPatroller) {
       final values = oyasumiConfig['nightPatrol']['route'] as Map;
       return TownWalkRoute(
@@ -148,6 +185,9 @@ class OyasumiScene {
   }
 
   String? group(TownResident resident, {required bool inPlaza}) {
+    if (inPlaza && teaVisitorVisible && resident == teaVisitor) {
+      return teaVisitGroup;
+    }
     if (active && inPlaza && nightPatrolVisible && resident == nightPatroller) {
       return 'patrol';
     }
@@ -184,6 +224,21 @@ class OyasumiScene {
     int rotation, {
     Set<String>? availableResidentIds,
   }) {
+    if (group == teaVisitGroup) {
+      if (!teaVisitorVisible || resident != teaVisitor) {
+        throw StateError('Tea visit is not available for ${resident.id}');
+      }
+      return OyasumiDialogue(
+        'oyasumi_tea_visit_${resident.id}',
+        [
+          for (final turn in teaVisitDefinition['turns'] as List)
+            OyasumiDialogueTurn(
+              TownResident.fromId(turn['speaker'] as String),
+              turn['text'] as String,
+            ),
+        ],
+      );
+    }
     final intro = introduction(resident, group);
     if (intro) {
       final text = definition['intro']['text'] as String;

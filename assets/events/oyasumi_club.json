@@ -342,5 +342,32 @@
       "異常なしでござる！ ……おや、拙者のしっぽが勝手にふれておる。",
       "星もよく見えるでござるな。今宵もよい夜でござる！"
     ]
+  },
+  "teaVisit": {
+    "label": "お茶の差し入れ",
+    "residentId": "041_pig_middle",
+    "intervalNights": 3,
+    "position": [
+      0.73,
+      0.7
+    ],
+    "turns": [
+      {
+        "speaker": "041_pig_middle",
+        "text": "ふたりともさむくない？はい、お茶🍵"
+      },
+      {
+        "speaker": "029_office_worker",
+        "text": "あっ、とんこさん！ ありがとうございます！"
+      },
+      {
+        "speaker": "027_daydreamer",
+        "text": "もふ〜。あったかいもふ〜"
+      },
+      {
+        "speaker": "041_pig_middle",
+        "text": "ふふ、ゆっくりしていってねぇ"
+      }
+    ]
   }
 }
