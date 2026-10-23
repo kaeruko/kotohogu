@@ -139,6 +139,35 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('debug-selected farmer and daydreamer still trigger the escape',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: TownScene(
+            area: TownArea.park,
+            visit: TownVisit(),
+            lifetimePoints: 90,
+            residents: const [],
+            debugTownResidents: const [
+              TownResident.c026_farmer,
+              TownResident.c027_daydreamer,
+            ],
+          ),
+        ),
+      ),
+    );
+    expect(find.text('おやすみくん、農業をやらんかね？'),
+        findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 750));
+    expect(find.text('いやもふ～～💦'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   test('more than eight walkers use distinct, bounded positions', () {
     for (final count in [9, 12, 25, 60]) {
       final origins = <(double, double)>{};
