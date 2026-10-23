@@ -33,7 +33,7 @@ void main() {
         ],
         'reply': {
           'residentId': '027_daydreamer',
-          'text': 'もふ？おひるねできる？',
+          'text': 'いやもふ～～💦',
         },
       },
     ],
@@ -99,7 +99,7 @@ void main() {
     );
     expect(find.text('やすぞう'), findsOneWidget);
     expect(find.text('おやすみくん。農業をやらんかね。'), findsOneWidget);
-    expect(find.text('もふ？おひるねできる？'), findsNothing);
+    expect(find.text('いやもふ～～💦'), findsNothing);
     expect(find.text('つぎへ'), findsOneWidget);
     expect(find.text('1 / 2'), findsOneWidget);
 
@@ -109,7 +109,7 @@ void main() {
     expect(find.text('おやすみくん'), findsOneWidget);
     expect(find.text('やすぞう'), findsNothing);
     expect(find.text('おやすみくん。農業をやらんかね。'), findsNothing);
-    expect(find.text('もふ？おひるねできる？'), findsOneWidget);
+    expect(find.text('いやもふ～～💦'), findsOneWidget);
     expect(find.text('2 / 2'), findsOneWidget);
 
     await tester.tap(find.text('また話そう'));
