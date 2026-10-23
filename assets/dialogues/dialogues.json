@@ -915,7 +915,12 @@
       "priority": 0,
       "once": false,
       "logic": "all",
-      "conditions": []
+      "conditions": [
+        {
+          "type": "oyasumiClub",
+          "completed": false
+        }
+      ]
     },
     {
       "id": "029_office_worker_005",
@@ -948,6 +953,10 @@
           "missionId": "sittingBreak",
           "minCount": 1,
           "withinDays": 1
+        },
+        {
+          "type": "oyasumiClub",
+          "completed": false
         }
       ]
     },
@@ -4471,7 +4480,7 @@
     {
       "id": "029_office_worker_012",
       "residentId": "029_office_worker",
-      "text": "はじめまして、かえるだよ。ぼく、ふだんは会社で働いてるんだ。考えすぎちゃうこともあるけど、おしゃべりすると少しほっとするね。",
+      "text": "はじめまして、かえるだよ。考えすぎちゃうこともあるけど、おしゃべりすると少しほっとするね。",
       "priority": 0,
       "once": true,
       "firstGreeting": true,
@@ -5623,6 +5632,10 @@
           "missionId": "sittingBreak",
           "minCount": 1,
           "withinDays": 1
+        },
+        {
+          "type": "oyasumiClub",
+          "completed": false
         }
       ]
     },
