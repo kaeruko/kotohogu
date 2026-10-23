@@ -61,34 +61,33 @@ void main() {
     expect(sittingBreak.matches(afterOutside, today, {}), isFalse);
   });
 
-  test('Nakanojo step thresholds appear with the cited disease topics', () async {
+  test('Nakanojo research is not repeated across the entire town', () async {
     final live = await DialogueCatalog.load();
-    const expected = <String, List<String>>{
-      '004_neko_030': ['2,000歩', '0分', '寝たきり'],
-      '029_office_worker_016': ['4,000歩', '5分', 'うつ病'],
-      '007_hitsuji_011': ['5,000歩', '7分半', '認知症'],
-      '004_neko_031': ['7,000歩', '15分', '骨粗しょう症'],
-      '004_neko_032': ['8,000歩', '20分', '糖尿病'],
-      '026_farmer_006': ['10,000歩', '30分', 'メタボリックシンドローム'],
-      '026_farmer_007': ['12,000歩', '40分', '肥満'],
+    final references = live.entries.where((line) =>
+        line.text.contains('中之条')).toList();
+    expect(references, hasLength(1));
+    expect(references.single.id, '004_neko_033');
+    expect(references.single.text, contains('歩数'));
+  });
+
+  test('former step thresholds are now resident-specific daily-life tips', () async {
+    final live = await DialogueCatalog.load();
+    const updated = <String, String>{
+      '004_neko_030': '体調',
+      '004_neko_031': '足腰',
+      '004_neko_032': '血圧',
+      '029_office_worker_016': '公園のベンチ',
+      '007_hitsuji_011': 'お花',
+      '026_farmer_006': '畑',
+      '026_farmer_007': '草むしり',
+      '041_pig_middle_049': 'お茶',
     };
-    expect(expected.length, 7);
-    for (final item in expected.entries) {
-      final line = live.entries.singleWhere((e) => e.id == item.key);
-      for (final expectedPhrase in item.value) {
-        expect(line.text, contains(expectedPhrase), reason: item.key);
-      }
-      expect(line.once, isFalse, reason: item.key);
-      expect(line.conditions, isEmpty, reason: item.key);
-    }
-    for (final id in <String>[
-      '041_pig_middle_049',
-      '027_daydreamer_007',
-      '004_neko_033',
-    ]) {
-      final line = live.entries.singleWhere((e) => e.id == id);
-      expect(line.once, isFalse, reason: id);
-      expect(line.conditions, isEmpty, reason: id);
+    for (final entry in updated.entries) {
+      final line = live.entries.singleWhere((e) => e.id == entry.key);
+      expect(line.text, contains(entry.value), reason: entry.key);
+      expect(line.text, isNot(contains('中之条')), reason: entry.key);
+      expect(line.once, isFalse, reason: entry.key);
+      expect(line.priority, greaterThanOrEqualTo(0), reason: entry.key);
     }
   });
 }
