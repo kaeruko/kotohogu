@@ -633,25 +633,25 @@ class _TownSceneState extends State<TownScene> {
               child: IgnorePointer(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: math.min(width * .48, 220),
+                    maxWidth: math.min(width * .48, 220.0),
                   ),
                   child: DecoratedBox(
-                  key: ValueKey('farmer-scare-${resident.id}'),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.brown.shade300),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 13, vertical: 7),
-                    child: Text(
-                      scareLine,
-                      style: const TextStyle(
-                          color: Colors.brown, fontSize: 21,
-                          fontWeight: FontWeight.bold),
+                    key: ValueKey('farmer-scare-${resident.id}'),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.brown.shade300),
                     ),
-                  ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 13, vertical: 7),
+                      child: Text(
+                        scareLine,
+                        style: const TextStyle(
+                            color: Colors.brown, fontSize: 21,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
                 ),
               ),
