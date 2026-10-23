@@ -152,6 +152,7 @@ void main() {
     final beforeEscape = tester.getTopLeft(sloth);
     await tester.tap(find.text('また話そう'));
     await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 350));
     expect(find.byType(ResidentConversationDialog), findsNothing);
     expect(find.text('いやもふ～～💦'), findsNothing,
         reason: 'No duplicate town speech bubble');
