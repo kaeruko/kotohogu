@@ -203,6 +203,31 @@ class TownTimedEvents {
     return null;
   }
 
+  // During morning exercises, only these CMS lines may be selected.
+  // Ordinary first greetings, missions and chatter resume after the event.
+  static const morningExerciseDialogueIds = <TownResident, List<String>>{
+    TownResident.c042_senior_dog: [
+      '042_senior_dog_025', '042_senior_dog_026',
+    ],
+    TownResident.shiba: ['001_shiba_007', '001_shiba_008'],
+    TownResident.c052_pome: ['052_pome_003', '052_pome_004'],
+  };
+
+  List<String>? exclusiveDialogueIds(TownArea area, TownResident resident) {
+    final event = eventFor(area);
+    if (event?.id != 'morning_exercises' ||
+        !_ownedCast(event!).contains(resident)) {
+      return null;
+    }
+    final ids = morningExerciseDialogueIds[resident];
+    if (ids == null || ids.isEmpty) {
+      throw StateError(
+        'Missing exercise dialogue IDs for event ${event.id}, ${resident.id}',
+      );
+    }
+    return ids;
+  }
+
   bool stepsInPlace(TownArea area, TownResident resident) {
     final event = eventFor(area);
     if (event == null || event.mode == 'exclude' || !owned.contains(resident) ||

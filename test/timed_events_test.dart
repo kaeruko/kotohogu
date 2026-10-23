@@ -99,6 +99,71 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  test('only active, owned morning participants have exclusive exercise dialogue', () {
+    final everyone = TownTimedEvents(
+      now: DateTime(2026, 10, 23, 7),
+      owned: [gonsuke, shiba, pome],
+    );
+    for (final (resident, expected) in [
+      (gonsuke, ['042_senior_dog_025', '042_senior_dog_026']),
+      (shiba, ['001_shiba_007', '001_shiba_008']),
+      (pome, ['052_pome_003', '052_pome_004']),
+    ]) {
+      expect(everyone.exclusiveDialogueIds(TownArea.park, resident), expected);
+      expect(everyone.exclusiveDialogueIds(TownArea.plaza, resident), isNull);
+    }
+    expect(everyone.exclusiveDialogueIds(TownArea.park, TownResident.rabbit),
+        isNull);
+
+    final withoutHost = TownTimedEvents(
+      now: DateTime(2026, 10, 23, 7), owned: [shiba, pome]);
+    expect(withoutHost.exclusiveDialogueIds(TownArea.park, shiba), isNull);
+    expect(withoutHost.exclusiveDialogueIds(TownArea.park, pome), isNull);
+    final withoutPome = TownTimedEvents(
+      now: DateTime(2026, 10, 23, 7), owned: [gonsuke, shiba]);
+    expect(withoutPome.exclusiveDialogueIds(TownArea.park, pome), isNull);
+    expect(withoutPome.exclusiveDialogueIds(TownArea.park, shiba), isNotNull);
+
+    for (final hour in [5, 9, 15]) {
+      final normal = TownTimedEvents(
+        now: DateTime(2026, 10, 23, hour),
+        owned: [gonsuke, shiba, pome],
+      );
+      for (final resident in [gonsuke, shiba, pome]) {
+        expect(normal.exclusiveDialogueIds(TownArea.park, resident), isNull);
+      }
+    }
+    final disabled = TownTimedEvents(
+      now: DateTime(2026, 10, 23, 7),
+      owned: [gonsuke, shiba, pome], enabled: false,
+    );
+    expect(disabled.exclusiveDialogueIds(TownArea.park, gonsuke), isNull);
+  });
+
+  test('a new exercise participant without dedicated lines fails fast', () {
+    final custom = TownTimedEvents(
+      now: DateTime(2026, 10, 23, 7),
+      owned: [gonsuke, TownResident.rabbit],
+      config: {
+        'version': 1,
+        'events': [{
+          'id': 'morning_exercises', 'label': '朝の体操',
+          'areaId': 'park',
+          'schedule': {'start': '06:00', 'end': '09:00', 'weekdays': []},
+          'mode': 'replace', 'requiresOwned': false,
+          'hostResidentId': gonsuke.id,
+          'residents': [
+            {'residentId': gonsuke.id, 'x': .48, 'y': .66, 'stay': true},
+            {'residentId': TownResident.rabbit.id,
+             'x': .34, 'y': .66, 'stay': true},
+          ],
+        }],
+      },
+    );
+    expect(() => custom.exclusiveDialogueIds(TownArea.park, TownResident.rabbit),
+        throwsStateError);
+  });
+
   test('overnight start-day weekdays and boundaries', () {
     final w = EventTimeWindow(startMinute: 1080, endMinute: 300, weekdays: [5]);
     expect(w.includes(DateTime(2026, 10, 23, 18)), true);

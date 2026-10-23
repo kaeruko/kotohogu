@@ -8,7 +8,7 @@
       "artFolder": "001_shiba",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 7,
+      "nextDialogueNumber": 9,
       "profile": "",
       "homeAreaId": "plaza"
     },
@@ -227,7 +227,7 @@
       "label": "ごんすけ",
       "profile": "",
       "artFolder": "042_senior_dog",
-      "nextDialogueNumber": 25,
+      "nextDialogueNumber": 27,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"
@@ -293,7 +293,7 @@
       "label": "ぽむぽむ",
       "profile": "",
       "artFolder": "052_pome",
-      "nextDialogueNumber": 3,
+      "nextDialogueNumber": 5,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"

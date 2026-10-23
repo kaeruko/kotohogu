@@ -152,6 +152,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   bool _marcheConversationOpen = false;
   bool _clubConversationOpen = false;
   final Map<String, int> _clubRotations = {};
+  // Local, per-resident rotation of the explicit morning-exercise lines.
+  final Map<TownResident, int> _morningExerciseDialogueRotations = {};
   // A debug-only resident cast does not write read history to the real save.
   // Track it for this preview session so first greetings and one-time stories
   // are not selected on every tap.
@@ -553,13 +555,27 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           controller.progress!.residents.owned, controller.progress!.points,
           afterOyasumiClub: controller.progress!.oyasumi.completed == 3) &&
         (resident == familyOutingMother || resident == familyOutingDaughter);
+    final exerciseIds = site == 'town'
+        ? rules.timedEvents?.exclusiveDialogueIds(_townArea, resident)
+        : null;
     // Keep the actual town dialogue in the ordinary conversation viewer.
     // Only this completed invitation asks the scene to play the escape.
     final farmerInvitation = site == 'town' &&
         resident == TownResident.c026_farmer &&
         visibleIds.contains(TownResident.c027_daydreamer.id) &&
         _townVisit.canOfferFarmerScare;
-    final line = farmerInvitation
+    final line = exerciseIds != null
+        ? catalog.selectById(
+            id: exerciseIds[
+                (_morningExerciseDialogueRotations[resident] ?? 0) %
+                    exerciseIds.length],
+            resident: resident,
+            progress: dialogueProgress,
+            now: controller.clock(),
+            townResidentIds: visibleIds,
+            site: site,
+          )
+        : farmerInvitation
         ? catalog.selectById(
             id: '026_farmer_002',
             resident: resident,
@@ -584,6 +600,10 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             townResidentIds: visibleIds,
             site: site,
           );
+    if (exerciseIds != null) {
+      _morningExerciseDialogueRotations[resident] =
+          (_morningExerciseDialogueRotations[resident] ?? 0) + 1;
+    }
     // Preview conversations still advance their *temporary* read history,
     // while ordinary conversations use the durable saved history.
     if (previewDialogue) {

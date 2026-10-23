@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/dialogue_engine.dart';
 import 'package:future_lift/progress.dart';
 import 'package:future_lift/oyasumi_club.dart';
+import 'package:future_lift/timed_events.dart';
+import 'package:future_lift/town_areas.dart';
 import 'package:future_lift/resident_collection.dart';
 
 Map<String, Object> row(String id, String resident, String text, {
@@ -73,6 +75,44 @@ void main() {
     for (final resident in TownResident.values) {
       expect(live.select(resident: resident, progress: p,
         now: DateTime.utc(2026, 10, 12, 15)), isA<DialogueEntry>());
+    }
+  });
+
+  test('exercise dialogue is explicit and never enters normal selection', () async {
+    final live = await DialogueCatalog.load();
+    final now = DateTime(2026, 10, 23, 7);
+    // Unread initial greetings and achieved missions are deliberately eligible
+    // for normal conversation, but the exercise should override them.
+    final progress = Progress.empty(now)
+        .complete(Mission.outside)
+        .complete(Mission.movement);
+    final cast = [TownResident.c042_senior_dog, TownResident.shiba,
+        TownResident.c052_pome];
+    final event = TownTimedEvents(now: now, owned: cast);
+    final peers = cast.map((resident) => resident.id).toSet();
+    for (final resident in cast) {
+      final ids = event.exclusiveDialogueIds(TownArea.park, resident)!;
+      expect(ids, hasLength(2));
+      for (final id in ids) {
+        final line = live.selectById(
+          id: id, resident: resident, progress: progress, now: now,
+          townResidentIds: peers, site: 'town',
+        );
+        expect(line.priority, -1000);
+        expect(line.once, false);
+        expect(line.firstGreeting, false);
+        expect(line.conditions, isEmpty);
+        expect(line.text, isNotEmpty);
+      }
+      // Even without any read history, the normal selector is unaware of
+      // these exclusive lines. They cannot leak into town or roster chatter.
+      for (var i = 0; i < 30; i++) {
+        final ordinary = live.select(
+          resident: resident, progress: progress, now: now,
+          townResidentIds: peers, site: 'town',
+        );
+        expect(ids, isNot(contains(ordinary.id)));
+      }
     }
   });
 

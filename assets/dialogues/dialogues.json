@@ -6422,6 +6422,60 @@
       "firstGreeting": true,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "042_senior_dog_025",
+      "residentId": "042_senior_dog",
+      "text": "おお、おはようさん。朝の体操をしておったんじゃ。杖をついていても、できる動きをゆっくりとな。",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "042_senior_dog_026",
+      "residentId": "042_senior_dog",
+      "text": "いち、に、いち、に。つらくならんくらいで、ぼちぼち動くのが、わしには合っとるよ。",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "001_shiba_007",
+      "residentId": "001_shiba",
+      "text": "いち、に、いち、に！ぼくもごんすけさんと体操するわん！",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "001_shiba_008",
+      "residentId": "001_shiba",
+      "text": "わんわん！朝の空気が気持ちいいわん。むりせず、いっしょに足踏みするわん！",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_003",
+      "residentId": "052_pome",
+      "text": "ぽむぽむもまぜて〜！いち、に、ぽむ、ぽむ！",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_004",
+      "residentId": "052_pome",
+      "text": "あしぶみしてると、しっぽまでふりふりしちゃうの〜！",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }
