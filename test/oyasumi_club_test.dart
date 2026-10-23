@@ -213,6 +213,29 @@ void main() {
     }
   });
 
+  test('post-club resignation is shared gently and doubts stay private', () {
+    final joined = scene(
+      25, saved: const OyasumiProgress(
+        completed: 3, lastNight: '2026-10-24',
+      ),
+    );
+    expect(joined.stage, 'joined');
+    expect(joined.introduction(frog, 'joined'), isFalse);
+    final dialogue = joined.dialogue(frog, 'joined', 4);
+    expect(dialogue.turns.length, 8);
+    expect(dialogue.turns.first.resident, frog);
+    expect(dialogue.turns.first.text, contains('会社を辞めた'));
+    expect(dialogue.turns[1].resident, host);
+    expect(dialogue.turns[1].text, contains('あしたもあそべる'));
+    expect(dialogue.turns[2].text, contains('しばらくゆっくり'));
+    expect(dialogue.turns[6].text, contains('また明日ね'));
+    expect(dialogue.turns.last.resident, frog);
+    expect(dialogue.turns.last.text, contains('ひとりで'));
+    expect(dialogue.turns.last.text, contains('決めたのは、ぼくだ'));
+    expect(joined.dialogue(frog, 'joined', 9).turns.first.text,
+        dialogue.turns.first.text, reason: 'The extra conversation rotates');
+  });
+
   test('owned Mosaedo makes a walking solo night patrol, not a club member', () {
     final withPatrol = OyasumiScene(
       saved: const OyasumiProgress(),
