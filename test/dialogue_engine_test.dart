@@ -102,7 +102,9 @@ void main() {
     final live = await DialogueCatalog.load();
     const frog = TownResident.c029_office_worker;
     final now = DateTime.utc(2026, 10, 24);
-    final before = Progress.empty(now);
+    // Make the sitting-break mission eligible as well, so its exclusion
+    // after retirement is really caused by story progress.
+    final before = Progress.empty(now).complete(Mission.sittingBreak);
     final retired = before.withOyasumi(
       const OyasumiProgress(completed: 3, lastNight: '2026-10-23'));
     for (final id in [
