@@ -602,7 +602,7 @@ void main() {
     final together = paired({'026_farmer', '027_daydreamer'});
     expect(together.text, 'おやすみくん。農業をやらんかね。');
     expect(together.reply?.residentId, '027_daydreamer');
-    expect(together.reply?.text, 'もふ？おひるねできる？');
+    expect(together.reply?.text, 'いやもふ～～💦');
   });
 
   test('town companion works with AND/OR and enforces speaker presence', () {
