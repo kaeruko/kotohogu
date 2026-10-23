@@ -2916,7 +2916,7 @@
     {
       "id": "002_usagi_001",
       "residentId": "002_usagi",
-      "text": "こんにちは、うさぎです。いいところでしょう、このまち。よかったら、のんびりおしゃべりしていってね。ふふ。",
+      "text": "こんにちは、およめさんです。いいところでしょう、このまち。よかったら、のんびりおしゃべりしていってね。ふふ。",
       "priority": 0,
       "once": true,
       "firstGreeting": true,
@@ -6341,6 +6341,20 @@
       "residentId": "042_senior_dog",
       "text": "絵を見ておると、昔のことまで思い出すのう。あの色づかい、好きじゃよ。",
       "priority": 80,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "site",
+          "siteId": "community_center"
+        }
+      ]
+    },
+    {
+      "id": "001_shiba_006",
+      "residentId": "001_shiba",
+      "text": "じー、わん。\nいいにおいわん。…じゅるっ。",
+      "priority": 10,
       "once": false,
       "logic": "all",
       "conditions": [
