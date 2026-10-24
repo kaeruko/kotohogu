@@ -641,7 +641,9 @@ void main() {
           (area.sourceWidth!.toDouble() * .14).clamp(22.0, 76.0).toDouble();
       final sprite = tester.widget<Image>(
           find.byKey(const ValueKey('resident-sprite-0')));
-      expect(sprite.width, closeTo(base * (area == TownArea.hospital ? 1.4 : 1.2), .01),
+      // The first resident in every area (including the doctor in the
+      // clinic's upper-left exam room) has a distant, < .55 foot anchor.
+      expect(sprite.width, closeTo(base * 1.2, .01),
           reason: 'area: ${area.id}');
       expect(tester.takeException(), isNull);
     }
