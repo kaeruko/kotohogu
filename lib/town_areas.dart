@@ -126,12 +126,18 @@ class TownVisit {
     required String homeAreaId,
     required int lifetimePoints,
     bool marcheOpen = false,
+    bool hospitalOpen = false,
   }) {
     if (residentId.isEmpty) throw ArgumentError('Resident ID must not be empty');
     if (lifetimePoints < 0) {
       throw RangeError.value(lifetimePoints, 'lifetimePoints', 'Must be >= 0');
     }
     if (residentId == TownResident.cat.id) return TownArea.hospital;
+    // The nurse joins the clinic once its doctor has opened it.
+    // Before opening, she can still visit ordinary unlocked neighborhoods.
+    if (hospitalOpen && residentId == TownResident.c024_nurse.id) {
+      return TownArea.hospital;
+    }
     if (homeAreaId == 'salon') return null;
     // Legacy outdoor home IDs are validated for compatibility, but do not
     // constrain or weight random outings. Only 'salon' means indoor-only.
@@ -161,12 +167,14 @@ TownArea? residentCurrentArea(
   int lifetimePoints, {
   required TownVisit visit,
   bool marcheOpen = false,
+  bool hospitalOpen = false,
 }) => visit.destinationFor(
   residentId: resident.id,
   walkInTown: resident.walkInTown,
   homeAreaId: resident.homeAreaId,
   lifetimePoints: lifetimePoints,
   marcheOpen: marcheOpen,
+  hospitalOpen: hospitalOpen,
 );
 
 /// Allocate each owned walker to exactly one currently accessible area.
@@ -193,7 +201,8 @@ List<TownResident> areaResidents(
               ? resident.walkInTown && resident.homeAreaId == area.id
               : residentCurrentArea(
                   resident, lifetimePoints, visit: visit,
-                  marcheOpen: marcheOpen) == area))
+                  marcheOpen: marcheOpen,
+                  hospitalOpen: owned.contains(TownResident.cat)) == area))
         resident,
     if (familyOuting && area == TownArea.shopping)
       familyOutingMother,
