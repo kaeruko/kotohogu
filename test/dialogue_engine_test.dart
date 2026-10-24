@@ -417,6 +417,28 @@ void main() {
     expect(byId('007_hitsuji_009', restored, today).id, '007_hitsuji_009');
   });
 
+  test('town guide mentions morning park exercise only after Gonsuke joins', () async {
+    final live = await DialogueCatalog.load();
+    const guide = TownResident.penguin;
+    final now = DateTime(2026, 10, 24, 12);
+    final before = Progress.empty(now);
+    DialogueEntry tip(Progress progress) => live.selectById(
+      id: '003_penguin_011', resident: guide,
+      progress: progress, now: now,
+    );
+    expect(() => tip(before), throwsStateError);
+    final after = before.grantTicketsForDebug(1)
+        .acquireResident(TownResident.c042_senior_dog);
+    expect(tip(after).text, contains('あさの公園ではわんこたちがたいそうしてるよ'));
+    expect(tip(after).text, contains('6時から9時'));
+    expect(tip(after).once, false);
+    expect(tip(after).priority, 30);
+    // The hint can be heard outside exercise hours, before a morning visit.
+    expect(live.selectById(id: '003_penguin_011', resident: guide,
+      progress: after, now: DateTime(2026, 10, 24, 21)).id,
+      '003_penguin_011');
+  });
+
   test('guide rumors react to salon ownership, not dialogue history', () async {
     final live = await DialogueCatalog.load();
     final now = DateTime.utc(2026, 10, 19);

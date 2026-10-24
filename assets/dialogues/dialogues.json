@@ -6476,6 +6476,21 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "003_penguin_011",
+      "residentId": "003_penguin",
+      "text": "あさの公園ではわんこたちがたいそうしてるよ。朝6時から9時までなんだって。早起きしたら、のぞいてみてね！",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "residentOwned",
+          "residentId": "042_senior_dog",
+          "owned": true
+        }
+      ]
     }
   ]
 }
