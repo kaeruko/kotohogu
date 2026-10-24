@@ -519,7 +519,7 @@ class _TownSceneState extends State<TownScene> {
             ? const TownWalkRoute(.49, .67, stay: true)
             : widget.timedEvents?.route(widget.area, resident) ??
                 widget.oyasumi?.route(widget.area, resident) ?? (widget.area == TownArea.hospital
-        ? const TownWalkRoute(.52, .65, stay: true)
+        ? hospitalStaffRoutes[resident.id]
         : isShopkeeper
         ? plazaMarcheStaffRoute
         : widget.area == TownArea.park
