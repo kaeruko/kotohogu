@@ -89,6 +89,8 @@ flutter:
     - assets/kotohogu/
     - assets/quests/
     - assets/characters/013_kotohogisu/
+    # Room-only animation; this is not a separate gacha resident.
+    - assets/characters/051_dog_aunt_knee_exercise/
     # BEGIN CMS CHARACTER ASSETS
     - assets/characters/001_shiba/
     - assets/characters/002_usagi/

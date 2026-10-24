@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'facility_layout.dart';
@@ -17,6 +19,10 @@ class CommunityCenterRoom extends StatefulWidget {
   static const backgroundAsset =
       'assets/kotohogu/community_center_background_001.png';
 
+  /// A room-only animation variant of the existing 051_dog_aunt resident.
+  static const kneeExerciseSpriteFolder =
+      'assets/characters/051_dog_aunt_knee_exercise';
+
   final Future<void> Function(TownResident)? onResident;
   final bool hideShoppingMother;
 
@@ -25,7 +31,57 @@ class CommunityCenterRoom extends StatefulWidget {
 }
 
 class _CommunityCenterRoomState extends State<CommunityCenterRoom> {
+  static const _frameDuration = Duration(milliseconds: 150);
+  Timer? _exerciseTicker;
+  int _exerciseTicks = 0;
+  bool _animationsEnabled = false;
   bool _talking = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _animationsEnabled = !MediaQuery.disableAnimationsOf(context) &&
+        TickerMode.valuesOf(context).enabled;
+    if (_animationsEnabled && _exerciseTicker == null) {
+      _exerciseTicker = Timer.periodic(_frameDuration, (_) {
+        if (mounted) {
+          setState(() => _exerciseTicks++);
+        }
+      });
+    } else if (!_animationsEnabled) {
+      _exerciseTicker?.cancel();
+      _exerciseTicker = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _exerciseTicker?.cancel();
+    super.dispose();
+  }
+
+  String _spriteAsset(TownResident resident) {
+    final isAttendee = resident == TownResident.c051_dog_aunt;
+    final isCoach = resident == TownResident.c037_tora;
+    if (!isAttendee && !isCoach) {
+      return resident.idleAsset;
+    }
+
+    // A conversation or reduced-motion setting keeps everyone still.
+    if (!_animationsEnabled || _talking) {
+      return isAttendee
+          ? '${CommunityCenterRoom.kneeExerciseSpriteFolder}/idle_front_01.png'
+          : resident.idleAsset;
+    }
+
+    // Four gentle exercise poses, with feet anchored at the CMS placement.
+    final frame = (_exerciseTicks ~/ 3) % 4;
+    if (isAttendee) {
+      final number = (frame + 1).toString().padLeft(2, '0');
+      return '${CommunityCenterRoom.kneeExerciseSpriteFolder}/walk_front_$number.png';
+    }
+    return resident.walkAsset(WalkDirection.front, frame);
+  }
 
   Future<void> _talk(TownResident resident) async {
     final callback = widget.onResident;
@@ -55,8 +111,9 @@ class _CommunityCenterRoomState extends State<CommunityCenterRoom> {
             onTap: _talking || widget.onResident == null
                 ? null : () => _talk(resident),
             child: Image.asset(
-              resident.idleAsset,
+              _spriteAsset(resident),
               fit: BoxFit.contain,
+              gaplessPlayback: true,
               excludeFromSemantics: true,
             ),
           ),

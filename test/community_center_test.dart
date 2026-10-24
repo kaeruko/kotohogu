@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -108,6 +109,122 @@ void main() {
     await tester.pump();
     expect(spoken, [TownResident.c031_kimono_fox, TownResident.c037_tora,
       TownResident.c051_dog_aunt]);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('community center animates only the exercise class',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    String displayedAsset(TownResident resident) {
+      final image = tester.widget<Image>(find.descendant(
+        of: find.byKey(
+            ValueKey('community-center-resident-${resident.id}')),
+        matching: find.byType(Image),
+      ));
+      return (image.image as AssetImage).assetName;
+    }
+
+    for (var frame = 1; frame <= 4; frame++) {
+      final number = frame.toString().padLeft(2, '0');
+      expect(
+        File(
+          '${CommunityCenterRoom.kneeExerciseSpriteFolder}/walk_front_$number.png',
+        ).existsSync(),
+        isTrue,
+      );
+    }
+
+    await tester.pumpWidget(const MaterialApp(home: CommunityCenterRoom()));
+    expect(
+      displayedAsset(TownResident.c051_dog_aunt),
+      '${CommunityCenterRoom.kneeExerciseSpriteFolder}/walk_front_01.png',
+    );
+    expect(
+      displayedAsset(TownResident.c037_tora),
+      TownResident.c037_tora.walkAsset(WalkDirection.front, 0),
+    );
+    expect(
+      displayedAsset(TownResident.c031_kimono_fox),
+      TownResident.c031_kimono_fox.idleAsset,
+    );
+    expect(
+      displayedAsset(TownResident.shiba),
+      TownResident.shiba.idleAsset,
+    );
+    await tester.pump(const Duration(milliseconds: 450));
+    expect(
+      displayedAsset(TownResident.c051_dog_aunt),
+      '${CommunityCenterRoom.kneeExerciseSpriteFolder}/walk_front_02.png',
+    );
+    expect(
+      displayedAsset(TownResident.c037_tora),
+      TownResident.c037_tora.walkAsset(WalkDirection.front, 1),
+    );
+
+    // The system's reduced-motion preference disables both animations.
+    await tester.pumpWidget(MaterialApp(
+      home: MediaQuery(
+        data: MediaQueryData.fromView(tester.view).copyWith(
+          disableAnimations: true,
+        ),
+        child: const CommunityCenterRoom(),
+      ),
+    ));
+    expect(
+      displayedAsset(TownResident.c051_dog_aunt),
+      '${CommunityCenterRoom.kneeExerciseSpriteFolder}/idle_front_01.png',
+    );
+    expect(
+      displayedAsset(TownResident.c037_tora),
+      TownResident.c037_tora.idleAsset,
+    );
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(
+      displayedAsset(TownResident.c051_dog_aunt),
+      '${CommunityCenterRoom.kneeExerciseSpriteFolder}/idle_front_01.png',
+    );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('exercise animation pauses during a resident conversation',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final conversation = Completer<void>();
+    await tester.pumpWidget(MaterialApp(
+      home: CommunityCenterRoom(onResident: (resident) {
+        expect(resident, TownResident.c051_dog_aunt);
+        return conversation.future;
+      }),
+    ));
+    final attendee = find.byKey(
+      const ValueKey('community-center-resident-051_dog_aunt'),
+    );
+    String displayedAsset() {
+      final image = tester.widget<Image>(find.descendant(
+        of: attendee,
+        matching: find.byType(Image),
+      ));
+      return (image.image as AssetImage).assetName;
+    }
+
+    expect(displayedAsset(), contains('walk_front_01.png'));
+    await tester.tap(attendee);
+    await tester.pump();
+    expect(displayedAsset(), contains('idle_front_01.png'));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(displayedAsset(), contains('idle_front_01.png'));
+
+    conversation.complete();
+    await tester.pump();
+    expect(displayedAsset(), contains('/walk_front_'));
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
