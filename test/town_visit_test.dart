@@ -26,13 +26,14 @@ void main() {
       final appeared = placements.values.expand((r) => r).toList();
       expect(appeared.toSet(), walkers.toSet());
       expect(appeared.length, walkers.length);
-      expect(random.calls, walkers.length - 1);
+      expect(random.calls, walkers.length - 2,
+          reason: 'The doctor and nurse use fixed clinic positions');
       for (final area in TownArea.values) {
         if (!unlocked.contains(area) && area != TownArea.hospital) expect(placements[area], isEmpty);
         expect(areaResidents(owned, area,
             lifetimePoints: points, visit: visit), placements[area]);
       }
-      expect(random.calls, walkers.length - 1, reason: 'No redraw during a visit');
+      expect(random.calls, walkers.length - 2, reason: 'No redraw during a visit');
     }
   });
 
