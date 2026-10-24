@@ -41,6 +41,14 @@ class TownWalkRoute {
   final bool stay;
 }
 
+/// Standing spots on the open floor of the clinic's upper two rooms.
+/// Coordinates are relative to hospital_background_001.png and use the
+/// same foot anchors as other town sprites, keeping furniture unobstructed.
+const hospitalStaffRoutes = <String, TownWalkRoute>{
+  '004_neko': TownWalkRoute(.20, .22, stay: true), // upper-left exam room
+  '024_nurse': TownWalkRoute(.69, .22, stay: true), // upper-right treatment room
+};
+
 /// Favorite spots on the *playground version* of the park illustration.
 /// Stable resident IDs, not displayed slot numbers, choose the favorite spot.
 /// These are on the dirt paths next to equipment, not on top of the benches.
