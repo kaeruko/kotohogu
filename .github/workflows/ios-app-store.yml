@@ -131,16 +131,18 @@ jobs:
           ENABLE_DEVELOPER_MENU: ${{ inputs.enable_developer_menu }}
         run: |
           set -euo pipefail
-          dev_args=()
+          build_args=(--release)
           if [[ "$ENABLE_DEVELOPER_MENU" == "true" ]]; then
-            dev_args+=(--dart-define=KOTOHOGU_ENABLE_DEV_TOOLS=true)
+            build_args+=(--dart-define=KOTOHOGU_ENABLE_DEV_TOOLS=true)
             echo "::warning::This IPA contains local developer controls. Use for TestFlight testing only; never submit it to the public App Store."
             echo "- Developer tools: enabled for TestFlight (visible in Menu)" >> "$GITHUB_STEP_SUMMARY"
-          else
+          elif [[ "$ENABLE_DEVELOPER_MENU" == "false" ]]; then
             echo "- Developer tools: excluded (safe production default)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Invalid ENABLE_DEVELOPER_MENU value: $ENABLE_DEVELOPER_MENU"
+            exit 1
           fi
-          flutter build ipa --release \
-            "${dev_args[@]}" \
+          flutter build ipa "${build_args[@]}" \
             --build-number "$GITHUB_RUN_NUMBER" \
             --export-options-plist "$RUNNER_TEMP/ExportOptions.plist"
           test -n "$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)"
