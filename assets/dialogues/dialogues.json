@@ -6491,6 +6491,61 @@
           "owned": true
         }
       ]
+    },
+    {
+      "id": "024_nurse_001",
+      "residentId": "024_nurse",
+      "text": "こんにちは、ことほぎのまちのナースです。忙しい毎日のなかでも、ご自分の体を大切にしてくださいね。",
+      "priority": 40,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "024_nurse_002",
+      "residentId": "024_nurse",
+      "text": "こんにちは。気になる体の変化があったら、ひとりで抱え込まずに相談してくださいね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "024_nurse_003",
+      "residentId": "024_nurse",
+      "text": "健診の結果、封筒を開けないままになっていませんか？ まずは『要受診』『要精密検査』と書かれていないか、確認してみましょう。",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "024_nurse_004",
+      "residentId": "024_nurse",
+      "text": "『要受診』『要精密検査』があったら、症状がなくても医療機関へ。精密検査が必要でも、病気が確定したわけではありません。きちんと確認することが大切なんです。",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "024_nurse_005",
+      "residentId": "024_nurse",
+      "text": "痛みが続いているのに、お仕事や家事で受診を後回しにしていませんか？ 動けなくなるまで我慢せず、早めに医療機関へ相談してくださいね。",
+      "priority": 25,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "024_nurse_006",
+      "residentId": "024_nurse",
+      "text": "病院で『こんなに悪いと思わなかった』と話す方もいます。ご家族に心配をかけたくないときも、体のことはひとりで抱え込まず、医療者に話してくださいね。",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }
