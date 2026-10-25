@@ -108,7 +108,7 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('clinic heading and previous arrow are lowered together',
+  testWidgets('clinic heading and arrow sit on entrance forecourt',
       (tester) async {
     tester.view.physicalSize = const Size(430, 930);
     tester.view.devicePixelRatio = 1;
@@ -126,19 +126,22 @@ void main() {
     );
 
     await tester.pumpWidget(navigator(TownArea.plaza));
-    final plazaHeading = tester.getTopLeft(
-        find.byKey(const ValueKey('town-area-name'))).dy;
-    final plazaArrow = tester.getTopLeft(
-        find.byKey(const ValueKey('town-area-next'))).dy;
+    final plazaRow = tester.getRect(
+        find.byKey(const ValueKey('town-area-navigation-row')));
+    final plazaViewport = tester.getRect(find.byType(TownAreaNavigator));
+    expect(plazaRow.top - plazaViewport.top, lessThan(200));
 
     await tester.pumpWidget(navigator(TownArea.hospital));
-    final clinicHeading = tester.getTopLeft(
-        find.byKey(const ValueKey('town-area-name'))).dy;
-    final clinicArrow = tester.getTopLeft(
-        find.byKey(const ValueKey('town-area-previous'))).dy;
-
-    expect(clinicHeading - plazaHeading, closeTo(28.0, 0.01));
-    expect(clinicArrow - plazaArrow, closeTo(28.0, 0.01));
+    final clinicViewport = tester.getRect(find.byType(TownAreaNavigator));
+    final clinicRow = tester.getRect(
+        find.byKey(const ValueKey('town-area-navigation-row')));
+    final forecourtOffset =
+        (clinicViewport.height * .10).clamp(72.0, double.infinity);
+    expect(clinicViewport.bottom - clinicRow.bottom,
+        closeTo(forecourtOffset, .01));
+    expect(clinicRow.top, greaterThan(plazaRow.bottom));
+    expect(find.byKey(const ValueKey('town-area-name')), findsOneWidget);
+    expect(find.byKey(const ValueKey('town-area-previous')), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
