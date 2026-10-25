@@ -673,7 +673,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       if (read != true || !mounted) return;
       if (scene.introduction(resident, group)) {
         await controller.completeOyasumi(scene, resident, group);
-      } else if (line.id == scene.wishDialogueId) {
+      } else if (line.id == scene.rumorDialogueId ||
+          line.id == scene.wishDialogueId) {
         // Only a fully-read chapter becomes permanently complete.
         // Save failures retain the unplayed chapter for the next attempt.
         await controller.recordDialogueSeen(line.id);
