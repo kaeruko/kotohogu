@@ -92,6 +92,46 @@ function editLines(parent,lines,primary,allowed,{isResting=false,maxNightPattern
     parent.append(remove);
   }
 }
+// One-time scenes have natural, variable-length exchanges. Only the first
+// line is always from the frog; subsequent speakers can be chosen freely.
+function editSpecialTurns(parent,scene){
+  const max=6,min=2;
+  scene.turns.forEach((turn,index)=>{
+    const row=el('div');row.className='talk-turn';
+    const speaker=el('label',`発言 ${index+1}・話す住民 `);
+    if(index===0) speaker.append(el('strong',names['029_office_worker']));
+    else {
+      const select=el('select');
+      for(const id of ['029_office_worker','027_daydreamer']){
+        const option=el('option',names[id]);option.value=id;select.append(option);
+      }
+      select.value=turn.speaker;
+      select.onchange=()=>{turn.speaker=select.value;change();};
+      speaker.append(select);
+    }
+    row.append(speaker);
+    textField(row,`セリフ ${index+1}`,turn.text,v=>turn.text=v);
+    if(scene.turns.length>min && index>0){
+      const remove=el('button','この発言を削除');
+      remove.type='button';remove.className='secondary';
+      remove.onclick=()=>{scene.turns.splice(index,1);renderEditor();change();};
+      row.append(remove);
+    }
+    parent.append(row);
+  });
+  const add=el('button','＋ 発言を追加（最大6発言）');
+  add.type='button';add.className='secondary';
+  add.disabled=scene.turns.length>=max;
+  add.onclick=()=>{
+    const last=scene.turns.at(-1).speaker;
+    scene.turns.push({
+      speaker:last==='029_office_worker'?'027_daydreamer':'029_office_worker',
+      text:'新しいセリフ',
+    });
+    renderEditor();change();
+  };
+  parent.append(add);
+}
 function renderEditor(){
   $('stages').replaceChildren();
   Object.entries(config.stages).forEach(([key,stage],i)=>{
@@ -121,9 +161,7 @@ function renderEditor(){
       const rumorThreshold=el('input');rumorThreshold.type='number';rumorThreshold.min='10';rumorThreshold.max='3000';rumorThreshold.step='10';rumorThreshold.value=rumor.unlockAfterKotohogi;
       rumorThreshold.onchange=()=>{rumor.unlockAfterKotohogi=Number(rumorThreshold.value);change();};
       rumorLabel.append(rumorThreshold);rumorEditor.append(rumorLabel);
-      rumor.turns.forEach((turn,j)=>{
-        textField(rumorEditor,`発言 ${j+1}・${names[turn.speaker]||turn.speaker}`,turn.text,v=>turn.text=v);
-      });
+      editSpecialTurns(rumorEditor,rumor);
       detail.append(rumorEditor);
       const wish=stage.specialConversation;
       const section=el('section');section.append(el('h3','一度きりの願いごと会話'));
@@ -133,9 +171,7 @@ function renderEditor(){
       const threshold=el('input');threshold.type='number';threshold.min='10';threshold.max='3000';threshold.step='10';threshold.value=wish.unlockAfterKotohogi;
       threshold.onchange=()=>{wish.unlockAfterKotohogi=Number(threshold.value);change();};
       label.append(threshold);section.append(label);
-      wish.turns.forEach((turn,j)=>{
-        textField(section,`発言 ${j+1}・${names[turn.speaker]||turn.speaker}`,turn.text,v=>turn.text=v);
-      });
+      editSpecialTurns(section,wish);
       detail.append(section);
     }
     $('stages').append(detail);
