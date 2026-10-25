@@ -658,7 +658,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
               : group == 'patrol'
                   ? 'よまわり'
                   : group == OyasumiScene.teaVisitGroup
-                      ? scene.teaVisitLabel
+                      ? scene.teaVisitBadge(line.id)
                       : 'ゆうぐれおやすみクラブ',
           turns: [
             for (final turn in line.turns)
