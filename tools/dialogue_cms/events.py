@@ -80,8 +80,8 @@ def validate(doc):
             if type(threshold) is not int or not 10 <= threshold <= 3000 or threshold % 10:
                 raise ValueError('願いごとの解放条件は10刻みの累積ことほぎにしてください')
             turns = wish['turns']
-            if not isinstance(turns,list) or len(turns) != 8:
-                raise ValueError('願いごとの会話は8発言で設定してください')
+            if not isinstance(turns,list) or len(turns) != 5:
+                raise ValueError('願いごとの会話は5発言で設定してください')
             for i,turn in enumerate(turns):
                 expected_speaker = FROG if i % 2 == 0 else HOST
                 if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
