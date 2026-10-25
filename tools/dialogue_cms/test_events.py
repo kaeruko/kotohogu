@@ -101,16 +101,24 @@ class EventTests(unittest.TestCase):
                 unlockAfterKotohogi=115),
             lambda d: d['stages']['joined']['specialConversation'].update(
                 unlockAfterKotohogi=True),
-            lambda d: d['stages']['joined']['specialConversation']['turns'].pop(),
+            lambda d: d['stages']['joined']['specialConversation'].update(
+                turns=d['stages']['joined']['specialConversation']['turns'][:1]),
+            lambda d: d['stages']['joined']['specialConversation']['turns'][0].update(
+                speaker=events.HOST),
             lambda d: d['stages']['joined']['specialConversation']['turns'][1].update(
-                speaker=events.FROG),
+                speaker='not_a_resident'),
+            lambda d: d['stages']['joined']['specialConversation'].update(
+                turns=d['stages']['joined']['specialConversation']['turns']*2),
             lambda d: d['stages']['joined']['specialConversation'].update(
                 id='changed'),
             lambda d: d['stages']['joined']['rumorConversation'].update(
                 unlockAfterKotohogi=120),
             lambda d: d['stages']['joined']['rumorConversation'].update(
                 unlockAfterKotohogi='90'),
-            lambda d: d['stages']['joined']['rumorConversation']['turns'].pop(),
+            lambda d: d['stages']['joined']['rumorConversation'].update(
+                turns=d['stages']['joined']['rumorConversation']['turns'][:1]),
+            lambda d: d['stages']['joined']['rumorConversation'].update(
+                turns=d['stages']['joined']['rumorConversation']['turns']*2),
             lambda d: d['stages']['joined']['rumorConversation']['turns'][0].update(
                 speaker=events.HOST),
         ]
@@ -120,6 +128,30 @@ class EventTests(unittest.TestCase):
                 alter(doc)
                 with self.assertRaises(ValueError):
                     events.validate(doc)
+
+    def test_special_dialogues_allow_different_lengths_and_repeated_speakers(self):
+        original = events.load()
+        for rumor_length, wish_length in ((2, 3), (3, 6), (6, 2)):
+            with self.subTest(rumor_length=rumor_length, wish_length=wish_length):
+                doc = copy.deepcopy(original)
+                joined = doc['stages']['joined']
+                rumor = joined['rumorConversation']['turns']
+                wish = joined['specialConversation']['turns']
+                joined['rumorConversation']['turns'] = [
+                    rumor[0], *([rumor[1]] * (rumor_length - 1))]
+                joined['specialConversation']['turns'] = [
+                    wish[0], *([wish[1]] * (wish_length - 1))]
+                events.validate(doc)
+                rendered = events.generated(doc)
+                self.assertIn('oyasumi_joined_wish_001', rendered)
+                preview = events.preview(dict(
+                    config=doc, completed=3, lastNight='2026-10-20',
+                    lastKotohogi=160, earnedKotohogi=280,
+                    now='2026-10-25T19:00',
+                    owned=[events.HOST, events.FROG],
+                    rumorSeen=True))
+                self.assertEqual(
+                    len(preview['wishDialogue']['turns']), wish_length)
 
     def test_save_edits_both_files_and_escapes_dart(self):
         doc=copy.deepcopy(events.load())
