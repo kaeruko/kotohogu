@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'resident_collection.dart';
+import 'facility_layout.dart';
 import 'oyasumi_club.dart';
 import 'timed_events.dart';
 import 'marche.dart';
@@ -513,14 +514,18 @@ class _TownSceneState extends State<TownScene> {
         (widget.visit ?? _standaloneVisit).isFamilyOuting(
           widget.residents, widget.lifetimePoints,
           afterOyasumiClub: widget.afterOyasumiClub);
+    // The CMS is the single source of sprite size and top-left coordinates
+    // for the clinic. An unknown staff member must fail instead of silently
+    // falling back to a random town position.
+    final clinicPlacement = widget.area == TownArea.hospital
+        ? facilityPlacement('hospital', resident.id)
+        : null;
     final route = familyOuting && resident == familyOutingMother
         ? const TownWalkRoute(.36, .67, stay: true)
         : familyOuting && resident == familyOutingDaughter
             ? const TownWalkRoute(.49, .67, stay: true)
             : widget.timedEvents?.route(widget.area, resident) ??
-                widget.oyasumi?.route(widget.area, resident) ?? (widget.area == TownArea.hospital
-        ? hospitalStaffRoutes[resident.id]
-        : isShopkeeper
+                widget.oyasumi?.route(widget.area, resident) ?? (isShopkeeper
         ? plazaMarcheStaffRoute
         : widget.area == TownArea.park
             ? parkWalkRoute(resident.id, index, totalSlots: totalSlots)
@@ -533,7 +538,9 @@ class _TownSceneState extends State<TownScene> {
             _farmerScareArea == widget.area && !reduced
         ? (_ticks - _farmerScareStartTick!) * _frameDuration.inMilliseconds
         : null;
-    final pose = resident == TownResident.c027_daydreamer &&
+    final pose = clinicPlacement != null
+        ? const TownWalkPose(x: 0, y: 0, direction: null, frame: 0)
+        : resident == TownResident.c027_daydreamer &&
             scareAge != null
         ? farmerScarePose(
             _farmerScareStartPose!,
@@ -568,9 +575,17 @@ class _TownSceneState extends State<TownScene> {
             : resident.idleAsset;
     // Keep the original bottom-center of the walking sprite as its foot
     // anchor while increasing visual size and its matching tap target.
-    final scaledSize = size * _townResidentScale(origin.$2);
-    final footX = width * pose.x + size / 2;
-    final footY = height * pose.y + size;
+    final clinicWidthScale = width / (widget.area.sourceWidth ?? width);
+    final scaledSize = clinicPlacement == null
+        ? size * _townResidentScale(origin.$2)
+        : clinicPlacement.size * clinicWidthScale;
+    final footX = clinicPlacement == null
+        ? width * pose.x + size / 2
+        : (clinicPlacement.x + clinicPlacement.size / 2) * clinicWidthScale;
+    final footY = clinicPlacement == null
+        ? height * pose.y + size
+        : clinicPlacement.y *
+                height / (widget.area.sourceHeight ?? height) + scaledSize;
     final sprite = Image.asset(
       asset,
       key: isShopkeeper
