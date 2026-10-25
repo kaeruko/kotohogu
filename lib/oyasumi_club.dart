@@ -150,12 +150,21 @@ class OyasumiScene {
   Map<String, dynamic> get wishDefinition =>
       oyasumiConfig['stages']['joined']['specialConversation'] as Map<String, dynamic>;
   String get wishDialogueId => wishDefinition['id'] as String;
+  Map<String, dynamic> get rumorDefinition =>
+      oyasumiConfig['stages']['joined']['rumorConversation'] as Map<String, dynamic>;
+  String get rumorDialogueId => rumorDefinition['id'] as String;
+
   int get earnedSinceJoining {
     final milestone = saved.lastKotohogi;
     final difference = milestone == null
         ? earnedKotohogi : earnedKotohogi - milestone;
     return difference < 0 ? 0 : difference;
   }
+  bool get rumorDialogueAvailable =>
+      active && saved.completed == 3 && owned.contains(frog) &&
+      earnedSinceJoining >= (rumorDefinition['unlockAfterKotohogi'] as int) &&
+      !seenDialogues.contains(rumorDialogueId);
+
   bool get wishDialogueAvailable =>
       active && saved.completed == 3 && owned.contains(frog) &&
       earnedSinceJoining >= (wishDefinition['unlockAfterKotohogi'] as int) &&
@@ -289,6 +298,20 @@ class OyasumiScene {
         'oyasumi_tea_visit_${resident.id}',
         [
           for (final turn in teaVisitDefinition['turns'] as List)
+            OyasumiDialogueTurn(
+              TownResident.fromId(turn['speaker'] as String),
+              turn['text'] as String,
+            ),
+        ],
+      );
+    }
+    // A backlog always plays in story order, even if enough kotohogi
+    // were earned to unlock both scenes before visiting the club.
+    if (group == 'joined' && resident == frog && rumorDialogueAvailable) {
+      return OyasumiDialogue(
+        rumorDialogueId,
+        [
+          for (final turn in rumorDefinition['turns'] as List)
             OyasumiDialogueTurn(
               TownResident.fromId(turn['speaker'] as String),
               turn['text'] as String,
