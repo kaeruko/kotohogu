@@ -162,11 +162,14 @@ void main() {
     expect(ready.wishDialogueAvailable, isTrue);
     final special = ready.dialogue(frog, 'joined', 0);
     expect(special.id, 'oyasumi_joined_wish_001');
-    expect(special.turns.length, 8);
+    expect(special.turns.length, 5);
     expect(special.turns.map((t) => t.resident).toList(),
-        [frog, host, frog, host, frog, host, frog, host]);
-    expect(special.turns[3].text, 'あしたも、かえるくんがくるといいもふ');
-    expect(special.turns.last.text, 'やったもふ〜');
+        [frog, host, frog, host, frog]);
+    expect(special.turns[1].text,
+        'もふ～。毎日ひなたぼっこしたいもふ。\n'
+        'あと…あしたも、かえるくんがくるといいもふ');
+    expect(special.turns.last.text,
+        '（……おかねもちになりたいなんて、いえない）');
     expect(ready.dialogue(host, 'joined', 0).id,
         isNot(ready.wishDialogueId),
         reason: 'The frog starts the wish conversation');
