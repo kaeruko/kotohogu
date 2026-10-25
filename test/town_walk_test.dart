@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/dialogue_engine.dart';
+import 'package:future_lift/facility_layout.dart';
 import 'package:future_lift/resident_collection.dart';
 import 'package:future_lift/resident_conversation_dialog.dart';
 import 'package:future_lift/town.dart';
@@ -641,9 +642,12 @@ void main() {
           (area.sourceWidth!.toDouble() * .14).clamp(22.0, 76.0).toDouble();
       final sprite = tester.widget<Image>(
           find.byKey(const ValueKey('resident-sprite-0')));
-      // The first resident in every area (including the doctor in the
-      // clinic's upper-left exam room) has a distant, < .55 foot anchor.
-      expect(sprite.width, closeTo(base * 1.2, .01),
+      // Clinic staff use their exact CMS size; outdoor sprites keep the
+      // depth-based town scale.
+      final expectedSize = area == TownArea.hospital
+          ? facilityPlacement('hospital', active.first.id).size
+          : base * 1.2;
+      expect(sprite.width, closeTo(expectedSize, .01),
           reason: 'area: ${area.id}');
       expect(tester.takeException(), isNull);
     }
