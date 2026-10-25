@@ -85,10 +85,13 @@ class OyasumiScene {
     this.enabled = true,
     this.parkCleanerStarted = false,
     this.marcheOpen = false,
+    Iterable<String> seenDialogues = const [],
   }) : owned = Set.of(owned),
+       seenDialogues = Set.of(seenDialogues),
        now = now.toLocal();
   final OyasumiProgress saved;
   final Set<TownResident> owned;
+  final Set<String> seenDialogues;
   final DateTime now;
   final int earnedKotohogi;
   final bool enabled;
@@ -140,6 +143,24 @@ class OyasumiScene {
   }
 
   String get stage => ['solo', 'watching', 'joining', 'joined'][step - 1];
+
+  // One-time chapter, unlocked by earned lifetime kotohogi since joining.
+  // Older saves without a joining milestone use their lifetime total,
+  // never a calendar-day estimate.
+  Map<String, dynamic> get wishDefinition =>
+      oyasumiConfig['stages']['joined']['specialConversation'] as Map<String, dynamic>;
+  String get wishDialogueId => wishDefinition['id'] as String;
+  int get earnedSinceJoining {
+    final milestone = saved.lastKotohogi;
+    final difference = milestone == null
+        ? earnedKotohogi : earnedKotohogi - milestone;
+    return difference < 0 ? 0 : difference;
+  }
+  bool get wishDialogueAvailable =>
+      active && saved.completed == 3 && owned.contains(frog) &&
+      earnedSinceJoining >= (wishDefinition['unlockAfterKotohogi'] as int) &&
+      !seenDialogues.contains(wishDialogueId);
+
   Map<String, dynamic> get definition =>
       oyasumiConfig['stages'][stage] as Map<String, dynamic>;
   List<TownResident> get cast =>
@@ -268,6 +289,18 @@ class OyasumiScene {
         'oyasumi_tea_visit_${resident.id}',
         [
           for (final turn in teaVisitDefinition['turns'] as List)
+            OyasumiDialogueTurn(
+              TownResident.fromId(turn['speaker'] as String),
+              turn['text'] as String,
+            ),
+        ],
+      );
+    }
+    if (group == 'joined' && resident == frog && wishDialogueAvailable) {
+      return OyasumiDialogue(
+        wishDialogueId,
+        [
+          for (final turn in wishDefinition['turns'] as List)
             OyasumiDialogueTurn(
               TownResident.fromId(turn['speaker'] as String),
               turn['text'] as String,
