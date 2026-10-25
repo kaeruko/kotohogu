@@ -70,9 +70,13 @@ class EventTests(unittest.TestCase):
         self.assertEqual(special['unlockAfterKotohogi'], 120)
         self.assertEqual(special['id'], 'oyasumi_joined_wish_001')
         self.assertEqual([t['speaker'] for t in special['turns']],
-                         [events.FROG, events.HOST] * 4)
-        self.assertEqual(special['turns'][3]['text'],
-                         'あしたも、かえるくんがくるといいもふ')
+                         [events.FROG, events.HOST, events.FROG,
+                          events.HOST, events.FROG])
+        self.assertEqual(special['turns'][1]['text'],
+                         'もふ～。毎日ひなたぼっこしたいもふ。\n'
+                         'あと…あしたも、かえるくんがくるといいもふ')
+        self.assertEqual(special['turns'][-1]['text'],
+                         '（……おかねもちになりたいなんて、いえない）')
         base = dict(config=doc, completed=3, lastNight='2026-10-20',
                     lastKotohogi=160, earnedKotohogi=270,
                     now='2026-10-25T19:00',
