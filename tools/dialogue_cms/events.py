@@ -59,7 +59,7 @@ def validate(doc):
         stage = doc['stages'][key]
         required = {'label','positions','intro','chatter'}
         if key == 'joined':
-            required.update({'specialConversation','rumorConversation'})
+            required.update({'specialConversation','rumorConversation','parkCleanerConversation'})
         if not isinstance(stage,dict) or set(stage) != required:
             raise ValueError('段階の項目が不正です')
         text(stage['label'])
@@ -106,6 +106,25 @@ def validate(doc):
                         turn['speaker'] not in (FROG,HOST) or
                         (i==0 and turn['speaker'] != FROG)):
                     raise ValueError('コトホグマの噂の話者が不正です')
+                text(turn['text'])
+            cleaner = stage['parkCleanerConversation']
+            if (not isinstance(cleaner,dict) or
+                    set(cleaner) != {'id','unlockAfterKotohogi','turns'} or
+                    cleaner['id'] != 'frog_park_cleaner_started'):
+                raise ValueError('おそうじやさん就職会話の設定が不正です')
+            cleaner_threshold = cleaner['unlockAfterKotohogi']
+            if (type(cleaner_threshold) is not int or
+                    cleaner_threshold < 10 or cleaner_threshold % 10 or
+                    cleaner_threshold >= rumor_threshold):
+                raise ValueError('就職会話はコトホグマの噂より先の累積ことほぎで解放してください')
+            cleaner_turns = cleaner['turns']
+            if not isinstance(cleaner_turns,list) or not 2 <= len(cleaner_turns) <= 6:
+                raise ValueError('おそうじやさん就職会話は2〜6発言で設定してください')
+            for i,turn in enumerate(cleaner_turns):
+                if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
+                        turn['speaker'] not in (FROG,HOST) or
+                        (i==0 and turn['speaker'] != FROG)):
+                    raise ValueError('就職会話の話者が不正です')
                 text(turn['text'])
         else:
             intro=stage['intro']
@@ -218,15 +237,19 @@ def preview(payload):
         return [FROG] if isinstance(item,str) else [turn['speaker'] for turn in item['turns']]
     wish=doc['stages']['joined']['specialConversation']
     rumor=doc['stages']['joined']['rumorConversation']
+    cleaner=doc['stages']['joined']['parkCleanerConversation']
     special_ready=(active and key=='joined' and completed==3)
     elapsed=earned-(milestone if milestone is not None else 0)
+    cleaner_available=(special_ready and
+                       elapsed >= cleaner['unlockAfterKotohogi'] and
+                       not park_cleaner_started)
     rumor_available=(special_ready and elapsed >= rumor['unlockAfterKotohogi'] and
-                     not rumor_seen)
+                     not rumor_seen and not cleaner_available)
     wish_available=(special_ready and elapsed >= wish['unlockAfterKotohogi'] and
-                    not wish_seen and not rumor_available)
+                    not wish_seen and not rumor_available and not cleaner_available)
     rest = [
         item for item in doc['restingDialogue']
         if (not isinstance(item, dict) or item.get('requires') != 'parkCleaner' or park_cleaner_started)
         and set(turn_speakers(item)).issubset(set(peers)|{FROG})
     ] if completed==3 and FROG in owned and not active else []
-    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},rumorDialogue=rumor if rumor_available else None,wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=step if intro else completed)
+    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},parkCleanerDialogue=cleaner if cleaner_available else None,rumorDialogue=rumor if rumor_available else None,wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=step if intro else completed)
