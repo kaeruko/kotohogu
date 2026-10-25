@@ -108,6 +108,41 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('clinic heading and previous arrow are lowered together',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    Widget navigator(TownArea area) => MaterialApp(
+      home: Scaffold(
+        body: TownAreaNavigator(
+          area: area,
+          onAreaChanged: (_) {},
+          lifetimePoints: 0,
+          residents: const [TownResident.cat],
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(navigator(TownArea.plaza));
+    final plazaHeading = tester.getTopLeft(
+        find.byKey(const ValueKey('town-area-name'))).dy;
+    final plazaArrow = tester.getTopLeft(
+        find.byKey(const ValueKey('town-area-next'))).dy;
+
+    await tester.pumpWidget(navigator(TownArea.hospital));
+    final clinicHeading = tester.getTopLeft(
+        find.byKey(const ValueKey('town-area-name'))).dy;
+    final clinicArrow = tester.getTopLeft(
+        find.byKey(const ValueKey('town-area-previous'))).dy;
+
+    expect(clinicHeading - plazaHeading, closeTo(28.0, 0.01));
+    expect(clinicArrow - plazaArrow, closeTo(28.0, 0.01));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('newly acquired teacher opens hospital across locked areas', (tester) async {
     tester.view.physicalSize = const Size(430, 930);
     tester.view.devicePixelRatio = 1;
