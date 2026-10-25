@@ -168,6 +168,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       OyasumiScene.parkCleanerUnlockId,
     ),
     marcheOpen: isMarcheOpen(progress),
+    seenDialogues: progress.seenDialogues,
   );
   TownTimedEvents _timedEvents(Progress progress) => TownTimedEvents(
     now: controller.clock(), owned: progress.residents.owned,
@@ -672,6 +673,10 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       if (read != true || !mounted) return;
       if (scene.introduction(resident, group)) {
         await controller.completeOyasumi(scene, resident, group);
+      } else if (line.id == scene.wishDialogueId) {
+        // Only a fully-read chapter becomes permanently complete.
+        // Save failures retain the unplayed chapter for the next attempt.
+        await controller.recordDialogueSeen(line.id);
       } else {
         _clubRotations[key] = (_clubRotations[key] ?? 0) + 1;
       }
