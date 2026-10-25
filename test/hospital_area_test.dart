@@ -1,12 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/resident_collection.dart';
+import 'package:future_lift/facility_layout.dart';
 import 'package:future_lift/town_areas.dart';
 import 'package:future_lift/town_area_navigator.dart';
 import 'package:future_lift/town.dart';
 import 'support/town_random.dart';
 
 void main() {
+  test('clinic CMS positions and size match its source artwork', () {
+    final doctor = facilityPlacement('hospital', TownResident.cat.id);
+    final nurse = facilityPlacement('hospital', TownResident.c024_nurse.id);
+    expect(facilityPlacements('hospital').map((p) => p.residentId),
+        [TownResident.cat.id, TownResident.c024_nurse.id]);
+    expect(doctor.size, 125);
+    expect(nurse.size, doctor.size);
+    expect(doctor.x + doctor.size, lessThan(nurse.x));
+    for (final staff in [doctor, nurse]) {
+      expect(staff.x, greaterThanOrEqualTo(0));
+      expect(staff.y, greaterThanOrEqualTo(0));
+      expect(staff.x + staff.size, lessThanOrEqualTo(
+          TownArea.hospital.sourceWidth!));
+      expect(staff.y + staff.size, lessThanOrEqualTo(
+          TownArea.hospital.sourceHeight!));
+    }
+  });
+
   test('hospital requires the teacher regardless of points', () {
     expect(TownArea.hospital.isUnlocked(100000), isFalse);
     expect(TownArea.hospital.isUnlocked(0, owned: [TownResident.cat]), isTrue);
@@ -67,6 +86,12 @@ void main() {
     final nurse = find.byKey(const ValueKey('resident-1'));
     expect(doctor, findsOneWidget);
     expect(nurse, findsOneWidget);
+    expect(tester.widget<Image>(
+        find.byKey(const ValueKey('resident-sprite-0'))).width,
+        facilityPlacement('hospital', TownResident.cat.id).size);
+    expect(tester.widget<Image>(
+        find.byKey(const ValueKey('resident-sprite-1'))).width,
+        facilityPlacement('hospital', TownResident.c024_nurse.id).size);
     expect(tester.getRect(doctor).center.dx,
         lessThan(tester.getRect(nurse).center.dx));
     expect(tester.getRect(doctor).bottom,
