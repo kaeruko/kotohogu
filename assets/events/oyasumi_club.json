@@ -442,6 +442,24 @@
         "speaker": "041_pig_middle",
         "text": "ふふ、ゆっくりしていってねぇ"
       }
-    ]
+    ],
+    "extraDialogue": {
+      "id": "oyasumi_tea_visit_food_friends",
+      "label": "たべられなかま",
+      "turns": [
+        {
+          "speaker": "029_office_worker",
+          "text": "ナマケモノって、野生だとジャガーやワシに狙われるんだって"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "こわいもふ〜。ぼく、たべられたくないもふ……"
+        },
+        {
+          "speaker": "041_pig_middle",
+          "text": "わかるわぁ……つらいわよね……"
+        }
+      ]
+    }
   }
 }
