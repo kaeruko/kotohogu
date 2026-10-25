@@ -38,6 +38,36 @@ class EventTests(unittest.TestCase):
         self.assertFalse(self.preview(now='2026-10-21T06:00')['active'])
     def test_config_generated_data_is_current(self):
         self.assertEqual(events.DART.read_text(encoding='utf-8'),events.generated(events.load()))
+    def test_park_cleaner_job_is_first_at_joining_plus_sixty(self):
+        doc = events.load()
+        job = doc['stages']['joined']['parkCleanerConversation']
+        self.assertEqual(job['id'], 'frog_park_cleaner_started')
+        self.assertEqual(job['unlockAfterKotohogi'], 60)
+        self.assertEqual([part['speaker'] for part in job['turns']],
+                         [events.FROG, events.HOST, events.FROG,
+                          events.HOST, events.FROG])
+        base = dict(config=doc, completed=3, lastNight='2026-10-20',
+                    lastKotohogi=160, earnedKotohogi=210,
+                    now='2026-10-25T19:00',
+                    owned=[events.HOST, events.FROG])
+        self.assertIsNone(events.preview(base)['parkCleanerDialogue'])
+        job_ready = {**base, 'earnedKotohogi': 220}
+        self.assertEqual(events.preview(job_ready)['parkCleanerDialogue'], job)
+        self.assertIsNone(events.preview(job_ready)['rumorDialogue'])
+        backlog = {**base, 'earnedKotohogi': 280}
+        self.assertEqual(events.preview(backlog)['parkCleanerDialogue'], job)
+        self.assertIsNone(events.preview(backlog)['rumorDialogue'])
+        self.assertIsNone(events.preview(backlog)['wishDialogue'])
+        read = {**backlog, 'parkCleanerStarted': True}
+        self.assertIsNone(events.preview(read)['parkCleanerDialogue'])
+        self.assertIsNotNone(events.preview(read)['rumorDialogue'])
+        self.assertIsNone(events.preview({**job_ready,
+            'now': '2026-10-25T12:00'})['parkCleanerDialogue'])
+        self.assertIsNone(events.preview({**job_ready,
+            'completed': 2})['parkCleanerDialogue'])
+        self.assertIsNone(events.preview({**job_ready,
+            'owned': [events.FROG]})['parkCleanerDialogue'])
+
     def test_kotohoguma_rumor_unlocks_before_wish(self):
         doc = events.load()
         rumor = doc['stages']['joined']['rumorConversation']
@@ -49,7 +79,8 @@ class EventTests(unittest.TestCase):
         base = dict(config=doc, completed=3, lastNight='2026-10-20',
                     lastKotohogi=160, earnedKotohogi=240,
                     now='2026-10-25T19:00',
-                    owned=[events.HOST, events.FROG])
+                    owned=[events.HOST, events.FROG],
+                    parkCleanerStarted=True)
         self.assertIsNone(events.preview(base)['rumorDialogue'])
         seen_90 = {**base, 'earnedKotohogi': 250}
         self.assertEqual(events.preview(seen_90)['rumorDialogue'], rumor)
@@ -80,7 +111,8 @@ class EventTests(unittest.TestCase):
         base = dict(config=doc, completed=3, lastNight='2026-10-20',
                     lastKotohogi=160, earnedKotohogi=270,
                     now='2026-10-25T19:00',
-                    owned=[events.HOST, events.FROG], rumorSeen=True)
+                    owned=[events.HOST, events.FROG],
+                    parkCleanerStarted=True, rumorSeen=True)
         self.assertIsNone(events.preview(base)['wishDialogue'])
         at_threshold = {**base, 'earnedKotohogi': 280}
         self.assertEqual(events.preview(at_threshold)['wishDialogue'], special)
@@ -121,6 +153,14 @@ class EventTests(unittest.TestCase):
                 turns=d['stages']['joined']['rumorConversation']['turns']*2),
             lambda d: d['stages']['joined']['rumorConversation']['turns'][0].update(
                 speaker=events.HOST),
+            lambda d: d['stages']['joined']['parkCleanerConversation'].update(
+                unlockAfterKotohogi=95),
+            lambda d: d['stages']['joined']['parkCleanerConversation'].update(
+                id='incorrect'),
+            lambda d: d['stages']['joined']['parkCleanerConversation'].update(
+                turns=d['stages']['joined']['parkCleanerConversation']['turns'][:1]),
+            lambda d: d['stages']['joined']['parkCleanerConversation']['turns'][0].update(
+                speaker=events.HOST),
         ]
         for alter in alterations:
             with self.subTest(alter=alter):
@@ -149,7 +189,7 @@ class EventTests(unittest.TestCase):
                     lastKotohogi=160, earnedKotohogi=280,
                     now='2026-10-25T19:00',
                     owned=[events.HOST, events.FROG],
-                    rumorSeen=True))
+                    parkCleanerStarted=True, rumorSeen=True))
                 self.assertEqual(
                     len(preview['wishDialogue']['turns']), wish_length)
 
