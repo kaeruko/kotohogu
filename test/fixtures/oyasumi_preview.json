@@ -4,7 +4,9 @@
       "completed": 0,
       "lastNight": null,
       "owned": [],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -21,7 +23,9 @@
       "completed": 0,
       "lastNight": null,
       "owned": [],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -38,7 +42,9 @@
       "completed": 0,
       "lastNight": null,
       "owned": [],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -55,7 +61,9 @@
       "completed": 0,
       "lastNight": null,
       "owned": [],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -72,7 +80,9 @@
       "completed": 0,
       "lastNight": null,
       "owned": [],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -89,7 +99,9 @@
       "completed": 0,
       "lastNight": null,
       "owned": [],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -108,7 +120,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -127,7 +141,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -148,7 +164,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -169,7 +187,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -190,7 +210,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -209,7 +231,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -230,7 +254,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -249,7 +275,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -268,7 +296,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -287,7 +317,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -306,7 +338,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -325,7 +359,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -345,7 +381,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -365,51 +403,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-20T18:00"
-    },
-    "expected": {
-      "active": true,
-      "stage": "solo",
-      "nightKey": "2026-10-20",
-      "cast": [
-        "027_daydreamer"
-      ],
-      "frogResting": false,
-      "canComplete": true,
-      "nextCompleted": 1
-    }
-  },
-  {
-    "input": {
-      "completed": 0,
-      "lastNight": null,
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T00:00"
-    },
-    "expected": {
-      "active": true,
-      "stage": "solo",
-      "nightKey": "2026-10-20",
-      "cast": [
-        "027_daydreamer"
-      ],
-      "frogResting": false,
-      "canComplete": true,
-      "nextCompleted": 1
-    }
-  },
-  {
-    "input": {
-      "completed": 0,
-      "lastNight": null,
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -431,7 +427,57 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": true,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 0,
+      "lastNight": null,
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -451,7 +497,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": null,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -470,7 +518,9 @@
       "completed": 1,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -487,7 +537,9 @@
       "completed": 1,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -504,7 +556,9 @@
       "completed": 1,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -521,7 +575,9 @@
       "completed": 1,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -538,7 +594,9 @@
       "completed": 1,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -555,7 +613,9 @@
       "completed": 1,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -574,7 +634,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -593,7 +655,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -614,7 +678,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -635,7 +701,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -656,7 +724,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -675,7 +745,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": true,
@@ -696,7 +768,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -715,7 +789,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -734,7 +810,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -753,7 +831,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -772,7 +852,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -791,113 +873,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T18:00"
-    },
-    "expected": {
-      "active": false,
-      "stage": "watching",
-      "nightKey": "2026-10-21",
-      "cast": [],
-      "frogResting": false,
-      "canComplete": false,
-      "nextCompleted": 1
-    }
-  },
-  {
-    "input": {
-      "completed": 1,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-20T17:59"
-    },
-    "expected": {
-      "active": false,
-      "stage": "solo",
-      "nightKey": "2026-10-20",
-      "cast": [],
-      "frogResting": false,
-      "canComplete": false,
-      "nextCompleted": 1
-    }
-  },
-  {
-    "input": {
-      "completed": 1,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-20T18:00"
-    },
-    "expected": {
-      "active": true,
-      "stage": "solo",
-      "nightKey": "2026-10-20",
-      "cast": [
-        "027_daydreamer"
-      ],
-      "frogResting": false,
-      "canComplete": false,
-      "nextCompleted": 1
-    }
-  },
-  {
-    "input": {
-      "completed": 1,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T00:00"
-    },
-    "expected": {
-      "active": true,
-      "stage": "solo",
-      "nightKey": "2026-10-20",
-      "cast": [
-        "027_daydreamer"
-      ],
-      "frogResting": false,
-      "canComplete": false,
-      "nextCompleted": 1
-    }
-  },
-  {
-    "input": {
-      "completed": 1,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T04:59"
-    },
-    "expected": {
-      "active": true,
-      "stage": "solo",
-      "nightKey": "2026-10-20",
-      "cast": [
-        "027_daydreamer"
-      ],
-      "frogResting": false,
-      "canComplete": false,
-      "nextCompleted": 1
-    }
-  },
-  {
-    "input": {
-      "completed": 1,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -917,7 +895,125 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": false,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer"
+      ],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
+    },
+    "expected": {
+      "active": false,
+      "stage": "watching",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 1
+    }
+  },
+  {
+    "input": {
+      "completed": 1,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": true,
@@ -937,7 +1033,9 @@
       "completed": 2,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -954,7 +1052,9 @@
       "completed": 2,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -971,7 +1071,9 @@
       "completed": 2,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -988,7 +1090,9 @@
       "completed": 2,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1005,7 +1109,9 @@
       "completed": 2,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1022,7 +1128,9 @@
       "completed": 2,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1041,7 +1149,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1060,7 +1170,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1081,7 +1193,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1102,7 +1216,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1123,7 +1239,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1142,7 +1260,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": true,
@@ -1163,7 +1283,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1182,7 +1304,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1201,7 +1325,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1220,7 +1346,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1239,7 +1367,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1258,7 +1388,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1278,7 +1410,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1298,7 +1432,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1321,7 +1457,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1344,7 +1482,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1367,7 +1507,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1387,7 +1529,9 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": true,
@@ -1407,7 +1551,9 @@
       "completed": 3,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1424,7 +1570,9 @@
       "completed": 3,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1441,7 +1589,9 @@
       "completed": 3,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1458,7 +1608,9 @@
       "completed": 3,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1475,7 +1627,9 @@
       "completed": 3,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1492,7 +1646,9 @@
       "completed": 3,
       "lastNight": "2026-10-20",
       "owned": [],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1511,7 +1667,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1530,7 +1688,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1551,7 +1711,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1572,7 +1734,9 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": true,
@@ -1593,31 +1757,35 @@
       "owned": [
         "027_daydreamer"
       ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
-      "stage": "solo",
-      "nightKey": "2026-10-21",
-      "cast": [],
-      "frogResting": false,
-      "canComplete": false,
-      "nextCompleted": 3
-    }
-  },
-  {
-    "input": {
-      "completed": 3,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer"
-      ],
-      "now": "2026-10-21T18:00"
-    },
-    "expected": {
-      "active": true,
       "stage": "solo",
       "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": false,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer"
+      ],
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
+    },
+    "expected": {
+      "active": true,
+      "stage": "solo",
+      "nightKey": "2026-10-21",
       "cast": [
         "027_daydreamer"
       ],
@@ -1633,7 +1801,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-20T17:59"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1652,7 +1822,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-20T18:00"
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1671,7 +1843,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T00:00"
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1690,7 +1864,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T04:59"
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
     },
     "expected": {
       "active": false,
@@ -1709,26 +1885,9 @@
       "owned": [
         "029_office_worker"
       ],
-      "now": "2026-10-21T06:00"
-    },
-    "expected": {
-      "active": false,
-      "stage": "joined",
-      "nightKey": "2026-10-21",
-      "cast": [],
-      "frogResting": true,
-      "canComplete": false,
-      "nextCompleted": 3
-    }
-  },
-  {
-    "input": {
-      "completed": 3,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1745,99 +1904,11 @@
       "completed": 3,
       "lastNight": "2026-10-20",
       "owned": [
-        "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-20T17:59"
-    },
-    "expected": {
-      "active": false,
-      "stage": "joined",
-      "nightKey": "2026-10-20",
-      "cast": [],
-      "frogResting": true,
-      "canComplete": false,
-      "nextCompleted": 3
-    }
-  },
-  {
-    "input": {
-      "completed": 3,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-20T18:00"
-    },
-    "expected": {
-      "active": true,
-      "stage": "joined",
-      "nightKey": "2026-10-20",
-      "cast": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "frogResting": true,
-      "canComplete": false,
-      "nextCompleted": 3
-    }
-  },
-  {
-    "input": {
-      "completed": 3,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T00:00"
-    },
-    "expected": {
-      "active": true,
-      "stage": "joined",
-      "nightKey": "2026-10-20",
-      "cast": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "frogResting": true,
-      "canComplete": false,
-      "nextCompleted": 3
-    }
-  },
-  {
-    "input": {
-      "completed": 3,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T04:59"
-    },
-    "expected": {
-      "active": true,
-      "stage": "joined",
-      "nightKey": "2026-10-20",
-      "cast": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "frogResting": true,
-      "canComplete": false,
-      "nextCompleted": 3
-    }
-  },
-  {
-    "input": {
-      "completed": 3,
-      "lastNight": "2026-10-20",
-      "owned": [
-        "027_daydreamer",
-        "029_office_worker"
-      ],
-      "now": "2026-10-21T06:00"
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": false,
@@ -1857,7 +1928,128 @@
         "027_daydreamer",
         "029_office_worker"
       ],
-      "now": "2026-10-21T18:00"
+      "now": "2026-10-20T17:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-20T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": true,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T00:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": true,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T04:59",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 0
+    },
+    "expected": {
+      "active": true,
+      "stage": "joined",
+      "nightKey": "2026-10-20",
+      "cast": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T06:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
+    },
+    "expected": {
+      "active": false,
+      "stage": "joined",
+      "nightKey": "2026-10-21",
+      "cast": [],
+      "frogResting": true,
+      "canComplete": false,
+      "nextCompleted": 3
+    }
+  },
+  {
+    "input": {
+      "completed": 3,
+      "lastNight": "2026-10-20",
+      "owned": [
+        "027_daydreamer",
+        "029_office_worker"
+      ],
+      "now": "2026-10-21T18:00",
+      "lastKotohogi": 0,
+      "earnedKotohogi": 30
     },
     "expected": {
       "active": true,

@@ -23,11 +23,13 @@ OyasumiScene scene(
   int day, {
   int hour = 19,
   bool hasFrog = true,
+  int kotohogi = 0,
   OyasumiProgress saved = const OyasumiProgress(),
 }) => OyasumiScene(
   saved: saved,
   owned: [host, if (hasFrog) frog],
   now: DateTime(2026, 10, day, hour),
+  earnedKotohogi: kotohogi,
 );
 Progress progress(DateTime now, OyasumiProgress state) => Progress(
   day: localDay(now),
@@ -51,11 +53,13 @@ void main() {
       final state = OyasumiProgress(
         completed: input['completed'],
         lastNight: input['lastNight'],
+        lastKotohogi: input['lastKotohogi'],
       );
       final model = OyasumiScene(
         saved: state,
         owned: (input['owned'] as List).map((id) => TownResident.fromId(id)),
         now: DateTime.parse(input['now']),
+        earnedKotohogi: input['earnedKotohogi'],
       );
       final speaker = model.step == 1 ? host : frog;
       final next = model.completeIntroduction(speaker, model.stage);
@@ -66,8 +70,7 @@ void main() {
           'nightKey': model.nightKey,
           'cast': model.cast.map((r) => r.id).toList(),
           'frogResting': model.frogResting,
-          'canComplete':
-              model.introduction(speaker, model.stage) && model.laterNight,
+          'canComplete': model.introduction(speaker, model.stage),
           'nextCompleted': next.completed,
         },
         row['expected'],
@@ -75,38 +78,41 @@ void main() {
       );
     }
   });
-  test('unowned frog waits indefinitely, owned frog needs distinct completed nights', () {
-    var first = scene(20, hasFrog: false);
+  test('club progresses with earned kotohogi, not passing calendar nights', () {
+    final first = scene(20, hasFrog: false, kotohogi: 100);
     expect(first.stage, 'solo');
     var saved = first.completeIntroduction(host, 'solo');
     expect(saved.completed, 1);
-    expect(scene(30, hasFrog: false, saved: saved).stage, 'solo');
-    expect(scene(20, saved: saved).stage, 'solo');
-    expect(scene(21, hour: 1, saved: saved).nightKey, '2026-10-20');
-    expect(scene(21, hour: 1, saved: saved).stage, 'solo');
-    var second = scene(23, saved: saved);
+    expect(saved.lastKotohogi, 100);
+    expect(scene(30, hasFrog: false, kotohogi: 1000, saved: saved).stage,
+        'solo');
+    expect(scene(30, kotohogi: 120, saved: saved).stage, 'solo');
+    expect(scene(21, hour: 1, kotohogi: 120, saved: saved).stage, 'solo');
+    final second = scene(20, kotohogi: 130, saved: saved);
     expect(second.stage, 'watching');
-    expect(
-      second.route(TownArea.plaza, frog)!.x,
-      greaterThan(second.route(TownArea.plaza, host)!.x),
-    );
+    expect(second.route(TownArea.plaza, frog)!.x,
+        greaterThan(second.route(TownArea.plaza, host)!.x));
     expect(second.completeIntroduction(host, 'watching'), same(saved));
     saved = second.completeIntroduction(frog, 'watching');
-    expect(scene(23, saved: saved).stage, 'watching');
-    var third = scene(24, saved: saved);
+    expect(saved.completed, 2);
+    expect(saved.lastKotohogi, 130);
+    expect(scene(25, kotohogi: 150, saved: saved).stage, 'watching');
+    final third = scene(20, kotohogi: 160, saved: saved);
     expect(third.stage, 'joining');
-    // Entering the club doesn't mean quitting the job.
     expect(third.dialogue(frog, 'joining', 0).text, isNot(contains('辞め')));
     saved = third.completeIntroduction(frog, 'joining');
     expect(saved.completed, 3);
-    expect(scene(24, saved: saved).stage, 'joined');
-    // The overnight club remains the same until the morning clock boundary.
-    expect(scene(25, hour: 4, saved: saved).group(frog, inPlaza: true), 'joined');
-    expect(scene(25, hour: 5, saved: saved).group(frog, inPlaza: false), 'resting');
-    var daytime = scene(25, hour: 12, saved: saved);
-    expect(daytime.active, isFalse);
-    expect(daytime.group(frog, inPlaza: false), 'resting');
-    expect(daytime.dialogue(frog, 'resting', 0).text, contains('会社を辞めて'));
+    expect(saved.lastKotohogi, 160);
+    expect(scene(20, kotohogi: 160, saved: saved).stage, 'joined');
+    expect(scene(21, hour: 4, kotohogi: 160, saved: saved)
+        .group(frog, inPlaza: true), 'joined');
+    expect(scene(21, hour: 6, kotohogi: 160, saved: saved)
+        .group(frog, inPlaza: false), 'resting');
+    expect(scene(21, hour: 12, kotohogi: 160, saved: saved)
+        .dialogue(frog, 'resting', 0).text, contains('会社を辞めて'));
+    // A saved older game is never held hostage by a missing milestone.
+    expect(scene(20, saved: const OyasumiProgress(
+        completed: 1, lastNight: '2026-10-19')).stage, 'watching');
   });
   test('debug cast never reverts retired frog to office-worker dialogue', () {
     const completed = OyasumiProgress(
@@ -252,7 +258,8 @@ void main() {
     };
     try {
       final watching = scene(
-        24, saved: const OyasumiProgress(completed: 2, lastNight: '2026-10-24'),
+        24, saved: const OyasumiProgress(
+          completed: 2, lastNight: '2026-10-24', lastKotohogi: 0),
       );
       expect(watching.stage, 'watching');
       final exchange = watching.dialogue(frog, 'watching', 0);
@@ -331,11 +338,13 @@ void main() {
     expect(withoutHost.group(mosa, inPlaza: true), isNull);
   });
 
-  test('Tonko visits the two club members every third night after joining', () {
+  test('Tonko returns by earned story days, regardless of date', () {
     const tonko = TownResident.c041_pig_middle;
-    const joined = OyasumiProgress(completed: 3, lastNight: '2026-10-20');
+    const joined = OyasumiProgress(
+        completed: 3, lastNight: '2026-10-20', lastKotohogi: 100);
     OyasumiScene guest(int day, {
       int hour = 19,
+      int kotohogi = 130,
       bool stall = true,
       bool tonkoOwned = true,
       bool frogOwned = true,
@@ -344,9 +353,9 @@ void main() {
       saved: saved ?? joined,
       owned: [host, if (frogOwned) frog, if (tonkoOwned) tonko],
       now: DateTime(2026, 10, day, hour),
+      earnedKotohogi: kotohogi,
       marcheOpen: stall,
     );
-
     final visit = guest(21);
     expect(visit.teaVisitorVisible, isTrue);
     expect(visit.cast, [host, frog]);
@@ -361,27 +370,26 @@ void main() {
     expect(visit.introduction(tonko, OyasumiScene.teaVisitGroup), isFalse);
     expect(visit.completeIntroduction(tonko, OyasumiScene.teaVisitGroup),
         same(joined));
-    final line = visit.dialogue(tonko, OyasumiScene.teaVisitGroup, 0);
-    expect(line.turns.map((turn) => turn.resident).toList(),
-        [tonko, frog, host, tonko]);
-    expect(line.turns.first.text, 'ふたりともさむくない？はい、お茶🍵');
+    expect(visit.dialogue(tonko, OyasumiScene.teaVisitGroup, 0)
+        .turns.map((t) => t.resident).toList(), [tonko, frog, host, tonko]);
     for (final off in [
-      guest(22),
-      guest(23),
+      guest(22, kotohogi: 100),
+      guest(22, kotohogi: 120),
+      guest(22, kotohogi: 160),
       guest(21, hour: 12),
       guest(21, stall: false),
       guest(21, tonkoOwned: false),
       guest(21, frogOwned: false),
       guest(21, saved: const OyasumiProgress(
-        completed: 2, lastNight: '2026-10-20',
-      )),
+          completed: 2, lastNight: '2026-10-20', lastKotohogi: 100)),
     ]) {
       expect(off.teaVisitorVisible, isFalse);
       expect(off.group(tonko, inPlaza: true), isNull);
       expect(() => off.dialogue(tonko, OyasumiScene.teaVisitGroup, 0),
           throwsStateError);
     }
-    expect(guest(24).teaVisitorVisible, isTrue);
+    expect(guest(24, kotohogi: 130).teaVisitorVisible, isTrue);
+    expect(guest(21, kotohogi: 220).teaVisitorVisible, isTrue);
     expect(guest(22, hour: 2).teaVisitorVisible, isTrue);
   });
 
@@ -391,9 +399,11 @@ void main() {
     addTearDown(tester.view.reset);
     const tonko = TownResident.c041_pig_middle;
     final visit = OyasumiScene(
-      saved: const OyasumiProgress(completed: 3, lastNight: '2026-10-20'),
+      saved: const OyasumiProgress(
+          completed: 3, lastNight: '2026-10-20', lastKotohogi: 0),
       owned: [host, frog, tonko],
       now: DateTime(2026, 10, 21, 19),
+      earnedKotohogi: 30,
       marcheOpen: true,
     );
     TownResident? tapped;
@@ -555,7 +565,8 @@ void main() {
     () {
       var saved = progress(
         DateTime(2026, 10, 20),
-        const OyasumiProgress(completed: 2, lastNight: '2026-10-19'),
+        const OyasumiProgress(
+            completed: 2, lastNight: '2026-10-19', lastKotohogi: 50),
       );
       saved = Progress.decode(saved.encode())
           .onDay(DateTime(2026, 10, 21))
@@ -564,7 +575,12 @@ void main() {
           .markDialogueSeen('other');
       expect(saved.oyasumi.completed, 2);
       expect(saved.oyasumi.lastNight, '2026-10-19');
+      expect(saved.oyasumi.lastKotohogi, 50);
       final old = jsonDecode(saved.encode()) as Map<String, dynamic>;
+      final oldOyasumi = Map<String, dynamic>.from(old['oyasumi'] as Map);
+      oldOyasumi.remove('lastKotohogi');
+      expect(OyasumiProgress.fromJson(oldOyasumi).lastKotohogi, isNull,
+          reason: 'Existing version-5 saves remain readable');
       old.remove('oyasumi');
       expect(Progress.decode(jsonEncode(old)).oyasumi.completed, 0);
       expect(

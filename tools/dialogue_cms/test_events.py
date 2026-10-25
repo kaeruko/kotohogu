@@ -4,13 +4,20 @@ import tempfile
 import shutil
 import subprocess
 import unittest
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 import events
 
 class EventTests(unittest.TestCase):
     def preview(self, completed=0, last=None, now='2026-10-20T19:00', frog=True, host=True):
-        return events.preview(dict(config=events.load(),completed=completed,lastNight=last,now=now,owned=([events.HOST] if host else [])+([events.FROG] if frog else [])))
+        when=datetime.fromisoformat(now)
+        night=(when-timedelta(days=1 if when.hour<6 else 0)).strftime('%Y-%m-%d')
+        earned=30 if last and night>last else 0
+        return events.preview(dict(config=events.load(),completed=completed,
+            lastNight=last,lastKotohogi=0 if completed else None,
+            earnedKotohogi=earned,now=now,
+            owned=([events.HOST] if host else [])+([events.FROG] if frog else [])))
     def test_shared_runtime_contract(self):
         cases=json.loads((events.ROOT/'test/fixtures/oyasumi_preview.json').read_text(encoding='utf-8'))
         for case in cases:
@@ -280,6 +287,7 @@ class EventTests(unittest.TestCase):
         self.assertEqual([row['speaker'] for row in tea['turns']],
                          [events.TONKO,events.FROG,events.HOST,events.TONKO])
         base=dict(config=doc,completed=3,lastNight='2026-10-20',
+                  lastKotohogi=100,earnedKotohogi=130,
                   now='2026-10-21T19:00',
                   owned=[events.HOST,events.FROG,events.TONKO],
                   marcheOpen=True)
@@ -290,8 +298,9 @@ class EventTests(unittest.TestCase):
         self.assertEqual(active['positions'][events.TONKO],tea['position'])
         self.assertEqual(active['teaVisit'],tea)
         for change in [
-            {'now':'2026-10-22T19:00'},
-            {'now':'2026-10-23T19:00'},
+            {'earnedKotohogi':100},
+            {'earnedKotohogi':120},
+            {'earnedKotohogi':160},
             {'now':'2026-10-21T12:00'},
             {'marcheOpen':False},
             {'owned':[events.HOST,events.FROG]},
@@ -301,6 +310,7 @@ class EventTests(unittest.TestCase):
             params={**base,**change}
             self.assertIsNone(events.preview(params)['teaVisit'],params)
         self.assertEqual(events.preview({**base,'now':'2026-10-24T19:00'})['passersby'],[events.TONKO])
+        self.assertEqual(events.preview({**base,'earnedKotohogi':220})['passersby'],[events.TONKO])
         midnight=events.preview({**base,'now':'2026-10-22T02:00'})
         self.assertEqual(midnight['nightKey'],'2026-10-21')
         self.assertEqual(midnight['passersby'],[events.TONKO])

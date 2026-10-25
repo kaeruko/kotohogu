@@ -432,8 +432,9 @@ class DebugMenuScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   const Text(
                     '「次の段階へ」で導入を1つ読了済みにして保存します。'
-                    '次の夜を待たずに次の場面を確認できます。'
+                    '累積ことほぎを増やさず、次の場面を確認できます。'
                     '\n実際にクラブが現れるのは18時〜翌5時の夜で、'
+                    '実際の進行は累積ことほぎ30ごとです。'
                     'おやすみくんとカエルくんをガチャで所持している必要があります。'
                     '\nほかのセーブ内容は変えません。進行は再起動後も残ります。',
                     style: TextStyle(color: wood, fontSize: 12, height: 1.6),

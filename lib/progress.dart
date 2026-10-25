@@ -846,8 +846,8 @@ class ProgressController extends ChangeNotifier {
 
   /// Skip exactly one club introduction for development previews.
   ///
-  /// A previous night is recorded deliberately so the next stage can be
-  /// inspected tonight without changing the device's clock or residents.
+  /// Debug skips do not award kotohogi; an unset milestone deliberately
+  /// lets the next stage be inspected with no additional missions.
   Future<bool> advanceOyasumiForDebug() async {
     if (!developerToolsAvailable) {
       throw StateError('Oyasumi debug progression is unavailable in release builds.');
@@ -865,6 +865,7 @@ class ProgressController extends ChangeNotifier {
         saved: today.oyasumi,
         owned: today.residents.owned,
         now: clock(),
+        earnedKotohogi: today.points,
       );
       final currentNight = DateTime.parse(scene.nightKey);
       final previousNight = DateTime.utc(
@@ -913,7 +914,9 @@ class ProgressController extends ChangeNotifier {
   Future<bool> completeOyasumi(OyasumiScene scene, TownResident speaker, String group) async {
     if (busy || failure != null || progress == null ||
         progress!.oyasumi.completed != scene.saved.completed ||
-        progress!.oyasumi.lastNight != scene.saved.lastNight) {
+        progress!.oyasumi.lastNight != scene.saved.lastNight ||
+        progress!.oyasumi.lastKotohogi != scene.saved.lastKotohogi ||
+        progress!.points != scene.earnedKotohogi) {
       return false;
     }
     final value = scene.completeIntroduction(speaker, group);

@@ -162,6 +162,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   OyasumiScene _clubScene(Progress progress) => OyasumiScene(
     saved: progress.oyasumi, owned: progress.residents.owned,
     now: controller.clock(),
+    earnedKotohogi: progress.points,
     enabled: _debugTownResidents == null,
     parkCleanerStarted: progress.seenDialogues.contains(
       OyasumiScene.parkCleanerUnlockId,

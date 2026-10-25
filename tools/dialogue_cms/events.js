@@ -147,9 +147,9 @@ function renderEditor(){
   const tea=config.teaVisit;
   const teaEditor=el('details');
   teaEditor.append(el('summary','とんこの差し入れ（クラブ参加後・茶房開店後）'));
-  const hint=el('p','とんこさんは会員ではなく訪問客です。クラブ加入後の翌夜から指定した間隔で訪ねます。3人の話者は固定で、文章を編集できます。');
+  const hint=el('p','とんこさんは会員ではなく訪問客です。クラブ加入後に30ことほぎ増えると最初の訪問があり、以後は指定した物語上の日数ごとに訪ねます。3人の話者は固定で、文章を編集できます。');
   hint.className='hint';teaEditor.append(hint);
-  const intervalLabel=el('label','差し入れの間隔（夜） ');
+  const intervalLabel=el('label','差し入れの間隔（物語上の日） ');
   const interval=el('input');interval.type='number';interval.min='1';interval.max='30';interval.step='1';interval.value=tea.intervalNights;
   interval.oninput=()=>{tea.intervalNights=Number(interval.value);change();};intervalLabel.append(interval);teaEditor.append(intervalLabel);
   textField(teaEditor,'イベント名',tea.label,value=>tea.label=value);
@@ -177,7 +177,7 @@ function renderConversation(parent,item,primary,index){
     block.append(el('p',`${names[turn.speaker]||turn.speaker}「${turn.text}」`)));
   parent.append(block);
 }
-function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[]),...($('tonko').checked?['041_pig_middle']:[])],marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked};}
+function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,earnedKotohogi:Number($('earnedKotohogi').value),lastKotohogi:$('lastKotohogi').value===''?null:Number($('lastKotohogi').value),owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[]),...($('tonko').checked?['041_pig_middle']:[])],marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked};}
 async function preview(){
   if(!config)return;
   const version=++revision;$('read').disabled=true;
@@ -189,7 +189,7 @@ async function preview(){
     if(version!==revision)return;
     result=data;
     $('reason').textContent=data.reason;$('reason').className='';
-    $('stageName').textContent=(data.active?data.label:'開催していません')+' ｜ 開催日 '+data.nightKey;
+    $('stageName').textContent=(data.active?data.label:'開催していません')+' ｜ '+data.earnedKotohogi+'ことほぎ（前の導入から物語上 '+data.storyDays+'日）';
     $('read').disabled=!data.canComplete;
     $('scene').replaceChildren();
     $('scene').style.aspectRatio=data.active?'941/1672':'768/1376';
@@ -277,12 +277,12 @@ async function load(){
   }
 }
 $('start').oninput=()=>{config.night.startHour=Number($('start').value);change();};$('end').oninput=()=>{config.night.endHour=Number($('end').value);change();};
-['host','frog','mosa','tonko','marcheOpen','now','last','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
-$('completed').onchange=()=>{$('last').disabled=$('completed').value==='0';$('last').value=$('last').disabled?'':$('now').value.slice(0,10);preview();};
+['host','frog','mosa','tonko','marcheOpen','now','last','earnedKotohogi','lastKotohogi','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
+$('completed').onchange=()=>{const isStart=$('completed').value==='0';$('last').disabled=isStart;$('last').value=isStart?'':$('now').value.slice(0,10);$('lastKotohogi').value=isStart?'':$('earnedKotohogi').value;preview();};
 $('preview').onclick=preview;
-$('read').onclick=async()=>{if(!result?.canComplete)return;$('completed').value=result.nextCompleted;$('last').disabled=false;$('last').value=result.nightKey;await preview();};
-$('next').onclick=()=>{const date=new Date((result?.nightKey||$('now').value.slice(0,10))+'T12:00:00');date.setDate(date.getDate()+1);const pad=n=>String(n).padStart(2,'0');$('now').value=`${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(config.night.startHour)}:00`;preview();};
-$('reset').onclick=()=>{$('completed').value='0';$('last').value='';$('last').disabled=true;preview();};
+$('read').onclick=async()=>{if(!result?.canComplete)return;$('completed').value=result.nextCompleted;$('last').disabled=false;$('last').value=result.nightKey;$('lastKotohogi').value=String(result.earnedKotohogi);await preview();};
+$('next').onclick=()=>{$('earnedKotohogi').value=Number($('earnedKotohogi').value)+30;preview();};
+$('reset').onclick=()=>{$('completed').value='0';$('last').value='';$('last').disabled=true;$('lastKotohogi').value='';preview();};
 $('save').onclick=async()=>{try{await request('/api/events',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)});$('saveStatus').textContent='保存しました。アプリは再ビルドすると反映されます。';}catch(error){$('saveStatus').textContent=error.message;}};
 $('reload').onclick=load;
 load();

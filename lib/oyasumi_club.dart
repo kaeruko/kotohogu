@@ -4,6 +4,10 @@ import 'town_walk.dart';
 import 'timed_events.dart';
 import 'oyasumi_config.g.dart';
 
+// Three mission completions (10 kotohogi each) advance one story day.
+// This is lifetime earned kotohogi, not the spendable gacha balance.
+const int kotohogiPerStoryDay = 30;
+
 /// One selectable event conversation may contain multiple speaking residents.
 /// The CMS stores a plain string for a single voice, or a list of speaker turns.
 class OyasumiDialogueTurn {
@@ -21,18 +25,29 @@ class OyasumiDialogue {
 
 /// Only completed story beats are saved. The visible stage is derived.
 class OyasumiProgress {
-  const OyasumiProgress({this.completed = 0, this.lastNight});
+  const OyasumiProgress({
+    this.completed = 0,
+    this.lastNight,
+    this.lastKotohogi,
+  });
   final int completed;
+  // Kept for saved-game compatibility and the date of the last conversation;
+  // calendar days no longer unlock the next story beat.
   final String? lastNight;
+  // Lifetime kotohogi when the last story introduction was read.
+  // null in an older save, whose already-earned progress stays unlocked.
+  final int? lastKotohogi;
   Map<String, dynamic> toJson() => {
     'completed': completed,
     'lastNight': lastNight,
+    'lastKotohogi': lastKotohogi,
   };
   factory OyasumiProgress.fromJson(dynamic data) {
     if (data is! Map ||
-        data.length != 2 ||
+        (data.length != 2 && data.length != 3) ||
         !data.containsKey("completed") ||
         !data.containsKey("lastNight") ||
+        (data.length == 3 && !data.containsKey('lastKotohogi')) ||
         data['completed'] is! int ||
         data['completed'] < 0 ||
         data['completed'] > 3) {
@@ -47,7 +62,17 @@ class OyasumiProgress {
                     date))) {
       throw const FormatException('Invalid club night');
     }
-    return OyasumiProgress(completed: data['completed'], lastNight: date);
+    final atKotohogi = data['lastKotohogi'];
+    if (atKotohogi != null &&
+        (atKotohogi is! int || atKotohogi < 0 ||
+            atKotohogi % 10 != 0 || data['completed'] == 0)) {
+      throw const FormatException('Invalid club kotohogi milestone');
+    }
+    return OyasumiProgress(
+      completed: data['completed'],
+      lastNight: date,
+      lastKotohogi: atKotohogi,
+    );
   }
 }
 
@@ -56,6 +81,7 @@ class OyasumiScene {
     required this.saved,
     required Iterable<TownResident> owned,
     required DateTime now,
+    this.earnedKotohogi = 0,
     this.enabled = true,
     this.parkCleanerStarted = false,
     this.marcheOpen = false,
@@ -64,6 +90,7 @@ class OyasumiScene {
   final OyasumiProgress saved;
   final Set<TownResident> owned;
   final DateTime now;
+  final int earnedKotohogi;
   final bool enabled;
   /// Unlocked by the future park-cleaning job story, not elapsed days.
   final bool parkCleanerStarted;
@@ -93,13 +120,22 @@ class OyasumiScene {
   // the frog's old office-worker conversations.
   bool get frogResting =>
       saved.completed == 3 && owned.contains(frog);
-  bool get laterNight =>
-      saved.lastNight == null || nightKey.compareTo(saved.lastNight!) > 0;
+  // A night passing by itself never advances the story. A completed
+  // introduction starts a fresh 30-kotohogi interval. Old saves without a
+  // recorded milestone keep the next chapter accessible (no progress loss).
+  int get storyDaysSinceLastIntroduction {
+    final at = saved.lastKotohogi;
+    if (at == null) return 0;
+    final earned = earnedKotohogi - at;
+    return earned <= 0 ? 0 : earned ~/ kotohogiPerStoryDay;
+  }
+  bool get nextStoryDayReached =>
+      saved.lastKotohogi == null || storyDaysSinceLastIntroduction >= 1;
   int get step {
     if (!owned.contains(frog)) return 1;
     if (saved.completed == 3) return 4;
-    if (saved.completed == 2) return laterNight ? 3 : 2;
-    if (saved.completed == 1) return laterNight ? 2 : 1;
+    if (saved.completed == 2) return nextStoryDayReached ? 3 : 2;
+    if (saved.completed == 1) return nextStoryDayReached ? 2 : 1;
     return 1;
   }
 
@@ -111,20 +147,20 @@ class OyasumiScene {
 
   // A passing night watchman is never part of the club story or its progress.
   bool get nightPatrolVisible => active && owned.contains(nightPatroller);
-  /// The first delivery is on the night AFTER joining. More visits follow
-  /// every N calendar nights, stable across midnight and app restarts.
+  /// The first delivery follows another 30 lifetime kotohogi earned after
+  /// joining. Repeats every N *story* days; no calendar-night requirement.
   /// Tonko remains a guest, not a club member or saved story stage.
   bool get teaVisitorVisible {
     if (!active || step != 4 || saved.completed != 3 ||
         !owned.contains(frog) || !owned.contains(teaVisitor) ||
-        !marcheOpen || saved.lastNight == null) {
+        !marcheOpen) {
       return false;
     }
-    final joined = DateTime.parse(saved.lastNight!);
-    final day = schedule.occurrenceDay(now);
-    final elapsed = DateTime.utc(day.year, day.month, day.day)
-        .difference(DateTime.utc(joined.year, joined.month, joined.day))
-        .inDays;
+    // Older saves did not record a kotohogi milestone. Use the lifetime
+    // total as their origin rather than falling back to the calendar.
+    final elapsed = saved.lastKotohogi == null
+        ? earnedKotohogi ~/ kotohogiPerStoryDay
+        : storyDaysSinceLastIntroduction;
     final interval = teaVisitDefinition['intervalNights'] as int;
     return elapsed >= 1 && (elapsed - 1) % interval == 0;
   }
@@ -278,7 +314,11 @@ class OyasumiScene {
   }
 
   OyasumiProgress completeIntroduction(TownResident resident, String group) {
-    if (!introduction(resident, group) || !laterNight) return saved;
-    return OyasumiProgress(completed: step, lastNight: nightKey);
+    if (!introduction(resident, group)) return saved;
+    return OyasumiProgress(
+      completed: step,
+      lastNight: nightKey,
+      lastKotohogi: earnedKotohogi,
+    );
   }
 }
