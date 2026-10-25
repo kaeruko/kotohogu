@@ -94,15 +94,16 @@ function editLines(parent,lines,primary,allowed,{isResting=false,maxNightPattern
 }
 // One-time scenes have natural, variable-length exchanges. Only the first
 // line is always from the frog; subsequent speakers can be chosen freely.
-function editSpecialTurns(parent,scene){
-  const max=6,min=2;
+function editSpecialTurns(parent,scene,options={}){
+  const max=6,min=options.min??2;
+  const availableSpeakers=options.availableSpeakers??['029_office_worker','027_daydreamer'];
   scene.turns.forEach((turn,index)=>{
     const row=el('div');row.className='talk-turn';
     const speaker=el('label',`発言 ${index+1}・話す住民 `);
     if(index===0) speaker.append(el('strong',names['029_office_worker']));
     else {
       const select=el('select');
-      for(const id of ['029_office_worker','027_daydreamer']){
+      for(const id of availableSpeakers){
         const option=el('option',names[id]);option.value=id;select.append(option);
       }
       select.value=turn.speaker;
@@ -125,7 +126,7 @@ function editSpecialTurns(parent,scene){
   add.onclick=()=>{
     const last=scene.turns.at(-1).speaker;
     scene.turns.push({
-      speaker:last==='029_office_worker'?'027_daydreamer':'029_office_worker',
+      speaker:availableSpeakers.find(id=>id!==last)??availableSpeakers[0],
       text:'新しいセリフ',
     });
     renderEditor();change();
@@ -232,6 +233,13 @@ function renderEditor(){
   });
   teaEditor.append(position);
   tea.turns.forEach((turn,i)=>textField(teaEditor,'発言 '+(i+1)+'・'+(names[turn.speaker]||turn.speaker),turn.text,value=>tea.turns[i].text=value));
+  const foodFriends=tea.extraDialogue;
+  const foodEditor=el('section');foodEditor.append(el('h3','もうひとつの会話：たべられなかま'));
+  const note=el('p','最初の訪問はお茶の会話、次の訪問はたべられなかま。話しかけ直したときも交互に表示します。出演者の3人がそろう差し入れ中だけ聞けます。');
+  note.className='hint';foodEditor.append(note);
+  textField(foodEditor,'会話の名前',foodFriends.label,v=>foodFriends.label=v);
+  editSpecialTurns(foodEditor,foodFriends,{min:3,availableSpeakers:['029_office_worker','027_daydreamer','041_pig_middle']});
+  teaEditor.append(foodEditor);
   $('stages').append(teaEditor);
   const rest=el('details');
   rest.append(el('summary','参加後のかえる：昼間・通常会話'));
@@ -305,6 +313,7 @@ async function preview(){
       const tea=el('details');tea.open=true;
       tea.append(el('summary','とんこさんのお茶の差し入れ'));
       renderConversation(tea,{turns:data.teaVisit.turns},'041_pig_middle',0);
+      renderConversation(tea,{turns:data.teaVisit.extraDialogue.turns},'029_office_worker',1);
       $('lines').append(tea);
     }
     if(data.patrolDialogues.length){
