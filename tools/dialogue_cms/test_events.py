@@ -441,6 +441,13 @@ class EventTests(unittest.TestCase):
         self.assertEqual(tea['intervalNights'],3)
         self.assertEqual([row['speaker'] for row in tea['turns']],
                          [events.TONKO,events.FROG,events.HOST,events.TONKO])
+        extra=tea['extraDialogue']
+        self.assertEqual(extra['id'],'oyasumi_tea_visit_food_friends')
+        self.assertEqual(extra['label'],'たべられなかま')
+        self.assertEqual([turn['speaker'] for turn in extra['turns']],
+                         [events.FROG,events.HOST,events.TONKO])
+        self.assertEqual(extra['turns'][-1]['text'],
+                         'わかるわぁ……つらいわよね……')
         base=dict(config=doc,completed=3,lastNight='2026-10-20',
                   lastKotohogi=100,earnedKotohogi=130,
                   now='2026-10-21T19:00',
@@ -476,6 +483,10 @@ class EventTests(unittest.TestCase):
             lambda d:d['teaVisit'].update(turns=[]),
             lambda d:d['teaVisit']['turns'][0].update(speaker=events.FROG),
             lambda d:d['teaVisit']['turns'][2].update(speaker=events.TONKO),
+            lambda d:d['teaVisit']['extraDialogue'].update(id='incorrect'),
+            lambda d:d['teaVisit']['extraDialogue'].update(turns=[]),
+            lambda d:d['teaVisit']['extraDialogue']['turns'][0].update(speaker=events.TONKO),
+            lambda d:d['teaVisit']['extraDialogue']['turns'][1].update(speaker='unknown'),
         ]:
             invalid=copy.deepcopy(doc);change(invalid)
             with self.assertRaises(ValueError):events.validate(invalid)
