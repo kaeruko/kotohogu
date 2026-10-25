@@ -116,15 +116,49 @@ void main() {
     expect(scene(20, saved: const OyasumiProgress(
         completed: 1, lastNight: '2026-10-19')).stage, 'watching');
   });
+  test('rumor opens before the wish, with independent read states', () {
+    const joined = OyasumiProgress(
+      completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
+    final early = scene(25, kotohogi: 240, saved: joined);
+    expect(early.rumorDialogueAvailable, isFalse);
+    final atRumor = scene(25, kotohogi: 250, saved: joined);
+    expect(atRumor.rumorDialogueAvailable, isTrue);
+    expect(atRumor.wishDialogueAvailable, isFalse);
+    final rumor = atRumor.dialogue(frog, 'joined', 0);
+    expect(rumor.id, 'oyasumi_joined_kotohoguma_rumor_001');
+    expect(rumor.turns.map((t) => t.resident), [frog, host, frog, host]);
+    expect(rumor.turns.map((t) => t.text), [
+      'おやすみくん、コトホグマってしってる？',
+      'くま、こわいもふ～',
+      '見たらしあわせになれる、幸運のクマらしいよ',
+      'もふ？',
+    ]);
+    final late = scene(25, kotohogi: 280, saved: joined);
+    expect(late.dialogue(frog, 'joined', 0).id, rumor.id,
+        reason: 'Rumor must precede wish even after both unlock');
+    final rumorRead = scene(25, kotohogi: 280, saved: joined,
+        seenDialogues: [rumor.id]);
+    expect(rumorRead.rumorDialogueAvailable, isFalse);
+    expect(rumorRead.dialogue(frog, 'joined', 0).id,
+        'oyasumi_joined_wish_001');
+    expect(scene(25, hour: 12, kotohogi: 280, saved: joined)
+        .rumorDialogueAvailable, isFalse);
+    expect(scene(25, kotohogi: 280, hasFrog: false, saved: joined)
+        .rumorDialogueAvailable, isFalse);
+  });
+
   test('wish conversation unlocks once after 120 earned kotohogi', () {
     const joined = OyasumiProgress(
       completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
-    final notYet = scene(25, kotohogi: 270, saved: joined);
+    const rumorId = 'oyasumi_joined_kotohoguma_rumor_001';
+    final notYet = scene(25, kotohogi: 270, saved: joined,
+        seenDialogues: [rumorId]);
     expect(notYet.wishDialogueAvailable, isFalse);
     expect(notYet.dialogue(frog, 'joined', 0).id,
         isNot(notYet.wishDialogueId));
 
-    final ready = scene(25, kotohogi: 280, saved: joined);
+    final ready = scene(25, kotohogi: 280, saved: joined,
+        seenDialogues: [rumorId]);
     expect(ready.wishDialogueAvailable, isTrue);
     final special = ready.dialogue(frog, 'joined', 0);
     expect(special.id, 'oyasumi_joined_wish_001');
@@ -138,11 +172,11 @@ void main() {
         reason: 'The frog starts the wish conversation');
 
     final read = scene(25, kotohogi: 280, saved: joined,
-        seenDialogues: [special.id]);
+        seenDialogues: [rumorId, special.id]);
     expect(read.wishDialogueAvailable, isFalse);
     expect(read.dialogue(frog, 'joined', 0).id, isNot(special.id));
     expect(scene(26, kotohogi: 280, saved: joined,
-        seenDialogues: [special.id]).wishDialogueAvailable, isFalse);
+        seenDialogues: [rumorId, special.id]).wishDialogueAvailable, isFalse);
     expect(scene(25, hour: 12, kotohogi: 280,
         saved: joined).wishDialogueAvailable, isFalse);
     expect(scene(25, kotohogi: 280, hasFrog: false,
