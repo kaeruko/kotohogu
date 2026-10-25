@@ -59,7 +59,7 @@ def validate(doc):
         stage = doc['stages'][key]
         required = {'label','positions','intro','chatter'}
         if key == 'joined':
-            required.add('specialConversation')
+            required.update({'specialConversation','rumorConversation'})
         if not isinstance(stage,dict) or set(stage) != required:
             raise ValueError('段階の項目が不正です')
         text(stage['label'])
@@ -87,6 +87,25 @@ def validate(doc):
                 if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
                         turn['speaker'] != expected_speaker):
                     raise ValueError('願いごとの話者順が不正です')
+                text(turn['text'])
+            rumor = stage['rumorConversation']
+            if (not isinstance(rumor,dict) or
+                    set(rumor) != {'id','unlockAfterKotohogi','turns'} or
+                    rumor['id'] != 'oyasumi_joined_kotohoguma_rumor_001'):
+                raise ValueError('コトホグマの噂の設定が不正です')
+            rumor_threshold = rumor['unlockAfterKotohogi']
+            if (type(rumor_threshold) is not int or
+                    rumor_threshold < 10 or rumor_threshold % 10 or
+                    rumor_threshold >= threshold):
+                raise ValueError('コトホグマの噂は願いごとより先の累積ことほぎで解放してください')
+            rumor_turns = rumor['turns']
+            if not isinstance(rumor_turns,list) or len(rumor_turns) != 4:
+                raise ValueError('コトホグマの噂は4発言で設定してください')
+            for i,turn in enumerate(rumor_turns):
+                expected = FROG if i % 2 == 0 else HOST
+                if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
+                        turn['speaker'] != expected):
+                    raise ValueError('コトホグマの噂の話者順が不正です')
                 text(turn['text'])
         else:
             intro=stage['intro']
@@ -166,6 +185,9 @@ def preview(payload):
     peers=payload.get('peers',[])
     park_cleaner_started=payload.get('parkCleanerStarted', False)
     wish_seen=payload.get('wishSeen', False)
+    rumor_seen=payload.get('rumorSeen', False)
+    if type(rumor_seen) is not bool:
+        raise ValueError('コトホグマの噂の既読状態が不正です')
     if type(wish_seen) is not bool:
         raise ValueError('願いごとの既読状態が不正です')
     if type(park_cleaner_started) is not bool:
@@ -195,12 +217,16 @@ def preview(payload):
     def turn_speakers(item):
         return [FROG] if isinstance(item,str) else [turn['speaker'] for turn in item['turns']]
     wish=doc['stages']['joined']['specialConversation']
-    wish_available=(active and key=='joined' and completed==3 and
-                    earned >= (milestone if milestone is not None else 0) + wish['unlockAfterKotohogi'] and
-                    not wish_seen)
+    rumor=doc['stages']['joined']['rumorConversation']
+    special_ready=(active and key=='joined' and completed==3)
+    elapsed=earned-(milestone if milestone is not None else 0)
+    rumor_available=(special_ready and elapsed >= rumor['unlockAfterKotohogi'] and
+                     not rumor_seen)
+    wish_available=(special_ready and elapsed >= wish['unlockAfterKotohogi'] and
+                    not wish_seen and not rumor_available)
     rest = [
         item for item in doc['restingDialogue']
         if (not isinstance(item, dict) or item.get('requires') != 'parkCleaner' or park_cleaner_started)
         and set(turn_speakers(item)).issubset(set(peers)|{FROG})
     ] if completed==3 and FROG in owned and not active else []
-    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=step if intro else completed)
+    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},rumorDialogue=rumor if rumor_available else None,wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=step if intro else completed)
