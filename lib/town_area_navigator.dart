@@ -261,12 +261,12 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
             ),
           if (showNavigation)
             Positioned(
-            // The pinned currency HUD grows on wide screens (e.g. iPads).
-            // Keep the area name and page counter fully below that artwork.
+            // The clinic's title needs more room below the HUD. Lower the
+            // full navigation row only here, keeping its arrows aligned.
             top: math.max(
               92.0,
               PinnedGachaHud.reservedHeightForWidth(constraints.maxWidth) + 12,
-            ),
+            ) + (area == TownArea.hospital ? 28.0 : 0.0),
             left: 12,
             right: 12,
             child: Row(
