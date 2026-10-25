@@ -80,13 +80,13 @@ def validate(doc):
             if type(threshold) is not int or not 10 <= threshold <= 3000 or threshold % 10:
                 raise ValueError('願いごとの解放条件は10刻みの累積ことほぎにしてください')
             turns = wish['turns']
-            if not isinstance(turns,list) or len(turns) != 5:
-                raise ValueError('願いごとの会話は5発言で設定してください')
+            if not isinstance(turns,list) or not 2 <= len(turns) <= 6:
+                raise ValueError('願いごとの会話は2〜6発言で設定してください')
             for i,turn in enumerate(turns):
-                expected_speaker = FROG if i % 2 == 0 else HOST
                 if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
-                        turn['speaker'] != expected_speaker):
-                    raise ValueError('願いごとの話者順が不正です')
+                        turn['speaker'] not in (FROG,HOST) or
+                        (i==0 and turn['speaker'] != FROG)):
+                    raise ValueError('願いごとの話者が不正です')
                 text(turn['text'])
             rumor = stage['rumorConversation']
             if (not isinstance(rumor,dict) or
@@ -99,13 +99,13 @@ def validate(doc):
                     rumor_threshold >= threshold):
                 raise ValueError('コトホグマの噂は願いごとより先の累積ことほぎで解放してください')
             rumor_turns = rumor['turns']
-            if not isinstance(rumor_turns,list) or len(rumor_turns) != 4:
-                raise ValueError('コトホグマの噂は4発言で設定してください')
+            if not isinstance(rumor_turns,list) or not 2 <= len(rumor_turns) <= 6:
+                raise ValueError('コトホグマの噂は2〜6発言で設定してください')
             for i,turn in enumerate(rumor_turns):
-                expected = FROG if i % 2 == 0 else HOST
                 if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
-                        turn['speaker'] != expected):
-                    raise ValueError('コトホグマの噂の話者順が不正です')
+                        turn['speaker'] not in (FROG,HOST) or
+                        (i==0 and turn['speaker'] != FROG)):
+                    raise ValueError('コトホグマの噂の話者が不正です')
                 text(turn['text'])
         else:
             intro=stage['intro']
