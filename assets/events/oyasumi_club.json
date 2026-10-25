@@ -273,6 +273,44 @@
             ]
           }
         ]
+      },
+      "specialConversation": {
+        "id": "oyasumi_joined_wish_001",
+        "unlockAfterKotohogi": 120,
+        "turns": [
+          {
+            "speaker": "029_office_worker",
+            "text": "おやすみくん、もし願いがひとつだけかなうなら、やっぱり歯みがき？"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "うーん……"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "ほかにもある？"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "あしたも、かえるくんがくるといいもふ"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "……えっ"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "かえるくんがくると、おしゃべりできるもふ"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "ふふ。じゃあ、それはぼくがかなえてあげられそうだね"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "やったもふ〜"
+          }
+        ]
       }
     }
   },
