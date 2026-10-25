@@ -321,6 +321,32 @@
             "text": "もふ？"
           }
         ]
+      },
+      "parkCleanerConversation": {
+        "id": "frog_park_cleaner_started",
+        "unlockAfterKotohogi": 60,
+        "turns": [
+          {
+            "speaker": "029_office_worker",
+            "text": "おやすみくん、ぼくね、公園のおそうじの仕事を始めることになったんだ。"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "もふ〜。こうえん、きれいになるもふ？"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "うん。ぼくにもできそうなことから、少しずつやってみようと思って。"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "かえるくんのこうえんで、ひなたぼっこするもふ〜。"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "ふふ。じゃあ、がんばってきれいにしなくちゃね。"
+          }
+        ]
       }
     }
   },
