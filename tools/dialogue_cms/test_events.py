@@ -38,6 +38,52 @@ class EventTests(unittest.TestCase):
         self.assertFalse(self.preview(now='2026-10-21T06:00')['active'])
     def test_config_generated_data_is_current(self):
         self.assertEqual(events.DART.read_text(encoding='utf-8'),events.generated(events.load()))
+    def test_wish_conversation_uses_earned_kotohogi_and_read_state(self):
+        doc = events.load()
+        special = doc['stages']['joined']['specialConversation']
+        self.assertEqual(special['unlockAfterKotohogi'], 120)
+        self.assertEqual(special['id'], 'oyasumi_joined_wish_001')
+        self.assertEqual([t['speaker'] for t in special['turns']],
+                         [events.FROG, events.HOST] * 4)
+        self.assertEqual(special['turns'][3]['text'],
+                         'あしたも、かえるくんがくるといいもふ')
+        base = dict(config=doc, completed=3, lastNight='2026-10-20',
+                    lastKotohogi=160, earnedKotohogi=270,
+                    now='2026-10-25T19:00',
+                    owned=[events.HOST, events.FROG])
+        self.assertIsNone(events.preview(base)['wishDialogue'])
+        at_threshold = {**base, 'earnedKotohogi': 280}
+        self.assertEqual(events.preview(at_threshold)['wishDialogue'], special)
+        self.assertIsNone(events.preview({**at_threshold, 'wishSeen': True})['wishDialogue'])
+        self.assertIsNone(events.preview({**at_threshold, 'now': '2026-10-25T12:00'})['wishDialogue'])
+        self.assertIsNone(events.preview({**at_threshold, 'completed': 2})['wishDialogue'])
+        self.assertIsNone(events.preview({**at_threshold, 'owned': [events.HOST]})['wishDialogue'])
+        old = {**at_threshold, 'lastKotohogi': None,
+               'earnedKotohogi': 120}
+        self.assertEqual(events.preview(old)['wishDialogue'], special)
+        with self.assertRaisesRegex(ValueError, '既読状態'):
+            events.preview({**at_threshold, 'wishSeen': 'false'})
+
+    def test_invalid_wish_configuration_fails_before_save(self):
+        valid = events.load()
+        alterations = [
+            lambda d: d['stages']['joined']['specialConversation'].update(
+                unlockAfterKotohogi=115),
+            lambda d: d['stages']['joined']['specialConversation'].update(
+                unlockAfterKotohogi=True),
+            lambda d: d['stages']['joined']['specialConversation']['turns'].pop(),
+            lambda d: d['stages']['joined']['specialConversation']['turns'][1].update(
+                speaker=events.FROG),
+            lambda d: d['stages']['joined']['specialConversation'].update(
+                id='changed'),
+        ]
+        for alter in alterations:
+            with self.subTest(alter=alter):
+                doc = copy.deepcopy(valid)
+                alter(doc)
+                with self.assertRaises(ValueError):
+                    events.validate(doc)
+
     def test_save_edits_both_files_and_escapes_dart(self):
         doc=copy.deepcopy(events.load())
         doc['stages']['solo']['intro']['text']="引用 ''' と $value と改行\nを保持"
