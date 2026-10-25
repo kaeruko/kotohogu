@@ -508,6 +508,28 @@ void main() {
         same(joined));
     expect(visit.dialogue(tonko, OyasumiScene.teaVisitGroup, 0)
         .turns.map((t) => t.resident).toList(), [tonko, frog, host, tonko]);
+    final foodFriends = visit.dialogue(
+        tonko, OyasumiScene.teaVisitGroup, 1);
+    expect(foodFriends.id, 'oyasumi_tea_visit_food_friends');
+    expect(visit.teaVisitBadge(foodFriends.id), 'たべられなかま');
+    expect(foodFriends.turns.map((t) => t.resident).toList(),
+        [frog, host, tonko]);
+    expect(foodFriends.turns.map((t) => t.text).toList(), [
+      'ナマケモノって、野生だとジャガーやワシに狙われるんだって',
+      'こわいもふ〜。ぼく、たべられたくないもふ……',
+      'わかるわぁ……つらいわよね……',
+    ]);
+    expect(visit.dialogue(tonko, OyasumiScene.teaVisitGroup, 2).id,
+        'oyasumi_tea_visit_${tonko.id}');
+    expect(visit.teaVisitBadge(
+        visit.dialogue(tonko, OyasumiScene.teaVisitGroup, 0).id),
+        visit.teaVisitLabel);
+    // The later tea visit can show food-friends immediately, even
+    // after the application was restarted and local rotations reset.
+    final nextVisit = guest(21, kotohogi: 220);
+    expect(nextVisit.teaVisitNumber, 1);
+    expect(nextVisit.dialogue(tonko, OyasumiScene.teaVisitGroup, 0).id,
+        foodFriends.id);
     for (final off in [
       guest(22, kotohogi: 100),
       guest(22, kotohogi: 120),
