@@ -261,15 +261,22 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
             ),
           if (showNavigation)
             Positioned(
-            // The clinic's title needs more room below the HUD. Lower the
-            // full navigation row only here, keeping its arrows aligned.
-            top: math.max(
-              92.0,
-              PinnedGachaHud.reservedHeightForWidth(constraints.maxWidth) + 12,
-            ) + (area == TownArea.hospital ? 28.0 : 0.0),
+            // Place the clinic's area label and arrow on the entrance
+            // forecourt, clear of the refresh button and bottom navigation.
+            // Other areas keep their HUD-relative top alignment.
+            top: area == TownArea.hospital
+                ? null
+                : math.max(
+                    92.0,
+                    PinnedGachaHud.reservedHeightForWidth(constraints.maxWidth) + 12,
+                  ),
+            bottom: area == TownArea.hospital
+                ? math.max(72.0, constraints.maxHeight * .10)
+                : null,
             left: 12,
             right: 12,
             child: Row(
+              key: const ValueKey('town-area-navigation-row'),
               children: [
                 if (canGoPrevious)
                   IconButton.filledTonal(
