@@ -147,7 +147,7 @@ def validate(doc):
         raise ValueError('夜回りの独り言は1〜4本で設定してください')
     for line in patrol['dialogues']: text(line)
     tea=doc['teaVisit']
-    if not isinstance(tea,dict) or set(tea) != {'label','residentId','intervalNights','position','turns'} or tea['residentId'] != TONKO:
+    if not isinstance(tea,dict) or set(tea) != {'label','residentId','intervalNights','position','turns','extraDialogue'} or tea['residentId'] != TONKO:
         raise ValueError('とんこの差し入れイベントが不正です')
     text(tea['label'])
     if type(tea['intervalNights']) is not int or not 1 <= tea['intervalNights'] <= 30:
@@ -166,6 +166,24 @@ def validate(doc):
         speakers.append(turn['speaker'])
     if not {TONKO,HOST,FROG}.issubset(speakers):
         raise ValueError('差し入れの会話は3人の発言が必要です')
+    extra=tea['extraDialogue']
+    if (not isinstance(extra,dict) or set(extra) != {'id','label','turns'} or
+            extra['id'] != 'oyasumi_tea_visit_food_friends'):
+        raise ValueError('たべられなかまの設定が不正です')
+    text(extra['label'])
+    food_turns=extra['turns']
+    if not isinstance(food_turns,list) or not 3 <= len(food_turns) <= 6:
+        raise ValueError('たべられなかまの会話は3〜6発言で設定してください')
+    food_speakers=[]
+    for i,turn in enumerate(food_turns):
+        if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
+                turn['speaker'] not in (TONKO,HOST,FROG) or
+                (i == 0 and turn['speaker'] != FROG)):
+            raise ValueError('たべられなかまの話者が不正です')
+        text(turn['text'])
+        food_speakers.append(turn['speaker'])
+    if not {TONKO,HOST,FROG}.issubset(food_speakers):
+        raise ValueError('たべられなかまには3人の発言が必要です')
     return doc
 
 
