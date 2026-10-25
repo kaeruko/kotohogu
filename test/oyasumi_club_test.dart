@@ -25,11 +25,13 @@ OyasumiScene scene(
   bool hasFrog = true,
   int kotohogi = 0,
   OyasumiProgress saved = const OyasumiProgress(),
+  Iterable<String> seenDialogues = const [],
 }) => OyasumiScene(
   saved: saved,
   owned: [host, if (hasFrog) frog],
   now: DateTime(2026, 10, day, hour),
   earnedKotohogi: kotohogi,
+  seenDialogues: seenDialogues,
 );
 Progress progress(DateTime now, OyasumiProgress state) => Progress(
   day: localDay(now),
@@ -114,6 +116,47 @@ void main() {
     expect(scene(20, saved: const OyasumiProgress(
         completed: 1, lastNight: '2026-10-19')).stage, 'watching');
   });
+  test('wish conversation unlocks once after 120 earned kotohogi', () {
+    const joined = OyasumiProgress(
+      completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
+    final notYet = scene(25, kotohogi: 270, saved: joined);
+    expect(notYet.wishDialogueAvailable, isFalse);
+    expect(notYet.dialogue(frog, 'joined', 0).id,
+        isNot(notYet.wishDialogueId));
+
+    final ready = scene(25, kotohogi: 280, saved: joined);
+    expect(ready.wishDialogueAvailable, isTrue);
+    final special = ready.dialogue(frog, 'joined', 0);
+    expect(special.id, 'oyasumi_joined_wish_001');
+    expect(special.turns.length, 8);
+    expect(special.turns.map((t) => t.resident).toList(),
+        [frog, host, frog, host, frog, host, frog, host]);
+    expect(special.turns[3].text, 'あしたも、かえるくんがくるといいもふ');
+    expect(special.turns.last.text, 'やったもふ〜');
+    expect(ready.dialogue(host, 'joined', 0).id,
+        isNot(ready.wishDialogueId),
+        reason: 'The frog starts the wish conversation');
+
+    final read = scene(25, kotohogi: 280, saved: joined,
+        seenDialogues: [special.id]);
+    expect(read.wishDialogueAvailable, isFalse);
+    expect(read.dialogue(frog, 'joined', 0).id, isNot(special.id));
+    expect(scene(26, kotohogi: 280, saved: joined,
+        seenDialogues: [special.id]).wishDialogueAvailable, isFalse);
+    expect(scene(25, hour: 12, kotohogi: 280,
+        saved: joined).wishDialogueAvailable, isFalse);
+    expect(scene(25, kotohogi: 280, hasFrog: false,
+        saved: joined).wishDialogueAvailable, isFalse);
+
+    // Old v5 saves did not record a joining milestone; use lifetime total.
+    const older = OyasumiProgress(
+        completed: 3, lastNight: '2026-10-20');
+    expect(scene(25, kotohogi: 110, saved: older).wishDialogueAvailable,
+        isFalse);
+    expect(scene(25, kotohogi: 120, saved: older).wishDialogueAvailable,
+        isTrue);
+  });
+
   test('debug cast never reverts retired frog to office-worker dialogue', () {
     const completed = OyasumiProgress(
       completed: 3, lastNight: '2026-10-23');
