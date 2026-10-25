@@ -26,12 +26,14 @@ OyasumiScene scene(
   int kotohogi = 0,
   OyasumiProgress saved = const OyasumiProgress(),
   Iterable<String> seenDialogues = const [],
+  bool cleanerStarted = false,
 }) => OyasumiScene(
   saved: saved,
   owned: [host, if (hasFrog) frog],
   now: DateTime(2026, 10, day, hour),
   earnedKotohogi: kotohogi,
   seenDialogues: seenDialogues,
+  parkCleanerStarted: cleanerStarted,
 );
 Progress progress(DateTime now, OyasumiProgress state) => Progress(
   day: localDay(now),
@@ -116,12 +118,65 @@ void main() {
     expect(scene(20, saved: const OyasumiProgress(
         completed: 1, lastNight: '2026-10-19')).stage, 'watching');
   });
+  test('park-cleaner job at joining +60 unlocks future daytime dialogue', () {
+    const joined = OyasumiProgress(
+        completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
+    const jobId = OyasumiScene.parkCleanerUnlockId;
+    final early = scene(25, saved: joined, kotohogi: 210);
+    expect(early.parkCleanerDialogueAvailable, isFalse);
+    expect(early.dialogue(frog, 'joined', 0).id, isNot(jobId));
+
+    final ready = scene(25, saved: joined, kotohogi: 220);
+    expect(ready.parkCleanerDialogueAvailable, isTrue);
+    final report = ready.dialogue(frog, 'joined', 0);
+    expect(report.id, jobId);
+    expect(report.turns.map((t) => t.resident),
+        [frog, host, frog, host, frog]);
+    expect(report.turns.first.text, contains('公園のおそうじ'));
+    expect(report.turns.last.text, contains('きれいにしなくちゃ'));
+
+    // Even when all chapters are already unlocked, unread job comes first.
+    final backlog = scene(25, saved: joined, kotohogi: 300);
+    expect(backlog.dialogue(frog, 'joined', 0).id, jobId);
+    final seen = progress(DateTime(2026, 10, 25), joined)
+        .markDialogueSeen(jobId);
+    expect(Progress.decode(seen.encode()).seenDialogues, contains(jobId));
+    final done = scene(25, saved: joined, kotohogi: 300,
+        seenDialogues: seen.seenDialogues, cleanerStarted: true);
+    expect(done.parkCleanerDialogueAvailable, isFalse);
+    expect(done.dialogue(frog, 'joined', 0).id,
+        'oyasumi_joined_kotohoguma_rumor_001');
+
+    // The daytime dialogue's existing parkCleaner condition is activated
+    // by the same persisted flag, not by simply reaching +60 points.
+    final beforeDay = scene(25, hour: 12, saved: joined,
+        kotohogi: 220);
+    final afterDay = scene(25, hour: 12, saved: joined,
+        kotohogi: 220, cleanerStarted: true);
+    for (var rotation = 0; rotation < 8; rotation++) {
+      final prev = beforeDay.dialogue(frog, 'resting', rotation,
+          availableResidentIds: {frog.id, host.id});
+      expect(prev.turns.any((turn) => turn.text.contains('ぼくはこうえんじゃないもふ')), isFalse);
+    }
+    final after = [
+      for (var rotation = 0; rotation < 8; rotation++)
+        afterDay.dialogue(frog, 'resting', rotation,
+            availableResidentIds: {frog.id, host.id}),
+    ];
+    expect(after.any((line) => line.turns.any(
+        (turn) => turn.text.contains('ぼくはこうえんじゃないもふ'))), isTrue);
+    expect(scene(25, saved: joined, kotohogi: 300,
+        seenDialogues: [jobId], cleanerStarted: true)
+        .parkCleanerDialogueAvailable, isFalse);
+  });
+
   test('rumor opens before the wish, with independent read states', () {
     const joined = OyasumiProgress(
       completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
     final early = scene(25, kotohogi: 240, saved: joined);
     expect(early.rumorDialogueAvailable, isFalse);
-    final atRumor = scene(25, kotohogi: 250, saved: joined);
+    final atRumor = scene(25, kotohogi: 250, saved: joined,
+        cleanerStarted: true);
     expect(atRumor.rumorDialogueAvailable, isTrue);
     expect(atRumor.wishDialogueAvailable, isFalse);
     final rumor = atRumor.dialogue(frog, 'joined', 0);
@@ -133,11 +188,12 @@ void main() {
       '見たらしあわせになれる、幸運のクマらしいよ',
       'もふ？',
     ]);
-    final late = scene(25, kotohogi: 280, saved: joined);
+    final late = scene(25, kotohogi: 280, saved: joined,
+        cleanerStarted: true);
     expect(late.dialogue(frog, 'joined', 0).id, rumor.id,
         reason: 'Rumor must precede wish even after both unlock');
     final rumorRead = scene(25, kotohogi: 280, saved: joined,
-        seenDialogues: [rumor.id]);
+        cleanerStarted: true, seenDialogues: [rumor.id]);
     expect(rumorRead.rumorDialogueAvailable, isFalse);
     expect(rumorRead.dialogue(frog, 'joined', 0).id,
         'oyasumi_joined_wish_001');
@@ -152,13 +208,13 @@ void main() {
       completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
     const rumorId = 'oyasumi_joined_kotohoguma_rumor_001';
     final notYet = scene(25, kotohogi: 270, saved: joined,
-        seenDialogues: [rumorId]);
+        cleanerStarted: true, seenDialogues: [rumorId]);
     expect(notYet.wishDialogueAvailable, isFalse);
     expect(notYet.dialogue(frog, 'joined', 0).id,
         isNot(notYet.wishDialogueId));
 
     final ready = scene(25, kotohogi: 280, saved: joined,
-        seenDialogues: [rumorId]);
+        cleanerStarted: true, seenDialogues: [rumorId]);
     expect(ready.wishDialogueAvailable, isTrue);
     final special = ready.dialogue(frog, 'joined', 0);
     expect(special.id, 'oyasumi_joined_wish_001');
@@ -175,7 +231,7 @@ void main() {
         reason: 'The frog starts the wish conversation');
 
     final read = scene(25, kotohogi: 280, saved: joined,
-        seenDialogues: [rumorId, special.id]);
+        cleanerStarted: true, seenDialogues: [rumorId, special.id]);
     expect(read.wishDialogueAvailable, isFalse);
     expect(read.dialogue(frog, 'joined', 0).id, isNot(special.id));
     expect(scene(26, kotohogi: 280, saved: joined,
