@@ -311,6 +311,28 @@
             "text": "やったもふ〜"
           }
         ]
+      },
+      "rumorConversation": {
+        "id": "oyasumi_joined_kotohoguma_rumor_001",
+        "unlockAfterKotohogi": 90,
+        "turns": [
+          {
+            "speaker": "029_office_worker",
+            "text": "おやすみくん、コトホグマってしってる？"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "くま、こわいもふ～"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "見たらしあわせになれる、幸運のクマらしいよ"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "もふ？"
+          }
+        ]
       }
     }
   },
