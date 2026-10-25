@@ -115,6 +115,16 @@ function renderEditor(){
       });
     });
     if(key==='joined'){
+      const rumor=stage.rumorConversation;
+      const rumorEditor=el('section');rumorEditor.append(el('h3','一度きりのコトホグマの噂'));
+      const rumorLabel=el('label','参加後に獲得する累積ことほぎ ');
+      const rumorThreshold=el('input');rumorThreshold.type='number';rumorThreshold.min='10';rumorThreshold.max='3000';rumorThreshold.step='10';rumorThreshold.value=rumor.unlockAfterKotohogi;
+      rumorThreshold.onchange=()=>{rumor.unlockAfterKotohogi=Number(rumorThreshold.value);change();};
+      rumorLabel.append(rumorThreshold);rumorEditor.append(rumorLabel);
+      rumor.turns.forEach((turn,j)=>{
+        textField(rumorEditor,`発言 ${j+1}・${names[turn.speaker]||turn.speaker}`,turn.text,v=>turn.text=v);
+      });
+      detail.append(rumorEditor);
       const wish=stage.specialConversation;
       const section=el('section');section.append(el('h3','一度きりの願いごと会話'));
       const intro=el('p','参加後、ここで指定した累積ことほぎを獲得したら、かえるに話しかけると最初に表示。最後まで読んだら既読として保存されます。');
@@ -191,7 +201,7 @@ function renderConversation(parent,item,primary,index){
     block.append(el('p',`${names[turn.speaker]||turn.speaker}「${turn.text}」`)));
   parent.append(block);
 }
-function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,earnedKotohogi:Number($('earnedKotohogi').value),lastKotohogi:$('lastKotohogi').value===''?null:Number($('lastKotohogi').value),owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[]),...($('tonko').checked?['041_pig_middle']:[])],marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked,wishSeen:$('wishSeen').checked};}
+function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,earnedKotohogi:Number($('earnedKotohogi').value),lastKotohogi:$('lastKotohogi').value===''?null:Number($('lastKotohogi').value),owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[]),...($('tonko').checked?['041_pig_middle']:[])],marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked,wishSeen:$('wishSeen').checked,rumorSeen:$('rumorSeen').checked};}
 async function preview(){
   if(!config)return;
   const version=++revision;$('read').disabled=true;
@@ -226,6 +236,12 @@ async function preview(){
     $('lines').replaceChildren();
     if(data.intro){
       $('lines').append(el('strong',(names[data.intro.speaker]||data.intro.speaker)+'の導入（最初に表示）'),el('p',data.intro.text));
+    }
+    if(data.rumorDialogue){
+      const rumor=el('details');rumor.open=true;
+      rumor.append(el('summary','コトホグマの噂（未読・次の会話）'));
+      renderConversation(rumor,{turns:data.rumorDialogue.turns},'029_office_worker',0);
+      $('lines').append(rumor);
     }
     if(data.wishDialogue){
       const special=el('details');special.open=true;
@@ -300,10 +316,11 @@ $('start').oninput=()=>{config.night.startHour=Number($('start').value);change()
 ['host','frog','mosa','tonko','marcheOpen','now','last','earnedKotohogi','lastKotohogi','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
 $('completed').onchange=()=>{const isStart=$('completed').value==='0';$('last').disabled=isStart;$('last').value=isStart?'':$('now').value.slice(0,10);$('lastKotohogi').value=isStart?'':$('earnedKotohogi').value;preview();};
 $('wishSeen').onchange=preview;
+$('rumorSeen').onchange=preview;
 $('preview').onclick=preview;
 $('read').onclick=async()=>{if(!result?.canComplete)return;$('completed').value=result.nextCompleted;$('last').disabled=false;$('last').value=result.nightKey;$('lastKotohogi').value=String(result.earnedKotohogi);await preview();};
 $('next').onclick=()=>{$('earnedKotohogi').value=Number($('earnedKotohogi').value)+30;preview();};
-$('reset').onclick=()=>{$('completed').value='0';$('last').value='';$('last').disabled=true;$('lastKotohogi').value='';$('wishSeen').checked=false;preview();};
+$('reset').onclick=()=>{$('completed').value='0';$('last').value='';$('last').disabled=true;$('lastKotohogi').value='';$('wishSeen').checked=false;$('rumorSeen').checked=false;preview();};
 $('save').onclick=async()=>{try{await request('/api/events',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)});$('saveStatus').textContent='保存しました。アプリは再ビルドすると反映されます。';}catch(error){$('saveStatus').textContent=error.message;}};
 $('reload').onclick=load;
 load();
