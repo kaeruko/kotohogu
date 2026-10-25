@@ -8,7 +8,7 @@ import facilities
 class FacilityScaleTests(unittest.TestCase):
     def test_shared_size_is_single_source_of_truth(self):
         doc = facilities.load()
-        salon, bakery, center = doc["facilities"]
+        salon, bakery, center, hospital = doc["facilities"]
         self.assertEqual(salon["spriteSize"], 230)
         self.assertEqual(bakery["spriteSize"], 235)
         self.assertEqual(center["spriteSize"], 150)
@@ -19,7 +19,16 @@ class FacilityScaleTests(unittest.TestCase):
                           "001_shiba", "042_senior_dog"])
         self.assertLess(center["placements"][0]["x"] + center["spriteSize"],
                         center["placements"][1]["x"])
-        for room in (salon, bakery, center):
+        self.assertEqual(hospital["label"], "びょういん")
+        self.assertEqual(hospital["background"], "assets/kotohogu/hospital_background_001.png")
+        self.assertEqual((hospital["width"], hospital["height"]), (941, 1672))
+        self.assertEqual(hospital["owner"], "004_neko")
+        self.assertEqual(hospital["spriteSize"], 125)
+        self.assertEqual([p["residentId"] for p in hospital["placements"]],
+                         ["004_neko", "024_nurse"])
+        self.assertLess(hospital["placements"][0]["x"] + hospital["spriteSize"],
+                        hospital["placements"][1]["x"])
+        for room in (salon, bakery, center, hospital):
             self.assertTrue(all("size" not in p for p in room["placements"]))
             size = room["spriteSize"]
             for placement in room["placements"]:
@@ -32,6 +41,17 @@ class FacilityScaleTests(unittest.TestCase):
             facilities.DART.read_text(encoding="utf-8"),
             "CMS-generated Dart must not drift from its source JSON",
         )
+
+    def test_clinic_staff_membership_is_not_silently_ignored(self):
+        doc = copy.deepcopy(facilities.load())
+        doc["facilities"][-1]["placements"].pop()
+        with self.assertRaisesRegex(ValueError, "診療所の配置"):
+            facilities.validate(doc)
+        doc = copy.deepcopy(facilities.load())
+        doc["facilities"][-1]["placements"].append(
+            {"residentId": "001_shiba", "x": 340, "y": 800})
+        with self.assertRaisesRegex(ValueError, "診療所の配置"):
+            facilities.validate(doc)
 
     def test_old_individual_sizes_are_rejected(self):
         doc = copy.deepcopy(facilities.load())
