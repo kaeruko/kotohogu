@@ -95,7 +95,7 @@ class OyasumiScene {
   final DateTime now;
   final int earnedKotohogi;
   final bool enabled;
-  /// Unlocked by the future park-cleaning job story, not elapsed days.
+  /// Set only when the park-cleaning job announcement was read in full.
   final bool parkCleanerStarted;
   /// Set from the actual tea-stall unlock, not from debug resident previews.
   final bool marcheOpen;
@@ -147,6 +147,8 @@ class OyasumiScene {
   // One-time chapter, unlocked by earned lifetime kotohogi since joining.
   // Older saves without a joining milestone use their lifetime total,
   // never a calendar-day estimate.
+  Map<String, dynamic> get parkCleanerDefinition =>
+      oyasumiConfig['stages']['joined']['parkCleanerConversation'] as Map<String, dynamic>;
   Map<String, dynamic> get wishDefinition =>
       oyasumiConfig['stages']['joined']['specialConversation'] as Map<String, dynamic>;
   String get wishDialogueId => wishDefinition['id'] as String;
@@ -160,6 +162,13 @@ class OyasumiScene {
         ? earnedKotohogi : earnedKotohogi - milestone;
     return difference < 0 ? 0 : difference;
   }
+  bool get parkCleanerDialogueAvailable =>
+      active && saved.completed == 3 && owned.contains(frog) &&
+      earnedSinceJoining >=
+          (parkCleanerDefinition['unlockAfterKotohogi'] as int) &&
+      !parkCleanerStarted &&
+      !seenDialogues.contains(parkCleanerUnlockId);
+
   bool get rumorDialogueAvailable =>
       active && saved.completed == 3 && owned.contains(frog) &&
       earnedSinceJoining >= (rumorDefinition['unlockAfterKotohogi'] as int) &&
@@ -305,8 +314,21 @@ class OyasumiScene {
         ],
       );
     }
-    // A backlog always plays in story order, even if enough kotohogi
-    // were earned to unlock both scenes before visiting the club.
+    // A backlog plays in story order, even if enough kotohogi were earned
+    // to unlock several scenes before visiting the club.
+    if (group == 'joined' && resident == frog &&
+        parkCleanerDialogueAvailable) {
+      return OyasumiDialogue(
+        parkCleanerUnlockId,
+        [
+          for (final turn in parkCleanerDefinition['turns'] as List)
+            OyasumiDialogueTurn(
+              TownResident.fromId(turn['speaker'] as String),
+              turn['text'] as String,
+            ),
+        ],
+      );
+    }
     if (group == 'joined' && resident == frog && rumorDialogueAvailable) {
       return OyasumiDialogue(
         rumorDialogueId,
