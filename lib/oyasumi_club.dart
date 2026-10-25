@@ -108,6 +108,21 @@ class OyasumiScene {
   Map<String, dynamic> get teaVisitDefinition =>
       oyasumiConfig['teaVisit'] as Map<String, dynamic>;
   String get teaVisitLabel => teaVisitDefinition['label'] as String;
+  Map<String, dynamic> get teaVisitExtraDialogue =>
+      teaVisitDefinition['extraDialogue'] as Map<String, dynamic>;
+  String teaVisitBadge(String dialogueId) =>
+      dialogueId == teaVisitExtraDialogue['id']
+          ? teaVisitExtraDialogue['label'] as String
+          : teaVisitLabel;
+  // The guest's visit count survives an app restart because it depends on
+  // saved lifetime kotohogi, not on a transient local dialogue counter.
+  int get teaVisitNumber {
+    final days = saved.lastKotohogi == null
+        ? earnedKotohogi ~/ kotohogiPerStoryDay
+        : storyDaysSinceLastIntroduction;
+    final interval = teaVisitDefinition['intervalNights'] as int;
+    return days <= 0 ? 0 : (days - 1) ~/ interval;
+  }
   int get startHour => oyasumiConfig['night']['startHour'] as int;
   int get endHour => oyasumiConfig['night']['endHour'] as int;
   EventTimeWindow get schedule => EventTimeWindow.fromHours(startHour, endHour);
@@ -303,10 +318,16 @@ class OyasumiScene {
       if (!teaVisitorVisible || resident != teaVisitor) {
         throw StateError('Tea visit is not available for ${resident.id}');
       }
+      final foodFriends = (teaVisitNumber + rotation) % 2 == 1;
+      final turns = foodFriends
+          ? teaVisitExtraDialogue['turns'] as List
+          : teaVisitDefinition['turns'] as List;
       return OyasumiDialogue(
-        'oyasumi_tea_visit_${resident.id}',
+        foodFriends
+            ? teaVisitExtraDialogue['id'] as String
+            : 'oyasumi_tea_visit_${resident.id}',
         [
-          for (final turn in teaVisitDefinition['turns'] as List)
+          for (final turn in turns)
             OyasumiDialogueTurn(
               TownResident.fromId(turn['speaker'] as String),
               turn['text'] as String,
