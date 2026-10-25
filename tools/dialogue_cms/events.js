@@ -155,6 +155,16 @@ function renderEditor(){
       });
     });
     if(key==='joined'){
+      const job=stage.parkCleanerConversation;
+      const jobEditor=el('section');jobEditor.append(el('h3','一度きりのおそうじやさん就職報告'));
+      const jobHelp=el('p','参加後の累積ことほぎで解放。かえるの報告を最後まで読むと、昼のおそうじやさん限定会話が解放されます。');
+      jobHelp.className='hint';jobEditor.append(jobHelp);
+      const jobLabel=el('label','参加後に獲得する累積ことほぎ ');
+      const jobThreshold=el('input');jobThreshold.type='number';jobThreshold.min='10';jobThreshold.max='3000';jobThreshold.step='10';jobThreshold.value=job.unlockAfterKotohogi;
+      jobThreshold.onchange=()=>{job.unlockAfterKotohogi=Number(jobThreshold.value);change();};
+      jobLabel.append(jobThreshold);jobEditor.append(jobLabel);
+      editSpecialTurns(jobEditor,job);
+      detail.append(jobEditor);
       const rumor=stage.rumorConversation;
       const rumorEditor=el('section');rumorEditor.append(el('h3','一度きりのコトホグマの噂'));
       const rumorLabel=el('label','参加後に獲得する累積ことほぎ ');
@@ -272,6 +282,12 @@ async function preview(){
     $('lines').replaceChildren();
     if(data.intro){
       $('lines').append(el('strong',(names[data.intro.speaker]||data.intro.speaker)+'の導入（最初に表示）'),el('p',data.intro.text));
+    }
+    if(data.parkCleanerDialogue){
+      const job=el('details');job.open=true;
+      job.append(el('summary','かえるのおそうじやさん就職報告（未読・次の会話）'));
+      renderConversation(job,{turns:data.parkCleanerDialogue.turns},'029_office_worker',0);
+      $('lines').append(job);
     }
     if(data.rumorDialogue){
       const rumor=el('details');rumor.open=true;
