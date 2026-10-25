@@ -78,6 +78,27 @@
           "y": 220
         }
       ]
+    },
+    {
+      "id": "hospital",
+      "label": "びょういん",
+      "background": "assets/kotohogu/hospital_background_001.png",
+      "width": 941,
+      "height": 1672,
+      "owner": "004_neko",
+      "spriteSize": 125,
+      "placements": [
+        {
+          "residentId": "004_neko",
+          "x": 165,
+          "y": 355
+        },
+        {
+          "residentId": "024_nurse",
+          "x": 615,
+          "y": 355
+        }
+      ]
     }
   ]
 }
