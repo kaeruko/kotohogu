@@ -280,19 +280,11 @@
         "turns": [
           {
             "speaker": "029_office_worker",
-            "text": "おやすみくん、もし願いがひとつだけかなうなら、やっぱり歯みがき？"
+            "text": "もしさ、願いが叶うならなににする？"
           },
           {
             "speaker": "027_daydreamer",
-            "text": "うーん……"
-          },
-          {
-            "speaker": "029_office_worker",
-            "text": "ほかにもある？"
-          },
-          {
-            "speaker": "027_daydreamer",
-            "text": "あしたも、かえるくんがくるといいもふ"
+            "text": "もふ～。毎日ひなたぼっこしたいもふ。\nあと…あしたも、かえるくんがくるといいもふ"
           },
           {
             "speaker": "029_office_worker",
@@ -300,15 +292,11 @@
           },
           {
             "speaker": "027_daydreamer",
-            "text": "かえるくんがくると、おしゃべりできるもふ"
+            "text": "かえるくんはなにをおねがいするもふ？"
           },
           {
             "speaker": "029_office_worker",
-            "text": "ふふ。じゃあ、それはぼくがかなえてあげられそうだね"
-          },
-          {
-            "speaker": "027_daydreamer",
-            "text": "やったもふ〜"
+            "text": "（……おかねもちになりたいなんて、いえない）"
           }
         ]
       },
