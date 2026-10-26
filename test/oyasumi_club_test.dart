@@ -810,6 +810,49 @@ void main() {
     expect(retry.progress!.oyasumi.completed, 1);
     retry.dispose();
   });
+  test('resignation checkpoint is saved only after reading, atomically', () async {
+    final now = DateTime(2026, 10, 25, 19);
+    const joined = OyasumiProgress(
+        completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
+    final starting = Progress(
+      day: localDay(now), lastCompletedDay: null, points: 190,
+      completed: {}, oyasumi: joined,
+      residents: ResidentCollection(
+        baselinePoints: 190, debugTicketsGranted: 2,
+        counts: {host.id: 1, frog.id: 1},
+      ),
+    );
+    final store = MemoryStore()..raw = starting.encode();
+    final controller = ProgressController(store, clock: () => now);
+    await controller.initialize();
+    final resignation = scene(25, saved: joined, kotohogi: 190);
+    expect(resignation.resignationDialogueAvailable, isTrue);
+    final oldSave = store.raw;
+    store.saveError = StateError('disk full');
+    expect(await controller.completeOyasumiResignation(resignation), isFalse);
+    expect(store.raw, oldSave);
+    controller.dispose();
+
+    store.saveError = null;
+    final retry = ProgressController(store, clock: () => now);
+    await retry.initialize();
+    expect(await retry.completeOyasumiResignation(resignation), isTrue);
+    expect(retry.progress!.oyasumi.resignationAtKotohogi, 190);
+    expect(retry.progress!.seenDialogues, contains(OyasumiScene.resignationId));
+    final restored = Progress.decode(store.raw!);
+    expect(restored.oyasumi.resignationAtKotohogi, 190);
+    expect(restored.seenDialogues, contains(OyasumiScene.resignationId));
+    expect(await retry.completeOyasumiResignation(resignation), isFalse);
+    final after = scene(25, saved: restored.oyasumi, kotohogi: 190,
+        seenDialogues: restored.seenDialogues);
+    expect(after.resignationDialogueAvailable, isFalse);
+    expect(after.parkCleanerDialogueAvailable, isFalse);
+    expect(scene(25, saved: restored.oyasumi, kotohogi: 220,
+        seenDialogues: restored.seenDialogues)
+        .parkCleanerDialogueAvailable, isTrue);
+    retry.dispose();
+  });
+
   test('debug skip advances story by one beat without another night', () async {
     final now = DateTime(2026, 10, 20, 20);
     final store = MemoryStore();
