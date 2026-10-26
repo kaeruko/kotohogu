@@ -936,6 +936,42 @@ class ProgressController extends ChangeNotifier {
     }
   }
 
+  /// Persist the resignation's earned-kotohogi checkpoint atomically with
+  /// its read marker. The cleaning job needs a *new* 30 kotohogi afterward.
+  Future<bool> completeOyasumiResignation(OyasumiScene scene) async {
+    if (busy || failure != null || progress == null ||
+        !scene.resignationDialogueAvailable ||
+        progress!.oyasumi.completed != scene.saved.completed ||
+        progress!.oyasumi.lastNight != scene.saved.lastNight ||
+        progress!.oyasumi.lastKotohogi != scene.saved.lastKotohogi ||
+        progress!.oyasumi.resignationAtKotohogi !=
+            scene.saved.resignationAtKotohogi ||
+        progress!.points != scene.earnedKotohogi ||
+        progress!.seenDialogues.contains(OyasumiScene.resignationId)) {
+      return false;
+    }
+    busy = true;
+    notifyListeners();
+    try {
+      final today = progress!.onDay(clock());
+      final current = today.oyasumi;
+      final next = today.withOyasumi(OyasumiProgress(
+        completed: current.completed,
+        lastNight: current.lastNight,
+        lastKotohogi: current.lastKotohogi,
+        resignationAtKotohogi: scene.earnedKotohogi,
+      )).markDialogueSeen(OyasumiScene.resignationId);
+      await store.save(next);
+      progress = next;
+      return true;
+    } catch (error, stack) {
+      failure = ProgressFailure('かえるの退職会話の保存', error, stack);
+      return false;
+    } finally {
+      _finishOperation();
+    }
+  }
+
   Future<bool> recordDialogueSeen(String id) async {
     if (busy || failure != null || progress == null) return false;
     busy = true;
