@@ -383,7 +383,9 @@ class OyasumiScene {
       );
     }
     final options = group == 'resting'
-        ? oyasumiConfig['restingDialogue'] as List
+        ? (parkCleanerStarted
+            ? oyasumiConfig['cleanerDialogue'] as List
+            : oyasumiConfig['restingDialogue'] as List)
         : group == 'patrol' && nightPatrolVisible && resident == nightPatroller
             ? oyasumiConfig['nightPatrol']['dialogues'] as List
             : definition['chatter'][resident.id] as List;
