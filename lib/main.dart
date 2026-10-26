@@ -673,6 +673,9 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       if (read != true || !mounted) return;
       if (scene.introduction(resident, group)) {
         await controller.completeOyasumi(scene, resident, group);
+      } else if (line.id == OyasumiScene.resignationId) {
+        // The resignation read checkpoint must be saved before a job can begin.
+        await controller.completeOyasumiResignation(scene);
       } else if (line.id == OyasumiScene.parkCleanerUnlockId ||
           line.id == scene.rumorDialogueId ||
           line.id == scene.wishDialogueId) {
