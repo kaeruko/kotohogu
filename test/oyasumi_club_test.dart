@@ -830,7 +830,10 @@ void main() {
       completed: {}, oyasumi: joined,
       residents: ResidentCollection(
         baselinePoints: 190, debugTicketsGranted: 2,
-        counts: {host.id: 1, frog.id: 1},
+        counts: {
+          '001_shiba': 1, '002_usagi': 1,
+          host.id: 1, frog.id: 1,
+        },
       ),
     );
     final store = MemoryStore()..raw = starting.encode();
