@@ -147,16 +147,21 @@ void main() {
     expect(done.dialogue(frog, 'joined', 0).id,
         'oyasumi_joined_kotohoguma_rumor_001');
 
-    // The daytime dialogue's existing parkCleaner condition is activated
-    // by the same persisted flag, not by simply reaching +60 points.
+    // The entire daytime dialogue catalogue switches after the job report
+    // is read, not merely when the +60 kotohogi threshold is reached.
     final beforeDay = scene(25, hour: 12, saved: joined,
         kotohogi: 220);
     final afterDay = scene(25, hour: 12, saved: joined,
         kotohogi: 220, cleanerStarted: true);
+    expect(beforeDay.dialogue(frog, 'resting', 0).text,
+        contains('会社を辞めて'));
+    expect(afterDay.dialogue(frog, 'resting', 0).text,
+        contains('落ち葉'));
     for (var rotation = 0; rotation < 8; rotation++) {
       final prev = beforeDay.dialogue(frog, 'resting', rotation,
           availableResidentIds: {frog.id, host.id});
-      expect(prev.turns.any((turn) => turn.text.contains('ぼくはこうえんじゃないもふ')), isFalse);
+      expect(prev.turns.any((turn) =>
+          turn.text.contains('ぼくはこうえんじゃないもふ')), isFalse);
     }
     final after = [
       for (var rotation = 0; rotation < 8; rotation++)
@@ -318,19 +323,26 @@ void main() {
     }
   });
 
-  test('park cleaner dialogue needs future job marker and present friend', () {
-    // Keep eligibility checks independent of CMS dialogue edits and ordering.
-    final previous = oyasumiConfig['restingDialogue'];
-    addTearDown(() => oyasumiConfig['restingDialogue'] = previous);
+  test('job report changes all daytime dialogue; friends must be present', () {
+    // Keep the dialogue-selection test independent of CMS ordering.
+    final previousRest = oyasumiConfig['restingDialogue'];
+    final previousCleaner = oyasumiConfig['cleanerDialogue'];
+    addTearDown(() {
+      oyasumiConfig['restingDialogue'] = previousRest;
+      oyasumiConfig['cleanerDialogue'] = previousCleaner;
+    });
     oyasumiConfig['restingDialogue'] = [
-      '今日もぼちぼち。',
+      '今日はお休みなんだ。', 'ゆっくりしてるよ。', '今日もぼちぼち。'
+    ];
+    oyasumiConfig['cleanerDialogue'] = [
+      '今日は公園の落ち葉を集めたよ。',
       {
-        'requires': 'parkCleaner',
         'turns': [
-          {'speaker': frog.id, 'text': '公園のおそうじをすることになったんだ。'},
+          {'speaker': frog.id, 'text': '公園をおそうじしてきたよ。'},
           {'speaker': host.id, 'text': 'ぼくはこうえんじゃないもふ！！'},
         ],
       },
+      '公園のベンチも磨いてきたよ。',
     ];
     const saved = OyasumiProgress(completed: 3, lastNight: '2026-10-24');
     final before = OyasumiScene(
@@ -340,20 +352,15 @@ void main() {
       saved: saved, owned: [host, frog], now: DateTime(2026, 10, 25, 12),
       parkCleanerStarted: true,
     );
-    for (var rotation = 0; rotation < 4; rotation++) {
-      expect(before.dialogue(
-        frog, 'resting', rotation, availableResidentIds: {frog.id, host.id},
-      ).text, '今日もぼちぼち。');
-      expect(after.dialogue(
-        frog, 'resting', rotation, availableResidentIds: {frog.id},
-      ).text, '今日もぼちぼち。');
-    }
-    final together=after.dialogue(
-      frog, 'resting', 1, availableResidentIds: {frog.id, host.id},
-    );
+    expect(before.dialogue(frog, 'resting', 0).text, '今日はお休みなんだ。');
+    expect(after.dialogue(frog, 'resting', 0).text,
+        '今日は公園の落ち葉を集めたよ。');
+    expect(after.dialogue(frog, 'resting', 1,
+        availableResidentIds: {frog.id}).text, '公園のベンチも磨いてきたよ。');
+    final together = after.dialogue(frog, 'resting', 1,
+        availableResidentIds: {frog.id, host.id});
     expect(together.turns.length, 2);
-    expect(together.turns.first.resident, frog);
-    expect(together.turns.first.text, '公園のおそうじをすることになったんだ。');
+    expect(together.turns.first.text, '公園をおそうじしてきたよ。');
     expect(together.turns.last.resident, host);
     expect(together.turns.last.text, 'ぼくはこうえんじゃないもふ！！');
   });
