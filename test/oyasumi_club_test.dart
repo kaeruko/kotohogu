@@ -118,15 +118,29 @@ void main() {
     expect(scene(20, saved: const OyasumiProgress(
         completed: 1, lastNight: '2026-10-19')).stage, 'watching');
   });
-  test('park-cleaner job at joining +60 unlocks future daytime dialogue', () {
+  test('resignation must be read and followed by 30 earned kotohogi', () {
     const joined = OyasumiProgress(
         completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
     const jobId = OyasumiScene.parkCleanerUnlockId;
-    final early = scene(25, saved: joined, kotohogi: 210);
+    final early = scene(25, saved: joined, kotohogi: 180);
+    expect(early.resignationDialogueAvailable, isFalse);
     expect(early.parkCleanerDialogueAvailable, isFalse);
-    expect(early.dialogue(frog, 'joined', 0).id, isNot(jobId));
-
-    final ready = scene(25, saved: joined, kotohogi: 220);
+    final resign = scene(25, saved: joined, kotohogi: 190);
+    expect(resign.resignationDialogueAvailable, isTrue);
+    expect(resign.dialogue(frog, 'joined', 0).id, OyasumiScene.resignationId);
+    expect(resign.dialogue(frog, 'joined', 0).turns.last.text,
+        contains('決めたのは、ぼくだ'));
+    final unseenBacklog = scene(25, saved: joined, kotohogi: 300);
+    expect(unseenBacklog.dialogue(frog, 'joined', 0).id,
+        OyasumiScene.resignationId,
+        reason: 'Accumulated points cannot skip the resignation');
+    const resigned = OyasumiProgress(completed: 3,
+        lastNight: '2026-10-20', lastKotohogi: 160,
+        resignationAtKotohogi: 190);
+    final earlyJob = scene(25, saved: resigned, kotohogi: 210);
+    expect(earlyJob.resignationDialogueAvailable, isFalse);
+    expect(earlyJob.parkCleanerDialogueAvailable, isFalse);
+    final ready = scene(25, saved: resigned, kotohogi: 220);
     expect(ready.parkCleanerDialogueAvailable, isTrue);
     final report = ready.dialogue(frog, 'joined', 0);
     expect(report.id, jobId);
@@ -136,12 +150,20 @@ void main() {
     expect(report.turns.last.text, contains('きれいにしなくちゃ'));
 
     // Even when all chapters are already unlocked, unread job comes first.
-    final backlog = scene(25, saved: joined, kotohogi: 300);
+    // When resignation is late, work still requires new progress after it.
+    const lateResignation = OyasumiProgress(completed: 3,
+        lastNight: '2026-10-20', lastKotohogi: 160,
+        resignationAtKotohogi: 300);
+    expect(scene(25, saved: lateResignation, kotohogi: 300)
+        .parkCleanerDialogueAvailable, isFalse);
+    expect(scene(25, saved: lateResignation, kotohogi: 330)
+        .dialogue(frog, 'joined', 0).id, jobId);
+    final backlog = scene(25, saved: resigned, kotohogi: 300);
     expect(backlog.dialogue(frog, 'joined', 0).id, jobId);
     final seen = progress(DateTime(2026, 10, 25), joined)
         .markDialogueSeen(jobId);
     expect(Progress.decode(seen.encode()).seenDialogues, contains(jobId));
-    final done = scene(25, saved: joined, kotohogi: 300,
+    final done = scene(25, saved: resigned, kotohogi: 300,
         seenDialogues: seen.seenDialogues, cleanerStarted: true);
     expect(done.parkCleanerDialogueAvailable, isFalse);
     expect(done.dialogue(frog, 'joined', 0).id,
@@ -170,7 +192,7 @@ void main() {
     ];
     expect(after.any((line) => line.turns.any(
         (turn) => turn.text.contains('ぼくはこうえんじゃないもふ'))), isTrue);
-    expect(scene(25, saved: joined, kotohogi: 300,
+    expect(scene(25, saved: resigned, kotohogi: 300,
         seenDialogues: [jobId], cleanerStarted: true)
         .parkCleanerDialogueAvailable, isFalse);
   });
@@ -741,7 +763,18 @@ void main() {
       expect(saved.oyasumi.completed, 2);
       expect(saved.oyasumi.lastNight, '2026-10-19');
       expect(saved.oyasumi.lastKotohogi, 50);
-      final old = jsonDecode(saved.encode()) as Map<String, dynamic>;
+      final committed = OyasumiProgress.fromJson({
+      'completed': 3, 'lastNight': '2026-10-20',
+      'lastKotohogi': 160, 'resignationAtKotohogi': 190,
+    });
+    expect(committed.resignationAtKotohogi, 190);
+    expect(OyasumiProgress.fromJson(committed.toJson())
+        .resignationAtKotohogi, 190);
+    expect(() => OyasumiProgress.fromJson({
+      'completed': 3, 'lastNight': '2026-10-20',
+      'lastKotohogi': 160, 'resignationAtKotohogi': 150,
+    }), throwsFormatException);
+    final old = jsonDecode(saved.encode()) as Map<String, dynamic>;
       final oldOyasumi = Map<String, dynamic>.from(old['oyasumi'] as Map);
       oldOyasumi.remove('lastKotohogi');
       expect(OyasumiProgress.fromJson(oldOyasumi).lastKotohogi, isNull,
