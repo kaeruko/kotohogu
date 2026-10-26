@@ -134,9 +134,9 @@ def validate(doc):
             lines(items, speaker, cast,
                   max_patterns=5 if key == 'joined' and speaker == FROG else 4)
     if not lines(doc['restingDialogue'], FROG, outdoor, max_patterns=8):
-        raise ValueError('休養中のかえるの会話には一人用を1本以上残してください')
+        raise ValueError('休養中のかえるの会話には一人で話せる候補を1本以上残してください')
     if not lines(doc['cleanerDialogue'], FROG, outdoor, max_patterns=8):
-        raise ValueError('就職後のかえるの会話には一人用を1本以上残してください')
+        raise ValueError('就職後のかえるの会話には一人で話せる候補を1本以上残してください')
     patrol=doc['nightPatrol']
     if not isinstance(patrol,dict) or set(patrol) != {'residentId','route','dialogues'} or patrol['residentId'] != MOSA:
         raise ValueError('夜回りの住民はモサエド固定です')
