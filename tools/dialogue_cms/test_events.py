@@ -376,27 +376,35 @@ class EventTests(unittest.TestCase):
         self.assertEqual(self.preview(2,'2026-10-19')['stage'],'joining')
         self.assertEqual(self.preview(3,'2026-10-19')['stage'],'joined')
 
-    def test_park_cleaner_gated_and_post_club_lines(self):
+    def test_park_cleaner_replaces_all_post_club_daytime_lines(self):
         doc=events.load()
-        self.assertEqual(len(doc['restingDialogue']),8)
+        self.assertEqual(len(doc['restingDialogue']),7)
+        self.assertEqual(len(doc['cleanerDialogue']),6)
         self.assertIn('筋肉痛',doc['restingDialogue'][5])
-        cleaner=doc['restingDialogue'][6]
-        self.assertEqual(cleaner['requires'],'parkCleaner')
+        cleaner=doc['cleanerDialogue'][4]
         self.assertEqual(cleaner['turns'][-1]['text'],'ぼくはこうえんじゃないもふ！！')
         base={'config':doc,'completed':3,'lastNight':'2026-10-19',
               'now':'2026-10-20T12:00','owned':[events.HOST,events.FROG],
               'peers':[events.HOST]}
-        self.assertNotIn(cleaner,events.preview(base)['restingOptions'])
-        self.assertIn(cleaner,events.preview({**base,'parkCleanerStarted':True})['restingOptions'])
+        waiting=events.preview(base)['restingOptions']
+        employed=events.preview({**base,'parkCleanerStarted':True})['restingOptions']
+        self.assertIn(doc['restingDialogue'][0],waiting)
+        self.assertNotIn(doc['restingDialogue'][0],employed)
+        self.assertIn(doc['cleanerDialogue'][0],employed)
+        self.assertNotIn(doc['cleanerDialogue'][0],waiting)
+        self.assertNotIn(cleaner,waiting)
+        self.assertIn(cleaner,employed)
         self.assertNotIn(cleaner,events.preview({**base,'parkCleanerStarted':True,'peers':[]})['restingOptions'])
         relaxed=doc['restingDialogue'][-1]
         self.assertIn('気が楽',relaxed['turns'][0]['text'])
-        self.assertIn(relaxed,events.preview(base)['restingOptions'])
+        self.assertIn(relaxed,waiting)
         self.assertNotIn(relaxed,events.preview({**base,'peers':[]})['restingOptions'])
+        # Every occupation has some solo dialogue when a friend is away.
+        self.assertTrue(events.preview({**base,'parkCleanerStarted':True,'peers':[]})['restingOptions'])
         with self.assertRaises(ValueError):
             events.preview({**base,'parkCleanerStarted':'yes'})
         invalid=copy.deepcopy(doc)
-        invalid['restingDialogue'][6]['requires']='unknown'
+        invalid['cleanerDialogue'][4]['requires']='parkCleaner'
         with self.assertRaises(ValueError):events.validate(invalid)
         invalid=copy.deepcopy(doc)
         invalid['stages']['joined']['chatter'][events.FROG][0]['requires']='parkCleaner'
@@ -404,6 +412,11 @@ class EventTests(unittest.TestCase):
         invalid=copy.deepcopy(doc)
         invalid['restingDialogue']=['one','two','three']*3
         with self.assertRaises(ValueError):events.validate(invalid)
+        invalid=copy.deepcopy(doc)
+        invalid['cleanerDialogue']=[{'turns':[
+            {'speaker':events.FROG,'text':'話しかけるだけ'},
+            {'speaker':events.HOST,'text':'もふ'}]}]*3
+        with self.assertRaisesRegex(ValueError,'一人用'):events.validate(invalid)
 
     def test_mosaedo_night_patrol_is_solo_and_requires_ownership(self):
         cfg=events.load()
