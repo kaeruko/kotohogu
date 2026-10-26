@@ -273,8 +273,8 @@ void main() {
         completed: 3, lastNight: '2026-10-20');
     expect(scene(25, kotohogi: 110, saved: older).wishDialogueAvailable,
         isFalse);
-    expect(scene(25, kotohogi: 120, saved: older).wishDialogueAvailable,
-        isTrue);
+    expect(scene(25, kotohogi: 120, saved: older,
+        cleanerStarted: true).wishDialogueAvailable, isTrue);
   });
 
   test('debug cast never reverts retired frog to office-worker dialogue', () {
@@ -437,13 +437,16 @@ void main() {
 
   test('post-club resignation is shared gently and doubts stay private', () {
     final joined = scene(
-      25, saved: const OyasumiProgress(
+      25, kotohogi: 30,
+      saved: const OyasumiProgress(
         completed: 3, lastNight: '2026-10-24',
       ),
     );
     expect(joined.stage, 'joined');
     expect(joined.introduction(frog, 'joined'), isFalse);
+    expect(joined.resignationDialogueAvailable, isTrue);
     final dialogue = joined.dialogue(frog, 'joined', 4);
+    expect(dialogue.id, OyasumiScene.resignationId);
     expect(dialogue.turns.length, 8);
     expect(dialogue.turns.first.resident, frog);
     expect(dialogue.turns.first.text, contains('会社を辞めた'));
@@ -454,8 +457,16 @@ void main() {
     expect(dialogue.turns.last.resident, frog);
     expect(dialogue.turns.last.text, contains('ひとりで'));
     expect(dialogue.turns.last.text, contains('決めたのは、ぼくだ'));
-    expect(joined.dialogue(frog, 'joined', 9).turns.first.text,
-        dialogue.turns.first.text, reason: 'The extra conversation rotates');
+    expect(joined.dialogue(frog, 'joined', 9).id, dialogue.id,
+        reason: 'The one-time resignation is not rotating chatter');
+    final alreadyRead = scene(25, kotohogi: 30,
+      saved: const OyasumiProgress(
+        completed: 3, lastNight: '2026-10-24',
+        resignationAtKotohogi: 30,
+      ),
+    );
+    expect(alreadyRead.resignationDialogueAvailable, isFalse);
+    expect(alreadyRead.dialogue(frog, 'joined', 0).id, isNot(dialogue.id));
   });
 
   test('owned Mosaedo makes a walking solo night patrol, not a club member', () {
@@ -815,7 +826,7 @@ void main() {
     const joined = OyasumiProgress(
         completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);
     final starting = Progress(
-      day: localDay(now), lastCompletedDay: null, points: 190,
+      day: localDay(now), lastCompletedDay: localDay(now), points: 190,
       completed: {}, oyasumi: joined,
       residents: ResidentCollection(
         baselinePoints: 190, debugTicketsGranted: 2,
