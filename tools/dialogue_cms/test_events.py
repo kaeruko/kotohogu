@@ -416,7 +416,7 @@ class EventTests(unittest.TestCase):
         invalid['cleanerDialogue']=[{'turns':[
             {'speaker':events.FROG,'text':'話しかけるだけ'},
             {'speaker':events.HOST,'text':'もふ'}]}]*3
-        with self.assertRaisesRegex(ValueError,'一人用'):events.validate(invalid)
+        with self.assertRaisesRegex(ValueError,'一人で話せる'):events.validate(invalid)
 
     def test_mosaedo_night_patrol_is_solo_and_requires_ownership(self):
         cfg=events.load()
