@@ -45,7 +45,7 @@ def validate(doc):
                 continue
             if not isinstance(item,dict) or set(item) != {'turns'} or not isinstance(item['turns'],list) or not 1 <= len(item['turns']) <= 8:
                 raise ValueError('掛け合いは1〜8発言の順番で登録してください')
-             turns = item['turns']
+            turns = item['turns']
             for index,turn in enumerate(turns):
                 if not isinstance(turn,dict) or set(turn) != {'speaker','text'} or not isinstance(turn['speaker'],str) or turn['speaker'] not in allowed or (index==0 and turn['speaker']!=speaker):
                     raise ValueError('掛け合いの話者が不正です')
