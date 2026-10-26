@@ -18,25 +18,6 @@ function editLines(parent,lines,primary,allowed,{isResting=false,maxNightPattern
   lines.forEach((item,i)=>{
     const block=el('div');block.className='conversation';
     block.append(el('h4',`会話 ${i+1}（発言の順番）`));
-    if(isResting){
-      const gateLabel=el('label','');
-      const gate=el('input');
-      gate.type='checkbox';
-      gate.checked=typeof item!=='string'&&item.requires==='parkCleaner';
-      gate.onchange=()=>{
-        if(gate.checked){
-          if(typeof lines[i]==='string'){
-            lines[i]={turns:[{speaker:primary,text:lines[i]}]};
-          }
-          lines[i].requires='parkCleaner';
-        }else if(typeof lines[i]!=='string'){
-          delete lines[i].requires;
-        }
-        change();
-      };
-      gateLabel.append(gate,document.createTextNode(' 公園のおそうじやさんになった後だけ'));
-      block.append(gateLabel);
-    }
     const turns=turnsFor(item,primary);
     turns.forEach((turn,j)=>{
       const row=el('div');row.className='talk-turn';
@@ -242,11 +223,17 @@ function renderEditor(){
   teaEditor.append(foodEditor);
   $('stages').append(teaEditor);
   const rest=el('details');
-  rest.append(el('summary','参加後のかえる：昼間・通常会話'));
-  rest.append(el('p','最初の発言はかえる。次の発言から、やすぞうさん・おやすみくんなどを選べます。同じ場所にいない場合は、その掛け合いを出さず、一人用の会話を使います。'));
+  rest.append(el('summary','参加後のかえる：昼間・休養中の会話（就職報告を読む前）'));
+  rest.append(el('p','おそうじやさんの就職報告を読み終えるまでは、こちらのセリフが出ます。最初の発言はかえる。'));
   rest.lastChild.className='hint';
   editLines(rest,config.restingDialogue,'029_office_worker',outdoorResidents,{isResting:true});
   $('stages').append(rest);
+  const cleaner=el('details');
+  cleaner.append(el('summary','参加後のかえる：昼間・おそうじやさんの会話（就職後）'));
+  cleaner.append(el('p','クラブ参加後＋60ことほぎで就職報告を解放し、かえるの報告を最後まで読んだ後はこちらに切り替わります。会話の相手が不在なら一人用のセリフだけを使います。'));
+  cleaner.lastChild.className='hint';
+  editLines(cleaner,config.cleanerDialogue,'029_office_worker',outdoorResidents,{isResting:true});
+  $('stages').append(cleaner);
 }
 function renderConversation(parent,item,primary,index){
   const block=el('div');block.className='preview-talk';
@@ -285,7 +272,9 @@ async function preview(){
       $('scene').append(image);
     });
     $('dayChange').textContent=data.frogResting
-      ? 'かえる：参加後。昼間も休養生活の会話を使います。'
+      ? $('cleanerStarted').checked
+        ? 'かえる：就職報告を読了済み。昼間はおそうじやさんの会話を使います。'
+        : 'かえる：参加後。就職報告を読むまでは休養中の会話を使います。'
       : 'かえる：通常の会社員の会話です。';
     $('lines').replaceChildren();
     if(data.intro){
