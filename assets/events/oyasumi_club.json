@@ -235,42 +235,6 @@
                 "text": "……すぅ……もふ……"
               }
             ]
-          },
-          {
-            "turns": [
-              {
-                "speaker": "029_office_worker",
-                "text": "ぼく、会社を辞めたんだ。"
-              },
-              {
-                "speaker": "027_daydreamer",
-                "text": "もふ〜！ じゃあ、あしたもあそべるもふ？"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "うん。しばらくゆっくりするつもり。"
-              },
-              {
-                "speaker": "027_daydreamer",
-                "text": "やったもふ〜！ いっぱいおひるねできるもふ〜！"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "……あはは。おやすみくんは本当に変わらないね。"
-              },
-              {
-                "speaker": "027_daydreamer",
-                "text": "もふ？"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "……なんでもないよ。また明日ね。"
-              },
-              {
-                "speaker": "029_office_worker",
-                "text": "（おやすみくんと別れた帰り道、ひとりで）……ほんとに、これでよかったのかな。おやすみくんと仲良くならなかったら、今も会社にいたんだろうな……。……いや。決めたのは、ぼくだ。"
-              }
-            ]
           }
         ]
       },
@@ -345,6 +309,44 @@
           {
             "speaker": "029_office_worker",
             "text": "ふふ。じゃあ、がんばってきれいにしなくちゃね。"
+          }
+        ]
+      },
+      "resignationConversation": {
+        "id": "oyasumi_joined_resignation_001",
+        "unlockAfterKotohogi": 30,
+        "turns": [
+          {
+            "speaker": "029_office_worker",
+            "text": "ぼく、会社を辞めたんだ。"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "もふ〜！ じゃあ、あしたもあそべるもふ？"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "うん。しばらくゆっくりするつもり。"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "やったもふ〜！ いっぱいおひるねできるもふ〜！"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "……あはは。おやすみくんは本当に変わらないね。"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "もふ？"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "……なんでもないよ。また明日ね。"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "（おやすみくんと別れた帰り道、ひとりで）……ほんとに、これでよかったのかな。おやすみくんと仲良くならなかったら、今も会社にいたんだろうな……。……いや。決めたのは、ぼくだ。"
           }
         ]
       }
