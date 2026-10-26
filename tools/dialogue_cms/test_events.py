@@ -38,6 +38,36 @@ class EventTests(unittest.TestCase):
         self.assertFalse(self.preview(now='2026-10-21T06:00')['active'])
     def test_config_generated_data_is_current(self):
         self.assertEqual(events.DART.read_text(encoding='utf-8'),events.generated(events.load()))
+    def test_resignation_read_checkpoint_precedes_job(self):
+        doc = events.load()
+        resignation = doc['stages']['joined']['resignationConversation']
+        self.assertEqual(resignation['id'],'oyasumi_joined_resignation_001')
+        self.assertEqual(resignation['unlockAfterKotohogi'],30)
+        self.assertEqual(len(resignation['turns']),8)
+        base = dict(config=doc,completed=3,lastNight='2026-10-20',
+                    lastKotohogi=160,earnedKotohogi=180,
+                    now='2026-10-25T19:00',owned=[events.HOST,events.FROG])
+        self.assertIsNone(events.preview(base)['resignationDialogue'])
+        unlocked = {**base,'earnedKotohogi':190}
+        self.assertEqual(events.preview(unlocked)['resignationDialogue'],
+                         resignation)
+        self.assertIsNone(events.preview(unlocked)['parkCleanerDialogue'])
+        backlog = {**base,'earnedKotohogi':300}
+        self.assertEqual(events.preview(backlog)['resignationDialogue'],
+                         resignation)
+        self.assertIsNone(events.preview(backlog)['parkCleanerDialogue'])
+        read = {**backlog,'resignationAtKotohogi':300}
+        self.assertIsNone(events.preview(read)['resignationDialogue'])
+        self.assertIsNone(events.preview(read)['parkCleanerDialogue'])
+        self.assertIsNone(events.preview(read)['rumorDialogue'])
+        self.assertEqual(events.preview({**read,'earnedKotohogi':330})
+            ['parkCleanerDialogue'],
+            doc['stages']['joined']['parkCleanerConversation'])
+        self.assertIsNone(events.preview({
+            **unlocked,'now':'2026-10-25T12:00'})['resignationDialogue'])
+        with self.assertRaisesRegex(ValueError,'退職会話を読了'):
+            events.preview({**unlocked,'resignationAtKotohogi':200})
+
     def test_park_cleaner_job_is_first_at_joining_plus_sixty(self):
         doc = events.load()
         job = doc['stages']['joined']['parkCleanerConversation']
@@ -51,10 +81,12 @@ class EventTests(unittest.TestCase):
                     now='2026-10-25T19:00',
                     owned=[events.HOST, events.FROG])
         self.assertIsNone(events.preview(base)['parkCleanerDialogue'])
-        job_ready = {**base, 'earnedKotohogi': 220}
+        job_ready = {**base, 'earnedKotohogi': 220,
+                     'resignationAtKotohogi': 190}
         self.assertEqual(events.preview(job_ready)['parkCleanerDialogue'], job)
         self.assertIsNone(events.preview(job_ready)['rumorDialogue'])
-        backlog = {**base, 'earnedKotohogi': 280}
+        backlog = {**base, 'earnedKotohogi': 280,
+                   'resignationAtKotohogi': 190}
         self.assertEqual(events.preview(backlog)['parkCleanerDialogue'], job)
         self.assertIsNone(events.preview(backlog)['rumorDialogue'])
         self.assertIsNone(events.preview(backlog)['wishDialogue'])
@@ -160,6 +192,14 @@ class EventTests(unittest.TestCase):
             lambda d: d['stages']['joined']['parkCleanerConversation'].update(
                 turns=d['stages']['joined']['parkCleanerConversation']['turns'][:1]),
             lambda d: d['stages']['joined']['parkCleanerConversation']['turns'][0].update(
+                speaker=events.HOST),
+            lambda d: d['stages']['joined']['resignationConversation'].update(
+                unlockAfterKotohogi=65),
+            lambda d: d['stages']['joined']['resignationConversation'].update(
+                id='wrong'),
+            lambda d: d['stages']['joined']['resignationConversation'].update(
+                turns=[]),
+            lambda d: d['stages']['joined']['resignationConversation']['turns'][0].update(
                 speaker=events.HOST),
         ]
         for alter in alterations:
@@ -332,7 +372,7 @@ class EventTests(unittest.TestCase):
         self.assertTrue(all(isinstance(item,str) for item in watching))
         self.assertIn('におう',joined[0]['turns'][0]['text'])
         self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host])
-        self.assertEqual(len(joined),5)
+        self.assertEqual(len(joined),4)
         park=joined[1]['turns']
         today=joined[2]['turns']
         self.assertEqual([t['speaker'] for t in park], [frog,host])
@@ -342,16 +382,16 @@ class EventTests(unittest.TestCase):
         self.assertEqual(today[0]['text'],'おやすみくん、今日は何してた？')
         self.assertIn('かえるくんをまってた',today[1]['text'])
         self.assertIn('待ってないじゃん',today[-1]['text'])
-        reunion=joined[-2]['turns']
+        reunion=joined[-1]['turns']
         self.assertEqual([turn['speaker'] for turn in reunion],
                          [frog, frog, frog, host])
         self.assertIn('会いに来たんだけど', reunion[1]['text'])
         self.assertIn('起こさないでおこうね', reunion[2]['text'])
         self.assertIn('……すぅ……もふ……', reunion[-1]['text'])
         self.assertEqual(
-            self.preview(3,'2026-10-19')['dialogues'][frog][-2]['turns'],
+            self.preview(3,'2026-10-19')['dialogues'][frog][-1]['turns'],
             reunion)
-        resignation=joined[-1]['turns']
+        resignation=doc['stages']['joined']['resignationConversation']['turns']
         self.assertEqual(len(resignation),8)
         self.assertEqual([t['speaker'] for t in resignation],
                          [frog,host,frog,host,frog,host,frog,frog])
@@ -364,9 +404,8 @@ class EventTests(unittest.TestCase):
         self.assertIn('決めたのは、ぼくだ', resignation[-1]['text'])
         self.assertNotIn('仲良くならなかったら',
                          ''.join(turn['text'] for turn in resignation[:-1]))
-        self.assertEqual(
-            self.preview(3,'2026-10-19')['dialogues'][frog][-1]['turns'],
-            resignation)
+        self.assertNotIn(
+            resignation, self.preview(3,'2026-10-19')['dialogues'][frog])
         self.assertFalse(self.preview(3,'2026-10-19',
                                       now='2026-10-20T12:00')['active'])
         self.assertNotIn('辞め',doc['stages']['joining']['intro']['text'])
