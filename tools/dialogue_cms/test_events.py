@@ -96,7 +96,7 @@ class EventTests(unittest.TestCase):
         self.assertIsNone(events.preview({**job_ready,
             'now': '2026-10-25T12:00'})['parkCleanerDialogue'])
         self.assertIsNone(events.preview({**job_ready,
-            'completed': 2})['parkCleanerDialogue'])
+            'completed': 2, 'resignationAtKotohogi': None})['parkCleanerDialogue'])
         self.assertIsNone(events.preview({**job_ready,
             'owned': [events.FROG]})['parkCleanerDialogue'])
 
