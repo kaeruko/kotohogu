@@ -29,6 +29,7 @@ class OyasumiProgress {
     this.completed = 0,
     this.lastNight,
     this.lastKotohogi,
+    this.resignationAtKotohogi,
   });
   final int completed;
   // Kept for saved-game compatibility and the date of the last conversation;
@@ -37,17 +38,23 @@ class OyasumiProgress {
   // Lifetime kotohogi when the last story introduction was read.
   // null in an older save, whose already-earned progress stays unlocked.
   final int? lastKotohogi;
+  // Set when the resignation chapter is read. A further 30 kotohogi
+  // must be earned before the frog can announce his new job.
+  final int? resignationAtKotohogi;
   Map<String, dynamic> toJson() => {
     'completed': completed,
     'lastNight': lastNight,
     'lastKotohogi': lastKotohogi,
+    'resignationAtKotohogi': resignationAtKotohogi,
   };
   factory OyasumiProgress.fromJson(dynamic data) {
     if (data is! Map ||
-        (data.length != 2 && data.length != 3) ||
+        (data.length < 2 || data.length > 4) ||
         !data.containsKey("completed") ||
         !data.containsKey("lastNight") ||
-        (data.length == 3 && !data.containsKey('lastKotohogi')) ||
+        data.keys.any((key) =>
+            key != 'completed' && key != 'lastNight' &&
+            key != 'lastKotohogi' && key != 'resignationAtKotohogi') ||
         data['completed'] is! int ||
         data['completed'] < 0 ||
         data['completed'] > 3) {
@@ -68,10 +75,18 @@ class OyasumiProgress {
             atKotohogi % 10 != 0 || data['completed'] == 0)) {
       throw const FormatException('Invalid club kotohogi milestone');
     }
+    final resignationAt = data['resignationAtKotohogi'];
+    if (resignationAt != null &&
+        (resignationAt is! int || resignationAt < 0 ||
+            resignationAt % 10 != 0 || data['completed'] != 3 ||
+            (atKotohogi != null && resignationAt < atKotohogi))) {
+      throw const FormatException('Invalid resignation milestone');
+    }
     return OyasumiProgress(
       completed: data['completed'],
       lastNight: date,
       lastKotohogi: atKotohogi,
+      resignationAtKotohogi: resignationAt,
     );
   }
 }
@@ -100,6 +115,7 @@ class OyasumiScene {
   /// Set from the actual tea-stall unlock, not from debug resident previews.
   final bool marcheOpen;
   static const parkCleanerUnlockId = 'frog_park_cleaner_started';
+  static const resignationId = 'oyasumi_joined_resignation_001';
   static const host = TownResident.c027_daydreamer;
   static const frog = TownResident.c029_office_worker;
   static const nightPatroller = TownResident.c036_mosa;
@@ -162,6 +178,8 @@ class OyasumiScene {
   // One-time chapter, unlocked by earned lifetime kotohogi since joining.
   // Older saves without a joining milestone use their lifetime total,
   // never a calendar-day estimate.
+  Map<String, dynamic> get resignationDefinition =>
+      oyasumiConfig['stages']['joined']['resignationConversation'] as Map<String, dynamic>;
   Map<String, dynamic> get parkCleanerDefinition =>
       oyasumiConfig['stages']['joined']['parkCleanerConversation'] as Map<String, dynamic>;
   Map<String, dynamic> get wishDefinition =>
@@ -177,20 +195,31 @@ class OyasumiScene {
         ? earnedKotohogi : earnedKotohogi - milestone;
     return difference < 0 ? 0 : difference;
   }
+  bool get resignationDialogueAvailable =>
+      active && saved.completed == 3 && owned.contains(frog) &&
+      earnedSinceJoining >=
+          (resignationDefinition['unlockAfterKotohogi'] as int) &&
+      saved.resignationAtKotohogi == null &&
+      !parkCleanerStarted;
+
   bool get parkCleanerDialogueAvailable =>
       active && saved.completed == 3 && owned.contains(frog) &&
       earnedSinceJoining >=
           (parkCleanerDefinition['unlockAfterKotohogi'] as int) &&
+      saved.resignationAtKotohogi != null &&
+      earnedKotohogi - saved.resignationAtKotohogi! >= kotohogiPerStoryDay &&
       !parkCleanerStarted &&
       !seenDialogues.contains(parkCleanerUnlockId);
 
   bool get rumorDialogueAvailable =>
       active && saved.completed == 3 && owned.contains(frog) &&
+      parkCleanerStarted &&
       earnedSinceJoining >= (rumorDefinition['unlockAfterKotohogi'] as int) &&
       !seenDialogues.contains(rumorDialogueId);
 
   bool get wishDialogueAvailable =>
       active && saved.completed == 3 && owned.contains(frog) &&
+      parkCleanerStarted &&
       earnedSinceJoining >= (wishDefinition['unlockAfterKotohogi'] as int) &&
       !seenDialogues.contains(wishDialogueId);
 
@@ -335,8 +364,21 @@ class OyasumiScene {
         ],
       );
     }
-    // A backlog plays in story order, even if enough kotohogi were earned
-    // to unlock several scenes before visiting the club.
+    // Resignation is a one-time chapter, never ordinary rotating chatter.
+    // After reading it, a new 30-kotohogi interval must pass before work.
+    if (group == 'joined' && resident == frog &&
+        resignationDialogueAvailable) {
+      return OyasumiDialogue(
+        resignationId,
+        [
+          for (final turn in resignationDefinition['turns'] as List)
+            OyasumiDialogueTurn(
+              TownResident.fromId(turn['speaker'] as String),
+              turn['text'] as String,
+            ),
+        ],
+      );
+    }
     if (group == 'joined' && resident == frog &&
         parkCleanerDialogueAvailable) {
       return OyasumiDialogue(
