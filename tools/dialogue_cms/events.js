@@ -76,7 +76,7 @@ function editLines(parent,lines,primary,allowed,{isResting=false,maxNightPattern
 // One-time scenes have natural, variable-length exchanges. Only the first
 // line is always from the frog; subsequent speakers can be chosen freely.
 function editSpecialTurns(parent,scene,options={}){
-  const max=6,min=options.min??2;
+  const max=options.max??6,min=options.min??2;
   const availableSpeakers=options.availableSpeakers??['029_office_worker','027_daydreamer'];
   scene.turns.forEach((turn,index)=>{
     const row=el('div');row.className='talk-turn';
@@ -101,7 +101,7 @@ function editSpecialTurns(parent,scene,options={}){
     }
     parent.append(row);
   });
-  const add=el('button','＋ 発言を追加（最大6発言）');
+  const add=el('button',`＋ 発言を追加（最大${max}発言）`);
   add.type='button';add.className='secondary';
   add.disabled=scene.turns.length>=max;
   add.onclick=()=>{
@@ -137,6 +137,17 @@ function renderEditor(){
       });
     });
     if(key==='joined'){
+      const resignation=stage.resignationConversation;
+      const resignationEditor=el('section');
+      resignationEditor.append(el('h3','一度きりの退職告白（就職報告より前）'));
+      const resignLabel=el('label','参加後に獲得する累積ことほぎ ');
+      const resignThreshold=el('input');resignThreshold.type='number';resignThreshold.min='10';resignThreshold.max='3000';resignThreshold.step='10';resignThreshold.value=resignation.unlockAfterKotohogi;
+      resignThreshold.onchange=()=>{resignation.unlockAfterKotohogi=Number(resignThreshold.value);change();};
+      resignLabel.append(resignThreshold);resignationEditor.append(resignLabel);
+      const resignHint=el('p','かえるが会社を辞めた話を一度だけ打ち明けます。最後まで読むと、その時点のことほぎが記録され、さらに30ことほぎ増やすまで就職報告は出ません。');
+      resignHint.className='hint';resignationEditor.append(resignHint);
+      editSpecialTurns(resignationEditor,resignation,{max:8});
+      detail.append(resignationEditor);
       const job=stage.parkCleanerConversation;
       const jobEditor=el('section');jobEditor.append(el('h3','一度きりのおそうじやさん就職報告'));
       const jobHelp=el('p','参加後の累積ことほぎで解放。かえるの報告を最後まで読むと、昼のおそうじやさん限定会話が解放されます。');
@@ -242,7 +253,7 @@ function renderConversation(parent,item,primary,index){
     block.append(el('p',`${names[turn.speaker]||turn.speaker}「${turn.text}」`)));
   parent.append(block);
 }
-function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,earnedKotohogi:Number($('earnedKotohogi').value),lastKotohogi:$('lastKotohogi').value===''?null:Number($('lastKotohogi').value),owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[]),...($('tonko').checked?['041_pig_middle']:[])],marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked,wishSeen:$('wishSeen').checked,rumorSeen:$('rumorSeen').checked};}
+function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,earnedKotohogi:Number($('earnedKotohogi').value),lastKotohogi:$('lastKotohogi').value===''?null:Number($('lastKotohogi').value),resignationAtKotohogi:$('resignationAtKotohogi').value===''?null:Number($('resignationAtKotohogi').value),owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[]),...($('tonko').checked?['041_pig_middle']:[])],marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked,wishSeen:$('wishSeen').checked,rumorSeen:$('rumorSeen').checked};}
 async function preview(){
   if(!config)return;
   const version=++revision;$('read').disabled=true;
@@ -279,6 +290,12 @@ async function preview(){
     $('lines').replaceChildren();
     if(data.intro){
       $('lines').append(el('strong',(names[data.intro.speaker]||data.intro.speaker)+'の導入（最初に表示）'),el('p',data.intro.text));
+    }
+    if(data.resignationDialogue){
+      const resignation=el('details');resignation.open=true;
+      resignation.append(el('summary','かえるの退職告白（未読・次の会話）'));
+      renderConversation(resignation,{turns:data.resignationDialogue.turns},'029_office_worker',0);
+      $('lines').append(resignation);
     }
     if(data.parkCleanerDialogue){
       const job=el('details');job.open=true;
