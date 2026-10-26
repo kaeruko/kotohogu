@@ -17,7 +17,7 @@ def load():
 
 
 def validate(doc):
-    if not isinstance(doc, dict) or set(doc) != {'version','id','label','night','background','stages','restingDialogue','nightPatrol','teaVisit'}:
+    if not isinstance(doc, dict) or set(doc) != {'version','id','label','night','background','stages','restingDialogue','cleanerDialogue','nightPatrol','teaVisit'}:
         raise ValueError('イベントの項目が不正です')
     if doc['version'] != 1 or doc['id'] != 'oyasumi_club' or doc['background'] != 'assets/kotohogu/town_background_night.jpg':
         raise ValueError('イベントID・背景は固定です')
@@ -34,7 +34,7 @@ def validate(doc):
         row['id'] for row in load_catalog()['characters']
         if row['walkInTown'] and row['homeAreaId'] != 'salon'
     }
-    def lines(items, speaker, allowed, *, max_patterns=4, job_gate=False):
+    def lines(items, speaker, allowed, *, max_patterns=4):
         if not isinstance(items,list) or not 3 <= len(items) <= max_patterns:
             raise ValueError(f'繰り返し会話は3〜{max_patterns}本で設定してください')
         has_solo = False
@@ -43,16 +43,14 @@ def validate(doc):
                 text(item)
                 has_solo = True
                 continue
-            if not isinstance(item,dict) or set(item) not in ({'turns'}, {'turns', 'requires'}) or not isinstance(item['turns'],list) or not 1 <= len(item['turns']) <= 8:
+            if not isinstance(item,dict) or set(item) != {'turns'} or not isinstance(item['turns'],list) or not 1 <= len(item['turns']) <= 8:
                 raise ValueError('掛け合いは1〜8発言の順番で登録してください')
-            if 'requires' in item and (not job_gate or item['requires'] != 'parkCleaner'):
-                raise ValueError('この掛け合いの表示条件は指定できません')
-            turns = item['turns']
+             turns = item['turns']
             for index,turn in enumerate(turns):
                 if not isinstance(turn,dict) or set(turn) != {'speaker','text'} or not isinstance(turn['speaker'],str) or turn['speaker'] not in allowed or (index==0 and turn['speaker']!=speaker):
                     raise ValueError('掛け合いの話者が不正です')
                 text(turn['text'])
-            if len(turns)==1 and turns[0]['speaker']==speaker and not item.get('requires'):
+            if len(turns)==1 and turns[0]['speaker']==speaker:
                 has_solo=True
         return has_solo
     for key in STAGES:
@@ -135,8 +133,10 @@ def validate(doc):
             # The post-joining frog has one additional resignation story.
             lines(items, speaker, cast,
                   max_patterns=5 if key == 'joined' and speaker == FROG else 4)
-    if not lines(doc['restingDialogue'], FROG, outdoor, max_patterns=8, job_gate=True):
-        raise ValueError('昼のかえるの会話には、一人で話せる候補を1本以上残してください')
+    if not lines(doc['restingDialogue'], FROG, outdoor, max_patterns=8):
+        raise ValueError('休養中のかえるの会話には一人用を1本以上残してください')
+    if not lines(doc['cleanerDialogue'], FROG, outdoor, max_patterns=8):
+        raise ValueError('就職後のかえるの会話には一人用を1本以上残してください')
     patrol=doc['nightPatrol']
     if not isinstance(patrol,dict) or set(patrol) != {'residentId','route','dialogues'} or patrol['residentId'] != MOSA:
         raise ValueError('夜回りの住民はモサエド固定です')
@@ -265,9 +265,9 @@ def preview(payload):
                      not rumor_seen and not cleaner_available)
     wish_available=(special_ready and elapsed >= wish['unlockAfterKotohogi'] and
                     not wish_seen and not rumor_available and not cleaner_available)
+    daily_lines = doc['cleanerDialogue'] if park_cleaner_started else doc['restingDialogue']
     rest = [
-        item for item in doc['restingDialogue']
-        if (not isinstance(item, dict) or item.get('requires') != 'parkCleaner' or park_cleaner_started)
-        and set(turn_speakers(item)).issubset(set(peers)|{FROG})
+        item for item in daily_lines
+        if set(turn_speakers(item)).issubset(set(peers)|{FROG})
     ] if completed==3 and FROG in owned and not active else []
     return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},parkCleanerDialogue=cleaner if cleaner_available else None,rumorDialogue=rumor if rumor_available else None,wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=step if intro else completed)
