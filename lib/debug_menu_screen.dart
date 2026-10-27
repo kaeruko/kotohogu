@@ -431,8 +431,10 @@ class DebugMenuScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    '「次の段階へ」で導入を1つ読了済みにして保存します。'
-                    '累積ことほぎを増やさず、次の場面を確認できます。'
+                    '現在表示されている場面を見たいときは、まず夜の中央ひろばへ。'
+                    '「今の導入をスキップして次へ」を押すと、その場面を読了済みにして次へ進みます。'
+                    'たとえば2/3で押すと3/3になり、かえるくんの参加後へ進みます。'
+                    '累積ことほぎは増えません。'
                     '\n実際にクラブが現れるのは18時〜翌5時の夜で、'
                     '実際の進行は累積ことほぎ30ごとです。'
                     'おやすみくんとカエルくんをガチャで所持している必要があります。'
@@ -459,7 +461,7 @@ class DebugMenuScreen extends StatelessWidget {
                         onPressed: busy || progress.oyasumi.completed >= 3
                             ? null : () => _advanceOyasumi(context),
                         icon: const Icon(Icons.skip_next_rounded),
-                        label: const Text('次の段階へ'),
+                        label: const Text('今の導入をスキップして次へ'),
                       ),
                       OutlinedButton.icon(
                         key: const ValueKey('debug-oyasumi-reset'),
