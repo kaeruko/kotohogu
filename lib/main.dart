@@ -708,7 +708,6 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         return;
       }
       final current = controller.progress!;
-      final daily = isMarcheStoryComplete(current);
       final line = selectMarcheDialogue(
         catalog: catalog,
         progress: current,
@@ -721,7 +720,9 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         final persisted = await controller.recordDialogueSeen(line.id);
         if (!persisted || !mounted) return;
       }
-      if (daily) _marcheDailyDialogueRotation++;
+      if (tonkoMarcheDailyDialogueIds.contains(line.id)) {
+        _marcheDailyDialogueRotation++;
+      }
       if (!mounted) return;
       await showDialog<void>(
         context: context,
