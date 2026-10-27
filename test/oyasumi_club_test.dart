@@ -387,28 +387,45 @@ void main() {
     expect(together.turns.last.text, 'ぼくはこうえんじゃないもふ！！');
   });
 
-  test('perfect attendance chatter belongs to the faraway frog night', () {
-    final watching = scene(
-      24,
-      saved: const OyasumiProgress(completed: 1, lastNight: '2026-10-23'),
-    );
-    expect(watching.stage, 'watching');
-    final conversation = watching.dialogue(host, 'watching', 3);
-    expect(conversation.turns.map((turn) => turn.text).toList(), [
-      'もふ〜。きょうも、おやすみくらぶをはじめるもふ〜',
-      '……さんかしゃ、ぼくひとりもふ',
-      '……ぜんいんしゅっせきもふ〜！',
-    ]);
-    expect(conversation.turns.every((turn) => turn.resident == host), isTrue);
-    expect(watching.dialogue(host, 'watching', 7).turns.last.text,
-        '……ぜんいんしゅっせきもふ〜！');
-
-    final solo = scene(24, hasFrog: false);
+  test('everyone assembles in solo and joined Oyasumi Club', () {
+    final solo = scene(24, hasFrog: false,
+        saved: const OyasumiProgress(completed: 1, lastNight: '2026-10-23'));
     expect(solo.stage, 'solo');
-    for (var rotation = 0; rotation < 4; rotation++) {
-      expect(solo.dialogue(host, 'solo', rotation).turns
-          .any((turn) => turn.text.contains('ぜんいんしゅっせき')), isFalse);
-    }
+    final first = solo.dialogue(host, 'solo', 0);
+    expect(first.turns.map((t) => t.text), [
+      'もふ〜。きょうも、おやすみくらぶをはじめるもふ〜',
+      'さんかしゃは……ぼくひとりもふ。',
+      'ぜんいんしゅうごうもふ〜！',
+      '……ぜんいんそろったもふ〜。',
+    ]);
+    expect(first.turns.every((t) => t.resident == host), isTrue);
+    expect(solo.dialogue(host, 'solo', 5).turns.last.text,
+        '……ぜんいんそろったもふ〜。');
+
+    final watching = scene(24, saved: const OyasumiProgress(
+        completed: 1, lastNight: '2026-10-23'));
+    expect(watching.stage, 'watching');
+    expect(watching.dialogue(host, 'watching', 3).turns
+        .any((t) => t.text == 'ぜんいんしゅうごうもふ〜！'), isTrue);
+    expect(watching.dialogue(host, 'watching', 7).turns
+        .any((t) => t.text == 'ぜんいんしゅうごうもふ〜！'), isTrue);
+
+    final joining = scene(24, saved: const OyasumiProgress(
+        completed: 2, lastNight: '2026-10-23'));
+    expect(joining.stage, 'joining');
+    final joiningWords = joining.dialogue(host, 'joining', 0);
+    expect(joiningWords.turns.map((t) => t.resident).toList(),
+        [host, frog, host, frog]);
+    expect(joiningWords.turns[2].text, contains('ぜんいんしゅうごうもふ〜！'));
+
+    final joined = scene(24, saved: const OyasumiProgress(
+        completed: 3, lastNight: '2026-10-23'));
+    expect(joined.stage, 'joined');
+    final together = joined.dialogue(host, 'joined', 0);
+    expect(together.turns.map((t) => t.resident).toList(),
+        [host, host, host, frog]);
+    expect(together.turns[2].text, 'ぜんいんしゅうごうもふ〜！');
+    expect(together.turns.last.text, 'はい！ ふたりとも出席だね。');
   });
 
   test('night chatter can be a multi-turn exchange within the event cast', () {
