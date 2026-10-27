@@ -260,47 +260,60 @@ class EventTests(unittest.TestCase):
                 self.assertEqual([turn['speaker'] for turn in dinner[0]['turns']],
                                  [events.HOST] * 5)
                 self.assertIn('いっしょに起きてるよ', dinner[0]['turns'][-1]['text'])
-        self.assertEqual(len(doc['stages']['solo']['chatter'][events.HOST]), 4)
-        self.assertEqual(len(doc['stages']['joined']['chatter'][events.HOST]), 3)
+        self.assertEqual(len(doc['stages']['solo']['chatter'][events.HOST]), 5)
+        self.assertEqual(len(doc['stages']['joined']['chatter'][events.HOST]), 4)
         for stage in ('watching', 'joining', 'joined'):
             self.assertEqual(len(self.preview(1 if stage == 'watching' else 2 if stage == 'joining' else 3,
                                                '2026-10-19')['dialogues'][events.HOST]),
-                             4 if stage == 'watching' else 3)
+                             4)
         events.validate(doc)
         over_limit = copy.deepcopy(doc)
-        over_limit['stages']['solo']['chatter'][events.HOST].append('5本目')
-        with self.assertRaisesRegex(ValueError, '3〜4本'):
+        over_limit['stages']['solo']['chatter'][events.HOST].append('6本目')
+        with self.assertRaisesRegex(ValueError, '3〜5本'):
             events.validate(over_limit)
 
-    def test_faraway_frog_sees_the_club_of_one(self):
+    def test_everyone_assemble_is_available_throughout_club_stages(self):
         doc = events.load()
         solo = doc['stages']['solo']['chatter'][events.HOST]
         watching = doc['stages']['watching']['chatter'][events.HOST]
-        self.assertEqual(len(solo), 4)
-        self.assertEqual(len(watching), 4)
-        expected = [
+        joining = doc['stages']['joining']['chatter'][events.HOST]
+        joined = doc['stages']['joined']['chatter'][events.HOST]
+        self.assertEqual([len(lines) for lines in (solo, watching, joining, joined)],
+                         [5, 4, 4, 4])
+        expected_solo = [
             'もふ〜。きょうも、おやすみくらぶをはじめるもふ〜',
-            '……さんかしゃ、ぼくひとりもふ',
-            '……ぜんいんしゅっせきもふ〜！',
+            'さんかしゃは……ぼくひとりもふ。',
+            'ぜんいんしゅうごうもふ〜！',
+            '……ぜんいんそろったもふ〜。',
         ]
-        self.assertEqual(watching[3]['turns'], [
-            {'speaker': events.HOST, 'text': text} for text in expected
-        ])
-        self.assertEqual(self.preview(1, '2026-10-19')['dialogues'][events.HOST][3]['turns'],
-                         watching[3]['turns'])
-        self.assertTrue(all(item != watching[3] for item in solo))
+        for group, index in (('solo', 0), ('watching', 3)):
+            lines = doc['stages'][group]['chatter'][events.HOST][index]['turns']
+            self.assertEqual(lines, [
+                {'speaker': events.HOST, 'text': message}
+                for message in expected_solo
+            ])
+        for group in ('joining', 'joined'):
+            turns = doc['stages'][group]['chatter'][events.HOST][0]['turns']
+            self.assertIn('ぜんいんしゅうごうもふ〜！', turns[2]['text'])
+            expected_speakers = ([events.HOST, events.FROG, events.HOST, events.FROG]
+                                 if group == 'joining' else
+                                 [events.HOST, events.HOST, events.HOST, events.FROG])
+            self.assertEqual([t['speaker'] for t in turns], expected_speakers)
+        self.assertEqual(
+            self.preview(1, '2026-10-19')['dialogues'][events.HOST][3]['turns'],
+            watching[3]['turns'])
 
     def test_night_conversation_pattern_limits_and_preview(self):
         doc=events.load()
         for key,stage in doc['stages'].items():
             for speaker,patterns in stage['chatter'].items():
                 self.assertGreaterEqual(len(patterns),3)
-                limit=5 if key=='joined' and speaker==events.FROG else 4
+                limit=5 if (key=='solo' and speaker==events.HOST) or (key=='joined' and speaker==events.FROG) else 4
                 self.assertLessEqual(len(patterns),limit)
-        merged=doc['stages']['solo']['chatter'][events.HOST][0]
+        merged=doc['stages']['solo']['chatter'][events.HOST][1]
         self.assertEqual(len(merged['turns']),2)
         self.assertIn('おほしさま',merged['turns'][1]['text'])
-        self.assertEqual(len(self.preview()['dialogues'][events.HOST]),4)
+        self.assertEqual(len(self.preview()['dialogues'][events.HOST]),5)
         page=(events.ROOT/'tools/dialogue_cms/events.html').read_text(encoding='utf-8')
         self.assertLess(page.index('id="lines"'),page.index('id="scene"'))
 
