@@ -151,7 +151,8 @@ def validate(doc):
             text(intro['text'])
         for speaker,items in stage['chatter'].items():
             lines(items, speaker, cast,
-                  max_patterns=5 if key == 'joined' and speaker == FROG else 4)
+                  max_patterns=5 if (key == 'solo' and speaker == HOST) or
+                  (key == 'joined' and speaker == FROG) else 4)
     if not lines(doc['restingDialogue'], FROG, outdoor, max_patterns=8):
         raise ValueError('休養中のかえるの会話には一人で話せる候補を1本以上残してください')
     if not lines(doc['cleanerDialogue'], FROG, outdoor, max_patterns=8):
