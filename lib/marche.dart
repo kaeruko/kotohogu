@@ -30,6 +30,17 @@ const tonkoMarcheDailyDialogueIds = <String>[
   tonkoMarcheGreetingDialogueId,
 ];
 
+/// Later chapters about Tonko's part-time work and her dream of a shop.
+/// Their cumulative kotohogi requirements live in the editable CMS dialogue
+/// entries (type: kotohogi). Unmet milestones never block everyday chatter.
+const tonkoMarcheMilestoneDialogueIds = <String>[
+  '041_pig_middle_050', // Supermarket work and two monthly market dates.
+  '041_pig_middle_051', // Wages become herb seedlings.
+  '041_pig_middle_052', // Sales are not profit.
+  '041_pig_middle_053', // Customers returning to the small market.
+  '041_pig_middle_054', // Keep part-time work while planning a shop.
+];
+
 /// Temporary debug cast membership cannot unlock the real tea stall.
 bool isMarcheOpen(Progress progress) =>
     progress.residents.owned.contains(tonkoMarcheOwner) &&
@@ -53,6 +64,28 @@ DialogueEntry selectMarcheDialogue({
     throw RangeError.value(dailyRotation, 'dailyRotation', 'Must be >= 0');
   }
   final storyComplete = isMarcheStoryComplete(progress);
+  // The opening and first-customer chapters retain their original order.
+  // Later, each earned-kotohogi milestone is read once, in sequence.
+  // A milestone that is not ready leaves ordinary market chatter available.
+  if (storyComplete) {
+    for (final milestoneId in tonkoMarcheMilestoneDialogueIds) {
+      if (progress.seenDialogues.contains(milestoneId)) continue;
+      final milestone = catalog.entries.singleWhere(
+          (entry) => entry.id == milestoneId);
+      if (!milestone.matches(
+          progress, now, {tonkoMarcheOwner.id})) break;
+      if (!milestone.once || milestone.priority != -1000) {
+        throw StateError('Invalid Tonko milestone dialogue: $milestoneId');
+      }
+      return catalog.selectById(
+        id: milestoneId,
+        resident: tonkoMarcheOwner,
+        progress: progress,
+        now: now,
+        townResidentIds: {tonkoMarcheOwner.id},
+      );
+    }
+  }
   final id = storyComplete
       ? tonkoMarcheDailyDialogueIds[
           dailyRotation % tonkoMarcheDailyDialogueIds.length]
