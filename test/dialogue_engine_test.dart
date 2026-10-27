@@ -78,6 +78,34 @@ void main() {
     }
   });
 
+  test('Pome praises herself and friends, with real co-present partners', () async {
+    final live = await DialogueCatalog.load();
+    final pome = live.entries.where((e) => e.residentId == '052_pome').toList();
+    expect(pome.length, greaterThanOrEqualTo(29));
+    DialogueEntry byId(String id) => live.entries.firstWhere((e) => e.id == id);
+    final now = DateTime(2026, 10, 27, 20);
+    final initial = Progress.empty(now);
+    const alone = {'052_pome'};
+    const withShiba = {'052_pome', '001_shiba'};
+    const withSloth = {'052_pome', '027_daydreamer'};
+    expect(byId('052_pome_022').matches(initial, now, alone), isFalse);
+    expect(byId('052_pome_022').matches(initial, now, withShiba), isTrue);
+    expect(byId('052_pome_022').reply?.residentId, '001_shiba');
+    expect(byId('052_pome_026').matches(initial, now, withSloth), isFalse,
+        reason: 'The club has not formed yet');
+    final club = initial.withOyasumi(const OyasumiProgress(
+      completed: 3, lastNight: '2026-10-26'));
+    expect(byId('052_pome_026').matches(club, now, withSloth), isTrue);
+    expect(byId('052_pome_028').matches(initial, now, withSloth), isTrue);
+    expect(byId('052_pome_028').matches(initial, now, alone), isFalse);
+    expect(byId('052_pome_029').matches(initial, now, {'052_pome'}), isFalse);
+    final moved = initial.complete(Mission.movement);
+    expect(byId('052_pome_017').matches(moved, now, alone), isTrue);
+    expect(byId('052_pome_017').matches(initial, now, alone), isFalse);
+    expect(byId('052_pome_003').priority, -1000);
+    expect(byId('052_pome_004').priority, -1000);
+  });
+
   test('exercise dialogue is explicit and never enters normal selection', () async {
     final live = await DialogueCatalog.load();
     final now = DateTime(2026, 10, 23, 7);

@@ -6497,7 +6497,7 @@
     {
       "id": "052_pome_001",
       "residentId": "052_pome",
-      "text": "こんにちは！よろしくね。",
+      "text": "ぽむぽむ、きょうもえらいぽむ！いっぱいほめてぽむ〜！",
       "priority": 0,
       "once": false,
       "logic": "all",
@@ -6566,6 +6566,345 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "052_pome_005",
+      "residentId": "052_pome",
+      "text": "ぽむぽむ、きょうもえらいぽむ！あさ、おきたぽむ！",
+      "priority": 25,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_006",
+      "residentId": "052_pome",
+      "text": "ごはんをたべたぽむ！おさらもぴかぴかぽむ！ぽむぽむ、えらいぽむ〜！",
+      "priority": 15,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_007",
+      "residentId": "052_pome",
+      "text": "おくつをがじがじしちゃったぽむ……。じょうずにかじれたぽむ！……でも、ごめんなさいするぽむ。",
+      "priority": 25,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_008",
+      "residentId": "052_pome",
+      "text": "はみがきいやぽむ〜！でも、ちょっとみがけたら、いっぱいほめてほしいぽむ！",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_009",
+      "residentId": "052_pome",
+      "text": "おふろ、あんまりすきじゃないぽむ。でも、おふろあがりのふわふわぽむぽむは、もっとすきぽむ！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_010",
+      "residentId": "052_pome",
+      "text": "しっぽをふったら、おしりまでふりふりになったぽむ！だれかほめてぽむ〜！",
+      "priority": 20,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_011",
+      "residentId": "052_pome",
+      "text": "ぽむぽむ、できたことをかぞえるぽむ！できなかったことは……あしたのぽむぽむにおまかせぽむ！",
+      "priority": 15,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_012",
+      "residentId": "052_pome",
+      "text": "しばちゃんだいすきぽむ！わんぷろしたいぽむ！しばちゃんがつかれてたら、おとなしくまつぽむ。……ちょっとだけぽむ。",
+      "priority": 15,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_013",
+      "residentId": "052_pome",
+      "text": "おっきなおと、こわいぽむ……。しばちゃんのうしろにかくれるぽむ。",
+      "priority": 15,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_014",
+      "residentId": "052_pome",
+      "text": "ぽむぽむ、じょうずにかくれたぽむ！こわかったけど、がんばったぽむ！",
+      "priority": 15,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_015",
+      "residentId": "052_pome",
+      "text": "みんな、きょうもえらいぽむ！なにができたか、ぽむぽむにおしえてぽむ〜！",
+      "priority": 25,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_016",
+      "residentId": "052_pome",
+      "text": "つかれたら、おひるねするぽむ。おきたらまたあそぶぽむ！",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_017",
+      "residentId": "052_pome",
+      "text": "うごいたぽむ？やったぽむ〜！ぽむぽむも、いち、に、ぽむ、ぽむ！",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "movement",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "052_pome_018",
+      "residentId": "052_pome",
+      "text": "おそとにでたぽむ？すごいぽむ！おそとのにおい、ぽむぽむもすきぽむ〜！",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "outside",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "052_pome_019",
+      "residentId": "052_pome",
+      "text": "だれかとおはなししたぽむ？えらいぽむ！ぽむぽむともおしゃべりしてぽむ〜！",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "conversation",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "052_pome_020",
+      "residentId": "052_pome",
+      "text": "すきなことをたのしんだぽむ？それ、だいせいこうぽむ！ぽむぽむもあそぶぽむ！",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "hobby",
+          "minCount": 1,
+          "withinDays": 1
+        }
+      ]
+    },
+    {
+      "id": "052_pome_021",
+      "residentId": "052_pome",
+      "text": "もう5かいもことほいだぽむ！？ぽむぽむのしっぽ、うれしくてとまらないぽむ〜！",
+      "priority": 35,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "mission",
+          "missionId": "all",
+          "minCount": 5
+        }
+      ]
+    },
+    {
+      "id": "052_pome_022",
+      "residentId": "052_pome",
+      "text": "しばちゃん！ぽむぽむ、きょうもえらいぽむ！おきたし、ごはんもたべたぽむ！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "001_shiba"
+        }
+      ],
+      "reply": {
+        "residentId": "001_shiba",
+        "text": "うんうん。きょうもえらいわん！"
+      }
+    },
+    {
+      "id": "052_pome_023",
+      "residentId": "052_pome",
+      "text": "しばちゃんも、ぽむぽむをほめてえらいぽむ！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "001_shiba"
+        }
+      ],
+      "reply": {
+        "residentId": "001_shiba",
+        "text": "えっ、ぼくもほめられたわん！？"
+      }
+    },
+    {
+      "id": "052_pome_024",
+      "residentId": "052_pome",
+      "text": "おっきなおと、こわかったぽむ〜！でも、しばちゃんのうしろにじょうずにかくれたぽむ！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "001_shiba"
+        }
+      ],
+      "reply": {
+        "residentId": "001_shiba",
+        "text": "それはよかったわん。でも、ぼくのおしりをおさないでほしいわん。"
+      }
+    },
+    {
+      "id": "052_pome_025",
+      "residentId": "052_pome",
+      "text": "しばちゃん、わんぷろするぽむ！まけても、たのしかったらぽむぽむのかちぽむ！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "001_shiba"
+        }
+      ],
+      "reply": {
+        "residentId": "001_shiba",
+        "text": "それなら、ふたりともかちだわん！"
+      }
+    },
+    {
+      "id": "052_pome_026",
+      "residentId": "052_pome",
+      "text": "おやすみくん！ぽむぽむもおやすみクラブにはいるぽむ！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        },
+        {
+          "type": "oyasumiClub",
+          "completed": true
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "いいもふ〜。なんにもしないクラブだよ〜。"
+      }
+    },
+    {
+      "id": "052_pome_027",
+      "residentId": "052_pome",
+      "text": "ぽむぽむ、さんびょうなんにもしなかったぽむ！じょうずにできたぽむ！つぎはわんぷろぽむ！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        },
+        {
+          "type": "oyasumiClub",
+          "completed": true
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "も、もふ〜。もうちょっとなんにもしないもふ……。"
+      }
+    },
+    {
+      "id": "052_pome_028",
+      "residentId": "052_pome",
+      "text": "はみがきいやぽむ〜！おやすみくんもいやぽむ？",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "ぼくもいやもふ〜。……でも、ちょっとだけがんばるもふ。"
+      }
+    },
+    {
+      "id": "052_pome_029",
+      "residentId": "052_pome",
+      "text": "かえるくん、げんきないぽむ？ぽむぽむ、となりにいるぽむ。",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "029_office_worker"
+        }
+      ],
+      "reply": {
+        "residentId": "029_office_worker",
+        "text": "ありがとう。ぽむぽむ、あったかいね。"
+      }
     },
     {
       "id": "003_penguin_011",
