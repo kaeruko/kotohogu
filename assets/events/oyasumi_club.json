@@ -26,6 +26,26 @@
             "turns": [
               {
                 "speaker": "027_daydreamer",
+                "text": "もふ〜。きょうも、おやすみくらぶをはじめるもふ〜"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "さんかしゃは……ぼくひとりもふ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "ぜんいんしゅうごうもふ〜！"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "……ぜんいんそろったもふ〜。"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
                 "text": "もふ〜。こんなところにおきゃくさんだ。いっしょにぼんやりする？"
               },
               {
@@ -92,11 +112,15 @@
               },
               {
                 "speaker": "027_daydreamer",
-                "text": "……さんかしゃ、ぼくひとりもふ"
+                "text": "さんかしゃは……ぼくひとりもふ。"
               },
               {
                 "speaker": "027_daydreamer",
-                "text": "……ぜんいんしゅっせきもふ〜！"
+                "text": "ぜんいんしゅうごうもふ〜！"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "……ぜんいんそろったもふ〜。"
               }
             ]
           }
@@ -126,6 +150,26 @@
       },
       "chatter": {
         "027_daydreamer": [
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
+                "text": "かえるくん、きょうからおやすみクラブにさんかするもふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "うん。ぼくも入れてくれる？"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ〜！ ぜんいんしゅうごうもふ〜！"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "ふふ、ふたりで全員なんだね。"
+              }
+            ]
+          },
           "もふ〜。かえるくん、こっちあいてるよ。ぼく、ちょっとつめるもふ。",
           "くらぶにはいりたい？ いいもふ〜。……あれ、くらぶってなにかするんだっけ。",
           "きょうは何する？ ぼくはねえ、なんにもしないもふ！"
@@ -152,6 +196,26 @@
       "intro": null,
       "chatter": {
         "027_daydreamer": [
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
+                "text": "きょうも、おやすみクラブをはじめるもふ〜"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "さんかしゃは……かえるくんと、ぼくもふ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "ぜんいんしゅうごうもふ〜！"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "はい！ ふたりとも出席だね。"
+              }
+            ]
+          },
           {
             "turns": [
               {
