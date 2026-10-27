@@ -133,7 +133,8 @@ function renderEditor(){
       });
       detail.append(row);
       editLines(detail,lines,id,allowed,{
-        maxNightPatterns:key==='joined'&&id==='029_office_worker'?5:4,
+        maxNightPatterns:(key==='solo'&&id==='027_daydreamer')||
+          (key==='joined'&&id==='029_office_worker')?5:4,
       });
     });
     if(key==='joined'){
