@@ -11,10 +11,10 @@ import 'package:future_lift/town_areas.dart';
 
 import 'support/town_random.dart';
 
-Progress tonkoProgress({bool owned = true}) => Progress(
+Progress tonkoProgress({bool owned = true, int points = 300}) => Progress(
   day: '2026-10-17',
   lastCompletedDay: '2026-10-16',
-  points: 300,
+  points: points,
   residents: ResidentCollection(
     baselinePoints: 0,
     counts: {
@@ -80,6 +80,69 @@ void main() {
         throwsStateError);
   });
 
+  test('supermarket and market chapters unlock at lifetime kotohogi milestones', () {
+    final catalog = DialogueCatalog.fromJson(
+        File('assets/dialogues/dialogues.json').readAsStringSync());
+    final milestones = [
+      ('041_pig_middle_050', 400, 'スーパーでは週3日'),
+      ('041_pig_middle_051', 550, 'お給料が苗になっちゃった'),
+      ('041_pig_middle_052', 700, '売上と手元に残るお金'),
+      ('041_pig_middle_053', 850, '月に2回しか'),
+      ('041_pig_middle_054', 1000, 'すぐにパートを辞めるのは難しい'),
+    ];
+    final read = <String>{
+      tonkoMarcheOpeningDialogueId,
+      ...tonkoMarcheStoryDialogueIds,
+    };
+    Progress withPoints(int points) {
+      var current = tonkoProgress(points: points);
+      for (final id in read) {
+        current = current.markDialogueSeen(id);
+      }
+      return current;
+    }
+    DialogueEntry chat(int points, {int rotation = 0}) =>
+        selectMarcheDialogue(catalog: catalog,
+          progress: withPoints(points),
+          now: DateTime.utc(2026, 10, 27), dailyRotation: rotation);
+    expect(chat(300).id, tonkoMarcheDailyDialogueIds.first);
+    for (final (id, min, snippet) in milestones) {
+      // The next chapter waits for cumulative earned points. Ordinary
+      // dialogue is available while the next threshold is not met.
+      expect(chat(min - 10, rotation: 1).id,
+          tonkoMarcheDailyDialogueIds[1], reason: id);
+      final line = chat(min);
+      expect(line.id, id);
+      expect(line.text, contains(snippet));
+      expect(line.once, isTrue);
+      expect(line.priority, -1000);
+      expect(line.conditions.any((c) =>
+          c.fields['type'] == 'kotohogi' && c.fields['min'] == min), isTrue);
+      read.add(id);
+      expect(chat(min).id, tonkoMarcheDailyDialogueIds.first,
+          reason: 'A story must not replay after being read');
+    }
+    expect(chat(1200).id, tonkoMarcheDailyDialogueIds.first);
+
+    // Even with every milestone already reached, new stories are revealed
+    // in author order, one story per shop visit, and survive restarts.
+    var backlog = tonkoProgress(points: 1500);
+    for (final id in [tonkoMarcheOpeningDialogueId,
+                      ...tonkoMarcheStoryDialogueIds]) {
+      backlog = backlog.markDialogueSeen(id);
+    }
+    for (final (id, _, _) in milestones) {
+      expect(selectMarcheDialogue(catalog: catalog,
+          progress: backlog, now: DateTime.utc(2026, 10, 27)).id, id);
+      backlog = Progress.decode(
+          backlog.markDialogueSeen(id).encode(), expectedVersion: 5)
+          .onDay(DateTime(2026, 10, 28));
+    }
+    expect(selectMarcheDialogue(catalog: catalog,
+        progress: backlog, now: DateTime.utc(2026, 10, 28)).id,
+        tonkoMarcheDailyDialogueIds.first);
+  });
+
   test('marche exclusive conversation IDs stay out of normal rotation', () {
     final catalog = DialogueCatalog.fromJson(
         File('assets/dialogues/dialogues.json').readAsStringSync());
@@ -91,6 +154,7 @@ void main() {
     final exclusive = {
       ...tonkoMarcheStoryDialogueIds,
       ...tonkoMarcheDailyDialogueIds,
+      ...tonkoMarcheMilestoneDialogueIds,
     };
     for (var rotation = 0; rotation < 30; rotation++) {
       expect(catalog.select(
