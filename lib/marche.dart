@@ -69,7 +69,9 @@ DialogueEntry selectMarcheDialogue({
   // A milestone that is not ready leaves ordinary market chatter available.
   if (storyComplete) {
     for (final milestoneId in tonkoMarcheMilestoneDialogueIds) {
-      if (progress.seenDialogues.contains(milestoneId)) continue;
+      if (progress.seenDialogues.contains(milestoneId)) {
+        continue;
+      }
       final milestone = catalog.entries.singleWhere(
           (entry) => entry.id == milestoneId);
       if (!milestone.matches(
