@@ -5737,6 +5737,96 @@
       "conditions": []
     },
     {
+      "id": "041_pig_middle_050",
+      "residentId": "041_pig_middle",
+      "text": "スーパーでは週3日、レジと品出しのパートをしてるのよぉ。マルシェは第2と第4土曜日。準備の日もあるから、今はこのくらいがちょうどいいの。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_040"
+        },
+        {
+          "type": "kotohogi",
+          "min": 400
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_051",
+      "residentId": "041_pig_middle",
+      "text": "今日ねぇ、パートの帰りにハーブの苗を買ってきたの。……ふふ、お給料が苗になっちゃったわぁ。育ったらお茶にしてみたいの。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_050"
+        },
+        {
+          "type": "kotohogi",
+          "min": 550
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_052",
+      "residentId": "041_pig_middle",
+      "text": "マルシェの売上で苗を買えたらいいんだけどねぇ。出店料も、材料費も、包む袋のお金もかかるでしょ？ 売上と手元に残るお金は、違うのねぇ。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_051"
+        },
+        {
+          "type": "kotohogi",
+          "min": 700
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_053",
+      "residentId": "041_pig_middle",
+      "text": "月に2回しか出してないのに、いつも来てくれるお客さんができたのよぉ。『次も楽しみにしてる』って。……来月もちゃんとお茶をいれなくちゃねぇ。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_052"
+        },
+        {
+          "type": "kotohogi",
+          "min": 850
+        }
+      ]
+    },
+    {
+      "id": "041_pig_middle_054",
+      "residentId": "041_pig_middle",
+      "text": "いつか小さなお店を持ちたいの。でも家賃も光熱費もかかるし、すぐにパートを辞めるのは難しいわねぇ。まずはマルシェを続けながら、少しずつ考えるつもりよ。",
+      "priority": -1000,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "041_pig_middle_053"
+        },
+        {
+          "type": "kotohogi",
+          "min": 1000
+        }
+      ]
+    },
+    {
       "id": "027_daydreamer_007",
       "residentId": "027_daydreamer",
       "text": "歩数の数字を聞くと、できない日はしょんぼりしちゃうかも。でも、研究の数字は宿題じゃないもふ。ぼくは、歩ける日もおやすみの日も大切にしたいなぁ。",
