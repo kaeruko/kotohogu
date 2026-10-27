@@ -74,8 +74,9 @@ DialogueEntry selectMarcheDialogue({
       }
       final milestone = catalog.entries.singleWhere(
           (entry) => entry.id == milestoneId);
-      if (!milestone.matches(
-          progress, now, {tonkoMarcheOwner.id})) break;
+      if (!milestone.matches(progress, now, {tonkoMarcheOwner.id})) {
+        break;
+      }
       if (!milestone.once || milestone.priority != -1000) {
         throw StateError('Invalid Tonko milestone dialogue: $milestoneId');
       }
