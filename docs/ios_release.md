@@ -50,6 +50,16 @@ PowerShellでBase64にする例（ファイル名は置き換える）：
 GitHub → Actions → `iOS TestFlight (Build and Upload)` → `Run workflow`。
 **必ずmainブランチから新しく実行**します（Re-runではビルド番号が重複します）。
 
+Appleに承認されたバージョンの受付が終了した場合（例：エラー 90186 / 90062）は、
+`pubspec.yaml` の `version: 1.0.1+3` のように、`+` より前のアプリバージョンを
+承認済みバージョンより大きくしてから `build_and_upload` を新規実行してください。
+`+` より後のビルド番号だけを増やしても、終了したバージョンへの提出はできません。
+iOSのビルド番号は新しいActions実行番号で設定されます。
+
+`upload_existing` は既存の署名済みIPAをそのまま送信するので、このエラーの修正には使えません。
+現在は、IPAのバージョンが `pubspec.yaml` と一致しない場合は、Appleへのアップロード前に
+エラーで止めるようにしてあります。
+
 `enable_developer_menu` は通常 **OFF** のままです。自分の実機で開発メニューを試す
 TestFlightビルドだけ **ON** にしてください。
 
