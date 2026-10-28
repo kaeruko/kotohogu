@@ -14,7 +14,7 @@ import re
 import subprocess
 import time
 
-PAGES = ("home", "missions", "town", "history", "conversation")
+PAGES = ("home", "missions", "town", "history", "conversation", "celebration")
 DEVICES = (
     (
         "iphone_dynamic_island_medium",
@@ -283,7 +283,7 @@ def main() -> None:
         "ことほぐ App Store Connect用スクリーンショット\n"
         "iphone_dynamic_island_medium: 1206 x 2622 px（縦）\n"
         "ipad_13_inch: 2064 x 2752 px（縦）\n"
-        "各フォルダーの 01_home ～ 05_conversation を登録できます。\n"
+        "各フォルダーの 01_home ～ 06_celebration を登録できます。\n"
         "AppleのPNGアルファチャンネル制限を避けるため、JPEG形式です。\n"
         "撮影は実際のFlutter画面ですが、達成記録と住民は見本データです。\n"
         "提出前に各画像を開き、文字切れやレイアウトを確認してください。\n",

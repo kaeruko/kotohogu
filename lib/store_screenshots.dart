@@ -6,6 +6,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'celebration.dart';
 import 'dev_tools.dart';
 import 'dialogue_engine.dart';
 import 'main.dart' as application;
@@ -14,7 +15,7 @@ import 'progress.dart';
 import 'resident_collection.dart';
 
 const screenshotPageNames = <String>[
-  'home', 'missions', 'town', 'history', 'conversation',
+  'home', 'missions', 'town', 'history', 'conversation', 'celebration',
 ];
 const screenshotConversationDialogueId = 'rabbit_default_1';
 
@@ -22,9 +23,13 @@ int screenshotPageIndex(String? name) {
   final index = screenshotPageNames.indexOf(name ?? '');
   if (index < 0) {
     throw ArgumentError.value(name, 'KOTOHOGU_CAPTURE_SCREEN',
-        'Expected one of: home, missions, town, history, conversation');
+        'Expected one of: home, missions, town, history, conversation, celebration');
   }
-  return name == 'conversation' ? 2 : index;
+  return switch (name) {
+    'conversation' => 2,
+    'celebration' => 1,
+    _ => index,
+  };
 }
 
 /// Fetch an existing CMS line instead of inventing promotional dialogue.
@@ -160,7 +165,7 @@ Future<void> main() async {
           }
           final dialogue = await loadScreenshotConversation(progress, now);
           final navigatorContext = navigatorKey.currentContext;
-          if (navigatorContext == null) {
+          if (navigatorContext == null || !navigatorContext.mounted) {
             throw StateError('Screenshot Navigator has no mounted context');
           }
           // Use the same ResidentConversationDialog as a real town tap.
@@ -174,8 +179,50 @@ Future<void> main() async {
             ),
           ));
           await WidgetsBinding.instance.endOfFrame;
+        } else if (requested == 'celebration') {
+          // Complete a real mission against the isolated screenshot store,
+          // exactly as the production completion flow does.
+          final before = controller.progress;
+          if (before == null) {
+            throw StateError('Sample progress did not initialize');
+          }
+          final beforeBalance =
+              before.residents.availableKotohogi(before.points);
+          final earned = await controller.complete(Mission.strength);
+          final after = controller.progress;
+          if (!earned || controller.failure != null || after == null) {
+            throw StateError(
+              'Could not complete sample strength mission: ${controller.failure}',
+            );
+          }
+          final afterBalance =
+              after.residents.availableKotohogi(after.points);
+          final credited = afterBalance - beforeBalance;
+          if (credited != 10) {
+            throw StateError(
+              'Expected 10 kotohogi for sample mission, received $credited',
+            );
+          }
+          final navigatorContext = navigatorKey.currentContext;
+          if (navigatorContext == null || !navigatorContext.mounted) {
+            throw StateError('Screenshot Navigator has no mounted context');
+          }
+          unawaited(showDialog<void>(
+            context: navigatorContext,
+            barrierDismissible: false,
+            builder: (_) => Celebration(
+              missionTitle: Mission.strength.title,
+              total: afterBalance,
+              creditedKotohogi: credited,
+              residents: after.residents.owned,
+            ),
+          ));
+          await WidgetsBinding.instance.endOfFrame;
         }
-        await Future<void>.delayed(const Duration(seconds: 4));
+        // Capture the celebration during confetti, after its entrance effect.
+        await Future<void>.delayed(Duration(
+          milliseconds: requested == 'celebration' ? 2000 : 4000,
+        ));
         await _writeCaptureStatus('ready:$requested');
       } catch (error, stack) {
         await _writeCaptureStatus('error:$error');

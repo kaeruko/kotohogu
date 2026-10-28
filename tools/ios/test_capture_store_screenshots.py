@@ -9,12 +9,12 @@ import capture_store_screenshots as capture
 
 
 class ScreenshotWorkflowTests(unittest.TestCase):
-    def test_fifth_screen_is_a_town_conversation(self):
+    def test_conversation_and_mission_completion_are_captured(self):
         self.assertEqual(
             capture.PAGES,
-            ("home", "missions", "town", "history", "conversation"),
+            ("home", "missions", "town", "history", "conversation", "celebration"),
         )
-        self.assertEqual(len(capture.PAGES) * len(capture.DEVICES), 10)
+        self.assertEqual(len(capture.PAGES) * len(capture.DEVICES), 12)
 
     def test_selects_latest_available_ios_runtime(self):
         runtimes = {
