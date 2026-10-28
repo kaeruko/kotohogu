@@ -9,6 +9,7 @@ on:
     paths:
       - 'tools/ios/capture_store_screenshots.py'
       - 'lib/store_screenshots.dart'
+      - 'test/store_screenshots_test.dart'
 
 permissions:
   contents: read
