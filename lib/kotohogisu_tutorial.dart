@@ -23,7 +23,7 @@ class KotohogisuTutorial extends StatefulWidget {
 class _KotohogisuTutorialState extends State<KotohogisuTutorial> {
   static const _lines = [
     'ちゅん、ちゅん！\nぼくはコトホギス。\nここは、あなたの「できた！」をお祝いするまちだよ。',
-    '今日できたことがあったら、\n「ミッション」で教えてね。\n小さな一歩も、ことほぎになるよ。',
+    '今日できたことがあったら、\n画面下の「セルフケア」を押して教えてね。\n小さな一歩も、ことほぎになるよ。',
     'ことほぎがたまると、まちが育つよ。\n新しい住民との出会いも楽しみにね。\nあなたのペースで、のんびりいこう！',
   ];
   int _step = 0;
@@ -157,7 +157,7 @@ class _KotohogisuTutorialState extends State<KotohogisuTutorial> {
                               widget.saving
                                   ? '保存中…'
                                   : _step == _lines.length - 1
-                                  ? 'ミッションを見に行く'
+                                  ? 'セルフケアを見に行く'
                                   : 'つぎへ',
                             ),
                           ),
