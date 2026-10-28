@@ -22,7 +22,14 @@ void main() {
       (tester) async {
     final now = DateTime(2026, 10, 19, 12);
     final progress = buildStoreScreenshotProgress(now);
-    final dialogue = await loadScreenshotConversation(progress, now);
+    // Asset bundle reads are asynchronous: do not block the fake async
+    // widget-test clock before its first pump.
+    final dialogue = await tester.runAsync(
+      () => loadScreenshotConversation(progress, now),
+    );
+    if (dialogue == null) {
+      throw StateError('CMS dialogue did not load in screenshot widget test');
+    }
     expect(dialogue.id, screenshotConversationDialogueId);
     expect(dialogue.residentId, TownResident.rabbit.id);
 
