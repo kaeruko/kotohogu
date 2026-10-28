@@ -85,7 +85,7 @@ void main() {
     expect(find.byKey(const ValueKey('celebration-background')), findsOneWidget);
     expect(find.byKey(const ValueKey('close-celebration')), findsOneWidget);
     expect(find.byKey(const ValueKey('debug-preview-label')), findsNothing);
-    expect(find.textContaining('ことほぎ'), findsWidgets);
+    expect(find.text('ことほぎ +10'), findsOneWidget);
   });
 
   test('sample capture content has believable missions and town residents', () {
