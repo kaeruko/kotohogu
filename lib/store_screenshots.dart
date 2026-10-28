@@ -7,19 +7,39 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'dev_tools.dart';
+import 'dialogue_engine.dart';
 import 'main.dart' as application;
+import 'resident_conversation_dialog.dart';
 import 'progress.dart';
 import 'resident_collection.dart';
 
-const screenshotPageNames = <String>['home', 'missions', 'town', 'history'];
+const screenshotPageNames = <String>[
+  'home', 'missions', 'town', 'history', 'conversation',
+];
+const screenshotConversationDialogueId = 'rabbit_default_1';
 
 int screenshotPageIndex(String? name) {
   final index = screenshotPageNames.indexOf(name ?? '');
   if (index < 0) {
     throw ArgumentError.value(name, 'KOTOHOGU_CAPTURE_SCREEN',
-        'Expected one of: home, missions, town, history');
+        'Expected one of: home, missions, town, history, conversation');
   }
-  return index;
+  return name == 'conversation' ? 2 : index;
+}
+
+/// Fetch an existing CMS line instead of inventing promotional dialogue.
+Future<DialogueEntry> loadScreenshotConversation(
+  Progress progress,
+  DateTime now,
+) async {
+  final catalog = await DialogueCatalog.load();
+  return catalog.selectById(
+    id: screenshotConversationDialogueId,
+    resident: TownResident.rabbit,
+    progress: progress,
+    now: now,
+    site: 'town',
+  );
 }
 
 /// Example activity data for screenshots; never read or write real user saves.
@@ -123,14 +143,38 @@ Future<void> main() async {
         await _writeCaptureStatus('booting:$requested');
         // Replacing the keyed root recreates the home state with exactly the
         // requested tab selected. No screenshots or state are persisted.
+        final navigatorKey = GlobalKey<NavigatorState>();
         runApp(application.FutureLiftApp(
           key: ValueKey('store-screenshot-$requested'),
+          navigatorKey: navigatorKey,
           controller: controller,
           enableTutorial: false,
           initialPage: pageNumber,
           townRandom: math.Random(7),
         ));
         await WidgetsBinding.instance.endOfFrame;
+        if (requested == 'conversation') {
+          final progress = controller.progress;
+          if (progress == null) {
+            throw StateError('Sample progress did not initialize');
+          }
+          final dialogue = await loadScreenshotConversation(progress, now);
+          final navigatorContext = navigatorKey.currentContext;
+          if (navigatorContext == null) {
+            throw StateError('Screenshot Navigator has no mounted context');
+          }
+          // Use the same ResidentConversationDialog as a real town tap.
+          // Do not await the route closing: the open conversation is the shot.
+          unawaited(showDialog<void>(
+            context: navigatorContext,
+            barrierDismissible: false,
+            builder: (_) => ResidentConversationDialog(
+              speaker: TownResident.rabbit,
+              dialogue: dialogue,
+            ),
+          ));
+          await WidgetsBinding.instance.endOfFrame;
+        }
         await Future<void>.delayed(const Duration(seconds: 4));
         await _writeCaptureStatus('ready:$requested');
       } catch (error, stack) {

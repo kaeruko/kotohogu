@@ -14,7 +14,7 @@ import re
 import subprocess
 import time
 
-PAGES = ("home", "missions", "town", "history")
+PAGES = ("home", "missions", "town", "history", "conversation")
 DEVICES = (
     (
         "iphone_dynamic_island_medium",
@@ -220,8 +220,11 @@ def capture(
                 "bytes": result.stat().st_size,
             }
         )
-    if len(metadata) != 4:
-        raise RuntimeError("Missing screens in screenshot output")
+    if len(metadata) != len(PAGES):
+        raise RuntimeError(
+            f"Missing screens in screenshot output: expected {len(PAGES)}, "
+            f"captured {len(metadata)}"
+        )
     return metadata
 
 
@@ -280,13 +283,13 @@ def main() -> None:
         "ことほぐ App Store Connect用スクリーンショット\n"
         "iphone_dynamic_island_medium: 1206 x 2622 px（縦）\n"
         "ipad_13_inch: 2064 x 2752 px（縦）\n"
-        "各フォルダーの 01_home ～ 04_history をそのまま登録できます。\n"
+        "各フォルダーの 01_home ～ 05_conversation を登録できます。\n"
         "AppleのPNGアルファチャンネル制限を避けるため、JPEG形式です。\n"
         "撮影は実際のFlutter画面ですが、達成記録と住民は見本データです。\n"
         "提出前に各画像を開き、文字切れやレイアウトを確認してください。\n",
         encoding="utf-8",
     )
-    print("All 8 screenshots validated", flush=True)
+    print(f"All {len(DEVICES) * len(PAGES)} screenshots validated", flush=True)
 
 
 if __name__ == "__main__":

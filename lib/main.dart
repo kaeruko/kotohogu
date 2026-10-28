@@ -55,7 +55,11 @@ class FutureLiftApp extends StatelessWidget {
     this.remoteContentLoader,
     this.townRandom,
     this.initialPage = 0,
+    this.navigatorKey,
   }) : assert(initialPage >= 0 && initialPage <= 3);
+
+  /// Only the separate screenshot entrypoint supplies a navigator key.
+  final GlobalKey<NavigatorState>? navigatorKey;
   /// Used by the separate App Store screenshot entrypoint only.
   /// Production continues to start on the home page.
   final int initialPage;
@@ -71,6 +75,7 @@ class FutureLiftApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
+    navigatorKey: navigatorKey,
     title: 'FutureLift',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
