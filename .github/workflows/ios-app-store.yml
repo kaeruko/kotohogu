@@ -192,6 +192,15 @@ jobs:
             echo "::error::Invalid IPA release version: $build_name"
             exit 1
           }
+          expected_version="$(sed -nE 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)\+[1-9][0-9]*[[:space:]]*$/\1/p' pubspec.yaml)"
+          [[ -n "$expected_version" ]] || {
+            echo "::error::Invalid or missing release version in pubspec.yaml"
+            exit 1
+          }
+          [[ "$build_name" == "$expected_version" ]] || {
+            echo "::error::IPA version $build_name differs from current pubspec.yaml $expected_version. Build a new IPA (build_and_upload) instead."
+            exit 1
+          }
           [[ "$build_number" == "$GITHUB_RUN_NUMBER" ]] || {
             echo "::error::IPA build number $build_number differs from workflow build number $GITHUB_RUN_NUMBER"
             exit 1
@@ -273,6 +282,8 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v4
+
       - name: Resolve and verify source run
         id: source
         shell: bash
@@ -396,6 +407,15 @@ jobs:
           }
           [[ "$build_name" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
             echo "::error::Invalid IPA release version"
+            exit 1
+          }
+          expected_version="$(sed -nE 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)\+[1-9][0-9]*[[:space:]]*$/\1/p' pubspec.yaml)"
+          [[ -n "$expected_version" ]] || {
+            echo "::error::Invalid or missing release version in pubspec.yaml"
+            exit 1
+          }
+          [[ "$build_name" == "$expected_version" ]] || {
+            echo "::error::IPA version $build_name differs from current pubspec.yaml $expected_version. Build a new IPA (build_and_upload) instead."
             exit 1
           }
           [[ "$build_number" =~ ^[0-9]+$ ]] || {
