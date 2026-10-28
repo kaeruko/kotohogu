@@ -1176,9 +1176,11 @@ void main() {
     expect(find.textContaining('ぼくはコトホギス'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('kotohogisu-next')));
     await tester.pumpAndSettle();
-    expect(find.textContaining('ミッション」で教えてね'), findsOneWidget);
+    expect(find.textContaining('画面下の「セルフケア」を押して教えてね'), findsOneWidget);
+    expect(find.textContaining('「ミッション」で教えてね'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('kotohogisu-next')));
     await tester.pumpAndSettle();
+    expect(find.text('セルフケアを見に行く'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('kotohogisu-next')));
     await tester.pumpAndSettle();
     expect(controller.progress!.seenDialogues, contains('tutorial_kotohogisu_v1'));
