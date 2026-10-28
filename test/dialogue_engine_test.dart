@@ -83,8 +83,15 @@ void main() {
     final pome = live.entries.where((e) => e.residentId == '052_pome').toList();
     expect(pome.length, greaterThanOrEqualTo(29));
     DialogueEntry byId(String id) => live.entries.firstWhere((e) => e.id == id);
-    final now = DateTime(2026, 10, 27, 20);
-    final initial = Progress.empty(now);
+    // The "withinDays: 1" condition uses JST. Fix the instant and saved
+    // calendar day independently of the CI runner's local timezone.
+    final now = DateTime.utc(2026, 10, 27, 12); // 21:00 JST
+    final initial = Progress(
+      day: '2026-10-27',
+      lastCompletedDay: null,
+      points: 0,
+      completed: const {},
+    );
     const alone = {'052_pome'};
     const withShiba = {'052_pome', '001_shiba'};
     const withSloth = {'052_pome', '027_daydreamer'};
@@ -102,6 +109,13 @@ void main() {
     final moved = initial.complete(Mission.movement);
     expect(byId('052_pome_017').matches(moved, now, alone), isTrue);
     expect(byId('052_pome_017').matches(initial, now, alone), isFalse);
+    expect(
+      byId('052_pome_017').matches(
+        moved, DateTime.utc(2026, 10, 27, 15), alone,
+      ),
+      isFalse,
+      reason: 'A mission completed yesterday in JST is not a fresh success',
+    );
     expect(byId('052_pome_003').priority, -1000);
     expect(byId('052_pome_004').priority, -1000);
   });
