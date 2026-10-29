@@ -6907,6 +6907,43 @@
       }
     },
     {
+      "id": "052_pome_030",
+      "residentId": "052_pome",
+      "text": "はみがきいやぽむ〜！あわがもこもこすると、おくちのなかがむずむずするぽむ。からいあじもいやぽむ！",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "052_pome_031",
+      "residentId": "052_pome",
+      "text": "からくなくて、あわのすくないはみがきこもあるぽむ？それなら、ぽむぽむもためしてみたいぽむ！",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "052_pome_030"
+        }
+      ]
+    },
+    {
+      "id": "052_pome_032",
+      "residentId": "052_pome",
+      "text": "ぽむぽむにあうはみがきこ、みつけたぽむ！きょうはちゃんとみがけたぽむ〜！ほめてぽむ！",
+      "priority": 30,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "052_pome_031"
+        }
+      ]
+    },
+    {
       "id": "003_penguin_011",
       "residentId": "003_penguin",
       "text": "あさの公園ではわんこたちがたいそうしてるよ。朝6時から9時までなんだって。早起きしたら、のぞいてみてね！",
