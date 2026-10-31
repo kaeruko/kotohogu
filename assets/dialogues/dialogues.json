@@ -744,8 +744,8 @@
     {
       "id": "037_tora_001",
       "residentId": "037_tora",
-      "text": "よーし！コーチだ！今日も自分のペースで体を動かそう！",
-      "priority": 0,
+      "text": "よーし！食後に太ももを動かすと、筋肉が血液中の糖を使ってくれる。スクワットや散歩は、食後の血糖値の上がりすぎを抑える助けになるんだ！",
+      "priority": 10,
       "once": false,
       "logic": "all",
       "conditions": []
@@ -4474,6 +4474,15 @@
       "priority": 0,
       "once": true,
       "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "037_tora_014",
+      "residentId": "037_tora",
+      "text": "スクワットがつらければ、食後にゆっくり歩くのでもいいぞ！ひざや腰に痛みがあるときは無理しない。自分に合う動き方を選ぼう！",
+      "priority": 10,
+      "once": false,
       "logic": "all",
       "conditions": []
     },
