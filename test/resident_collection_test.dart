@@ -73,6 +73,36 @@ void main() {
     ), 979);
   });
 
+  test('debug-granted tickets can overflow wallet without breaking saves', () {
+    var progress = Progress.empty(DateTime(2026, 10, 11))
+        .grantTicketsForDebug(40);
+    expect(progress.residents.availableKotohogi(progress.points), 1200);
+
+    // A normal mission caps the combined earned and debug-granted balance.
+    progress = progress.complete(Mission.strength);
+    expect(progress.points, 10);
+    expect(progress.residents.expiredKotohogi, 211);
+    expect(progress.residents.availableKotohogi(progress.points), 999);
+
+    final restored = Progress.decode(progress.encode(), expectedVersion: 5);
+    expect(restored.residents.encode(), progress.residents.encode());
+    expect(restored.residents.tickets(restored.points), 33);
+
+    // The next day's update must also preserve the wallet unchanged.
+    final nextDay = restored.onDay(DateTime(2026, 10, 12));
+    expect(Progress.decode(nextDay.encode()).residents.encode(),
+        restored.residents.encode());
+
+    // Amounts beyond all earned and explicitly granted credits still fail.
+    final raw = jsonDecode(progress.encode()) as Map<String, dynamic>;
+    final residentData = raw['residents'] as Map<String, dynamic>;
+    final invalid = {
+      ...raw,
+      'residents': {...residentData, 'expiredKotohogi': 1211},
+    };
+    expect(() => Progress.decode(jsonEncode(invalid)), throwsFormatException);
+  });
+
   test('legacy wallets and invalid expired balances are handled safely', () {
     final old = funded(points: 1000);
     final oldData = jsonDecode(old.encode()) as Map<String, dynamic>;

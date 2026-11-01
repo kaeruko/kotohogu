@@ -232,7 +232,7 @@ class ResidentCollection {
 
   int earnedTickets(int points) =>
       (points - baselinePoints - expiredKotohogi) ~/ 30;
-  int tickets(int points) => earnedTickets(points) + debugTicketsGranted - draws;
+  int tickets(int points) => availableKotohogi(points) ~/ 30;
   int untilNextTicket(int points) =>
       30 - (points - baselinePoints - expiredKotohogi) % 30;
 
@@ -329,13 +329,31 @@ class ResidentCollection {
     final expired = raw.containsKey('expiredKotohogi')
         ? raw['expiredKotohogi'] as int
         : 0;
-    if (expired > points - baseline || baseline < 0 ||
-        baseline > points ||
-        baseline % 10 != 0 ||
-        entries.length > ownedResidentLimit ||
+    if (baseline < 0 || baseline > points || baseline % 10 != 0) {
+      throw FormatException(
+        'Invalid resident collection baseline: $baseline (points: $points).',
+      );
+    }
+    if (entries.length > ownedResidentLimit ||
         !entries.containsKey('001_shiba') ||
         !entries.containsKey('002_usagi')) {
-      throw const FormatException('Invalid resident collection values.');
+      throw FormatException(
+        'Invalid resident collection counts: ${entries.length} unique '
+        'residents (limit: $ownedResidentLimit, '
+        'shiba: ${entries.containsKey('001_shiba')}, '
+        'usagi: ${entries.containsKey('002_usagi')}).',
+      );
+    }
+    // Cap overflow may include credits from explicitly granted debug tickets.
+    // They are part of the saved ledger, so rejecting such an overflow would
+    // make a save produced by withKotohogiCap impossible to reopen.
+    final maxExpirable = points - baseline + extras * 30;
+    if (expired > maxExpirable) {
+      throw FormatException(
+        'Invalid expiredKotohogi: $expired (maximum: $maxExpirable, '
+        'points: $points, baseline: $baseline, '
+        'debugTicketsGranted: $extras).',
+      );
     }
     final counts = <String, int>{};
     for (final entry in entries.entries) {
@@ -356,8 +374,12 @@ class ResidentCollection {
       bonusDraws: free,
       expiredKotohogi: expired,
     );
-    if (result.tickets(points) < 0) {
-      throw const FormatException('Too many resident draws.');
+    if (result.availableKotohogi(points) < 0) {
+      throw FormatException(
+        'Negative resident wallet: ${result.availableKotohogi(points)} '
+        '(points: $points, baseline: $baseline, '
+        'debugTicketsGranted: $extras, expiredKotohogi: $expired).',
+      );
     }
     return result;
   }
