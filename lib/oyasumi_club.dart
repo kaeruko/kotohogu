@@ -434,7 +434,7 @@ class OyasumiScene {
     final peers = group == 'resting'
         ? (availableResidentIds ?? {resident.id})
         : group == 'patrol'
-            ? {nightPatroller.id} // Solo lines, never club back-and-forth.
+            ? {nightPatroller.id, host.id} // Patrol may address the club host.
             : cast.map((character) => character.id).toSet();
     final eligible = [
       for (final item in options)

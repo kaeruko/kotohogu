@@ -470,11 +470,16 @@ class EventTests(unittest.TestCase):
             {'speaker':events.HOST,'text':'もふ'}]}]*3
         with self.assertRaisesRegex(ValueError,'一人で話せる'):events.validate(invalid)
 
-    def test_mosaedo_night_patrol_is_solo_and_requires_ownership(self):
+    def test_mosaedo_night_patrol_host_exchange_and_ownership(self):
         cfg=events.load()
         patrol=cfg['nightPatrol']
         self.assertEqual(patrol['residentId'],events.MOSA)
         self.assertIn('今宵も町は平和でござる！ あおんあおん！',patrol['dialogues'])
+        self.assertEqual(len(patrol['dialogues']),5)
+        turns=patrol['dialogues'][4]['turns']
+        self.assertEqual([row['speaker'] for row in turns],
+                         [events.MOSA,events.HOST,events.MOSA])
+        self.assertIn('むむ…？何もしない…？',turns[2]['text'])
         base=dict(config=cfg,completed=0,lastNight=None,
                   now='2026-10-20T19:00',owned=[events.HOST,events.MOSA])
         night=events.preview(base)
@@ -493,6 +498,9 @@ class EventTests(unittest.TestCase):
             lambda d:d['nightPatrol']['route'].update(height=float('nan')),
             lambda d:d['nightPatrol'].update(dialogues=[]),
             lambda d:d['nightPatrol'].update(dialogues=['こんにちは',{'turns':[]}]),
+            lambda d:d['nightPatrol'].update(dialogues=['こんにちは']*6),
+            lambda d:d['nightPatrol']['dialogues'][4]['turns'][0].update(speaker=events.HOST),
+            lambda d:d['nightPatrol']['dialogues'][4]['turns'][1].update(speaker=events.FROG),
         ]:
             modified=copy.deepcopy(cfg)
             mutation(modified)

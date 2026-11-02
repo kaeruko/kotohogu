@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
-const names={'027_daydreamer':'おやすみくん','029_office_worker':'かえる','041_pig_middle':'とんこ'};
-const folders={'027_daydreamer':'027_daydreamer','029_office_worker':'029_office_worker','041_pig_middle':'041_pig_middle'};
+const names={'027_daydreamer':'おやすみくん','029_office_worker':'かえる','036_mosa':'モサエド','041_pig_middle':'とんこ'};
+const folders={'027_daydreamer':'027_daydreamer','029_office_worker':'029_office_worker','036_mosa':'036_mosa','041_pig_middle':'041_pig_middle'};
 let outdoorResidents=[];
 let config,result,revision=0;
 const el=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
@@ -182,7 +182,7 @@ function renderEditor(){
   });
   const patrol=config.nightPatrol;
   const watch=el('details');
-  watch.append(el('summary','夜回りのモサエド（通行人・ひとり会話）'));
+  watch.append(el('summary','夜回りのモサエド（通行人・掛け合い）'));
   const desc=el('p','モサエド所持中は夜の広場を歩きます。おやすみクラブの進行には参加しません。');
   desc.className='hint';watch.append(desc);
   const walk=el('div');walk.className='row';
@@ -194,19 +194,7 @@ function renderEditor(){
     field.append(input);walk.append(field);
   }
   watch.append(walk);
-  patrol.dialogues.forEach((line,i)=>textField(watch,`ひとり会話 ${i+1}`,line,value=>{
-    patrol.dialogues[i]=value;
-  }));
-  const addPatrol=el('button','＋ ひとり会話を追加（最大4本）');
-  addPatrol.type='button';addPatrol.disabled=patrol.dialogues.length>=4;
-  addPatrol.onclick=()=>{patrol.dialogues.push('よまわりでござる！');renderEditor();change();};
-  watch.append(addPatrol);
-  if(patrol.dialogues.length>1){
-    const removePatrol=el('button','最後の会話を削除');
-    removePatrol.type='button';removePatrol.className='secondary';
-    removePatrol.onclick=()=>{patrol.dialogues.pop();renderEditor();change();};
-    watch.append(removePatrol);
-  }
+  editLines(watch,patrol.dialogues,'036_mosa',['036_mosa','027_daydreamer'],{maxNightPatterns:5});
   $('stages').append(watch);
   const tea=config.teaVisit;
   const teaEditor=el('details');
@@ -326,7 +314,7 @@ async function preview(){
     }
     if(data.patrolDialogues.length){
       const patrol=el('details');patrol.open=true;
-      patrol.append(el('summary','モサエドの夜回り（通行人・ひとり会話）'));
+      patrol.append(el('summary','モサエドの夜回り（通行人・掛け合い）'));
       data.patrolDialogues.forEach((item,i)=>renderConversation(patrol,item,'036_mosa',i));
       $('lines').append(patrol);
     }

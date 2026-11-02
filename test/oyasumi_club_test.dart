@@ -486,7 +486,7 @@ void main() {
     expect(alreadyRead.dialogue(frog, 'joined', 0).id, isNot(dialogue.id));
   });
 
-  test('owned Mosaedo makes a walking solo night patrol, not a club member', () {
+  test('owned Mosaedo patrol can talk with the host without joining the club', () {
     final withPatrol = OyasumiScene(
       saved: const OyasumiProgress(),
       owned: [host, frog, mosa],
@@ -510,6 +510,14 @@ void main() {
     expect(line.turns.length, 1);
     expect(line.turns.single.resident, mosa);
     expect(line.text, '今宵も町は平和でござる！ あおんあおん！');
+    final exchange = withPatrol.dialogue(mosa, 'patrol', 4);
+    expect(exchange.turns.length, 3);
+    expect(exchange.turns.map((turn) => turn.resident).toList(),
+        [mosa, host, mosa]);
+    expect(exchange.turns[0].text, 'むむ！ このような夜更けに、何をしておるでござる！');
+    expect(exchange.turns[1].text, 'なんにもしないをしてるでござる');
+    expect(exchange.turns[2].text,
+        'なんと！ 夜陰に乗じて何もしないとは！\nむむ…？何もしない…？');
     expect(withPatrol.completeIntroduction(mosa, 'patrol'),
       same(withPatrol.saved));
     final noMosa = scene(20);

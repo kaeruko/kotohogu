@@ -163,9 +163,10 @@ def validate(doc):
     route=patrol['route']
     if not isinstance(route,dict) or set(route) != {'x','y','width','height'} or any(type(v) not in (int,float) or not 0<=v<=.82 for v in route.values()) or route['x']+route['width']>.86 or route['y']+route['height']>.82:
         raise ValueError('夜回りの経路は歩行可能範囲に設定してください')
-    if not isinstance(patrol['dialogues'],list) or not 1<=len(patrol['dialogues'])<=4:
-        raise ValueError('夜回りの独り言は1〜4本で設定してください')
-    for line in patrol['dialogues']: text(line)
+    # The patroller can talk to the club host without joining the club.
+    # The first speaker remains Mosaedo; the host is present whenever
+    # the night patrol is available.
+    lines(patrol['dialogues'], MOSA, {MOSA, HOST}, max_patterns=5)
     tea=doc['teaVisit']
     if not isinstance(tea,dict) or set(tea) != {'label','residentId','intervalNights','position','turns','extraDialogue'} or tea['residentId'] != TONKO:
         raise ValueError('とんこの差し入れイベントが不正です')
