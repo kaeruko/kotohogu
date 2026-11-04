@@ -7085,6 +7085,48 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "029_office_worker_020",
+      "residentId": "029_office_worker",
+      "text": "おやすみくん、背中が緑色だよ？",
+      "priority": 35,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "もがはえてるもふ〜。がもいるもふ"
+      },
+      "closing": "藻と蛾！？"
+    },
+    {
+      "id": "027_daydreamer_008",
+      "residentId": "027_daydreamer",
+      "text": "ぼく、こいびとはいないもふ。でも、ぼくにはもがいるもふ〜",
+      "priority": 35,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "029_office_worker_020"
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "029_office_worker"
+        }
+      ],
+      "reply": {
+        "residentId": "029_office_worker",
+        "text": "藻と恋人を比べないで！"
+      },
+      "closing": "がもいるもふ〜"
     }
   ]
 }
