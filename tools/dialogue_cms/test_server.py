@@ -549,6 +549,23 @@ class CmsTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     validate(doc)
 
+    def test_three_turn_closing_requires_a_reply(self):
+        valid = sample()
+        entry = valid['dialogues'][0]
+        entry['conditions'] = [{'type': 'townTogether', 'otherResidentId': '002_usagi'}]
+        entry['reply'] = {'residentId': '002_usagi', 'text': '目を閉じるよ'}
+        entry['closing'] = 'そろそろ開けてくれ'
+        validate(valid)
+        for closing in ('', ' ', None, 0):
+            invalid = copy.deepcopy(valid)
+            invalid['dialogues'][0]['closing'] = closing
+            with self.subTest(closing=closing), self.assertRaisesRegex(ValueError, 'Closing requires'):
+                validate(invalid)
+        missing = copy.deepcopy(valid)
+        del missing['dialogues'][0]['reply']
+        with self.assertRaisesRegex(ValueError, 'Closing requires'):
+            validate(missing)
+
     def test_town_companion_and_two_speaker_reply_validation(self):
         normal = sample()
         selected = normal["dialogues"][0]

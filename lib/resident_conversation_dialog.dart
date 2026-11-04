@@ -297,6 +297,12 @@ class ResidentConversationDialog extends StatelessWidget {
             ),
             text: reply.text,
           ),
+        if (dialogue.closing != null)
+          ConversationTurn(
+            label: speaker.label,
+            avatar: TownResidentAvatar(resident: speaker, size: 48),
+            text: dialogue.closing!,
+          ),
       ],
     );
   }

@@ -36,6 +36,19 @@ void main() {
           'text': 'いやもふ～～',
         },
       },
+      {
+        'id': 'bucho_and_daydreamer_three_turns',
+        'residentId': '015_office_worker',
+        'text': '目がしょぼしょぼだ',
+        'priority': 60,
+        'once': false,
+        'logic': 'all',
+        'conditions': [
+          {'type': 'townTogether', 'otherResidentId': '027_daydreamer'},
+        ],
+        'reply': {'residentId': '027_daydreamer', 'text': 'めをとじるの、とくいもふ'},
+        'closing': '少しは目を開けてくれ',
+      },
     ],
   }));
 
@@ -112,6 +125,29 @@ void main() {
     expect(find.text('いやもふ～～'), findsOneWidget);
     expect(find.text('2 / 2'), findsOneWidget);
 
+    await tester.tap(find.text('また話そう'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ResidentConversationDialog), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('three-turn conversation returns to its first speaker', (tester) async {
+    await openDialogue(tester, TownResident.c015_office_worker,
+        {'015_office_worker', '027_daydreamer'},
+        chosenLine: catalog.entries.last);
+    expect(find.text('ぶちょう'), findsOneWidget);
+    expect(find.text('目がしょぼしょぼだ'), findsOneWidget);
+    expect(find.text('1 / 3'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('dialogue-next-button')));
+    await tester.pumpAndSettle();
+    expect(find.text('おやすみくん'), findsOneWidget);
+    expect(find.text('めをとじるの、とくいもふ'), findsOneWidget);
+    expect(find.text('2 / 3'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('dialogue-next-button')));
+    await tester.pumpAndSettle();
+    expect(find.text('ぶちょう'), findsOneWidget);
+    expect(find.text('少しは目を開けてくれ'), findsOneWidget);
+    expect(find.text('3 / 3'), findsOneWidget);
     await tester.tap(find.text('また話そう'));
     await tester.pumpAndSettle();
     expect(find.byType(ResidentConversationDialog), findsNothing);

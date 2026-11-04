@@ -16,6 +16,7 @@ Map<String, Object> row(String id, String resident, String text, {
   String logic = 'all',
   List<Map<String, Object>> conditions = const [],
   Map<String, Object>? reply,
+  String? closing,
 }) => {
   'id': id,
   'residentId': resident,
@@ -26,6 +27,7 @@ Map<String, Object> row(String id, String resident, String text, {
   'logic': logic,
   'conditions': conditions,
   'reply': ?reply,
+  'closing': ?closing,
 };
 
 DialogueCatalog catalog(List<Map<String, Object>> additions) {
@@ -68,6 +70,20 @@ void main() {
   // rootBundle in an ordinary async test requires an initialized binding.
   // A widget test would run in fake async and leave this load pending.
   TestWidgetsFlutterBinding.ensureInitialized();
+  test('a dialogue closing is valid only after a companion reply', () {
+    final paired = row('three_turns', '015_office_worker', '目が疲れた',
+      conditions: const [
+        {'type': 'townTogether', 'otherResidentId': '027_daydreamer'},
+      ],
+      reply: const {'residentId': '027_daydreamer', 'text': 'ねんねもふ'},
+      closing: '少し目を開けてくれ');
+    expect(catalog([paired]).entries.last.closing, '少し目を開けてくれ');
+    final withoutReply = Map<String, Object>.of(paired)..remove('reply');
+    expect(() => catalog([withoutReply]), throwsFormatException);
+    final emptyClosing = Map<String, Object>.of(paired)..['closing'] = '';
+    expect(() => catalog([emptyClosing]), throwsFormatException);
+  });
+
   test('bundled JSON loads and every character has an ordinary line', () async {
     final live = await DialogueCatalog.load();
     expect(live.entries.length, greaterThanOrEqualTo(24));

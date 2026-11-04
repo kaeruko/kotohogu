@@ -138,7 +138,7 @@ def validate(doc, residents=None):
     for i, entry in enumerate(rows):
         require_keys(entry, {"id", "residentId", "text", "priority",
                               "once", "logic", "conditions"}, f"dialogues[{i}]",
-                     optional={"reply", "firstGreeting"})
+                     optional={"reply", "closing", "firstGreeting"})
         identifier = entry["id"]
         if not isinstance(identifier, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", identifier):
             raise ValueError(f"Invalid id at row {i}")
@@ -157,7 +157,7 @@ def validate(doc, residents=None):
             if entry["firstGreeting"] is not True:
                 raise ValueError(f"firstGreeting must be true when present: {identifier}")
             if (not entry["once"] or entry["priority"] == -1000 or
-                    entry["conditions"] or "reply" in entry):
+                    entry["conditions"] or "reply" in entry or "closing" in entry):
                 raise ValueError(f"Invalid first greeting: {identifier}")
             if entry["residentId"] in introductions:
                 raise ValueError(f"Duplicate first greeting: {entry['residentId']}")
@@ -246,6 +246,11 @@ def validate(doc, residents=None):
                     not any(c["type"] == "townTogether" and
                             c["otherResidentId"] == other for c in conditions)):
                 raise ValueError(f"Reply requires matching AND town companion: {identifier}")
+        if "closing" in entry:
+            final_turn = entry["closing"]
+            if ("reply" not in entry or not isinstance(final_turn, str) or
+                    not final_turn.strip() or len(final_turn) > 500):
+                raise ValueError(f"Closing requires a reply and nonempty text: {identifier}")
     for entry in rows:
         for condition in entry["conditions"]:
             if condition["type"] == "seenDialogue":

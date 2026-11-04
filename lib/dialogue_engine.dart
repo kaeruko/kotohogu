@@ -136,7 +136,7 @@ class DialogueCatalog {
 
 class DialogueEntry {
   DialogueEntry._(this.id, this.residentId, this.text, this.priority,
-      this.once, this.logic, this.conditions, this.reply, this.firstGreeting);
+      this.once, this.logic, this.conditions, this.reply, this.closing, this.firstGreeting);
   final String id;
   final String residentId;
   final String text;
@@ -145,12 +145,14 @@ class DialogueEntry {
   final String logic;
   final List<DialogueCondition> conditions;
   final DialogueReply? reply;
+  /// Optional final turn by the original speaker after a companion replies.
+  final String? closing;
   final bool firstGreeting;
 
   factory DialogueEntry.parse(Object? source) {
     final data = _object(source, 'dialogue');
     _keys(data, {'id', 'residentId', 'text', 'priority', 'once', 'logic',
-      'conditions'}, 'dialogue', optional: {'reply', 'firstGreeting'});
+      'conditions'}, 'dialogue', optional: {'reply', 'closing', 'firstGreeting'});
     final id = data['id'];
     final resident = data['residentId'];
     final message = data['text'];
@@ -169,7 +171,7 @@ class DialogueEntry {
       throw const FormatException('Invalid dialogue entry');
     }
     if (greeting && (!once || priority == -1000 || conditions.isNotEmpty ||
-        data.containsKey('reply'))) {
+        data.containsKey('reply') || data.containsKey('closing'))) {
       throw FormatException('First greeting must be unconditional, once-only and without a reply: $id');
     }
     final parsedConditions = List<DialogueCondition>.unmodifiable(
@@ -195,8 +197,17 @@ class DialogueEntry {
         throw FormatException('Dialogue reply needs a matching AND town companion: $id');
       }
     }
+    String? closing;
+    if (data.containsKey('closing')) {
+      final finalTurn = data['closing'];
+      if (reply == null || finalTurn is! String || finalTurn.trim().isEmpty ||
+          finalTurn.length > 500) {
+        throw FormatException('Dialogue closing requires a reply and nonempty text: $id');
+      }
+      closing = finalTurn;
+    }
     return DialogueEntry._(id, resident, message, priority, once, logic,
-      parsedConditions, reply, greeting);
+      parsedConditions, reply, closing, greeting);
   }
 
   bool matches(Progress progress, DateTime now, Set<String> townResidentIds,

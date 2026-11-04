@@ -386,8 +386,16 @@ function renderEditor(){
     if(!options[entry.reply.residentId])options[entry.reply.residentId]=residents[entry.reply.residentId]||entry.reply.residentId;
     labelControl(area,"返事をするキャラ","select",entry.reply.residentId,v=>{entry.reply.residentId=v},{options});
     labelControl(area,"相手の返事","textarea",entry.reply.text,v=>{entry.reply.text=v});
+    if(entry.closing!==undefined){
+      labelControl(area,"最初のキャラの最後のひと言","textarea",entry.closing,v=>{entry.closing=v});
+      const removeClosing=append(area,"button","最後のひと言を削除");removeClosing.className="secondary";
+      removeClosing.onclick=()=>{delete entry.closing;dirty=true;refresh()};
+    }else{
+      const addClosing=append(area,"button","＋ 最初のキャラの最後のひと言を追加");addClosing.className="secondary";
+      addClosing.onclick=()=>{entry.closing="なるほどな。";dirty=true;refresh()};
+    }
     const removeReply=append(area,"button","返事を削除");removeReply.className="secondary";
-    removeReply.onclick=()=>{delete entry.reply;dirty=true;refresh()};
+    removeReply.onclick=()=>{delete entry.reply;delete entry.closing;dirty=true;refresh()};
   }else if(canReply){
     const addReply=append(area,"button","＋ 相手の返事を追加");addReply.className="secondary";
     addReply.onclick=()=>{

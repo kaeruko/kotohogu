@@ -7048,6 +7048,25 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "015_office_worker_029",
+      "residentId": "015_office_worker",
+      "text": "一日中パソコンを見ていたら、目がしょぼしょぼだ……最近は、温かい蒸しタオルを目にのせて休むようにしているんだ。5分ほどでも、気持ちがいいぞ",
+      "priority": 40,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "ねんねはめをとじるの、とくいもふ！"
+      },
+      "closing": "君はもう少し目を開けてもいいんじゃないか……？"
     }
   ]
 }

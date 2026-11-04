@@ -127,7 +127,7 @@ class RemoteDialogue {
     final row = objectOf(raw, 'dialogue');
     requireFields(row, {
       'id', 'residentId', 'text', 'priority', 'once', 'logic', 'conditions',
-    }, 'dialogue', optional: {'reply', 'firstGreeting'});
+    }, 'dialogue', optional: {'reply', 'closing', 'firstGreeting'});
     final id = nonempty(row['id'], 'dialogue.id');
     final conditions = arrayOf(row['conditions'], 'dialogue.conditions');
     final firstGreeting = row['firstGreeting'] == true;
@@ -139,7 +139,7 @@ class RemoteDialogue {
         (row.containsKey('firstGreeting') && row['firstGreeting'] != true) ||
         (firstGreeting && (row['once'] != true ||
             row['priority'] == -1000 || conditions.isNotEmpty ||
-            row.containsKey('reply')))) {
+            row.containsKey('reply') || row.containsKey('closing')))) {
       throw FormatException('Invalid dialogue data: $id');
     }
     return RemoteDialogue(
