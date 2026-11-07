@@ -21,7 +21,7 @@ jobs:
       AWS_ACCOUNT_ID: '314267685786'
     steps:
       - name: Check out main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Enforce the production branch and configuration
         shell: bash
