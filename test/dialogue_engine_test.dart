@@ -94,6 +94,39 @@ void main() {
     }
   });
 
+  test('chef plateau and refeeding story appears in sequence', () async {
+    const chef = TownResident.c009_chef;
+    final catalog = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 11, 7, 12);
+    var progress = Progress.empty(DateTime(2026, 11, 7));
+    DialogueEntry next() => catalog.select(
+      resident: chef, progress: progress, now: now,
+      random: const FixedRoll(last: false),
+    );
+    expect(next().id, '009_chef_005');
+    progress = progress.markDialogueSeen('009_chef_005');
+    for (var number = 6; number <= 13; number++) {
+      final id = '009_chef_${number.toString().padLeft(3, '0')}';
+      expect(next().id, id);
+      expect(next().once, isTrue);
+      progress = progress.markDialogueSeen(id);
+    }
+    expect(next().once, isFalse);
+    for (var number = 14; number <= 16; number++) {
+      final id = '009_chef_${number.toString().padLeft(3, '0')}';
+      final line = catalog.selectById(
+        id: id, resident: chef, progress: progress, now: now,
+      );
+      expect(line.once, isFalse);
+      expect(line.text, isNotEmpty);
+    }
+    final restored = Progress.decode(progress.encode(), expectedVersion: 5);
+    expect(catalog.select(
+      resident: chef, progress: restored, now: now,
+      random: const FixedRoll(last: false),
+    ).once, isFalse);
+  });
+
   test('Pome praises herself and friends, with real co-present partners', () async {
     final live = await DialogueCatalog.load();
     final pome = live.entries.where((e) => e.residentId == '052_pome').toList();
