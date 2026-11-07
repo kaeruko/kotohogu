@@ -72,7 +72,7 @@
       "id": "009_chef",
       "label": "シェフ",
       "artFolder": "009_chef",
-      "nextDialogueNumber": 6,
+      "nextDialogueNumber": 17,
       "inGacha": true,
       "walkInTown": true,
       "profile": "",

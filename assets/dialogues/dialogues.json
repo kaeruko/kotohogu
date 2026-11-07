@@ -4523,6 +4523,140 @@
       "conditions": []
     },
     {
+      "id": "009_chef_006",
+      "residentId": "009_chef",
+      "text": "ダイエット中、体重がずっと動かなかったのに、パンをしっかり食べた翌朝、ストンと落ちることがあるにゃ。こういう急な変化を『ウーッシュ効果』と呼ぶ人もいるんだにゃ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "009_chef_007",
+      "residentId": "009_chef",
+      "text": "体脂肪が少しずつ減っていても、体内の水分が増えていると体重計には表れないことがあるにゃ。あとから水分が変わって、急に数字が動いた可能性はある。でも、その日の食事が原因とはまだ言い切れないにゃ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "009_chef_006"
+        }
+      ]
+    },
+    {
+      "id": "009_chef_008",
+      "residentId": "009_chef",
+      "text": "『食事制限でコルチゾールが増えて水をため込み、たくさん食べるとホルモンが下がって水が抜ける』……そんな説明も聞くにゃ。でも、この一連の仕組みが人で確かめられたわけではないんだにゃ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "009_chef_007"
+        }
+      ]
+    },
+    {
+      "id": "009_chef_009",
+      "residentId": "009_chef",
+      "text": "むしろ糖質を多めに食べると、グリコーゲンという糖の貯蔵が増え、水分も一緒に増えることがあるにゃ。だから、食べた翌朝に体重が下がった理由は、体重計の数字だけでは特定できないんだにゃ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "009_chef_008"
+        }
+      ]
+    },
+    {
+      "id": "009_chef_010",
+      "residentId": "009_chef",
+      "text": "レプチンというホルモンは、短期間の絶食で減り、食事を再開すると戻ることがあるにゃ。1996年の研究では、36時間の絶食で下がったレプチンが、再び食べて約24時間で元の水準に戻ったんだにゃ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "009_chef_009"
+        }
+      ]
+    },
+    {
+      "id": "009_chef_011",
+      "residentId": "009_chef",
+      "text": "でも、その研究で確かめたのはレプチンの変化にゃ。脂肪燃焼が再開したとか、代謝が『リセット』されたとか、翌朝に水が抜けたという証拠ではないにゃ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "009_chef_010"
+        }
+      ]
+    },
+    {
+      "id": "009_chef_012",
+      "residentId": "009_chef",
+      "text": "停滞期に１日多く食べる『リフィード』も、必ず体重を落とす方法とは言えないにゃ。食事制限を１週間以上休む研究はあるけど、2024年のレビューでは、制限を続ける方法より減量が進むとは確認できなかったにゃ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "009_chef_011"
+        }
+      ]
+    },
+    {
+      "id": "009_chef_013",
+      "residentId": "009_chef",
+      "text": "体重が１〜２週間横ばいでも、まずは毎日の数字より７日間の平均を比べてみてにゃ。急な変化は水分かもしれない。つらい食事制限を休むなら、翌朝の減量を狙うより、続けやすくするために考えるんだにゃ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "009_chef_012"
+        }
+      ]
+    },
+    {
+      "id": "009_chef_014",
+      "residentId": "009_chef",
+      "text": "『ウーッシュ効果』は、停滞していた体重が急に落ちる現象を指す俗称にゃ。水分の変化はありえるけど、コルチゾールが下がって水が抜けた、とまでは証明されてないにゃ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "009_chef_015",
+      "residentId": "009_chef",
+      "text": "レプチンが食事再開で戻ることと、代謝がリセットされることは別の話にゃ。ホルモンの数値が動いても、翌日の体重が減るとは限らないにゃ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "009_chef_016",
+      "residentId": "009_chef",
+      "text": "『リフィードで停滞突破！』はまだ決まった法則じゃないにゃ。食事制限を休む工夫はあっても、体重を落とす効果が保証されているわけではないんだにゃ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
       "id": "026_farmer_003",
       "residentId": "026_farmer",
       "text": "わしは、たがやすぞう（多賀康三）。みんなには、やすぞうと呼ばれとる。畑で土に触ってる時間が好きなんじゃ。よろしくのう。",
