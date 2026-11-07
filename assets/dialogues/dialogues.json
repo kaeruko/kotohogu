@@ -4383,6 +4383,136 @@
       ]
     },
     {
+      "id": "006_kuma_012",
+      "residentId": "006_kuma",
+      "text": "痩せるために走るか、筋トレするかって？ 同じ30分なら、ランニングのほうが消費カロリーは多いことが多い。だが、筋トレには別の役目がある。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "006_kuma_005"
+        }
+      ]
+    },
+    {
+      "id": "006_kuma_013",
+      "residentId": "006_kuma",
+      "text": "『１キロ走れば100キロカロリー』とは決まってねぇ。体重60キロなら、１キロでざっくり60キロカロリーが目安だ。心拍数だけじゃ決まらんぞ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "006_kuma_012"
+        }
+      ]
+    },
+    {
+      "id": "006_kuma_014",
+      "residentId": "006_kuma",
+      "text": "筋肉１キロが安静時に使うエネルギーは、１日およそ13キロカロリー。５キロ増えても約65キロカロリーだ。筋肉を５キロ増やすのも簡単じゃねぇ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "006_kuma_013"
+        }
+      ]
+    },
+    {
+      "id": "006_kuma_015",
+      "residentId": "006_kuma",
+      "text": "筋トレは、何もしなくても痩せる魔法じゃねぇ。減量中の筋肉を守って、歳をとっても立つ、歩く、階段を上る。そんな力を保つためにやるんだ。",
+      "priority": 20,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "006_kuma_014"
+        }
+      ]
+    },
+    {
+      "id": "006_kuma_016",
+      "residentId": "006_kuma",
+      "text": "大工は毎日重い物を持つから筋トレはいらねぇって？ 仕事で使う筋肉は案外偏る。おれも脚や背中を鍛えてるぞ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "006_kuma_017",
+      "residentId": "006_kuma",
+      "text": "いきなり重い物を持つ必要はねぇ。椅子からゆっくり立つ、かかとを上げる。できる回数からでいい。痛みが出るなら無理するなよ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "006_kuma_018",
+      "residentId": "006_kuma",
+      "text": "カロリーを多く使う運動と、筋力を保つ運動は目的が違う。歩くのも筋トレも大事だ。比べて勝ち負けを決めるもんじゃねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "006_kuma_019",
+      "residentId": "006_kuma",
+      "text": "疲れた日は休め。木材も無理に曲げりゃ折れちまう。身体だって同じだ。鍛えるのと同じくらい、休むのも仕事だぞ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "006_kuma_020",
+      "residentId": "006_kuma",
+      "text": "ドライバー、配達で毎日動いてるから筋トレはいらねぇと思うか？",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "005_risu"
+        }
+      ],
+      "reply": {
+        "residentId": "005_risu",
+        "text": "えっ、荷物を運んで走り回るだけじゃだめなの？"
+      },
+      "closing": "だめじゃねぇ。立派な身体活動だ。ただ、鍛えたい場所は別に考えるといい。"
+    },
+    {
+      "id": "006_kuma_021",
+      "residentId": "006_kuma",
+      "text": "おやすみくん、椅子から一度立ってみるか？",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "たちあがるのもいやもふ〜"
+      },
+      "closing": "……そいつは手強いな。まあ、できる日からでいいさ。"
+    },
+    {
       "id": "009_chef_005",
       "residentId": "009_chef",
       "text": "いらっしゃいにゃ！ぼくはシェフだにゃ。おいしいものを考えると、しっぽがうずくにゃ〜！また食べもののお話をしようにゃ。",

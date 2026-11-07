@@ -375,12 +375,48 @@ void main() {
     progress = progress.markDialogueSeen('006_kuma_004');
     expect(next().id, '006_kuma_005');
     progress = progress.markDialogueSeen('006_kuma_005');
+    for (final number in [12, 13, 14, 15]) {
+      final id = '006_kuma_${number.toString().padLeft(3, '0')}';
+      expect(next().id, id);
+      progress = progress.markDialogueSeen(id);
+    }
     expect(next().once, isFalse);
     final restored = Progress.decode(progress.encode(), expectedVersion: 5);
     expect(catalog.select(
       resident: carpenter, progress: restored, now: now,
       random: const FixedRoll(last: false),
     ).once, isFalse);
+  });
+
+  test('carpenter strength tips and companion replies are available', () async {
+    final catalog = await DialogueCatalog.load();
+    final progress = Progress.empty(DateTime(2026, 10, 19));
+    final now = DateTime.utc(2026, 10, 19, 2);
+
+    for (final number in [16, 17, 18, 19]) {
+      final id = '006_kuma_${number.toString().padLeft(3, '0')}';
+      final line = catalog.selectById(
+        id: id, resident: TownResident.bear, progress: progress, now: now,
+      );
+      expect(line.once, isFalse);
+    }
+
+    for (final pair in <String, String>{
+      '006_kuma_020': '005_risu',
+      '006_kuma_021': '027_daydreamer',
+    }.entries) {
+      expect(() => catalog.selectById(
+        id: pair.key, resident: TownResident.bear,
+        progress: progress, now: now, townResidentIds: {'006_kuma'},
+      ), throwsStateError);
+      final line = catalog.selectById(
+        id: pair.key, resident: TownResident.bear,
+        progress: progress, now: now,
+        townResidentIds: {'006_kuma', pair.value},
+      );
+      expect(line.reply?.residentId, pair.value);
+      expect(line.closing, isNotEmpty);
+    }
   });
 
   test('carpenter and Moguta talk only when both are in the same scene', () async {

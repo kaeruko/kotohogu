@@ -63,7 +63,7 @@
       "artFolder": "006_kuma",
       "inGacha": true,
       "walkInTown": true,
-      "nextDialogueNumber": 12,
+      "nextDialogueNumber": 22,
       "profile": "まちの家やお店を建て、家具やベンチを直す大工。腕はいいが口下手で、頼まれなくても壊れたものをそっと修理する。完成した建物が手を離れるのは少し寂しいけれど、そこで誰かの暮らしが始まることを喜んでいる。",
       "homeAreaId": "village"
     },
