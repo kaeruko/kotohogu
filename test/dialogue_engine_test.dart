@@ -94,6 +94,41 @@ void main() {
     }
   });
 
+  test('Harumachi has a gentle first greeting and talks with Tonko', () async {
+    const resident = TownResident.c053_penguin_lady;
+    expect(resident.id, '053_penguin_lady');
+    expect(resident.label, 'はるまちさん');
+    expect(resident.homeAreaId, 'park');
+    expect(resident.inGacha, isTrue);
+    expect(resident.walkInTown, isTrue);
+    expect(File(resident.idleAsset).existsSync(), isTrue);
+
+    final catalog = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 11, 8);
+    var progress = Progress.empty(now);
+    final greeting = catalog.select(
+      resident: resident, progress: progress, now: now,
+    );
+    expect(greeting.id, '053_penguin_lady_001');
+    expect(greeting.firstGreeting, isTrue);
+    progress = progress.markDialogueSeen(greeting.id);
+    expect(catalog.select(
+      resident: resident, progress: progress, now: now,
+    ).firstGreeting, isFalse);
+
+    expect(() => catalog.selectById(
+      id: '053_penguin_lady_010', resident: resident,
+      progress: progress, now: now,
+      townResidentIds: {resident.id},
+    ), throwsStateError);
+    final together = catalog.selectById(
+      id: '053_penguin_lady_010', resident: resident,
+      progress: progress, now: now,
+      townResidentIds: {resident.id, TownResident.c041_pig_middle.id},
+    );
+    expect(together.reply?.residentId, TownResident.c041_pig_middle.id);
+  });
+
   test('chef plateau and refeeding story appears in sequence', () async {
     const chef = TownResident.c009_chef;
     final catalog = await DialogueCatalog.load();

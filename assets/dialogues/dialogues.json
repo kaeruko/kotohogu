@@ -7391,6 +7391,106 @@
         "text": "藻と恋人を比べないで！"
       },
       "closing": "がもいるもふ〜"
+    },
+    {
+      "id": "053_penguin_lady_001",
+      "residentId": "053_penguin_lady",
+      "text": "こんにちは。はるまちって呼んでね。公園のお花を見るのが好きで、つい遠回りしちゃうの。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [],
+      "firstGreeting": true
+    },
+    {
+      "id": "053_penguin_lady_002",
+      "residentId": "053_penguin_lady",
+      "text": "この帽子のお花？ ふふ、気づいてくれたのね。季節が変わると、つけ替えるのが楽しみなの。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "053_penguin_lady_003",
+      "residentId": "053_penguin_lady",
+      "text": "春が来るのを待つのも好きよ。でもね、春になったら、次のお楽しみを探すつもり。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "053_penguin_lady_004",
+      "residentId": "053_penguin_lady",
+      "text": "公園のベンチに座っていると、いろんな人が通るの。犬のお散歩、買い物帰り……見ているだけで楽しいわ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "053_penguin_lady_005",
+      "residentId": "053_penguin_lady",
+      "text": "昨日はまだつぼみだったのに、今日は咲いていたのよ。見つけるとうれしくなっちゃうわね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "053_penguin_lady_006",
+      "residentId": "053_penguin_lady",
+      "text": "きれいなお花を見つけると、誰かに教えたくなるの。でも、ちょっとひとりじめしたい気もするわ。ふふ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "053_penguin_lady_007",
+      "residentId": "053_penguin_lady",
+      "text": "今日は遠回りしようと思ったけど、近道にしたの。そんな日もあるわよね。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "053_penguin_lady_008",
+      "residentId": "053_penguin_lady",
+      "text": "バッグの中？ ハンカチと小さな水筒よ。お花の図鑑も持ちたいけど、ちょっと重いのよねぇ。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "053_penguin_lady_009",
+      "residentId": "053_penguin_lady",
+      "text": "雨のあとの公園って、葉っぱがぴかぴかしているのよ。足元に気をつけながら眺めるのが好きなの。",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "053_penguin_lady_010",
+      "residentId": "053_penguin_lady",
+      "text": "とんこさん、今日はどんなお茶があるの？ 公園のお花を見ていたら、すっかり喉がかわいちゃった。",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "041_pig_middle"
+        }
+      ],
+      "reply": {
+        "residentId": "041_pig_middle",
+        "text": "あらぁ、はるまちさん。今日はミントのお茶があるのよぉ。よかったら、香りをかいでみてねぇ。"
+      }
     }
   ]
 }

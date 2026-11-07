@@ -299,6 +299,17 @@
       "homeAreaId": "plaza"
     },
     {
+      "key": "c053_penguin_lady",
+      "id": "053_penguin_lady",
+      "label": "はるまちさん",
+      "profile": "帽子のお花とピンクのマフラーが目印のペンギンの女性。公園を散歩して季節の花を眺めるのが好きで、帽子のお花をときどき替える。とんこの茶房にも顔を出す。病気とともに暮らしているが、病気だけで自分を説明したいわけではない。これからの季節を楽しみにしながら、いつもの暮らしやおしゃべりを大切にしている。",
+      "artFolder": "053_penguin_lady",
+      "nextDialogueNumber": 11,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "park"
+    },
+    {
       "key": "c024_nurse",
       "id": "024_nurse",
       "label": "ナースさん",
