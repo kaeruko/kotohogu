@@ -22,12 +22,26 @@ aws sts get-caller-identity --profile kotohogu
 ## 2. 非公開バケット・CloudFrontを作成
 
 ```powershell
-aws cloudformation deploy --template-file tools/aws/content-stack.yaml --stack-name kotohogu-content --region ap-northeast-1 --profile kotohogu
+aws cloudformation deploy --template-file tools/aws/content-stack.yaml --stack-name kotohogu-content --region ap-northeast-1 --profile kotohogu --capabilities CAPABILITY_IAM
 aws cloudformation describe-stacks --stack-name kotohogu-content --region ap-northeast-1 --profile kotohogu --query "Stacks[0].Outputs" --output table
 ```
 
-表示される `ContentBucketName`, `ContentDistributionId`, `ContentDomain` を確認してください。
+表示される `ContentBucketName`, `ContentDistributionId`, `ContentDomain`, `GitHubContentDeployRoleArn` を確認してください。
 S3はすべてのパブリックアクセスをブロックし、**公開はCloudFront経由のみ**です。バケット削除防止のためCloudFormationではS3に `Retain` を指定しています。独自ドメインは不要で `https://<ContentDomain>/` を使えます。
+
+このテンプレートは、AWSアカウントに `token.actions.githubusercontent.com` のGitHub OIDCプロバイダーが既にあることを前提にします。発行ロールは `kaeruko/kotohogu` の `main` ブランチだけを信頼し、このスタックの参照と配信バケットの読み書きだけを許可します。
+
+## GitHub Actionsから発行
+
+初回だけ、スタック出力のロールARNをリポジトリ変数へ登録します（値はシークレットではありません）。
+
+```powershell
+$roleArn = aws cloudformation describe-stacks --stack-name kotohogu-content --region ap-northeast-1 --profile kotohogu --query "Stacks[0].Outputs[?OutputKey=='GitHubContentDeployRoleArn'].OutputValue | [0]" --output text
+if ($LASTEXITCODE -ne 0 -or -not $roleArn -or $roleArn -eq "None") { throw "GitHub発行ロールを取得できません" }
+gh variable set AWS_CONTENT_DEPLOY_ROLE_ARN --body $roleArn
+```
+
+以後は GitHub の **Actions** → **Publish AWS content** → **Run workflow** でブランチ `main` を選んで実行します。ワークフローはCMS／発行ツールのテスト、S3への不変リリース発行、`current.json` 更新、CloudFrontからの公開確認を順番に行います。同時発行は直列化され、AWS認証はOIDCの短期セッションだけを使います。
 
 CloudFront作成直後はDNS/証明書反映に時間がかかります。必要に応じて次のコマンドで配信の準備完了を待てます。
 

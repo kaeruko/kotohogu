@@ -1,0 +1,144 @@
+name: Publish AWS content
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: kotohogu-content-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_REGION: ap-northeast-1
+      AWS_STACK_NAME: kotohogu-content
+      AWS_ACCOUNT_ID: '314267685786'
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - name: Enforce the production branch and configuration
+        shell: bash
+        env:
+          DEPLOY_ROLE_ARN: ${{ vars.AWS_CONTENT_DEPLOY_ROLE_ARN }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || {
+            echo "::error::Content publishing must run from main"
+            exit 1
+          }
+          [[ "$DEPLOY_ROLE_ARN" == "arn:aws:iam::$AWS_ACCOUNT_ID:role/"* ]] || {
+            echo "::error::Set AWS_CONTENT_DEPLOY_ROLE_ARN to the stack's GitHubContentDeployRoleArn output"
+            exit 1
+          }
+
+      - name: Validate publish tooling and CMS data
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tools/dialogue_cms -p 'test_*.py'
+          python3 -m unittest discover -s tools/aws -p 'test_*.py'
+
+      - name: Assume the AWS content publishing role
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_CONTENT_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          allowed-account-ids: ${{ env.AWS_ACCOUNT_ID }}
+          role-session-name: kotohogu-content-${{ github.run_id }}
+
+      - name: Publish immutable release
+        id: publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/publish-content.log"
+          python3 tools/aws/publish_content.py \
+            --stack "$AWS_STACK_NAME" \
+            --region "$AWS_REGION" | tee "$log"
+          release_id="$(sed -nE 's/.*release=([0-9a-f]{64}).*/\1/p' "$log" | tail -1)"
+          [[ "$release_id" =~ ^[0-9a-f]{64}$ ]] || {
+            echo "::error::Could not read the published release ID"
+            exit 1
+          }
+          domain="$(aws cloudformation describe-stacks \
+            --stack-name "$AWS_STACK_NAME" \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='ContentDomain'].OutputValue | [0]" \
+            --output text)"
+          [[ -n "$domain" && "$domain" != "None" ]] || {
+            echo "::error::ContentDomain is missing from the stack"
+            exit 1
+          }
+          echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+          echo "domain=$domain" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the public CloudFront release
+        shell: bash
+        env:
+          RELEASE_ID: ${{ steps.publish.outputs.release_id }}
+          CONTENT_DOMAIN: ${{ steps.publish.outputs.domain }}
+        run: |
+          set -euo pipefail
+          current="$RUNNER_TEMP/current.json"
+          manifest="$RUNNER_TEMP/manifest.json"
+          for attempt in {1..6}; do
+            curl --fail --silent --show-error \
+              --retry 3 --retry-all-errors --retry-delay 2 \
+              -H 'Cache-Control: no-cache' \
+              "https://$CONTENT_DOMAIN/current.json" -o "$current"
+            if python3 - "$current" "$RELEASE_ID" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          current = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          raise SystemExit(0 if current.get("releaseId") == sys.argv[2] else 1)
+          PY
+            then
+              break
+            fi
+            if [[ "$attempt" == 6 ]]; then
+              echo "::error::CloudFront current.json did not expose release $RELEASE_ID"
+              exit 1
+            fi
+            sleep 5
+          done
+          curl --fail --silent --show-error \
+            --retry 6 --retry-all-errors --retry-delay 5 \
+            "https://$CONTENT_DOMAIN/releases/$RELEASE_ID/manifest.json" -o "$manifest"
+          python3 - "$current" "$manifest" "$RELEASE_ID" <<'PY'
+          import hashlib
+          import json
+          import sys
+          from pathlib import Path
+
+          current = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          manifest_bytes = Path(sys.argv[2]).read_bytes()
+          manifest = json.loads(manifest_bytes)
+          expected = sys.argv[3]
+          if current.get("releaseId") != expected:
+              raise SystemExit(
+                  f"current.json release mismatch: {current.get('releaseId')} != {expected}"
+              )
+          if manifest.get("releaseId") != expected:
+              raise SystemExit(
+                  f"manifest release mismatch: {manifest.get('releaseId')} != {expected}"
+              )
+          actual_hash = hashlib.sha256(manifest_bytes).hexdigest()
+          if current.get("manifestSha256") != actual_hash:
+              raise SystemExit("public manifest hash does not match current.json")
+          PY
+          {
+            echo "### AWS content published"
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Release: \`$RELEASE_ID\`"
+            echo "- [current.json](https://$CONTENT_DOMAIN/current.json)"
+            echo "- [Release manifest](https://$CONTENT_DOMAIN/releases/$RELEASE_ID/manifest.json)"
+          } >> "$GITHUB_STEP_SUMMARY"
