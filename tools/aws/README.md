@@ -41,7 +41,7 @@ if ($LASTEXITCODE -ne 0 -or -not $roleArn -or $roleArn -eq "None") { throw "GitH
 gh variable set AWS_CONTENT_DEPLOY_ROLE_ARN --body $roleArn
 ```
 
-以後は GitHub の **Actions** → **Publish AWS content** → **Run workflow** でブランチ `main` を選んで実行します。ワークフローはCMS／発行ツールのテスト、S3への不変リリース発行、`current.json` 更新、CloudFrontからの公開確認を順番に行います。同時発行は直列化され、AWS認証はOIDCの短期セッションだけを使います。
+以後は `assets/characters/`、`assets/dialogues/dialogues.json`、CMS／AWS発行ツールの変更を `main` へpushすると自動発行します。再発行したい場合は GitHub の **Actions** → **Publish AWS content** → **Run workflow** でブランチ `main` を選んで手動実行もできます。ワークフローはCMS／発行ツールとFlutter側の配信契約テスト、S3への不変リリース発行、`current.json` 更新、CloudFrontからの公開確認を順番に行います。同時発行は直列化され、AWS認証はOIDCの短期セッションだけを使います。READMEだけの変更など、配信内容に影響しないpushでは実行しません。
 
 CloudFront作成直後はDNS/証明書反映に時間がかかります。必要に応じて次のコマンドで配信の準備完了を待てます。
 

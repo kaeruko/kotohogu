@@ -1,6 +1,15 @@
 name: Publish AWS content
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/characters/**'
+      - 'assets/dialogues/dialogues.json'
+      - 'tools/aws/publish_content.py'
+      - 'tools/dialogue_cms/server.py'
+      - 'tools/dialogue_cms/characters.py'
+      - 'tools/dialogue_cms/areas.py'
   workflow_dispatch:
 
 permissions:

@@ -124,7 +124,7 @@ Google Driveの kotohogu_api.txt に接続先URLを記載
 
 配信するJSON・スプライトは検証後に**内容に基づく不変のリリースパス**へアップロードされます。`current.json` は最新版を指し、新しいアプリはGoogle Driveに保存した接続先URLからこのポインタを取得して参照するリリースを決めます。これにより、**普段のCMS更新ではAWSへのアップロードだけでよく、Google Driveの変更は不要**です。旧アプリは従来の固定リリースを参照し続けるため、最新版に追従するにはアプリ更新が必要です。
 
-通常の発行は GitHub Actions の **Publish AWS content** を `main` ブランチから手動実行します。GitHub OIDC の短期認証を使うため、AWSアクセスキーをGitHubへ保存する必要はありません。公開前にCMSと発行ツールを検証し、公開後にCloudFrontの `current.json` とマニフェストまで確認します。
+住民・セリフ・スプライトなどの配信対象を `main` へpushすると、GitHub Actions の **Publish AWS content** が自動発行します。必要なら `main` ブランチから手動実行もできます。GitHub OIDC の短期認証を使うため、AWSアクセスキーをGitHubへ保存する必要はありません。公開前にCMS・発行ツール・Flutter側の配信契約を検証し、公開後にCloudFrontの `current.json` とマニフェストまで確認します。
 
 ローカルから発行する場合の例：
 
