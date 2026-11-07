@@ -45,6 +45,23 @@ jobs:
           python3 -m unittest discover -s tools/dialogue_cms -p 'test_*.py'
           python3 -m unittest discover -s tools/aws -p 'test_*.py'
 
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+
+      - name: Validate the app content contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter pub get
+          flutter test \
+            test/local_content_preview_test.dart \
+            test/local_town_visitors_test.dart \
+            test/local_town_integration_test.dart
+
       - name: Assume the AWS content publishing role
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
