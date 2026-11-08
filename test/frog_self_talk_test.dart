@@ -35,6 +35,7 @@ void main() {
     final character = (registry['characters'] as List<dynamic>)
         .cast<Map<String, dynamic>>()
         .singleWhere((entry) => entry['id'] == '029_office_worker');
-    expect(character['nextDialogueNumber'], 20);
+    // New dialogues may be appended without renumbering these existing tips.
+    expect(character['nextDialogueNumber'], greaterThanOrEqualTo(20));
   });
 }
