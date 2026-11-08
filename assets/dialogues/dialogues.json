@@ -7567,6 +7567,141 @@
       "conditions": []
     },
     {
+      "id": "054_tanuki_003",
+      "residentId": "054_tanuki",
+      "text": "女の子との会話、頭の中ではすごく上手にできるんだけどなぁ。実際に話しかけられると、全部忘れちゃうんだ",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "054_tanuki_004",
+      "residentId": "054_tanuki",
+      "text": "マッチングアプリのプロフィール、もう47回書き直したんだ。まだ登録してないけど",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "054_tanuki_005",
+      "residentId": "054_tanuki",
+      "text": "『自然体が一番』ってよく言うけど、その自然体が難しいんだよぉ",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "054_tanuki_006",
+      "residentId": "054_tanuki",
+      "text": "相手の目を見て話す練習してるんだけど、何秒見たらいいのかわからなくて……",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "054_tanuki_007",
+      "residentId": "054_tanuki",
+      "text": "パソコンくんは奥さんとどうやって知り合ったの？",
+      "priority": 40,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "同じイベントのお手伝いをしてて、いつの間にか仲良くなったんだ"
+      },
+      "closing": "その『いつの間にか』を、もうちょっと詳しく説明してほしいんだよぉ！"
+    },
+    {
+      "id": "054_tanuki_008",
+      "residentId": "054_tanuki",
+      "text": "パソコンくんって、なんでそんなに自然に女の子と話せるの？",
+      "priority": 40,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "えっ？ 普通におしゃべりしてるだけだよ？"
+      },
+      "closing": "だから、その普通の実装方法を聞いてるの！！"
+    },
+    {
+      "id": "054_tanuki_009",
+      "residentId": "054_tanuki",
+      "text": "図書館っていいよねぇ。誰ともしゃべらなくても、みんなと同じ場所にいられるんだ",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        }
+      ]
+    },
+    {
+      "id": "054_tanuki_010",
+      "residentId": "054_tanuki",
+      "text": "ぼく、人と話すのは苦手だけど、パソコンのことなら何時間でもしゃべれるよ。……あっ、今の話、長かった？",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        }
+      ]
+    },
+    {
+      "id": "054_tanuki_011",
+      "residentId": "054_tanuki",
+      "text": "この前、おばあちゃんのスマホの文字を大きくしてあげたら、すごく喜んでくれたんだ。ああいうの、うれしいなぁ",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        }
+      ]
+    },
+    {
+      "id": "054_tanuki_012",
+      "residentId": "054_tanuki",
+      "text": "おやすみくん、恋愛って努力が大事だと思わない？",
+      "priority": 40,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "ぼく、おひるねをがんばるもふ〜"
+      },
+      "closing": "おひるねは頑張らなくていいんだよ……"
+    },
+    {
       "id": "020_yagi_001",
       "residentId": "020_yagi",
       "text": "こんにちは！よろしくね。",
