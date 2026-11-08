@@ -7817,6 +7817,29 @@
       "closing": "そ、それだけでいいの……？"
     },
     {
+      "id": "054_tanuki_018",
+      "residentId": "054_tanuki",
+      "text": "たぬき男子……検索っと。……あれ？ あんまり出てこないぞ？",
+      "priority": 80,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "『たぬき顔男子』でも検索してみたら？"
+      },
+      "closing": "あっ、そっちはある！"
+    },
+    {
       "id": "020_yagi_001",
       "residentId": "020_yagi",
       "text": "こんにちは！よろしくね。",
@@ -7921,6 +7944,33 @@
           "min": 390
         }
       ]
+    },
+    {
+      "id": "020_yagi_007",
+      "residentId": "020_yagi",
+      "text": "よかったじゃない",
+      "priority": 80,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "054_tanuki"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "054_tanuki_018"
+        }
+      ],
+      "reply": {
+        "residentId": "054_tanuki",
+        "text": "でも、出てくるの人間ばっかりなんだけど……"
+      },
+      "closing": "そりゃそうだよ！"
     }
   ]
 }

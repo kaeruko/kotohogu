@@ -12,7 +12,7 @@ void main() {
       for (final entry in catalog.entries)
         if (entry.residentId == TownResident.c054_tanuki.id) entry.id: entry,
     };
-    expect(lines, hasLength(17));
+    expect(lines, hasLength(18));
     for (var number = 3; number <= 12; number++) {
       final id = '054_tanuki_${number.toString().padLeft(3, '0')}';
       expect(lines, contains(id));
@@ -101,5 +101,65 @@ void main() {
         site: 'town', townResidentIds: {yagi.id},
       ).id, id);
     }
+  });
+
+  test('Tanuki-face search is a gated two-part conversation', () async {
+    final catalog = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 11, 9);
+    final before = Progress.empty(now);
+    final opened = Progress(
+      day: '2026-11-09', lastCompletedDay: null,
+      points: 390, completed: {},
+    );
+    const tanuki = TownResident.c054_tanuki;
+    const yagi = TownResident.c020_yagi;
+    const first = '054_tanuki_018';
+    const second = '020_yagi_007';
+    final both = {tanuki.id, yagi.id};
+
+    final firstLine = catalog.entries.singleWhere((line) => line.id == first);
+    expect(firstLine.once, isTrue);
+    expect(firstLine.text, contains('たぬき男子'));
+    expect(firstLine.reply?.text, contains('たぬき顔男子'));
+    expect(firstLine.closing, contains('そっちはある'));
+
+    expect(() => catalog.selectById(
+      id: first, resident: tanuki, progress: before, now: now,
+      townResidentIds: both, site: 'town',
+    ), throwsStateError);
+    expect(() => catalog.selectById(
+      id: first, resident: tanuki, progress: opened, now: now,
+      townResidentIds: {tanuki.id}, site: 'town',
+    ), throwsStateError);
+
+    expect(catalog.selectById(
+      id: first, resident: tanuki, progress: opened, now: now,
+      townResidentIds: both, site: 'town',
+    ).id, first);
+    expect(() => catalog.selectById(
+      id: second, resident: yagi, progress: opened, now: now,
+      townResidentIds: both, site: 'town',
+    ), throwsStateError, reason: 'The continuation must not precede the search');
+
+    final afterFirst = opened.markDialogueSeen(first);
+    final lastLine = catalog.selectById(
+      id: second, resident: yagi, progress: afterFirst, now: now,
+      townResidentIds: both, site: 'town',
+    );
+    expect(lastLine.once, isTrue);
+    expect(lastLine.text, 'よかったじゃない');
+    expect(lastLine.reply?.residentId, tanuki.id);
+    expect(lastLine.reply?.text, contains('人間ばっかり'));
+    expect(lastLine.closing, 'そりゃそうだよ！');
+
+    expect(() => catalog.selectById(
+      id: first, resident: tanuki, progress: afterFirst, now: now,
+      townResidentIds: both, site: 'town',
+    ), throwsStateError);
+    expect(() => catalog.selectById(
+      id: second, resident: yagi,
+      progress: afterFirst.markDialogueSeen(second), now: now,
+      townResidentIds: both, site: 'town',
+    ), throwsStateError);
   });
 }

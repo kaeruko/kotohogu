@@ -326,7 +326,7 @@
       "label": "ぽちゃくん",
       "profile": "",
       "artFolder": "054_tanuki",
-      "nextDialogueNumber": 18,
+      "nextDialogueNumber": 19,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "library"
@@ -337,7 +337,7 @@
       "label": "パソコンくん",
       "profile": "",
       "artFolder": "020_yagi",
-      "nextDialogueNumber": 7,
+      "nextDialogueNumber": 8,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "library"
