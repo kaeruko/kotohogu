@@ -22,7 +22,8 @@ void main() {
     expect(lines['054_tanuki_004']!.text, contains('47回'));
     expect(lines['054_tanuki_005']!.text, contains('自然体'));
     for (final number in [9, 10, 11]) {
-      final line = lines['054_tanuki_0$number']!;
+      final id = '054_tanuki_${number.toString().padLeft(3, '0')}';
+      final line = lines[id]!;
       expect(line.conditions, hasLength(1));
       expect(line.conditions.single.fields['type'], 'kotohogi');
       expect(line.conditions.single.fields['min'], 390);
