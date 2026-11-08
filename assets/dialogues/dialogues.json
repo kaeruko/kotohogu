@@ -7840,6 +7840,75 @@
       "closing": "あっ、そっちはある！"
     },
     {
+      "id": "054_tanuki_019",
+      "residentId": "054_tanuki",
+      "text": "たぬき男子の垢抜け方法を調べたんだ。前髪を上げて、おでこを出すといいんだって！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "……ぽちゃくん、おでこってどこ？"
+      },
+      "closing": "わかんない……"
+    },
+    {
+      "id": "054_tanuki_020",
+      "residentId": "054_tanuki",
+      "text": "あと、眉毛を整えると印象が変わるらしいよ！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "眉毛……ある？"
+      },
+      "closing": "目の周り、ぜんぶ黒いんだよぉ！！"
+    },
+    {
+      "id": "054_tanuki_021",
+      "residentId": "054_tanuki",
+      "text": "ぼく、ワイルド系になりたいんだけど……",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "ぽちゃくんは、かわいい系じゃないかなぁ"
+      },
+      "closing": "かわいいじゃなくて、かっこいいって言われたいんだよぉ！"
+    },
+    {
       "id": "020_yagi_001",
       "residentId": "020_yagi",
       "text": "こんにちは！よろしくね。",
@@ -7971,6 +8040,29 @@
         "text": "でも、出てくるの人間ばっかりなんだけど……"
       },
       "closing": "そりゃそうだよ！"
+    },
+    {
+      "id": "020_yagi_008",
+      "residentId": "020_yagi",
+      "text": "まずは似合うメガネと服を探してみたら？",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "054_tanuki"
+        }
+      ],
+      "reply": {
+        "residentId": "054_tanuki",
+        "text": "丸っこいままでも、かっこよくなれるかなぁ……"
+      },
+      "closing": "もちろん。ぽちゃくんのよさを生かそうよ"
     }
   ]
 }

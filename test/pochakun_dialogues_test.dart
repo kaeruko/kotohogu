@@ -12,7 +12,7 @@ void main() {
       for (final entry in catalog.entries)
         if (entry.residentId == TownResident.c054_tanuki.id) entry.id: entry,
     };
-    expect(lines, hasLength(18));
+    expect(lines, hasLength(21));
     for (var number = 3; number <= 12; number++) {
       final id = '054_tanuki_${number.toString().padLeft(3, '0')}';
       expect(lines, contains(id));
@@ -161,5 +161,53 @@ void main() {
       progress: afterFirst.markDialogueSeen(second), now: now,
       townResidentIds: both, site: 'town',
     ), throwsStateError);
+  });
+
+  test('Pochakun and Pasokon-kun exchange four makeover jokes in the library', () async {
+    final catalog = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 11, 9);
+    final before = Progress.empty(now);
+    final opened = Progress(
+      day: '2026-11-09', lastCompletedDay: null,
+      points: 390, completed: {},
+    );
+    const tanuki = TownResident.c054_tanuki;
+    const yagi = TownResident.c020_yagi;
+    final pairs = [
+      ('054_tanuki_019', tanuki, yagi),
+      ('054_tanuki_020', tanuki, yagi),
+      ('054_tanuki_021', tanuki, yagi),
+      ('020_yagi_008', yagi, tanuki),
+    ];
+    for (final (id, speaker, companion) in pairs) {
+      final line = catalog.entries.singleWhere((entry) => entry.id == id);
+      expect(line.once, isFalse);
+      expect(line.reply?.residentId, companion.id);
+      expect(line.closing, isNotEmpty);
+      expect(line.conditions.any((condition) =>
+          condition.fields['type'] == 'kotohogi' &&
+          condition.fields['min'] == 390), isTrue);
+      expect(line.conditions.any((condition) =>
+          condition.fields['type'] == 'townTogether' &&
+          condition.fields['otherResidentId'] == companion.id), isTrue);
+
+      expect(() => catalog.selectById(
+        id: id, resident: speaker, progress: before, now: now,
+        site: 'town', townResidentIds: {speaker.id, companion.id},
+      ), throwsStateError, reason: 'Not unlocked: $id');
+
+      expect(() => catalog.selectById(
+        id: id, resident: speaker, progress: opened, now: now,
+        site: 'town', townResidentIds: {speaker.id},
+      ), throwsStateError, reason: 'Companion missing: $id');
+
+      expect(catalog.selectById(
+        id: id, resident: speaker, progress: opened, now: now,
+        site: 'town', townResidentIds: {speaker.id, companion.id},
+      ).id, id);
+    }
+    expect(catalog.entries.singleWhere((e) => e.id == '054_tanuki_019').reply!.text, contains('おでこ'));
+    expect(catalog.entries.singleWhere((e) => e.id == '054_tanuki_020').closing, contains('ぜんぶ黒い'));
+    expect(catalog.entries.singleWhere((e) => e.id == '054_tanuki_021').closing, contains('かっこいい'));
   });
 }
