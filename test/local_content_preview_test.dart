@@ -55,7 +55,11 @@ void main() {
     expect(parsed.characters.length, greaterThanOrEqualTo(21));
     expect(parsed.dialogues.length, greaterThan(250));
     final introductions = parsed.dialogues.where((row) => row.firstGreeting).toList();
-    expect(introductions.length, parsed.characters.length);
+    // First greetings are optional for newly registered residents.
+    expect(introductions.length, greaterThanOrEqualTo(21));
+    expect(introductions.length, lessThanOrEqualTo(parsed.characters.length));
+    expect(introductions.map((row) => row.residentId).toSet(),
+        hasLength(introductions.length));
     for (final intro in introductions) {
       expect(intro.once, isTrue);
       expect(intro.conditionCount, 0);

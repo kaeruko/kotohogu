@@ -628,7 +628,7 @@ void main() {
             child: TownScene(
               area: area,
               visit: visit,
-              lifetimePoints: 300,
+              lifetimePoints: 390,
               residents: residents,
               fillViewport: true,
             ),
@@ -636,7 +636,7 @@ void main() {
         ),
       ));
       final active = areaResidents(residents, area,
-          lifetimePoints: 300, visit: visit);
+          lifetimePoints: 390, visit: visit);
       expect(active, isNotEmpty);
       final base =
           (area.sourceWidth!.toDouble() * .14).clamp(22.0, 76.0).toDouble();

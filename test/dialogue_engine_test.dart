@@ -408,14 +408,22 @@ void main() {
     ]), throwsFormatException);
   });
 
-  test('bundled first introductions are available once for every resident', () async {
+  test('bundled first introductions are shown once when registered', () async {
     final live = await DialogueCatalog.load();
     final p = completed([]);
+    final greetingOwners = {
+      for (final entry in live.entries)
+        if (entry.firstGreeting) entry.residentId,
+    };
     for (final resident in TownResident.values) {
       final selected = live.select(
         resident: resident, progress: p, now: DateTime.utc(2026, 10, 18),
         random: const FixedRoll(last: false),
       );
+      if (!greetingOwners.contains(resident.id)) {
+        expect(selected.firstGreeting, isFalse, reason: resident.id);
+        continue;
+      }
       expect(selected.firstGreeting, isTrue, reason: resident.id);
       expect(selected.once, isTrue);
       final seen = p.markDialogueSeen(selected.id);

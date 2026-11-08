@@ -96,7 +96,7 @@ class RemoteResident {
         row['inGacha'] is! bool || row['walkInTown'] is! bool ||
         row['nextDialogueNumber'] is! int ||
         (row['nextDialogueNumber'] as int) < 1 ||
-        !{'plaza', 'park', 'shopping', 'village', 'salon'}
+        !{'plaza', 'park', 'shopping', 'village', 'library', 'salon'}
           .contains(row['homeAreaId'])) {
       throw FormatException('Invalid resident data: $id');
     }
