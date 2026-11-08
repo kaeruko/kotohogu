@@ -7909,6 +7909,56 @@
       "closing": "かわいいじゃなくて、かっこいいって言われたいんだよぉ！"
     },
     {
+      "id": "054_tanuki_022",
+      "residentId": "054_tanuki",
+      "text": "ボーン・トゥ・ビー・ワイルド……たぬき！",
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "ぽちゃくん、何読んでるの？"
+      },
+      "closing": "月刊たぬきの特集！『野性を取り戻せ！ ワイルド系たぬき男子』！",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "priority": 90,
+      "once": true,
+      "logic": "all"
+    },
+    {
+      "id": "054_tanuki_023",
+      "residentId": "054_tanuki",
+      "text": "……Wi-Fiはあるかな？",
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "ないと思うよ"
+      },
+      "closing": "じゃあ無理だよぉ！！",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "020_yagi_009"
+        }
+      ],
+      "priority": 90,
+      "once": true,
+      "logic": "all"
+    },
+    {
       "id": "020_yagi_001",
       "residentId": "020_yagi",
       "text": "こんにちは！よろしくね。",
@@ -8063,6 +8113,33 @@
         "text": "丸っこいままでも、かっこよくなれるかなぁ……"
       },
       "closing": "もちろん。ぽちゃくんのよさを生かそうよ"
+    },
+    {
+      "id": "020_yagi_009",
+      "residentId": "020_yagi",
+      "text": "へえ、何するの？",
+      "reply": {
+        "residentId": "054_tanuki",
+        "text": "まずはワイルドに、森で一夜を過ごす！"
+      },
+      "closing": "たぬきだもんね",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "054_tanuki"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "054_tanuki_022"
+        }
+      ],
+      "priority": 90,
+      "once": true,
+      "logic": "all"
     }
   ]
 }

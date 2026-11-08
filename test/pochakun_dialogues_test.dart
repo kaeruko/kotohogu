@@ -12,7 +12,7 @@ void main() {
       for (final entry in catalog.entries)
         if (entry.residentId == TownResident.c054_tanuki.id) entry.id: entry,
     };
-    expect(lines, hasLength(21));
+    expect(lines, hasLength(23));
     for (var number = 3; number <= 12; number++) {
       final id = '054_tanuki_${number.toString().padLeft(3, '0')}';
       expect(lines, contains(id));
@@ -209,5 +209,70 @@ void main() {
     expect(catalog.entries.singleWhere((e) => e.id == '054_tanuki_019').reply!.text, contains('おでこ'));
     expect(catalog.entries.singleWhere((e) => e.id == '054_tanuki_020').closing, contains('ぜんぶ黒い'));
     expect(catalog.entries.singleWhere((e) => e.id == '054_tanuki_021').closing, contains('かっこいい'));
+  });
+
+  test('monthly tanuki wildness dialogue follows the reading order', () async {
+    final catalog = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 11, 9);
+    final beforeUnlock = Progress.empty(now);
+    var opened = Progress(
+      day: '2026-11-09', lastCompletedDay: null,
+      points: 390, completed: {},
+    );
+    const tanuki = TownResident.c054_tanuki;
+    const yagi = TownResident.c020_yagi;
+    final both = {tanuki.id, yagi.id};
+    final chapters = [
+      ('054_tanuki_022', tanuki, yagi),
+      ('020_yagi_009', yagi, tanuki),
+      ('054_tanuki_023', tanuki, yagi),
+    ];
+    for (final (id, speaker, companion) in chapters) {
+      final line = catalog.entries.singleWhere((item) => item.id == id);
+      expect(line.once, isTrue);
+      expect(line.reply?.residentId, companion.id);
+      expect(line.closing, isNotEmpty);
+      expect(line.conditions.any((c) =>
+        c.fields['type'] == 'kotohogi' && c.fields['min'] == 390), isTrue);
+      expect(line.conditions.any((c) =>
+        c.fields['type'] == 'townTogether' &&
+        c.fields['otherResidentId'] == companion.id), isTrue);
+      expect(() => catalog.selectById(
+        id: id, resident: speaker, progress: beforeUnlock, now: now,
+        site: 'town', townResidentIds: both,
+      ), throwsStateError, reason: 'Library must be unlocked: $id');
+      expect(() => catalog.selectById(
+        id: id, resident: speaker, progress: opened, now: now,
+        site: 'town', townResidentIds: {speaker.id},
+      ), throwsStateError, reason: 'Both characters required: $id');
+      expect(catalog.selectById(
+        id: id, resident: speaker, progress: opened, now: now,
+        site: 'town', townResidentIds: both,
+      ).id, id);
+      opened = opened.markDialogueSeen(id);
+      expect(() => catalog.selectById(
+        id: id, resident: speaker, progress: opened, now: now,
+        site: 'town', townResidentIds: both,
+      ), throwsStateError, reason: 'Only once: $id');
+    }
+
+    expect(catalog.entries.singleWhere(
+      (line) => line.id == '054_tanuki_022').text, contains('ワイルド'));
+    expect(catalog.entries.singleWhere(
+      (line) => line.id == '054_tanuki_023').text, contains('Wi-Fi'));
+    expect(catalog.entries.singleWhere(
+      (line) => line.id == '054_tanuki_023').closing, 'じゃあ無理だよぉ！！');
+
+    for (final id in ['020_yagi_009', '054_tanuki_023']) {
+      expect(() => catalog.selectById(
+        id: id,
+        resident: id.startsWith('020') ? yagi : tanuki,
+        progress: Progress(
+          day: '2026-11-09', lastCompletedDay: null,
+          points: 390, completed: {},
+        ),
+        now: now, site: 'town', townResidentIds: both,
+      ), throwsStateError, reason: 'No jumping ahead to $id');
+    }
   });
 }
