@@ -143,7 +143,9 @@ enum TownResident {
   // ignore: constant_identifier_names
   c053_penguin_lady("053_penguin_lady", "はるまちさん", "053_penguin_lady", true, true, "帽子のお花とピンクのマフラーが目印のペンギンの女性。公園を散歩して季節の花を眺めるのが好きで、帽子のお花をときどき替える。とんこの茶房にも顔を出す。病気とともに暮らしているが、病気だけで自分を説明したいわけではない。これからの季節を楽しみにしながら、いつもの暮らしやおしゃべりを大切にしている。", "park", archived: false),
   // ignore: constant_identifier_names
-  c024_nurse("024_nurse", "ナースさん", "024_nurse", true, true, "ことほぎのまちで働く、穏やかで頼りになる看護師さん。忙しい人の事情にも耳を傾けながら、健診結果を確認することや、痛み・不調を我慢せず早めに受診することの大切さを伝えている。怖がらせず、必要なことははっきりと話す。", "shopping", archived: false)
+  c024_nurse("024_nurse", "ナースさん", "024_nurse", true, true, "ことほぎのまちで働く、穏やかで頼りになる看護師さん。忙しい人の事情にも耳を傾けながら、健診結果を確認することや、痛み・不調を我慢せず早めに受診することの大切さを伝えている。怖がらせず、必要なことははっきりと話す。", "shopping", archived: false),
+  // ignore: constant_identifier_names
+  c054_tanuki("054_tanuki", "ぽちゃくん", "054_tanuki", true, true, "", "plaza", archived: false)
   // END CMS RESIDENTS
   ;
 

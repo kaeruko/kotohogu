@@ -7547,6 +7547,15 @@
         "residentId": "041_pig_middle",
         "text": "あらぁ、はるまちさん。今日はミントのお茶があるのよぉ。よかったら、香りをかいでみてねぇ。"
       }
+    },
+    {
+      "id": "054_tanuki_001",
+      "residentId": "054_tanuki",
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }

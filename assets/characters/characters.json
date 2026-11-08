@@ -319,6 +319,17 @@
       "nextDialogueNumber": 7,
       "profile": "ことほぎのまちで働く、穏やかで頼りになる看護師さん。忙しい人の事情にも耳を傾けながら、健診結果を確認することや、痛み・不調を我慢せず早めに受診することの大切さを伝えている。怖がらせず、必要なことははっきりと話す。",
       "homeAreaId": "shopping"
+    },
+    {
+      "key": "c054_tanuki",
+      "id": "054_tanuki",
+      "label": "ぽちゃくん",
+      "profile": "",
+      "artFolder": "054_tanuki",
+      "nextDialogueNumber": 2,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
     }
   ]
 }
