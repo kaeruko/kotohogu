@@ -228,6 +228,7 @@ class _TownSceneState extends State<TownScene> {
       debugOverride: widget.debugTownResidents,
       marcheOpen: widget.marcheOpen,
       afterOyasumiClub: widget.afterOyasumiClub,
+      suspendFamilyOuting: widget.timedEvents?.nailistOyasumiAfterWork ?? false,
     );
     final scripted = widget.oyasumi?.residents(widget.area, ordinaryResidents) ?? ordinaryResidents;
     final clubTakesOver = widget.oyasumi?.takesOver(widget.area) ?? false;
@@ -513,7 +514,8 @@ class _TownSceneState extends State<TownScene> {
         widget.debugTownResidents == null &&
         (widget.visit ?? _standaloneVisit).isFamilyOuting(
           widget.residents, widget.lifetimePoints,
-          afterOyasumiClub: widget.afterOyasumiClub);
+          afterOyasumiClub: widget.afterOyasumiClub,
+          suspended: widget.timedEvents?.nailistOyasumiAfterWork ?? false);
     // The CMS is the single source of sprite size and top-left coordinates
     // for the clinic. An unknown staff member must fail instead of silently
     // falling back to a random town position.

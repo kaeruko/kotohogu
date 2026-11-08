@@ -67,6 +67,7 @@ class TownVisit {
   final bool? familyOutingOverride;
   final Map<String, TownArea> _destinations = {};
   bool? _familyOuting;
+  int _afterWorkDialogueTurns = 0;
   final Map<String, int> _familyConversations = {};
 
   bool _farmerScarePlayed = false;
@@ -95,9 +96,10 @@ class TownVisit {
     Iterable<TownResident> owned,
     int lifetimePoints, {
     bool afterOyasumiClub = false,
+    bool suspended = false,
   }) {
-    // Never draw or reuse a prior draw before the story is complete.
-    if (!afterOyasumiClub) return false;
+    // Leave the visit's existing draw intact during the after-work encounter.
+    if (suspended || !afterOyasumiClub) return false;
     if (_familyOuting != null) return _familyOuting!;
     final family = owned.toSet();
     if (!TownArea.shopping.isUnlocked(lifetimePoints) ||
@@ -118,6 +120,22 @@ class TownVisit {
     final count = _familyConversations[speaker.id] ?? 0;
     _familyConversations[speaker.id] = count + 1;
     return options[count % options.length];
+  }
+
+  /// Either guest advances the same three-part after-work conversation.
+  ({String id, TownResident speaker}) nextAfterWorkDialogue(TownResident tapped) {
+    if (tapped != TownResident.c050_nailist &&
+        tapped != TownResident.c027_daydreamer) {
+      throw ArgumentError.value(tapped, 'tapped', 'Not an after-work guest');
+    }
+    const turns = <({String id, TownResident speaker})>[
+      (id: '050_nailist_032', speaker: TownResident.c050_nailist),
+      (id: '027_daydreamer_009', speaker: TownResident.c027_daydreamer),
+      (id: '027_daydreamer_010', speaker: TownResident.c027_daydreamer),
+    ];
+    final turn = turns[_afterWorkDialogueTurns % turns.length];
+    _afterWorkDialogueTurns++;
+    return turn;
   }
 
   TownArea? destinationFor({
@@ -188,11 +206,13 @@ List<TownResident> areaResidents(
   List<TownResident>? debugOverride,
   bool marcheOpen = false,
   bool afterOyasumiClub = false,
+  bool suspendFamilyOuting = false,
 }) {
   final candidates = visibleTownResidents(owned, debugOverride: debugOverride);
   final familyOuting = debugOverride == null &&
       visit.isFamilyOuting(
-        owned, lifetimePoints, afterOyasumiClub: afterOyasumiClub);
+        owned, lifetimePoints, afterOyasumiClub: afterOyasumiClub,
+        suspended: suspendFamilyOuting);
   return List<TownResident>.unmodifiable([
     for (final resident in candidates)
       if (!(familyOuting && resident == familyOutingMother) &&

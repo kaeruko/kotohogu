@@ -560,8 +560,15 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         _debugTownResidents == null &&
         _townVisit.isFamilyOuting(
           controller.progress!.residents.owned, controller.progress!.points,
-          afterOyasumiClub: controller.progress!.oyasumi.completed == 3) &&
+          afterOyasumiClub: controller.progress!.oyasumi.completed == 3,
+          suspended: rules.timedEvents?.nailistOyasumiAfterWork ?? false) &&
         (resident == familyOutingMother || resident == familyOutingDaughter);
+    final afterWork = site == 'town' &&
+        (rules.timedEvents?.nailistOyasumiAfterWork ?? false) &&
+        (resident == TownResident.c050_nailist ||
+         resident == TownResident.c027_daydreamer);
+    final afterWorkTurn = afterWork
+        ? _townVisit.nextAfterWorkDialogue(resident) : null;
     final exerciseIds = site == 'town'
         ? rules.timedEvents?.exclusiveDialogueIds(_townArea, resident)
         : null;
@@ -571,7 +578,16 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         resident == TownResident.c026_farmer &&
         visibleIds.contains(TownResident.c027_daydreamer.id) &&
         _townVisit.canOfferFarmerScare;
-    final line = exerciseIds != null
+    final line = afterWorkTurn != null
+        ? catalog.selectById(
+            id: afterWorkTurn.id,
+            resident: afterWorkTurn.speaker,
+            progress: dialogueProgress,
+            now: controller.clock(),
+            townResidentIds: visibleIds,
+            site: site,
+          )
+        : exerciseIds != null
         ? catalog.selectById(
             id: exerciseIds[
                 (_morningExerciseDialogueRotations[resident] ?? 0) %
@@ -622,7 +638,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     final completed = await showDialog<bool>(
       context: context,
       builder: (context) => ResidentConversationDialog(
-        speaker: resident,
+        speaker: afterWorkTurn?.speaker ?? resident,
         dialogue: line,
         reportCompletion: farmerInvitation,
       ),

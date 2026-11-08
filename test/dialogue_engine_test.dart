@@ -1019,4 +1019,36 @@ void main() {
     expect(()=>Progress.decode(jsonEncode({...base,'seenDialogues':['a','a']})),
       throwsFormatException);
   });
+  test('after-work nailist and Oyasumi exchanges require both speakers', () {
+    final live = DialogueCatalog.fromJson(
+      File('assets/dialogues/dialogues.json').readAsStringSync(),
+    );
+    final progress = Progress.empty(DateTime(2026, 11, 8));
+    final now = DateTime(2026, 11, 8, 17, 30);
+    const ids = ['050_nailist_032', '027_daydreamer_009',
+                 '027_daydreamer_010'];
+    const speakers = [TownResident.c050_nailist,
+                      TownResident.c027_daydreamer,
+                      TownResident.c027_daydreamer];
+    for (var i = 0; i < ids.length; i++) {
+      expect(() => live.selectById(
+        id: ids[i], resident: speakers[i], progress: progress,
+        now: now, townResidentIds: {speakers[i].id}, site: 'town',
+      ), throwsStateError);
+      final selected = live.selectById(
+        id: ids[i], resident: speakers[i], progress: progress,
+        now: now,
+        townResidentIds: {'050_nailist', '027_daydreamer'}, site: 'town',
+      );
+      expect(selected.reply, isNotNull);
+      expect(selected.priority, -1000);
+    }
+    expect(live.entries.firstWhere((e) => e.id == ids[0]).closing,
+        '絶対ナシ！ナシ！');
+    expect(live.entries.firstWhere((e) => e.id == ids[1]).closing,
+        'はっぱをつんでいくもふ');
+    expect(live.entries.firstWhere((e) => e.id == ids[2]).reply?.text,
+        'ちがうから！');
+  });
+
 }

@@ -228,4 +228,33 @@ void main() {
     expect(() => fixture('replace').residents(
         TownArea.park, [], scriptedEventActive: true), throwsStateError);
   });
+  test('after-work pair appears only 17:00-18:00 when both are owned', () {
+    final nailist = TownResident.c050_nailist;
+    final sloth = TownResident.c027_daydreamer;
+    final together = TownTimedEvents(
+        now: DateTime(2026, 11, 8, 17, 30), owned: [nailist, sloth]);
+    expect(together.nailistOyasumiAfterWork, true);
+    expect(together.takesOver(TownArea.park), false);
+    expect(together.residents(TownArea.park, [shiba, sloth]),
+        [shiba, sloth, nailist]);
+    expect(together.route(TownArea.park, nailist)!.x, .37);
+    expect(together.route(TownArea.park, sloth)!.x, .60);
+    expect(together.residents(TownArea.shopping, [nailist, shiba]),
+        [shiba]);
+    for (final time in [DateTime(2026, 11, 8, 16, 59),
+                        DateTime(2026, 11, 8, 18)]) {
+      final outside = TownTimedEvents(now: time, owned: [nailist, sloth]);
+      expect(outside.nailistOyasumiAfterWork, false);
+      expect(outside.residents(TownArea.park, [sloth]), [sloth]);
+    }
+    final missing = TownTimedEvents(
+        now: DateTime(2026, 11, 8, 17, 30), owned: [sloth]);
+    expect(missing.nailistOyasumiAfterWork, false);
+    expect(missing.residents(TownArea.park, [sloth]), [sloth]);
+    final disabled = TownTimedEvents(
+        now: DateTime(2026, 11, 8, 17, 30),
+        owned: [nailist, sloth], enabled: false);
+    expect(disabled.nailistOyasumiAfterWork, false);
+  });
+
 }

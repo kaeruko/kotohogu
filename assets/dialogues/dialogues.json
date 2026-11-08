@@ -6540,6 +6540,25 @@
       ]
     },
     {
+      "id": "050_nailist_032",
+      "residentId": "050_nailist",
+      "text": "おやすみくんって好きな女の子にも割り勘するタイプでしょ～",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "027_daydreamer"
+        }
+      ],
+      "reply": {
+        "residentId": "027_daydreamer",
+        "text": "ぼくおかねないもふ。おごってもらうもふ～"
+      },
+      "closing": "絶対ナシ！ナシ！"
+    },
+    {
       "id": "031_kimono_fox_003",
       "residentId": "031_kimono_fox",
       "text": "上手に生けなあかん、なんて思わんでよろし。花の顔をよう見てあげるのが、最初のお稽古どす。",
@@ -7391,6 +7410,43 @@
         "text": "藻と恋人を比べないで！"
       },
       "closing": "がもいるもふ〜"
+    },
+    {
+      "id": "027_daydreamer_009",
+      "residentId": "027_daydreamer",
+      "text": "じゃあ、おべんとうもっていくもふ〜",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "050_nailist"
+        }
+      ],
+      "reply": {
+        "residentId": "050_nailist",
+        "text": "えっ、作れるの？"
+      },
+      "closing": "はっぱをつんでいくもふ"
+    },
+    {
+      "id": "027_daydreamer_010",
+      "residentId": "027_daydreamer",
+      "text": "ごはんは木のはっぱ、コケは自家栽培。ぼく、おかねなくてもいきていけるもふ。生活力高いオトコもふ～",
+      "priority": -1000,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "050_nailist"
+        }
+      ],
+      "reply": {
+        "residentId": "050_nailist",
+        "text": "ちがうから！"
+      }
     },
     {
       "id": "053_penguin_lady_001",

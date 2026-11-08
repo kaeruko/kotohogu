@@ -165,6 +165,9 @@ class TownTimedEvents {
   }
   bool takesOver(TownArea area) => eventFor(area)?.mode == 'replace';
 
+  bool get nailistOyasumiAfterWork =>
+      eventFor(TownArea.park)?.id == 'nailist_oyasumi_after_work';
+
   // A scheduled event can take over an area even when its host is unowned.
   // The host gates the optional participants, without granting ownership.
   List<TownResident> _ownedCast(TimedEventDefinition event) {

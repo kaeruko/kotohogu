@@ -36,6 +36,32 @@
         }
       ],
       "hostResidentId": "042_senior_dog"
+    },
+    {
+      "id": "nailist_oyasumi_after_work",
+      "label": "仕事帰りの公園・ネイリストとおやすみくん",
+      "areaId": "park",
+      "schedule": {
+        "start": "17:00",
+        "end": "18:00",
+        "weekdays": []
+      },
+      "mode": "add",
+      "requiresOwned": true,
+      "residents": [
+        {
+          "residentId": "050_nailist",
+          "x": 0.37,
+          "y": 0.66,
+          "stay": true
+        },
+        {
+          "residentId": "027_daydreamer",
+          "x": 0.6,
+          "y": 0.66,
+          "stay": true
+        }
+      ]
     }
   ]
 }

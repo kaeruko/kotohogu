@@ -207,10 +207,11 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                       ownedResidents: widget.residents.where((resident) =>
                         resident != familyOutingDaughter ||
                         widget.debugTownResidents != null ||
-                        !_visit.isFamilyOuting(
-                          widget.residents, widget.lifetimePoints,
-                          afterOyasumiClub: widget.afterOyasumiClub,
-                        )).toList(),
+                        (widget.timedEvents?.nailistOyasumiAfterWork != true &&
+                         !_visit.isFamilyOuting(
+                           widget.residents, widget.lifetimePoints,
+                           afterOyasumiClub: widget.afterOyasumiClub,
+                         ))).toList(),
                       previewUnownedResidents: developerToolsAvailable &&
                           widget.salonUnlockMode == SalonUnlockDebugMode.forceOpen,
                       onResident: widget.onSalonResident,
@@ -233,6 +234,8 @@ class _TownAreaNavigatorState extends State<TownAreaNavigator> {
                 visit: _visit,
                 debugOverride: widget.debugTownResidents,
                 afterOyasumiClub: widget.afterOyasumiClub,
+                suspendFamilyOuting:
+                    widget.timedEvents?.nailistOyasumiAfterWork ?? false,
               ),
               onResident: widget.onResident,
             ),
