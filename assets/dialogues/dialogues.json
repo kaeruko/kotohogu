@@ -7558,6 +7558,15 @@
       "conditions": []
     },
     {
+      "id": "054_tanuki_002",
+      "residentId": "054_tanuki",
+      "text": "女性との会話について、ネットで勉強したんだ。まず、相手の話を最後まで聞く。否定しない。共感する。それで、共感できない場合の返答パターンも32種類用意した",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
       "id": "020_yagi_001",
       "residentId": "020_yagi",
       "text": "こんにちは！よろしくね。",
