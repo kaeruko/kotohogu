@@ -14,6 +14,14 @@ class TownAreaCmsTests(unittest.TestCase):
         original = DART.read_text(encoding="utf-8")
         self.assertEqual(generate_town_areas(original, areas), original)
 
+    def test_library_is_a_stable_editable_area(self):
+        areas = validate_areas(load_areas())
+        library = areas['areas'][4]
+        self.assertEqual(library['id'], 'library')
+        self.assertEqual(library['unlockAt'], 390)
+        self.assertEqual(library['backgroundAsset'], 'assets/kotohogu/library_background_001.png')
+        self.assertIn('library("library",', generate_town_areas(DART.read_text(encoding='utf-8'), areas))
+
     def test_area_name_description_and_threshold_generate_flutter(self):
         modified = copy.deepcopy(load_areas())
         modified["areas"][1]["label"] = "新しい森の公園"

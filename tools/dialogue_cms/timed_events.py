@@ -9,7 +9,7 @@ from characters import commit_files, load_catalog
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'assets/events/timed_events.json'
 DART = ROOT / 'lib/timed_events_config.g.dart'
-AREAS = {'plaza', 'park', 'shopping', 'village', 'hospital'}
+AREAS = {'plaza', 'park', 'shopping', 'village', 'library', 'hospital'}
 MODES = {'replace', 'add', 'exclude'}
 
 

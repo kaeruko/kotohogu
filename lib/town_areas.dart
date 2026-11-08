@@ -11,6 +11,7 @@ enum TownArea {
   park("park", "ふれあい公園", "お散歩やおしゃべりを楽しむ場所。", 90, "assets/kotohogu/park_background_001.png", 768, 1376),
   shopping("shopping", "ことほぎ商店街", "お店と仕事の話が聞こえてくる通り。", 180, "assets/kotohogu/street_background_001.png", 768, 1376),
   village("village", "のんびり里", "畑とおうちで、それぞれのペースで暮らす場所。", 300, "assets/kotohogu/village_background_001.png", 941, 1672),
+  library("library", "ことほぎ図書館", "本を読んだり、学んだり、静かに過ごせる場所。", 390, "assets/kotohogu/library_background_001.png", 941, 1672),
   hospital("hospital", "びょういん", "せんせいがみんなを迎える、花に囲まれた動物病院。", 0, "assets/kotohogu/hospital_background_001.png", 941, 1672);
   // END CMS TOWN AREAS
 
@@ -161,6 +162,12 @@ class TownVisit {
     // constrain or weight random outings. Only 'salon' means indoor-only.
     TownArea.fromId(homeAreaId);
     if (!walkInTown) return null;
+    // After the library opens, Pochakun has a regular place to work and chat.
+    // Before then, he still visits the ordinary unlocked neighborhoods.
+    if (residentId == TownResident.c054_tanuki.id &&
+        TownArea.library.isUnlocked(lifetimePoints)) {
+      return TownArea.library;
+    }
     if (marcheOpen && residentId == tonkoMarcheOwner.id) {
       return TownArea.plaza;
     }

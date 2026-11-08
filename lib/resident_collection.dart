@@ -145,7 +145,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c024_nurse("024_nurse", "ナースさん", "024_nurse", true, true, "ことほぎのまちで働く、穏やかで頼りになる看護師さん。忙しい人の事情にも耳を傾けながら、健診結果を確認することや、痛み・不調を我慢せず早めに受診することの大切さを伝えている。怖がらせず、必要なことははっきりと話す。", "shopping", archived: false),
   // ignore: constant_identifier_names
-  c054_tanuki("054_tanuki", "ぽちゃくん", "054_tanuki", true, true, "", "plaza", archived: false),
+  c054_tanuki("054_tanuki", "ぽちゃくん", "054_tanuki", true, true, "", "library", archived: false),
   // ignore: constant_identifier_names
   c020_yagi("020_yagi", "パソコンくん", "020_yagi", true, true, "", "plaza", archived: false)
   // END CMS RESIDENTS

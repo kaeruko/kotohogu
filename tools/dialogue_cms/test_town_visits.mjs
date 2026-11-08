@@ -84,3 +84,16 @@ test('salon membership is the only editable resident placement exception',()=>{
   assert.throws(()=>ctx.setSalonMembership(owner,false),/固定/);
   assert.equal(owner.homeAreaId,'salon');
 });
+
+test('Pochakun uses library after unlock and random outings before unlock',()=>{
+  const residentTanuki=resident('054_tanuki','library');
+  const locations=new Map();
+  const noDraw=()=>{throw Error('Library placement must not draw');};
+  assert.equal(destination(residentTanuki,['plaza','park','shopping','village','library'],locations,false,noDraw),'library');
+  assert.equal(locations.size,0);
+  let draws=0;
+  assert.equal(destination(residentTanuki,['plaza','park'],locations,false,()=>{draws++;return .25;}),'plaza');
+  assert.equal(draws,1);
+  assert.equal(destination(residentTanuki,['plaza','park','shopping','village','library'],locations,false,noDraw),'library');
+  assert.equal(destination(resident('054_tanuki','salon'),['library'],locations,false,noDraw),null);
+});

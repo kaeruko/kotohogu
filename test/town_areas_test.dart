@@ -16,6 +16,9 @@ void main() {
   test('stable area IDs and lifetime unlock thresholds', () {
     expect(TownArea.fromId('plaza'), TownArea.plaza);
     expect(TownArea.fromId('shopping'), TownArea.shopping);
+    expect(TownArea.fromId('library'), TownArea.library);
+    expect(TownArea.library.backgroundAsset,
+        'assets/kotohogu/library_background_001.png');
     expect(TownArea.park.backgroundAsset,
         'assets/kotohogu/park_background_001.png');
     expect(TownArea.plaza.backgroundAsset,
@@ -28,6 +31,8 @@ void main() {
     expect(TownArea.park.isUnlocked(90), true);
     expect(TownArea.village.isUnlocked(299), false);
     expect(TownArea.village.isUnlocked(300), true);
+    expect(TownArea.library.isUnlocked(389), false);
+    expect(TownArea.library.isUnlocked(390), true);
   });
 
   test('area pagination counts only actually unlocked neighborhoods', () {
@@ -39,7 +44,13 @@ void main() {
         [TownArea.plaza, TownArea.park, TownArea.shopping]);
     expect(unlockedTownAreas(299),
         [TownArea.plaza, TownArea.park, TownArea.shopping]);
-    expect(unlockedTownAreas(300), TownArea.values.where((area) => area != TownArea.hospital));
+    expect(unlockedTownAreas(300),
+        [TownArea.plaza, TownArea.park, TownArea.shopping, TownArea.village]);
+    expect(unlockedTownAreas(389).length, 4);
+    expect(unlockedTownAreas(390), [
+      TownArea.plaza, TownArea.park, TownArea.shopping,
+      TownArea.village, TownArea.library,
+    ]);
     expect(() => unlockedTownAreas(90).add(TownArea.village),
         throwsUnsupportedError);
   });
@@ -90,7 +101,7 @@ void main() {
   test('outdoor outing destination ignores legacy home metadata', () {
     // Outdoor homeAreaId values remain in old catalogs for compatibility,
     // but every walker can visit every opened area with equal chance.
-    for (final legacy in ['plaza', 'park', 'shopping', 'village']) {
+    for (final legacy in ['plaza', 'park', 'shopping', 'village', 'library']) {
       final rng = ScriptedTownRandom([2]);
       final visit = TownVisit(random: rng);
       final first = visit.destinationFor(
@@ -109,6 +120,30 @@ void main() {
       expect(repeat, first);
       expect(rng.calls, 1, reason: 'Do not redraw while in the same town visit');
     }
+  });
+
+  test('Pochakun can roam before unlock but stays at the library afterward', () {
+    const tanuki = TownResident.c054_tanuki;
+    expect(tanuki.homeAreaId, 'library');
+    final rng = ScriptedTownRandom([0]);
+    final visit = TownVisit(random: rng);
+    expect(residentCurrentArea(tanuki, 389, visit: visit), TownArea.plaza);
+    expect(residentCurrentArea(tanuki, 390, visit: visit), TownArea.library);
+    expect(rng.calls, 1, reason: 'The library placement needs no random draw');
+    expect(areaResidents([tanuki], TownArea.library,
+        lifetimePoints: 390, visit: visit), [tanuki]);
+    expect(areaResidents([tanuki], TownArea.plaza,
+        lifetimePoints: 390, visit: visit), isEmpty);
+    expect(areaResidents([tanuki], TownArea.library,
+        lifetimePoints: 0, visit: visit, debugOverride: [tanuki]), [tanuki]);
+    expect(() => visit.destinationFor(
+      residentId: tanuki.id, walkInTown: false, homeAreaId: 'library',
+      lifetimePoints: 390,
+    ), returnsNormally);
+    expect(visit.destinationFor(
+      residentId: tanuki.id, walkInTown: false, homeAreaId: 'library',
+      lifetimePoints: 390,
+    ), isNull);
   });
 
   test('salon walking flag does not put an indoor resident outdoors', () {
@@ -591,6 +626,40 @@ void main() {
     expect(find.text('4 / 4'), findsOneWidget);
     expect(find.byKey(const ValueKey('town-area-next')), findsNothing);
     expect(find.byKey(const ValueKey('town-area-previous')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('new library can be reached after 390 kotohogi', (tester) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    var area = TownArea.village;
+    var points = 389;
+    Widget scene() => MaterialApp(
+      home: Scaffold(body: TownAreaNavigator(
+        area: area,
+        lifetimePoints: points,
+        residents: const [TownResident.c054_tanuki],
+        onAreaChanged: (next) => area = next,
+      )),
+    );
+    await tester.pumpWidget(scene());
+    expect(find.byKey(const ValueKey('town-area-next')), findsNothing);
+    expect(find.text('4 / 4'), findsOneWidget);
+    points = 390;
+    await tester.pumpWidget(scene());
+    expect(find.byKey(const ValueKey('town-area-next')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('town-area-next')));
+    await tester.pump();
+    expect(area, TownArea.library);
+    await tester.pumpWidget(scene());
+    await tester.pump();
+    expect(find.text('ことほぎ図書館'), findsOneWidget);
+    expect(find.text('5 / 5'), findsOneWidget);
+    expect(find.byKey(const ValueKey('town-background')), findsOneWidget);
+    expect(find.byKey(const ValueKey('resident-sprite-0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('town-area-next')), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });

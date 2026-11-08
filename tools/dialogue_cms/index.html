@@ -179,7 +179,7 @@ nav button[aria-selected="false"]{background:#f7e9d1;color:#693d2c}
 <script>
 "use strict";
 let residents={};
-const areaLabels={"plaza":"⛩️ 中央ひろば","park":"🌳 ふれあい公園","shopping":"🏮 ことほぎ商店街","village":"🌱 のんびり里","salon":"💇 桜の美容室（里山の室内）"};
+const areaLabels={"plaza":"⛩️ 中央ひろば","park":"🌳 ふれあい公園","shopping":"🏮 ことほぎ商店街","village":"🌱 のんびり里","library":"📚 ことほぎ図書館","salon":"💇 桜の美容室（里山の室内）"};
 const missions={"all":"全ミッション合計","strength":"筋力を使った","outside":"外に出た・歩いた","conversation":"人と話した","movement":"身体を動かした","sittingBreak":"座りっぱなしを途中でやめた","food":"食事をひとつ整えた","hobby":"趣味や学びを楽しんだ","weeklyStrength":"筋トレをした","weeklyActive":"息が弾む運動を楽しんだ","weeklyTogether":"誰かと一緒に活動した","weeklyLearn":"新しいことを学んだ・試した","monthlyCommunity":"地域の活動に参加した","monthlyHabit":"健康習慣をひとつ工夫した","monthlyReview":"今月の言祝ぎを振り返った"};
 const modes={"exact":"指定日","range":"指定期間","annual":"毎年の指定日","annual_range":"毎年の期間","weekday":"毎週の曜日"};
 const byId=id=>document.getElementById(id);
@@ -905,6 +905,7 @@ function previewOutingArea(resident,unlockedIds,destinations,marcheOpen,random=M
   if(resident.homeAreaId==="salon"||!resident.walkInTown)return null;
   if(resident.id==="004_neko")return "hospital";
   unlockedIds=unlockedIds.filter(id=>id!=="hospital");
+  if(resident.id==="054_tanuki"&&unlockedIds.includes("library"))return "library";
   if(marcheOpen&&resident.id==="041_pig_middle")return "plaza";
   if(!unlockedIds.length)throw Error("開放済みエリアがありません");
   if(!destinations.has(resident.id)){
@@ -936,7 +937,7 @@ function renderAreaPreview(){
     }
     if(!resident.walkInTown){hidden.push(resident.label);continue;}
     const dest=previewOutingArea(resident,unlockedIds,areaPreviewDestinations,marche);
-    groups[dest].push(resident.label+(marche&&resident.id==="041_pig_middle"?"（店番）":"（お出かけ）"));
+    groups[dest].push(resident.label+(marche&&resident.id==="041_pig_middle"?"（店番）":resident.id==="054_tanuki"&&dest==="library"?"（図書館にいる）":"（お出かけ）"));
   }
   const selectedArea=areaDoc.areas.find(area=>area.id===activeArea);
   const selected=append(root,"div");selected.className="area-result area-result-selected";

@@ -92,3 +92,7 @@ CMS の `oyasumiClub` 条件 `{"type":"oyasumiClub","completed":false}` をカ�
 ## 仕事帰りの公園：ネイリストとおやすみくん
 
 ふたりをガチャでお迎え済みなら、毎日17:00〜18:00に公園で並ぶ。イベント定義は `assets/events/timed_events.json` の `nailist_oyasumi_after_work`（通常住民への追加表示）で、朝の体操や夜のおやすみクラブとは時間が重ならない。イベント中はネイリストを美容室から外し、親子の商店街お出かけは一時的に休止する（その滞在の抽選結果は保持）。どちらをタップしても `050_nailist_032` → `027_daydreamer_009` → `027_daydreamer_010` の順で3本の掛け合いを繰り返す。通常抽選に混ぜないため各セリフは `priority=-1000`、`townTogether` 条件を使用。デバッグの強制住民表示中は発生しない。
+
+## 図書館エリアとぽちゃくん
+
+`assets/kotohogu/library_background_001.png` を背景に、のんびり里の次に「ことほぎ図書館」（TownArea.library）を追加。累積390ことほぎで開放。図書館の追加は `assets/town/areas.json` と CMS生成 `lib/town_areas.dart` を同期する。ぽちゃくん（054_tanuki）は図書館が開くまではほかの住民と同じく屋外エリアにお出かけし、開放後は図書館に固定配置。`homeAreaId=library` はデバッグ表示のためにも保持し、図書館以外の一般住民のランダム配置は変更しない。町の左右矢印、スワイプ、開放ページ数、CMSエリア編集と配置プレビューの対象にもなる。ストア反映にはFlutterアプリの再ビルドが必要。

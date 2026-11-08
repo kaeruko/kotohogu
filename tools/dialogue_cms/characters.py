@@ -23,7 +23,7 @@ DART_END = "  // END CMS RESIDENTS"
 ASSETS_START = "    # BEGIN CMS CHARACTER ASSETS"
 ASSETS_END = "    # END CMS CHARACTER ASSETS"
 FIELDS = {"key", "id", "label", "profile", "artFolder", "inGacha", "walkInTown", "nextDialogueNumber", "homeAreaId"}
-AREA_IDS = {"plaza", "park", "shopping", "village", "salon"}
+AREA_IDS = {"plaza", "park", "shopping", "village", "library", "salon"}
 DIRECTIONS = ("front", "back", "left", "right")
 
 

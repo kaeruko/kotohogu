@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 AREAS = ROOT / "assets" / "town" / "areas.json"
 DART = ROOT / "lib" / "town_areas.dart"
-AREA_IDS = ("plaza", "park", "shopping", "village", "hospital")
+AREA_IDS = ("plaza", "park", "shopping", "village", "library", "hospital")
 START = "  // BEGIN CMS TOWN AREAS"
 END = "  // END CMS TOWN AREAS"
 FIELDS = {
