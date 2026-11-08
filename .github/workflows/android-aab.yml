@@ -7,7 +7,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: kotohogu-android-release-version
+  group: kotohogu-release-version
   cancel-in-progress: false
 
 jobs:
