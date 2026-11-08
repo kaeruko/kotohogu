@@ -625,6 +625,20 @@ void main() {
     expect(find.byKey(const ValueKey('town-area-next')), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
+  test('after-work dialogue cycles in order no matter who was tapped', () {
+    final visit = TownVisit();
+    final nailist = TownResident.c050_nailist;
+    final sloth = TownResident.c027_daydreamer;
+    final first = visit.nextAfterWorkDialogue(sloth);
+    expect(first.id, '050_nailist_032');
+    expect(first.speaker, nailist);
+    expect(visit.nextAfterWorkDialogue(nailist).id, '027_daydreamer_009');
+    expect(visit.nextAfterWorkDialogue(sloth).id, '027_daydreamer_010');
+    expect(visit.nextAfterWorkDialogue(nailist).id, '050_nailist_032');
+    expect(() => visit.nextAfterWorkDialogue(TownResident.shiba),
+        throwsArgumentError);
+  });
+
 }
 
 /// Read only the PNG IHDR / JPEG SOF size fields; no asynchronous image
@@ -679,18 +693,4 @@ void main() {
     throw const FormatException('JPEG has no supported SOF segment');
   }
   throw const FormatException('Only PNG and JPEG town art is supported');
-  test('after-work dialogue cycles in order no matter who was tapped', () {
-    final visit = TownVisit();
-    final nailist = TownResident.c050_nailist;
-    final sloth = TownResident.c027_daydreamer;
-    final first = visit.nextAfterWorkDialogue(sloth);
-    expect(first.id, '050_nailist_032');
-    expect(first.speaker, nailist);
-    expect(visit.nextAfterWorkDialogue(nailist).id, '027_daydreamer_009');
-    expect(visit.nextAfterWorkDialogue(sloth).id, '027_daydreamer_010');
-    expect(visit.nextAfterWorkDialogue(nailist).id, '050_nailist_032');
-    expect(() => visit.nextAfterWorkDialogue(TownResident.shiba),
-        throwsArgumentError);
-  });
-
 }
