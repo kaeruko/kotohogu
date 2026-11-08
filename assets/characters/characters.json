@@ -330,6 +330,17 @@
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
+    },
+    {
+      "key": "c020_yagi",
+      "id": "020_yagi",
+      "label": "パソコンくん",
+      "profile": "",
+      "artFolder": "020_yagi",
+      "nextDialogueNumber": 2,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
     }
   ]
 }

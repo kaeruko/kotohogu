@@ -7556,6 +7556,15 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "020_yagi_001",
+      "residentId": "020_yagi",
+      "text": "こんにちは！よろしくね。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }
