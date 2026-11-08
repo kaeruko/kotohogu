@@ -12,7 +12,7 @@ void main() {
       for (final entry in catalog.entries)
         if (entry.residentId == TownResident.c054_tanuki.id) entry.id: entry,
     };
-    expect(lines, hasLength(12));
+    expect(lines, hasLength(17));
     for (var number = 3; number <= 12; number++) {
       final id = '054_tanuki_${number.toString().padLeft(3, '0')}';
       expect(lines, contains(id));
@@ -51,6 +51,55 @@ void main() {
       expect(line.reply?.residentId, pair.$2.id);
       expect(line.reply?.text, isNotEmpty);
       expect(line.closing, isNotEmpty);
+    }
+  });
+
+  test('new library conversations require the other speaker and 390 points', () async {
+    final catalog = await DialogueCatalog.load();
+    final before = Progress.empty(DateTime(2026, 11, 9));
+    final opened = Progress(
+      day: '2026-11-09', lastCompletedDay: null,
+      points: 390, completed: {},
+    );
+    final now = DateTime.utc(2026, 11, 9);
+    const tanuki = TownResident.c054_tanuki;
+    const yagi = TownResident.c020_yagi;
+    final pairs = [
+      for (var n = 13; n <= 17; n++)
+        ('054_tanuki_${n.toString().padLeft(3, '0')}', tanuki, yagi),
+      for (var n = 2; n <= 4; n++)
+        ('020_yagi_${n.toString().padLeft(3, '0')}', yagi, tanuki),
+    ];
+    for (final (id, speaker, companion) in pairs) {
+      final line = catalog.entries.singleWhere((entry) => entry.id == id);
+      expect(line.reply?.residentId, companion.id);
+      expect(line.closing, isNotEmpty);
+      expect(line.conditions.any((c) =>
+          c.fields['type'] == 'kotohogi' && c.fields['min'] == 390), isTrue);
+      expect(line.conditions.any((c) =>
+          c.fields['type'] == 'townTogether' &&
+          c.fields['otherResidentId'] == companion.id), isTrue);
+      expect(() => catalog.selectById(
+          id: id, resident: speaker, progress: before, now: now,
+          townResidentIds: {speaker.id, companion.id}, site: 'town',
+        ), throwsStateError, reason: 'Before unlocking: $id');
+      expect(() => catalog.selectById(
+          id: id, resident: speaker, progress: opened, now: now,
+          townResidentIds: {speaker.id}, site: 'town',
+        ), throwsStateError, reason: 'Other speaker absent: $id');
+      expect(catalog.selectById(
+        id: id, resident: speaker, progress: opened, now: now,
+        townResidentIds: {speaker.id, companion.id}, site: 'town',
+      ).id, id);
+    }
+    for (final id in ['020_yagi_005', '020_yagi_006']) {
+      final line = catalog.entries.singleWhere((e) => e.id == id);
+      expect(line.reply, isNull);
+      expect(line.conditions.single.fields['min'], 390);
+      expect(catalog.selectById(
+        id: id, resident: yagi, progress: opened, now: now,
+        site: 'town', townResidentIds: {yagi.id},
+      ).id, id);
     }
   });
 }

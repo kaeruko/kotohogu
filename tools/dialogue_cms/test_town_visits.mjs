@@ -97,3 +97,15 @@ test('Pochakun uses library after unlock and random outings before unlock',()=>{
   assert.equal(destination(residentTanuki,['plaza','park','shopping','village','library'],locations,false,noDraw),'library');
   assert.equal(destination(resident('054_tanuki','salon'),['library'],locations,false,noDraw),null);
 });
+
+test('Pochakun and Pasokon-kun meet in the library after unlock',()=>{
+  const visitors=['054_tanuki','020_yagi'];
+  const positions=new Map();
+  const fixed=()=>{throw Error('Library placement must not draw');};
+  for(const id of visitors){
+    const walker=resident(id,'library');
+    assert.equal(destination(walker,['plaza','park','shopping','village','library'],positions,false,fixed),'library');
+    assert.equal(destination(walker,['plaza','park'],positions,false,()=>0),'plaza');
+  }
+  assert.equal(positions.size,2);
+});

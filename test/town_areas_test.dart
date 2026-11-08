@@ -146,6 +146,25 @@ void main() {
     ), isNull);
   });
 
+  test('Pasokon-kun joins Pochakun at the unlocked library', () {
+    const members = [TownResident.c054_tanuki, TownResident.c020_yagi];
+    expect(TownResident.c020_yagi.homeAreaId, 'library');
+    final visit = TownVisit(random: ScriptedTownRandom([0, 1]));
+    expect(areaResidents(members, TownArea.library,
+        lifetimePoints: 389, visit: visit), isEmpty);
+    expect(residentCurrentArea(TownResident.c020_yagi, 389, visit: visit),
+        TownArea.park);
+    expect(areaResidents(members, TownArea.library,
+        lifetimePoints: 390, visit: visit), members);
+    for (final area in [TownArea.plaza, TownArea.park,
+        TownArea.shopping, TownArea.village]) {
+      expect(areaResidents(members, area,
+          lifetimePoints: 390, visit: visit), isEmpty);
+    }
+    expect(areaResidents(const [], TownArea.library,
+        lifetimePoints: 0, visit: visit, debugOverride: members), members);
+  });
+
   test('salon walking flag does not put an indoor resident outdoors', () {
     const rio = TownResident.c038_lion_lady;
     final visit = TownVisit(random: ScriptedTownRandom([]));

@@ -95,4 +95,4 @@ CMS の `oyasumiClub` 条件 `{"type":"oyasumiClub","completed":false}` をカ�
 
 ## 図書館エリアとぽちゃくん
 
-`assets/kotohogu/library_background_001.png` を背景に、のんびり里の次に「ことほぎ図書館」（TownArea.library）を追加。累積390ことほぎで開放。図書館の追加は `assets/town/areas.json` と CMS生成 `lib/town_areas.dart` を同期する。ぽちゃくん（054_tanuki）は図書館が開くまではほかの住民と同じく屋外エリアにお出かけし、開放後は図書館に固定配置。`homeAreaId=library` はデバッグ表示のためにも保持し、図書館以外の一般住民のランダム配置は変更しない。町の左右矢印、スワイプ、開放ページ数、CMSエリア編集と配置プレビューの対象にもなる。ストア反映にはFlutterアプリの再ビルドが必要。
+`assets/kotohogu/library_background_001.png` を背景に、のんびり里の次に「ことほぎ図書館」（TownArea.library）を追加。累積390ことほぎで開放。図書館の追加は `assets/town/areas.json` と CMS生成 `lib/town_areas.dart` を同期する。ぽちゃくん（054_tanuki）とパソコンくん（020_yagi）は図書館が開くまではほかの住民と同じく屋外エリアにお出かけし、開放後は図書館に固定配置。ふたりの図書館での掛け合いは、累計390ことほぎ以上かつ同じエリアにいるときだけ抽選対象になる。ふたりの `homeAreaId=library` はデバッグ表示のためにも保持し、図書館以外の一般住民のランダム配置は変更しない。町の左右矢印、スワイプ、開放ページ数、CMSエリア編集と配置プレビューの対象にもなる。ストア反映にはFlutterアプリの再ビルドが必要。

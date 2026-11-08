@@ -905,7 +905,7 @@ function previewOutingArea(resident,unlockedIds,destinations,marcheOpen,random=M
   if(resident.homeAreaId==="salon"||!resident.walkInTown)return null;
   if(resident.id==="004_neko")return "hospital";
   unlockedIds=unlockedIds.filter(id=>id!=="hospital");
-  if(resident.id==="054_tanuki"&&unlockedIds.includes("library"))return "library";
+  if(["054_tanuki","020_yagi"].includes(resident.id)&&unlockedIds.includes("library"))return "library";
   if(marcheOpen&&resident.id==="041_pig_middle")return "plaza";
   if(!unlockedIds.length)throw Error("開放済みエリアがありません");
   if(!destinations.has(resident.id)){
@@ -937,7 +937,7 @@ function renderAreaPreview(){
     }
     if(!resident.walkInTown){hidden.push(resident.label);continue;}
     const dest=previewOutingArea(resident,unlockedIds,areaPreviewDestinations,marche);
-    groups[dest].push(resident.label+(marche&&resident.id==="041_pig_middle"?"（店番）":resident.id==="054_tanuki"&&dest==="library"?"（図書館にいる）":"（お出かけ）"));
+    groups[dest].push(resident.label+(marche&&resident.id==="041_pig_middle"?"（店番）":["054_tanuki","020_yagi"].includes(resident.id)&&dest==="library"?"（図書館にいる）":"（お出かけ）"));
   }
   const selectedArea=areaDoc.areas.find(area=>area.id===activeArea);
   const selected=append(root,"div");selected.className="area-result area-result-selected";

@@ -162,9 +162,10 @@ class TownVisit {
     // constrain or weight random outings. Only 'salon' means indoor-only.
     TownArea.fromId(homeAreaId);
     if (!walkInTown) return null;
-    // After the library opens, Pochakun has a regular place to work and chat.
-    // Before then, he still visits the ordinary unlocked neighborhoods.
-    if (residentId == TownResident.c054_tanuki.id &&
+    // Pochakun and Pasokon-kun meet at the library once it opens.
+    // Before then, they still visit ordinary unlocked neighborhoods.
+    if ((residentId == TownResident.c054_tanuki.id ||
+         residentId == TownResident.c020_yagi.id) &&
         TownArea.library.isUnlocked(lifetimePoints)) {
       return TownArea.library;
     }

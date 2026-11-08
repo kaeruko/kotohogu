@@ -147,7 +147,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c054_tanuki("054_tanuki", "ぽちゃくん", "054_tanuki", true, true, "", "library", archived: false),
   // ignore: constant_identifier_names
-  c020_yagi("020_yagi", "パソコンくん", "020_yagi", true, true, "", "plaza", archived: false)
+  c020_yagi("020_yagi", "パソコンくん", "020_yagi", true, true, "", "library", archived: false)
   // END CMS RESIDENTS
   ;
 

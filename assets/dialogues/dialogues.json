@@ -7702,6 +7702,121 @@
       "closing": "おひるねは頑張らなくていいんだよ……"
     },
     {
+      "id": "054_tanuki_013",
+      "residentId": "054_tanuki",
+      "text": "女の子と話すときは、まず共感するんだって。『大変だったね』『頑張ったね』……それで、ほかには？",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "うん、でも今の、ぼくが本を返してきた話なんだけど……"
+      },
+      "closing": "あっ、話の内容も判断しないといけないのかぁ"
+    },
+    {
+      "id": "054_tanuki_014",
+      "residentId": "054_tanuki",
+      "text": "褒める練習してるんだ。パソコンくん、そのメガネも服も似合ってるし、笑顔もすてきで……",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "えっ、ぼくで練習してたの？ なんだか照れるなぁ"
+      },
+      "closing": "褒めすぎてもダメなのかぁ。むずかしい……"
+    },
+    {
+      "id": "054_tanuki_015",
+      "residentId": "054_tanuki",
+      "text": "この前、図書館で女の人が笑顔で話しかけてくれたんだ！ 脈ありかな！？",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "へえ、なんて言われたの？"
+      },
+      "closing": "『図書館ではお静かに』って……あれ、注意だった？"
+    },
+    {
+      "id": "054_tanuki_016",
+      "residentId": "054_tanuki",
+      "text": "デートの行程表を作ったんだ。雨の日も、電車が遅れた日も、ぜんぶ対応できるよ！",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "へえ、誰と行くの？"
+      },
+      "closing": "……相手はまだ決まってない"
+    },
+    {
+      "id": "054_tanuki_017",
+      "residentId": "054_tanuki",
+      "text": "スマホの設定ならすぐ教えられるのに、女の子の前だと『Pythonも使えます！』って自己PRしちゃうんだ……",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "020_yagi"
+        }
+      ],
+      "reply": {
+        "residentId": "020_yagi",
+        "text": "困ってることを先に聞いてあげたらいいんじゃない？"
+      },
+      "closing": "そ、それだけでいいの……？"
+    },
+    {
       "id": "020_yagi_001",
       "residentId": "020_yagi",
       "text": "こんにちは！よろしくね。",
@@ -7709,6 +7824,103 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "020_yagi_002",
+      "residentId": "020_yagi",
+      "text": "ぽちゃくん、さっきスマホの使い方を教えてあげてたね。すごく自然だったよ",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "054_tanuki"
+        }
+      ],
+      "reply": {
+        "residentId": "054_tanuki",
+        "text": "パソコンのことなら普通に話せるんだけどねぇ……"
+      },
+      "closing": "じゃあ、その普通のぽちゃくんでいいんじゃないかな"
+    },
+    {
+      "id": "020_yagi_003",
+      "residentId": "020_yagi",
+      "text": "ぽちゃくん、ここって静かでいいね。作業がはかどるよ",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "054_tanuki"
+        }
+      ],
+      "reply": {
+        "residentId": "054_tanuki",
+        "text": "誰ともしゃべらなくても、誰かと同じ場所にいられるのが好きなんだ"
+      },
+      "closing": "うん。じゃあ今日は隣で作業させてもらおうかな"
+    },
+    {
+      "id": "020_yagi_004",
+      "residentId": "020_yagi",
+      "text": "妻に『話を聞いてくれてありがとう』って言われたんだ",
+      "priority": 50,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "054_tanuki"
+        }
+      ],
+      "reply": {
+        "residentId": "054_tanuki",
+        "text": "えっ、どの返答パターンを使ったの！？"
+      },
+      "closing": "パターンはないよ。ちゃんと話を聞いただけ"
+    },
+    {
+      "id": "020_yagi_005",
+      "residentId": "020_yagi",
+      "text": "図書館の机って、つい長居しちゃうなぁ。調べものをしてたら、もうこんな時間だ",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        }
+      ]
+    },
+    {
+      "id": "020_yagi_006",
+      "residentId": "020_yagi",
+      "text": "ぽちゃくん、パソコンのことになると本当に頼もしいんだ。ああいうところ、ぼくは好きだなぁ",
+      "priority": 10,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "kotohogi",
+          "min": 390
+        }
+      ]
     }
   ]
 }
