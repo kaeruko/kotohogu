@@ -469,8 +469,10 @@ class CmsTests(unittest.TestCase):
         introductions = [row for row in data["dialogues"]
                          if row.get("firstGreeting") is True]
         resident_ids = {row["id"] for row in load_catalog()["characters"]}
-        self.assertEqual({row["residentId"] for row in introductions}, resident_ids)
-        self.assertEqual(len(introductions), len(resident_ids))
+        # A new resident may have no first greeting yet; registration is optional.
+        greeting_ids = {row["residentId"] for row in introductions}
+        self.assertTrue(greeting_ids.issubset(resident_ids))
+        self.assertEqual(len(introductions), len(greeting_ids))
         validate(data)
         for row in introductions:
             self.assertTrue(row["once"])
