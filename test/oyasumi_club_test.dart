@@ -428,6 +428,22 @@ void main() {
     expect(together.turns.last.text, 'はい！ ふたりとも出席だね。');
   });
 
+  test('joined frog cheers Oyasumi up before the nap', () {
+    final joined = scene(24, saved: const OyasumiProgress(
+        completed: 3, lastNight: '2026-10-23'));
+    expect(joined.stage, 'joined');
+    final exchange = joined.dialogue(frog, 'joined', 4);
+    expect(exchange.turns.map((t) => t.resident).toList(),
+        [frog, host, frog, host, frog]);
+    expect(exchange.turns.map((t) => t.text).toList(), [
+      'おやすみくん、もうちょっとがんばろうよ……',
+      '……かえるくん、ぼくのこときらいになったもふ？',
+      'ならないよ！',
+      'よかったもふ〜。じゃあ、おひるねするもふ',
+      'そういうところだよ！！',
+    ]);
+  });
+
   test('night chatter can be a multi-turn exchange within the event cast', () {
     final messages = (oyasumiConfig['stages']!['watching']!['chatter']!
         [frog.id] as List);

@@ -299,6 +299,30 @@
                 "text": "……すぅ……もふ……"
               }
             ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "おやすみくん、もうちょっとがんばろうよ……"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "……かえるくん、ぼくのこときらいになったもふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "ならないよ！"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "よかったもふ〜。じゃあ、おひるねするもふ"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "そういうところだよ！！"
+              }
+            ]
           }
         ]
       },
