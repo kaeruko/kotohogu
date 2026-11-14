@@ -346,7 +346,9 @@ class OyasumiScene {
 
   bool introduction(TownResident resident, String group) {
     if (group != stage || !active ||
-        resident != (step == 1 ? host : frog)) return false;
+        resident != (step == 1 ? host : frog)) {
+      return false;
+    }
     if (step <= 3) {
       return saved.completed < step &&
           definition['intro']['speaker'] == resident.id;
