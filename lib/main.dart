@@ -930,7 +930,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           throw StateError('CDN catalog not ready for ownership validation');
         }
         try {
-          hosted.catalog.validateSavedResidentIds(progress.residents.counts.keys);
+          hosted.catalog.validateSavedResidentIds(progress.residents.remotelyOwnedIds);
         } catch (error, stack) {
           return Scaffold(
             body: SafeArea(

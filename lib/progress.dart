@@ -776,7 +776,7 @@ class ProgressController extends ChangeNotifier {
     busy = true;
     notifyListeners();
     try {
-      catalog.validateSavedResidentIds(progress!.residents.counts.keys);
+      catalog.validateSavedResidentIds(progress!.residents.remotelyOwnedIds);
       final pool = catalog.gachaPool;
       if (pool.isEmpty) throw StateError('Hosted resident gacha pool is empty');
       final resident = pool[random.nextInt(pool.length)];
