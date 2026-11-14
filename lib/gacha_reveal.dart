@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'consultation_scene.dart';
 import 'gacha_hud.dart';
 import 'progress.dart';
+import 'google_drive_content_source.dart';
+import 'local_content_preview.dart';
 import 'resident_collection.dart';
 
 /// The result was durably saved before navigating here. The animation is
@@ -11,12 +13,17 @@ class GachaReveal extends StatefulWidget {
   const GachaReveal({
     super.key,
     required this.controller,
-    required this.resident,
+    this.resident,
+    this.remoteResident,
+    this.hosted,
     required this.isNew,
-  });
+  }) : assert((resident == null) != (remoteResident == null)),
+       assert((remoteResident == null) == (hosted == null));
 
   final ProgressController controller;
-  final TownResident resident;
+  final TownResident? resident;
+  final RemoteResident? remoteResident;
+  final HostedTownContent? hosted;
   final bool isNew;
 
   @override
@@ -29,8 +36,23 @@ class _GachaRevealState extends State<GachaReveal>
     vsync: this,
     duration: const Duration(milliseconds: 2800),
   );
-  late TownResident _resident = widget.resident;
+  late TownResident? _resident = widget.resident;
+  late RemoteResident? _remoteResident = widget.remoteResident;
   late bool _isNew = widget.isNew;
+
+  String get _residentName => _remoteResident?.label ?? _resident!.label;
+  Widget _residentArtwork() {
+    final hosted = widget.hosted;
+    final remote = _remoteResident;
+    if (hosted != null && remote != null) {
+      return RemoteResidentAvatar(
+        resident: remote, baseUri: hosted.baseUri, size: 570,
+      );
+    }
+    return Image.asset(_resident!.idleAsset,
+      key: const ValueKey('gacha-stage-resident'),
+      fit: BoxFit.contain, excludeFromSemantics: true);
+  }
   bool _drawing = false;
   bool _started = false;
 
@@ -61,16 +83,20 @@ class _GachaRevealState extends State<GachaReveal>
     }
     setState(() => _drawing = true);
     final before = Map<String, int>.of(progress.residents.counts);
-    final resident = await widget.controller.drawResident();
+    final hosted = widget.hosted;
+    final remote = hosted == null
+        ? null : await widget.controller.drawHostedResident(hosted.catalog);
+    final local = hosted == null
+        ? await widget.controller.drawResident() : null;
     if (!mounted) return;
-    if (resident == null) {
-      // The caller retains the original exception and its stack trace.
+    if (remote == null && local == null) {
       Navigator.of(context).pop(false);
       return;
     }
     setState(() {
-      _resident = resident;
-      _isNew = !before.containsKey(resident.id);
+      _resident = local;
+      _remoteResident = remote;
+      _isNew = !before.containsKey(remote?.id ?? local!.id);
       _drawing = false;
     });
     _play();
@@ -142,13 +168,10 @@ class _GachaRevealState extends State<GachaReveal>
                                     offset: Offset(0, (1 - entry) * 55),
                                     child: Transform.scale(
                                       scale: entry,
-                                      child: Image.asset(
-                                        _resident.idleAsset,
+                                      child: KeyedSubtree(
                                         key: const ValueKey(
-                                          'gacha-stage-resident',
-                                        ),
-                                        fit: BoxFit.contain,
-                                        excludeFromSemantics: true,
+                                            'gacha-stage-resident'),
+                                        child: _residentArtwork(),
                                       ),
                                     ),
                                   ),
@@ -161,8 +184,8 @@ class _GachaRevealState extends State<GachaReveal>
                                   key: const ValueKey('gacha-result'),
                                   liveRegion: true,
                                   label: _isNew
-                                      ? '${_resident.label}が、まちにやってきました！'
-                                      : '${_resident.label}とまた出会いました！',
+                                      ? '${_residentName}が、まちにやってきました！'
+                                      : '${_residentName}とまた出会いました！',
                                   child: LayoutBuilder(
                                     builder: (context, bannerSize) {
                                       final bw = bannerSize.maxWidth;
@@ -187,7 +210,7 @@ class _GachaRevealState extends State<GachaReveal>
                                             child: FittedBox(
                                               fit: BoxFit.scaleDown,
                                               child: Text(
-                                                _resident.label,
+                                                _residentName,
                                                 key: const ValueKey(
                                                   'gacha-banner-resident-name',
                                                 ),
@@ -262,6 +285,7 @@ class _GachaRevealState extends State<GachaReveal>
                             onResidents: () => showResidentCollection(
                               context,
                               progress.residents,
+                              hosted: widget.hosted,
                             ),
                             onAgain: canRepeat ? _again : null,
                             againLabel: 'もう一度開く（30ことほぎ）',

@@ -4,6 +4,8 @@ import 'consultation_scene.dart';
 import 'gacha_hud.dart';
 import 'gacha_reveal.dart';
 import 'progress.dart';
+import 'google_drive_content_source.dart';
+import 'local_content_preview.dart';
 import 'resident_collection.dart';
 
 /// One consultation meeting welcomes one resident. The old bundle save
@@ -13,8 +15,10 @@ class GachaScreen extends StatefulWidget {
     super.key,
     required this.controller,
     this.autoStart = false,
+    this.hosted,
   });
 
+  final HostedTownContent? hosted;
   final ProgressController controller;
   /// True only for the resident-welcome entry point. Manual entry is retained
   /// for previews and explicit consultation-screen navigation.
@@ -50,14 +54,23 @@ class _GachaScreenState extends State<GachaScreen> {
     setState(() => _drawing = true);
     final existing = Map<String, int>.of(progress.residents.counts);
     try {
-      final result = await widget.controller.drawResident();
-      if (!mounted || result == null) return;
+      final hosted = widget.hosted;
+      // The app passes a pinned release here. The packaged enum path is used
+      // exclusively by standalone legacy and widget tests without a loader.
+      final RemoteResident? remote = hosted == null
+          ? null : await widget.controller.drawHostedResident(hosted.catalog);
+      final TownResident? local = hosted != null
+          ? null : await widget.controller.drawResident();
+      if (!mounted || (remote == null && local == null)) return;
+      final residentId = remote?.id ?? local!.id;
       final town = await Navigator.of(context).push<bool>(
         MaterialPageRoute(
           builder: (_) => GachaReveal(
             controller: widget.controller,
-            resident: result,
-            isNew: !existing.containsKey(result.id),
+            resident: local,
+            remoteResident: remote,
+            hosted: hosted,
+            isNew: !existing.containsKey(residentId),
           ),
         ),
       );
@@ -118,6 +131,7 @@ class _GachaScreenState extends State<GachaScreen> {
                       onResidents: () => showResidentCollection(
                         context,
                         progress.residents,
+                        hosted: widget.hosted,
                       ),
                       onAgain: enabled ? _draw : null,
                       againLabel: '移住相談会を開く（30ことほぎ）',

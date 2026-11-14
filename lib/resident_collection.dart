@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'dev_tools.dart';
 
-int get ownedResidentLimit => TownResident.values.length > 8 ? TownResident.values.length : 8;
+// Current residents and future CDN-defined IDs share this bounded save ledger.
+const int ownedResidentLimit = 512;
+final RegExp residentIdPattern = RegExp(r'^[0-9]{2,}_[a-z][a-z0-9_]*$');
 /// All enabled residents can appear in their assigned town area.
 /// A debug-only override may include unowned/hidden residents without saving them.
 /// An empty override deliberately shows no residents.
@@ -228,7 +230,18 @@ class ResidentCollection {
   final int bonusDraws;
   /// Credits forfeited because the balance would exceed 999.
   final int expiredKotohogi;
-  List<TownResident> get owned => counts.keys.map(TownResident.fromId).toList();
+  /// Native residents keep their existing event-specific enum identity.
+  /// Server-only resident IDs are tracked in the same ledger and rendered
+  /// through the CloudFront model rather than converting unknown IDs.
+  List<TownResident> get owned => [
+    for (final id in counts.keys)
+      for (final native in TownResident.values)
+        if (native.id == id) native,
+  ];
+  List<String> get remotelyOwnedIds => [
+    for (final id in counts.keys)
+      if (!TownResident.values.any((native) => native.id == id)) id,
+  ];
   int get draws => counts.values.fold(0, (a, b) => a + b) - 2 - bonusDraws;
   /// Spendable kotohogi derived from the legacy ticket ledger.
   ///
@@ -256,13 +269,22 @@ class ResidentCollection {
       expiredKotohogi: expiredKotohogi + excess,
     );
   }
-  ResidentCollection acquire(TownResident resident, int points) {
+  ResidentCollection acquire(TownResident resident, int points) =>
+      acquireById(resident.id, points);
+
+  ResidentCollection acquireById(String id, int points) {
+    if (!residentIdPattern.hasMatch(id)) {
+      throw FormatException('Invalid resident ID: $id');
+    }
+    if (!counts.containsKey(id) && counts.length >= ownedResidentLimit) {
+      throw StateError('Resident collection limit reached: $ownedResidentLimit');
+    }
     if (tickets(points) <= 0) {
       throw StateError('No resident tickets available.');
     }
     return ResidentCollection(
       baselinePoints: baselinePoints,
-      counts: {...counts, resident.id: (counts[resident.id] ?? 0) + 1},
+      counts: {...counts, id: (counts[id] ?? 0) + 1},
       debugTicketsGranted: debugTicketsGranted,
       bonusDraws: bonusDraws,
       expiredKotohogi: expiredKotohogi,
@@ -365,7 +387,9 @@ class ResidentCollection {
     }
     final counts = <String, int>{};
     for (final entry in entries.entries) {
-      TownResident.fromId(entry.key);
+      if (!residentIdPattern.hasMatch(entry.key)) {
+        throw FormatException('Invalid resident ID: ${entry.key}');
+      }
       if (entry.value is! int || entry.value < 1) {
         throw FormatException('Invalid resident count: ${entry.key}');
       }

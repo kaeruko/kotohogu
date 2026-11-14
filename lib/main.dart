@@ -1240,6 +1240,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             lifetimePoints: progress.points,
             visit: _townVisit,
             owned: progress.residents.owned,
+            ownedRemoteIds: progress.residents.remotelyOwnedIds,
             debugTownSelectionActive: _debugTownResidents != null,
             debugRemotePreviewEnabled: developerToolsAvailable && _showUnownedPreviewVisitors,
           );
@@ -1257,10 +1258,14 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           afterOyasumiClub: progress.oyasumi.completed >= 3,
           remoteVisitors: visitors,
           remoteContentBaseUri: hosted?.baseUri,
-          onRemoteVisitor: hosted == null ||
-                  !developerToolsAvailable || !_showUnownedPreviewVisitors
-              ? null
-              : (resident) => _showLocalVisitor(hosted, resident),
+          onRemoteVisitor: hosted == null ? null : (resident) {
+            final isOwned = progress.residents.counts.containsKey(resident.id);
+            if (!isOwned &&
+                (!developerToolsAvailable || !_showUnownedPreviewVisitors)) {
+              throw StateError('Unowned resident dialogue blocked: ${resident.id}');
+            }
+            return _showLocalVisitor(hosted, resident);
+          },
           salonUnlockMode: developerToolsAvailable
               ? _salonUnlockMode : SalonUnlockDebugMode.normal,
           onResident: _showDialogue,

@@ -242,6 +242,36 @@ Future<RemoteContentCatalog> fetchLocalContent(Uri baseUri) async {
   }
 }
 
+class RemoteResidentAvatar extends StatelessWidget {
+  const RemoteResidentAvatar({
+    super.key,
+    required this.resident,
+    required this.baseUri,
+    this.size = 80,
+  });
+
+  final RemoteResident resident;
+  final Uri baseUri;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final uri = remoteSpriteUri(baseUri, resident, 'idle_front_01.png');
+    return Image.network(
+      uri.toString(),
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      semanticLabel: resident.label,
+      errorBuilder: (context, error, stackTrace) => Tooltip(
+        message: '配信スプライトの読込エラー: $uri\n$error',
+        child: Icon(Icons.broken_image_outlined, color: Colors.red,
+            size: size * .65),
+      ),
+    );
+  }
+}
+
 class LocalContentPreviewApp extends StatelessWidget {
   const LocalContentPreviewApp({super.key, required this.baseUri});
   final Uri baseUri;

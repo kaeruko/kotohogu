@@ -4,6 +4,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'resident_collection.dart';
+import 'google_drive_content_source.dart';
+import 'local_content_preview.dart';
 
 /// Shared design coordinates for the 1080 x 1920 consultation artwork.
 /// The background, platform, and arrival effects all use the same cover scale.
@@ -130,7 +132,8 @@ class _ConsultationBackgroundState extends State<ConsultationBackground> {
 }
 
 /// Displays the already-owned residents without creating a second gacha economy.
-void showResidentCollection(BuildContext context, ResidentCollection owned) {
+void showResidentCollection(BuildContext context, ResidentCollection owned,
+    {HostedTownContent? hosted}) {
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -174,6 +177,24 @@ void showResidentCollection(BuildContext context, ResidentCollection owned) {
                           ],
                         ),
                       ),
+                    if (hosted != null)
+                      for (final id in owned.remotelyOwnedIds)
+                        SizedBox(
+                          width: 90,
+                          child: Column(
+                            children: [
+                              RemoteResidentAvatar(
+                                resident: hosted.catalog.residentById(id),
+                                baseUri: hosted.baseUri, size: 76,
+                              ),
+                              Text(hosted.catalog.residentById(id).label,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text('累計${owned.counts[id]}回',
+                                  style: const TextStyle(fontSize: 12)),
+                            ],
+                          ),
+                        ),
                   ],
                 ),
               ),

@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'dev_tools.dart';
 import 'resident_collection.dart';
+import 'local_content_preview.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -238,6 +239,24 @@ class Progress {
     lastCompletedDay: lastCompletedDay,
     points: points,
     residents: residents.grantTicketsForDebug(amount),
+    completed: completed,
+    weeklyCompleted: weeklyCompleted,
+    monthlyCompleted: monthlyCompleted,
+    history: history,
+    missionCounts: missionCounts,
+    seenDialogues: seenDialogues,
+    oyasumi: oyasumi,
+    debugResets: debugResets,
+  );
+
+  /// The remote resident was validated against a pinned CDN catalog before
+  /// any points or collection data are mutated.
+  Progress acquireResidentId(String residentId) => Progress(
+      playerName: playerName,
+    day: day,
+    lastCompletedDay: lastCompletedDay,
+    points: points,
+    residents: residents.acquireById(residentId, points),
     completed: completed,
     weeklyCompleted: weeklyCompleted,
     monthlyCompleted: monthlyCompleted,
@@ -740,6 +759,34 @@ class ProgressController extends ChangeNotifier {
     } catch (error, stack) {
       failure = ProgressFailure('ミッション ${mission.name} の達成保存', error, stack);
       return false;
+    } finally {
+      _finishOperation();
+    }
+  }
+
+  /// Production gacha: one immutable CDN catalog defines the complete pool.
+  /// Save is committed before the new resident is shown to the player.
+  Future<RemoteResident?> drawHostedResident(RemoteContentCatalog catalog) async {
+    if (busy ||
+        failure != null ||
+        progress == null ||
+        progress!.residents.availableKotohogi(progress!.points) < 30) {
+      return null;
+    }
+    busy = true;
+    notifyListeners();
+    try {
+      catalog.validateSavedResidentIds(progress!.residents.counts.keys);
+      final pool = catalog.gachaPool;
+      if (pool.isEmpty) throw StateError('Hosted resident gacha pool is empty');
+      final resident = pool[random.nextInt(pool.length)];
+      final next = progress!.onDay(clock()).acquireResidentId(resident.id);
+      await store.save(next);
+      progress = next;
+      return resident;
+    } catch (error, stack) {
+      failure = ProgressFailure('配信ガチャの抽選・保存', error, stack);
+      return null;
     } finally {
       _finishOperation();
     }

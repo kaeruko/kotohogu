@@ -714,9 +714,9 @@ class _TownSceneState extends State<TownScene> {
       top: footY - scale,
       child: Semantics(
         button: widget.onRemoteVisitor != null,
-        label: '配信テスト・${resident.label}のおはなし',
+        label: '${resident.label}のおはなし',
         child: Tooltip(
-          message: '配信テスト: ${resident.label}',
+          message: resident.label,
           child: InkWell(
             key: ValueKey('remote-visitor-${resident.id}'),
             borderRadius: BorderRadius.circular(20),

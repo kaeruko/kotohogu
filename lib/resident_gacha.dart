@@ -4,10 +4,15 @@ import 'progress.dart';
 import 'resident_collection.dart';
 import 'home_skin.dart';
 import 'gacha_screen.dart';
+import 'google_drive_content_source.dart';
+import 'local_content_preview.dart';
 
 /// Inline panel keeps save failures visible on the main diagnostic screen.
 class ResidentGacha extends StatefulWidget {
-  const ResidentGacha({super.key, required this.controller, this.onTown});
+  const ResidentGacha({
+    super.key, required this.controller, this.onTown, this.hosted,
+  });
+  final HostedTownContent? hosted;
   final VoidCallback? onTown;
   final ProgressController controller;
   @override
@@ -32,6 +37,7 @@ class _ResidentGachaState extends State<ResidentGacha> {
         builder: (_) => GachaScreen(
           controller: widget.controller,
           autoStart: true,
+          hosted: widget.hosted,
         ),
       ),
     );
@@ -52,7 +58,7 @@ class _ResidentGachaState extends State<ResidentGacha> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'まちの仲間 ${collection.owned.length}人',
+            'まちの仲間 ${collection.counts.length}人',
             style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -142,6 +148,23 @@ class _ResidentGachaState extends State<ResidentGacha> {
                     ],
                   ),
                 ),
+              if (widget.hosted != null)
+                for (final id in collection.remotelyOwnedIds)
+                  SizedBox(
+                    width: 92,
+                    child: Column(
+                      children: [
+                        RemoteResidentAvatar(
+                          resident: widget.hosted!.catalog.residentById(id),
+                          baseUri: widget.hosted!.baseUri, size: 60,
+                        ),
+                        Text(widget.hosted!.catalog.residentById(id).label,
+                            textAlign: TextAlign.center),
+                        Text('累計${collection.counts[id]}回',
+                            style: const TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                  ),
             ],
           ),
         ],
