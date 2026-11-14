@@ -45,8 +45,17 @@ class _GachaRevealState extends State<GachaReveal>
     final hosted = widget.hosted;
     final remote = _remoteResident;
     if (hosted != null && remote != null) {
-      return RemoteResidentAvatar(
-        resident: remote, baseUri: hosted.baseUri, size: 570,
+      final uri = remoteSpriteUri(
+          hosted.baseUri, remote, 'idle_front_01.png');
+      return Image.network(
+        uri.toString(),
+        key: const ValueKey('gacha-stage-resident'),
+        fit: BoxFit.contain,
+        excludeFromSemantics: true,
+        errorBuilder: (context, error, stackTrace) => Tooltip(
+          message: 'ガチャ住民の画像取得に失敗しました: $uri ($error)',
+          child: const Icon(Icons.broken_image_outlined, color: Colors.red),
+        ),
       );
     }
     return Image.asset(_resident!.idleAsset,
@@ -168,11 +177,7 @@ class _GachaRevealState extends State<GachaReveal>
                                     offset: Offset(0, (1 - entry) * 55),
                                     child: Transform.scale(
                                       scale: entry,
-                                      child: KeyedSubtree(
-                                        key: const ValueKey(
-                                            'gacha-stage-resident'),
-                                        child: _residentArtwork(),
-                                      ),
+                                      child: _residentArtwork(),
                                     ),
                                   ),
                                 ),
