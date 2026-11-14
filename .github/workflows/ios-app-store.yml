@@ -27,6 +27,10 @@ permissions:
   contents: write
   actions: read
 
+env:
+  APP_STORE_APPLE_ID: '6823568467'
+  APP_STORE_BUNDLE_ID: jp.cloxs.kotohogu
+
 concurrency:
   group: kotohogu-release-version
   cancel-in-progress: false
@@ -226,6 +230,8 @@ jobs:
             exit 1
           }
           echo "VERIFIED_IPA=$ipa" >> "$GITHUB_ENV"
+          echo "VERIFIED_BUILD_NAME=$build_name" >> "$GITHUB_ENV"
+          echo "VERIFIED_BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
           {
             echo "- Verified bundle: $bundle_id"
             echo "- Verified version: $build_name ($build_number)"
@@ -266,11 +272,11 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           set -euo pipefail
-          xcrun altool --validate-app \
-            --file "$VERIFIED_IPA" --type ios \
-            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
-          xcrun altool --upload-app \
-            --file "$VERIFIED_IPA" --type ios \
+          xcrun altool --upload-package "$VERIFIED_IPA" --type ios \
+            --apple-id "$APP_STORE_APPLE_ID" \
+            --bundle-id "$APP_STORE_BUNDLE_ID" \
+            --bundle-short-version-string "$VERIFIED_BUILD_NAME" \
+            --bundle-version "$VERIFIED_BUILD_NUMBER" \
             --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
           echo "- Uploaded to App Store Connect; Apple processing may still be pending." >> "$GITHUB_STEP_SUMMARY"
 
@@ -473,6 +479,8 @@ jobs:
             exit 1
           }
           echo "VERIFIED_IPA=$ipa" >> "$GITHUB_ENV"
+          echo "VERIFIED_BUILD_NAME=$build_name" >> "$GITHUB_ENV"
+          echo "VERIFIED_BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
           {
             echo "### TestFlight upload source"
             echo "- Build run: $SOURCE_RUN_ID"
@@ -515,11 +523,11 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           set -euo pipefail
-          xcrun altool --validate-app \
-            --file "$VERIFIED_IPA" --type ios \
-            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
-          xcrun altool --upload-app \
-            --file "$VERIFIED_IPA" --type ios \
+          xcrun altool --upload-package "$VERIFIED_IPA" --type ios \
+            --apple-id "$APP_STORE_APPLE_ID" \
+            --bundle-id "$APP_STORE_BUNDLE_ID" \
+            --bundle-short-version-string "$VERIFIED_BUILD_NAME" \
+            --bundle-version "$VERIFIED_BUILD_NUMBER" \
             --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
           echo "- Uploaded successfully; wait for Apple processing in App Store Connect." >> "$GITHUB_STEP_SUMMARY"
 
