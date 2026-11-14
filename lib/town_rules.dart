@@ -39,7 +39,7 @@ class TownRules {
       visit: visit,
       debugOverride: debugTownResidents,
       marcheOpen: marcheOpen,
-      afterOyasumiClub: progress.oyasumi.completed == 3,
+      afterOyasumiClub: progress.oyasumi.completed >= 3,
       suspendFamilyOuting: timedEvents?.nailistOyasumiAfterWork ?? false,
     );
     final scripted = oyasumi?.residents(area, ordinary) ?? ordinary;
@@ -70,7 +70,7 @@ class TownRules {
         final familyOuting = debugTownResidents == null &&
             visit.isFamilyOuting(
               progress.residents.owned, progress.points,
-              afterOyasumiClub: progress.oyasumi.completed == 3,
+              afterOyasumiClub: progress.oyasumi.completed >= 3,
               suspended: timedEvents?.nailistOyasumiAfterWork ?? false);
         final afterWork = timedEvents?.nailistOyasumiAfterWork ?? false;
         participants = salonResidents(
@@ -84,7 +84,7 @@ class TownRules {
         final familyOuting = debugTownResidents == null &&
             visit.isFamilyOuting(
               progress.residents.owned, progress.points,
-              afterOyasumiClub: progress.oyasumi.completed == 3,
+              afterOyasumiClub: progress.oyasumi.completed >= 3,
               suspended: timedEvents?.nailistOyasumiAfterWork ?? false);
         participants = communityCenterResidents().where((resident) =>
             !familyOuting || resident != familyOutingMother);

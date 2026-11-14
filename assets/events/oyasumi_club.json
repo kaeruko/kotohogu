@@ -438,6 +438,463 @@
           }
         ]
       }
+    },
+    "settling": {
+      "label": "かえるくんの帰り道",
+      "positions": {
+        "027_daydreamer": [
+          0.42,
+          0.64
+        ],
+        "029_office_worker": [
+          0.58,
+          0.64
+        ]
+      },
+      "intro": {
+        "speaker": "029_office_worker",
+        "text": "おやすみくん、今日も来たよ。公園のおそうじ、少しずつ慣れてきたんだ。"
+      },
+      "chatter": {
+        "027_daydreamer": [
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
+                "text": "かえるくん、ぼくのベンチもおそうじしたもふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "うん。きれいに拭いておいたよ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ〜。いいおしごともふ〜。"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "おやすみくんも、たまには手伝ってよ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "いやもふ〜"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
+                "text": "かえるくん、あしたもくるもふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "うん。お仕事が終わったらね。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ〜。まってるもふ〜"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
+                "text": "かえるくん、まえよりよくわらうもふ〜"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "そうかな。少し気持ちが楽になってきたのかもね。"
+              }
+            ]
+          }
+        ],
+        "029_office_worker": [
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "公園のおそうじ、だいぶ慣れてきたよ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "かえるくん、ぼくのベンチもおそうじしたもふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "うん。きれいに拭いておいたよ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ〜。いいおしごともふ〜"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "おやすみくんも、たまには手伝ってよ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "いやもふ〜"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "前はね、仕事が終わっても、明日のことばかり考えてたんだ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "あしたは、あしたもふ〜"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "そうなんだけどね。なかなかそう思えなくて。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "ぼく、あしたのことはあしたかんがえるもふ〜"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "……おやすみくんは、明日も寝てるだけでしょ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "よていはみていもふ〜"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "……最近、休みの日の予定がなくなっちゃってさ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "前は、誰かと出かけることもあったんだけどね。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "じゃあ、おやすみくらぶにくるもふ〜"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "……ふふ。そうだね。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "さんかしゃ、ふたりもふ〜！"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "うん。ふたりだね。"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "最近ね、仕事の帰りがちょっと楽しみなんだ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ〜。おしごとたのしいもふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "ううん、そうじゃなくて……"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "……ふふ、なんでもない。"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "おやすみくん、ぼくね、前より自分のことが好きになれた気がするんだ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "ぼくも、かえるくんすきもふ〜"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "えっ。あ、ありがとう。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "ぼくは、まえからすきもふ〜"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "……そっか。ふふ。"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "koala": {
+      "label": "コアラちゃん、はじめまして",
+      "positions": {
+        "027_daydreamer": [
+          0.31,
+          0.64
+        ],
+        "029_office_worker": [
+          0.49,
+          0.64
+        ],
+        "049_koara": [
+          0.67,
+          0.64
+        ]
+      },
+      "intro": {
+        "speaker": "029_office_worker",
+        "turns": [
+          {
+            "speaker": "029_office_worker",
+            "text": "おやすみくん、今日は紹介したい子がいるんだ。"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "もふ？ またかのじょできたもふ？"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "う、うん……。コアラちゃんだよ。"
+          },
+          {
+            "speaker": "049_koara",
+            "text": "こ、こんばんは……コアラです……"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "コアラちゃんも、なんにもしないなかまもふ〜？"
+          },
+          {
+            "speaker": "049_koara",
+            "text": "ち、ちがうもん……！"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "おやすみくん、初対面から失礼だよ！"
+          },
+          {
+            "speaker": "049_koara",
+            "text": "わ、わたし、作業所にもいってるもん……"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "ぼくも、まえはおしごとしてたもふ〜"
+          },
+          {
+            "speaker": "049_koara",
+            "text": "いまのはなしだもん……"
+          },
+          {
+            "speaker": "029_office_worker",
+            "text": "あはは……。ふたり、仲良くなれそうだね。"
+          },
+          {
+            "speaker": "027_daydreamer",
+            "text": "じゃあ、きょうはさんにんもふ〜。ぜんいんしゅうごうもふ〜！"
+          },
+          {
+            "speaker": "049_koara",
+            "text": "……えへへ。"
+          }
+        ]
+      },
+      "chatter": {
+        "027_daydreamer": [
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
+                "text": "コアラちゃん、いっしょにおひるねするもふ〜？"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "ね、ねむたいけど……まだ起きてるもん……"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ〜。なかまもふ〜"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "ちがうもん……！"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
+                "text": "コアラちゃんも、おやすみくらぶににゅうかいするもふ？"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "わ、わたし、そんなになまけものじゃないもん……"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ〜。ざんねんもふ"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "027_daydreamer",
+                "text": "かえるくん、コアラちゃんとふたりでおさんぽするもふ？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "うん。仕事の帰りに、少しだけね。"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "……えへへ"
+              }
+            ]
+          }
+        ],
+        "029_office_worker": [
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "おやすみくん、コアラちゃんにあんまり失礼なこと言わないでね。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "もふ？ なかまができてうれしいもふ〜"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "ち、ちがうもん……"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "……あはは"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "コアラちゃん、今日は公民館でアクセサリーを売ってきたんだって。"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "う、うん……。ちょっと緊張したけど……"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "すごいもふ〜。ぼくはおひるねしてたもふ〜"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "029_office_worker",
+                "text": "こうして三人でおしゃべりできるの、うれしいな。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "さんかしゃ、さんにんもふ〜！"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "……わたし、入会したの……？"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "ふふ。見学でもいいんだよ。"
+              }
+            ]
+          }
+        ],
+        "049_koara": [
+          {
+            "turns": [
+              {
+                "speaker": "049_koara",
+                "text": "あ、あの……きょう、作業所で作ったものを見てもらえたの……"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "よかったね！"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "ぼくは、きょうもおひるねしたもふ〜"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "……それは、いつもだもん……"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "049_koara",
+                "text": "おやすみくん、いつもここにいるの……？"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "ぼく、ベンチと仲よしもふ〜"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "……ふふ。へんなの……"
+              }
+            ]
+          },
+          {
+            "turns": [
+              {
+                "speaker": "049_koara",
+                "text": "かえるくん、帰り道、いっしょに歩いてくれてありがとう……"
+              },
+              {
+                "speaker": "029_office_worker",
+                "text": "うん。ぼくも楽しかったよ。"
+              },
+              {
+                "speaker": "027_daydreamer",
+                "text": "ぼくはここでまってるもふ〜"
+              },
+              {
+                "speaker": "049_koara",
+                "text": "……また来るね……"
+              }
+            ]
+          }
+        ]
+      }
     }
   },
   "restingDialogue": [

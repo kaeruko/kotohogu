@@ -560,7 +560,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         _debugTownResidents == null &&
         _townVisit.isFamilyOuting(
           controller.progress!.residents.owned, controller.progress!.points,
-          afterOyasumiClub: controller.progress!.oyasumi.completed == 3,
+          afterOyasumiClub: controller.progress!.oyasumi.completed >= 3,
           suspended: rules.timedEvents?.nailistOyasumiAfterWork ?? false) &&
         (resident == familyOutingMother || resident == familyOutingDaughter);
     final afterWork = site == 'town' &&
@@ -692,7 +692,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         ),
       );
       if (read != true || !mounted) return;
-      if (scene.introduction(resident, group)) {
+      if (line.id == 'oyasumi_${group}_${resident.id}_intro' &&
+          scene.introduction(resident, group)) {
         await controller.completeOyasumi(scene, resident, group);
       } else if (line.id == OyasumiScene.resignationId) {
         // The resignation read checkpoint must be saved before a job can begin.
@@ -1237,7 +1238,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           lifetimePoints: progress.points,
           residents: progress.residents.owned,
           debugTownResidents: _debugTownResidents,
-          afterOyasumiClub: progress.oyasumi.completed == 3,
+          afterOyasumiClub: progress.oyasumi.completed >= 3,
           remoteVisitors: visitors,
           remoteContentBaseUri: hosted?.baseUri,
           onRemoteVisitor: hosted == null ||

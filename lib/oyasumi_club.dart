@@ -30,6 +30,7 @@ class OyasumiProgress {
     this.lastNight,
     this.lastKotohogi,
     this.resignationAtKotohogi,
+    this.settlingAtKotohogi,
   });
   final int completed;
   // Kept for saved-game compatibility and the date of the last conversation;
@@ -41,23 +42,28 @@ class OyasumiProgress {
   // Set when the resignation chapter is read. A further 30 kotohogi
   // must be earned before the frog can announce his new job.
   final int? resignationAtKotohogi;
+  // The point total when the new routine chapter was read; the joining
+  // milestone remains unchanged for resignation, rumor, wish and tea visits.
+  final int? settlingAtKotohogi;
   Map<String, dynamic> toJson() => {
     'completed': completed,
     'lastNight': lastNight,
     'lastKotohogi': lastKotohogi,
     'resignationAtKotohogi': resignationAtKotohogi,
+    'settlingAtKotohogi': settlingAtKotohogi,
   };
   factory OyasumiProgress.fromJson(dynamic data) {
     if (data is! Map ||
-        (data.length < 2 || data.length > 4) ||
+        (data.length < 2 || data.length > 5) ||
         !data.containsKey("completed") ||
         !data.containsKey("lastNight") ||
         data.keys.any((key) =>
             key != 'completed' && key != 'lastNight' &&
-            key != 'lastKotohogi' && key != 'resignationAtKotohogi') ||
+            key != 'lastKotohogi' && key != 'resignationAtKotohogi' &&
+            key != 'settlingAtKotohogi') ||
         data['completed'] is! int ||
         data['completed'] < 0 ||
-        data['completed'] > 3) {
+        data['completed'] > 5) {
       throw const FormatException('Invalid club progress');
     }
     final date = data['lastNight'];
@@ -78,15 +84,25 @@ class OyasumiProgress {
     final resignationAt = data['resignationAtKotohogi'];
     if (resignationAt != null &&
         (resignationAt is! int || resignationAt < 0 ||
-            resignationAt % 10 != 0 || data['completed'] != 3 ||
+            resignationAt % 10 != 0 || data['completed'] < 3 ||
             (atKotohogi != null && resignationAt < atKotohogi))) {
       throw const FormatException('Invalid resignation milestone');
+    }
+    final settlingAt = data['settlingAtKotohogi'];
+    if ((data['completed'] >= 4 && settlingAt == null) ||
+        (settlingAt != null &&
+         (settlingAt is! int || settlingAt < 0 || settlingAt % 10 != 0 ||
+          data['completed'] < 4 ||
+          (atKotohogi != null && settlingAt < atKotohogi) ||
+          (resignationAt != null && settlingAt < resignationAt)))) {
+      throw const FormatException('Invalid settling chapter milestone');
     }
     return OyasumiProgress(
       completed: data['completed'],
       lastNight: date,
       lastKotohogi: atKotohogi,
       resignationAtKotohogi: resignationAt,
+      settlingAtKotohogi: settlingAt,
     );
   }
 }
@@ -118,6 +134,7 @@ class OyasumiScene {
   static const resignationId = 'oyasumi_joined_resignation_001';
   static const host = TownResident.c027_daydreamer;
   static const frog = TownResident.c029_office_worker;
+  static const koala = TownResident.c049_koara;
   static const nightPatroller = TownResident.c036_mosa;
   static const teaVisitor = TownResident.c041_pig_middle;
   static const teaVisitGroup = 'teaVisit';
@@ -153,7 +170,7 @@ class OyasumiScene {
   // suppress live night events. Previewing residents must not resurrect
   // the frog's old office-worker conversations.
   bool get frogResting =>
-      saved.completed == 3 && owned.contains(frog);
+      saved.completed >= 3 && owned.contains(frog);
   // A night passing by itself never advances the story. A completed
   // introduction starts a fresh 30-kotohogi interval. Old saves without a
   // recorded milestone keep the next chapter accessible (no progress loss).
@@ -167,13 +184,23 @@ class OyasumiScene {
       saved.lastKotohogi == null || storyDaysSinceLastIntroduction >= 1;
   int get step {
     if (!owned.contains(frog)) return 1;
-    if (saved.completed == 3) return 4;
+    if (saved.completed == 5) return owned.contains(koala) ? 6 : 5;
+    if (saved.completed == 4) {
+      final checkpoint = saved.settlingAtKotohogi;
+      if (checkpoint == null) {
+        throw StateError('Missing settling chapter milestone');
+      }
+      return owned.contains(koala) &&
+              earnedKotohogi - checkpoint >= kotohogiPerStoryDay ? 6 : 5;
+    }
+    if (saved.completed == 3) return parkCleanerStarted ? 5 : 4;
     if (saved.completed == 2) return nextStoryDayReached ? 3 : 2;
     if (saved.completed == 1) return nextStoryDayReached ? 2 : 1;
     return 1;
   }
 
-  String get stage => ['solo', 'watching', 'joining', 'joined'][step - 1];
+  String get stage =>
+      ['solo', 'watching', 'joining', 'joined', 'settling', 'koala'][step - 1];
 
   // One-time chapter, unlocked by earned lifetime kotohogi since joining.
   // Older saves without a joining milestone use their lifetime total,
@@ -212,13 +239,13 @@ class OyasumiScene {
       !seenDialogues.contains(parkCleanerUnlockId);
 
   bool get rumorDialogueAvailable =>
-      active && saved.completed == 3 && owned.contains(frog) &&
+      active && saved.completed >= 3 && owned.contains(frog) &&
       parkCleanerStarted &&
       earnedSinceJoining >= (rumorDefinition['unlockAfterKotohogi'] as int) &&
       !seenDialogues.contains(rumorDialogueId);
 
   bool get wishDialogueAvailable =>
-      active && saved.completed == 3 && owned.contains(frog) &&
+      active && saved.completed >= 3 && owned.contains(frog) &&
       parkCleanerStarted &&
       earnedSinceJoining >= (wishDefinition['unlockAfterKotohogi'] as int) &&
       !seenDialogues.contains(wishDialogueId);
@@ -226,7 +253,8 @@ class OyasumiScene {
   Map<String, dynamic> get definition =>
       oyasumiConfig['stages'][stage] as Map<String, dynamic>;
   List<TownResident> get cast =>
-      !active ? [] : [host, if (step > 1 && owned.contains(frog)) frog];
+      !active ? [] : [host, if (step > 1 && owned.contains(frog)) frog,
+        if (step == 6 && owned.contains(koala)) koala];
 
   // A passing night watchman is never part of the club story or its progress.
   bool get nightPatrolVisible => active && owned.contains(nightPatroller);
@@ -234,7 +262,7 @@ class OyasumiScene {
   /// joining. Repeats every N *story* days; no calendar-night requirement.
   /// Tonko remains a guest, not a club member or saved story stage.
   bool get teaVisitorVisible {
-    if (!active || step != 4 || saved.completed != 3 ||
+    if (!active || step < 4 || saved.completed < 3 ||
         !owned.contains(frog) || !owned.contains(teaVisitor) ||
         !marcheOpen) {
       return false;
@@ -269,6 +297,7 @@ class OyasumiScene {
     if (takesOver(area)) return [...cast, ...passersby];
     // A visiting resident cannot also walk in another neighborhood.
     return ordinary.where((r) => r != host && r != frog &&
+        !cast.contains(r) &&
         !(nightPatrolVisible && r == nightPatroller) &&
         !(teaVisitorVisible && r == teaVisitor)).toList();
   }
@@ -315,12 +344,16 @@ class OyasumiScene {
     return null;
   }
 
-  bool introduction(TownResident resident, String group) =>
-      group == stage &&
-      active &&
-      step <= 3 &&
-      saved.completed < step &&
-      definition['intro']['speaker'] == resident.id;
+  bool introduction(TownResident resident, String group) {
+    if (group != stage || !active ||
+        resident != (step == 1 ? host : frog)) return false;
+    if (step <= 3) {
+      return saved.completed < step &&
+          definition['intro']['speaker'] == resident.id;
+    }
+    return (step == 5 && saved.completed == 3) ||
+        (step == 6 && saved.completed == 4);
+  }
   List<OyasumiDialogueTurn> _dialogueTurns(dynamic item, TownResident speaker) {
     if (item is String) return [OyasumiDialogueTurn(speaker, item)];
     if (item is! Map || item['turns'] is! List) {
@@ -392,7 +425,8 @@ class OyasumiScene {
         ],
       );
     }
-    if (group == 'joined' && resident == frog && rumorDialogueAvailable) {
+    if (['joined', 'settling', 'koala'].contains(group) &&
+        resident == frog && rumorDialogueAvailable) {
       return OyasumiDialogue(
         rumorDialogueId,
         [
@@ -404,7 +438,8 @@ class OyasumiScene {
         ],
       );
     }
-    if (group == 'joined' && resident == frog && wishDialogueAvailable) {
+    if (['joined', 'settling', 'koala'].contains(group) &&
+        resident == frog && wishDialogueAvailable) {
       return OyasumiDialogue(
         wishDialogueId,
         [
@@ -418,10 +453,13 @@ class OyasumiScene {
     }
     final intro = introduction(resident, group);
     if (intro) {
-      final text = definition['intro']['text'] as String;
+      final definitionIntro = definition['intro'] as Map<String, dynamic>;
+      final source = definitionIntro.containsKey('turns')
+          ? {'turns': definitionIntro['turns']}
+          : definitionIntro['text'];
       return OyasumiDialogue(
         'oyasumi_${group}_${resident.id}_intro',
-        [OyasumiDialogueTurn(resident, text)],
+        _dialogueTurns(source, resident),
       );
     }
     final options = group == 'resting'
@@ -458,10 +496,20 @@ class OyasumiScene {
 
   OyasumiProgress completeIntroduction(TownResident resident, String group) {
     if (!introduction(resident, group)) return saved;
+    if (step <= 3) {
+      return OyasumiProgress(
+        completed: step,
+        lastNight: nightKey,
+        lastKotohogi: earnedKotohogi,
+      );
+    }
     return OyasumiProgress(
-      completed: step,
+      completed: step == 5 ? 4 : 5,
       lastNight: nightKey,
-      lastKotohogi: earnedKotohogi,
+      lastKotohogi: saved.lastKotohogi,
+      resignationAtKotohogi: saved.resignationAtKotohogi,
+      settlingAtKotohogi: step == 5
+          ? earnedKotohogi : saved.settlingAtKotohogi,
     );
   }
 }

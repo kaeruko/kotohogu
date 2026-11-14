@@ -23,13 +23,14 @@ OyasumiScene scene(
   int day, {
   int hour = 19,
   bool hasFrog = true,
+  bool hasKoala = false,
   int kotohogi = 0,
   OyasumiProgress saved = const OyasumiProgress(),
   Iterable<String> seenDialogues = const [],
   bool cleanerStarted = false,
 }) => OyasumiScene(
   saved: saved,
-  owned: [host, if (hasFrog) frog],
+  owned: [host, if (hasFrog) frog, if (hasKoala) OyasumiScene.koala],
   now: DateTime(2026, 10, day, hour),
   earnedKotohogi: kotohogi,
   seenDialogues: seenDialogues,
@@ -118,6 +119,98 @@ void main() {
     expect(scene(20, saved: const OyasumiProgress(
         completed: 1, lastNight: '2026-10-19')).stage, 'watching');
   });
+  test('new routine and Koala introduction advance without erasing old checkpoints', () {
+    const joined = OyasumiProgress(
+      completed: 3, lastNight: '2026-10-20', lastKotohogi: 160,
+      resignationAtKotohogi: 190,
+    );
+    final beforeJob = scene(25, saved: joined, kotohogi: 220);
+    expect(beforeJob.stage, 'joined');
+    final newRoutine = scene(25, saved: joined, kotohogi: 220,
+        cleanerStarted: true, hasKoala: true);
+    expect(newRoutine.stage, 'settling');
+    expect(newRoutine.cast, [host, frog]);
+    expect(newRoutine.introduction(frog, 'settling'), isTrue);
+    final fifth = newRoutine.dialogue(frog, 'settling', 0);
+    expect(fifth.id, 'oyasumi_settling_${frog.id}_intro');
+    expect(fifth.text, contains('公園のおそうじ'));
+    final savedFifth = newRoutine.completeIntroduction(frog, 'settling');
+    expect(savedFifth.completed, 4);
+    expect(savedFifth.lastKotohogi, 160);
+    expect(savedFifth.resignationAtKotohogi, 190);
+    expect(savedFifth.settlingAtKotohogi, 220);
+    final restored = OyasumiProgress.fromJson(savedFifth.toJson());
+    expect(restored.completed, 4);
+    expect(restored.settlingAtKotohogi, 220);
+    expect(restored.lastKotohogi, 160);
+
+    final stillFifth = scene(25, saved: restored, kotohogi: 240,
+        cleanerStarted: true, hasKoala: true);
+    expect(stillFifth.stage, 'settling');
+    expect(stillFifth.introduction(frog, 'settling'), isFalse);
+    expect(scene(25, saved: restored, kotohogi: 250,
+        cleanerStarted: true).stage, 'settling',
+        reason: 'Koala is required to appear in the third member scene');
+
+    final sixth = scene(25, saved: restored, kotohogi: 250,
+        cleanerStarted: true, hasKoala: true,
+        seenDialogues: ['oyasumi_joined_kotohoguma_rumor_001']);
+    expect(sixth.stage, 'koala');
+    expect(sixth.cast, [host, frog, OyasumiScene.koala]);
+    expect(sixth.residents(TownArea.plaza, const []),
+        [host, frog, OyasumiScene.koala]);
+    expect(sixth.group(OyasumiScene.koala, inPlaza: true), 'koala');
+    expect(sixth.introduction(frog, 'koala'), isTrue);
+    final intro = sixth.dialogue(frog, 'koala', 0);
+    expect(intro.id, 'oyasumi_koala_${frog.id}_intro');
+    expect(intro.turns.length, 13);
+    expect(intro.turns.first.resident, frog);
+    expect(intro.turns.any((t) => t.resident == OyasumiScene.koala), isTrue);
+    expect(intro.turns.any((t) => t.text.contains('ちがうもん')), isTrue);
+    final savedSixth = sixth.completeIntroduction(frog, 'koala');
+    expect(savedSixth.completed, 5);
+    expect(savedSixth.settlingAtKotohogi, 220);
+    expect(savedSixth.lastKotohogi, 160);
+    expect(scene(25, saved: savedSixth, kotohogi: 250,
+        cleanerStarted: true, hasKoala: true).stage, 'koala');
+    expect(scene(25, saved: savedSixth, kotohogi: 250,
+        cleanerStarted: true, hasKoala: true)
+        .introduction(frog, 'koala'), isFalse);
+    expect(sixth.dialogue(OyasumiScene.koala, 'koala', 0).turns.first.resident,
+        OyasumiScene.koala);
+    expect(() => OyasumiProgress.fromJson({
+      'completed': 4, 'lastNight': '2026-10-20',
+      'lastKotohogi': 160, 'resignationAtKotohogi': 190,
+    }), throwsFormatException);
+  });
+
+  test('unread rumor and wishes remain accessible during later stages', () {
+    const fifthRead = OyasumiProgress(
+      completed: 4, lastNight: '2026-10-25',
+      lastKotohogi: 160, resignationAtKotohogi: 190,
+      settlingAtKotohogi: 220,
+    );
+    final later = scene(25, saved: fifthRead, kotohogi: 280,
+        cleanerStarted: true, hasKoala: true);
+    expect(later.stage, 'koala');
+    expect(later.introduction(frog, 'koala'), isTrue);
+    expect(later.dialogue(frog, 'koala', 0).id,
+        'oyasumi_joined_kotohoguma_rumor_001');
+    final rumorRead = scene(25, saved: fifthRead, kotohogi: 280,
+        cleanerStarted: true, hasKoala: true,
+        seenDialogues: ['oyasumi_joined_kotohoguma_rumor_001']);
+    expect(rumorRead.dialogue(frog, 'koala', 0).id,
+        'oyasumi_joined_wish_001');
+    final specialsDone = scene(25, saved: fifthRead, kotohogi: 280,
+        cleanerStarted: true, hasKoala: true,
+        seenDialogues: [
+          'oyasumi_joined_kotohoguma_rumor_001',
+          'oyasumi_joined_wish_001',
+        ]);
+    expect(specialsDone.dialogue(frog, 'koala', 0).id,
+        'oyasumi_koala_${frog.id}_intro');
+  });
+
   test('resignation must be read and followed by 30 earned kotohogi', () {
     const joined = OyasumiProgress(
         completed: 3, lastNight: '2026-10-20', lastKotohogi: 160);

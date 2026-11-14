@@ -337,9 +337,9 @@ class DialogueCondition {
       return progress.seenDialogues.contains(fields['dialogueId']);
     }
     if (kind == 'oyasumiClub') {
-      // The third completed introduction is the existing, saved story ending.
-      // No breakup scene, new save flag or forced follow-up is needed.
-      return (progress.oyasumi.completed == 3) == fields['completed'];
+      // Completing the third introduction ends the original club arc.
+      // Later chapters must not undo the story flag or revive old romance.
+      return (progress.oyasumi.completed >= 3) == fields['completed'];
     }
     if (kind == 'residentOwned') {
       final owned = (progress.residents.counts[fields['residentId']] ?? 0) > 0;

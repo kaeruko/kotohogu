@@ -119,7 +119,18 @@ function renderEditor(){
   Object.entries(config.stages).forEach(([key,stage],i)=>{
     const detail=el('details');detail.open=i===0;
     detail.append(el('summary',`${i+1}. ${stage.label}`));
-    if(stage.intro)textField(detail,`${names[stage.intro.speaker]}の導入（進行に必要）`,stage.intro.text,v=>stage.intro.text=v);
+    if(stage.intro){
+      if(Array.isArray(stage.intro.turns)){
+        detail.append(el('h3','導入・三人の初対面（進行に必要）'));
+        editSpecialTurns(detail,stage.intro,{
+          min:2,max:16,
+          availableSpeakers:['029_office_worker','027_daydreamer','049_koara'],
+        });
+      }else{
+        textField(detail,`${names[stage.intro.speaker]}の導入（進行に必要）`,
+          stage.intro.text,v=>stage.intro.text=v);
+      }
+    }
     const allowed=Object.keys(stage.chatter);
     Object.entries(stage.chatter).forEach(([id,lines])=>{
       detail.append(el('h3',names[id]||id));
@@ -134,7 +145,7 @@ function renderEditor(){
       detail.append(row);
       editLines(detail,lines,id,allowed,{
         maxNightPatterns:(key==='solo'&&id==='027_daydreamer')||
-          (key==='joined'&&id==='029_office_worker')?5:4,
+          (['joined','settling'].includes(key)&&id==='029_office_worker')?5:4,
       });
     });
     if(key==='joined'){
@@ -242,7 +253,24 @@ function renderConversation(parent,item,primary,index){
     block.append(el('p',`${names[turn.speaker]||turn.speaker}「${turn.text}」`)));
   parent.append(block);
 }
-function payload(){return {config,now:$('now').value,completed:Number($('completed').value),lastNight:$('last').value||null,earnedKotohogi:Number($('earnedKotohogi').value),lastKotohogi:$('lastKotohogi').value===''?null:Number($('lastKotohogi').value),resignationAtKotohogi:$('resignationAtKotohogi').value===''?null:Number($('resignationAtKotohogi').value),owned:[...($('host').checked?['027_daydreamer']:[]),...($('frog').checked?['029_office_worker']:[]),...($('mosa').checked?['036_mosa']:[]),...($('tonko').checked?['041_pig_middle']:[])],marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],parkCleanerStarted:$('cleanerStarted').checked,wishSeen:$('wishSeen').checked,rumorSeen:$('rumorSeen').checked};}
+function payload(){
+  const numericOrNull=id=>$(id).value===''?null:Number($(id).value);
+  return {
+    config,now:$('now').value,completed:Number($('completed').value),
+    lastNight:$('last').value||null,earnedKotohogi:Number($('earnedKotohogi').value),
+    lastKotohogi:numericOrNull('lastKotohogi'),
+    resignationAtKotohogi:numericOrNull('resignationAtKotohogi'),
+    settlingAtKotohogi:numericOrNull('settlingAtKotohogi'),
+    owned:[...($('host').checked?['027_daydreamer']:[]),
+      ...($('frog').checked?['029_office_worker']:[]),
+      ...($('mosa').checked?['036_mosa']:[]),
+      ...($('tonko').checked?['041_pig_middle']:[]),
+      ...($('koala').checked?['049_koara']:[])],
+    marcheOpen:$('marcheOpen').checked,peers:$('previewPeer').value?[$('previewPeer').value]:[],
+    parkCleanerStarted:$('cleanerStarted').checked,
+    wishSeen:$('wishSeen').checked,rumorSeen:$('rumorSeen').checked,
+  };
+}
 async function preview(){
   if(!config)return;
   const version=++revision;$('read').disabled=true;
@@ -279,7 +307,11 @@ async function preview(){
       : 'かえる：通常の会社員の会話です。';
     $('lines').replaceChildren();
     if(data.intro){
-      $('lines').append(el('strong',(names[data.intro.speaker]||data.intro.speaker)+'の導入（最初に表示）'),el('p',data.intro.text));
+      const intro=el('details');intro.open=true;
+      intro.append(el('summary','導入（未読の特別会話がなければ最初に表示）'));
+      renderConversation(intro,data.intro.turns?{turns:data.intro.turns}:data.intro.text,
+        data.intro.speaker,0);
+      $('lines').append(intro);
     }
     if(data.resignationDialogue){
       const resignation=el('details');resignation.open=true;
@@ -371,15 +403,33 @@ async function load(){
   }
 }
 $('start').oninput=()=>{config.night.startHour=Number($('start').value);change();};$('end').oninput=()=>{config.night.endHour=Number($('end').value);change();};
-['host','frog','mosa','tonko','marcheOpen','now','last','earnedKotohogi','lastKotohogi','resignationAtKotohogi','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
-$('completed').onchange=()=>{const isStart=$('completed').value==='0';$('last').disabled=isStart;$('last').value=isStart?'':$('now').value.slice(0,10);$('lastKotohogi').value=isStart?'':$('earnedKotohogi').value;preview();};
+['host','frog','mosa','tonko','koala','marcheOpen','now','last','earnedKotohogi','lastKotohogi','resignationAtKotohogi','settlingAtKotohogi','previewPeer','cleanerStarted'].forEach(id=>$(id).onchange=preview);
+$('completed').onchange=()=>{
+  const count=Number($('completed').value),isStart=count===0;
+  $('last').disabled=isStart;
+  $('last').value=isStart?'':$('now').value.slice(0,10);
+  $('lastKotohogi').value=isStart?'':$('earnedKotohogi').value;
+  $('settlingAtKotohogi').value=count>=4?$('earnedKotohogi').value:'';
+  preview();
+};
 $('wishSeen').onchange=preview;
 $('rumorSeen').onchange=preview;
 $('preview').onclick=preview;
-$('read').onclick=async()=>{if(!result?.canComplete)return;$('completed').value=result.nextCompleted;$('last').disabled=false;$('last').value=result.nightKey;$('lastKotohogi').value=String(result.earnedKotohogi);await preview();};
+$('read').onclick=async()=>{
+  if(!result?.canComplete)return;
+  $('completed').value=result.nextCompleted;
+  $('last').disabled=false;
+  $('last').value=result.nightKey;
+  if(result.nextCompleted<=3){
+    $('lastKotohogi').value=String(result.earnedKotohogi);
+  }else if(result.nextCompleted===4){
+    $('settlingAtKotohogi').value=String(result.earnedKotohogi);
+  }
+  await preview();
+};
 $('readResignation').onclick=async()=>{if(!result?.resignationDialogue)return;$('resignationAtKotohogi').value=String(result.earnedKotohogi);await preview();};
 $('next').onclick=()=>{$('earnedKotohogi').value=Number($('earnedKotohogi').value)+30;preview();};
-$('reset').onclick=()=>{$('completed').value='0';$('last').value='';$('last').disabled=true;$('lastKotohogi').value='';$('resignationAtKotohogi').value='';$('cleanerStarted').checked=false;$('wishSeen').checked=false;$('rumorSeen').checked=false;preview();};
+$('reset').onclick=()=>{$('completed').value='0';$('last').value='';$('last').disabled=true;$('lastKotohogi').value='';$('resignationAtKotohogi').value='';$('settlingAtKotohogi').value='';$('cleanerStarted').checked=false;$('wishSeen').checked=false;$('rumorSeen').checked=false;preview();};
 $('save').onclick=async()=>{try{await request('/api/events',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)});$('saveStatus').textContent='保存しました。アプリは再ビルドすると反映されます。';}catch(error){$('saveStatus').textContent=error.message;}};
 $('reload').onclick=load;
 load();

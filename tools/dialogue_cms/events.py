@@ -7,9 +7,9 @@ from characters import commit_files, load_catalog
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'assets/events/oyasumi_club.json'
 DART = ROOT / 'lib/oyasumi_config.g.dart'
-STAGES = ('solo', 'watching', 'joining', 'joined')
+STAGES = ('solo', 'watching', 'joining', 'joined', 'settling', 'koala')
 KOTOHOGI_PER_STORY_DAY = 30
-HOST, FROG, MOSA, TONKO = '027_daydreamer', '029_office_worker', '036_mosa', '041_pig_middle'
+HOST, FROG, MOSA, TONKO, KOALA = '027_daydreamer', '029_office_worker', '036_mosa', '041_pig_middle', '049_koara'
 
 
 def load():
@@ -61,7 +61,7 @@ def validate(doc):
         if not isinstance(stage,dict) or set(stage) != required:
             raise ValueError('段階の項目が不正です')
         text(stage['label'])
-        cast = {HOST} if key == 'solo' else {HOST,FROG}
+        cast = {HOST} if key == 'solo' else {HOST,FROG,KOALA} if key == 'koala' else {HOST,FROG}
         if set(stage['positions']) != cast or set(stage['chatter']) != cast:
             raise ValueError('出演者はこの段階では変更できません')
         for position in stage['positions'].values():
@@ -146,13 +146,28 @@ def validate(doc):
                 text(turn['text'])
         else:
             intro=stage['intro']
-            if not isinstance(intro,dict) or set(intro) != {'speaker','text'} or intro['speaker'] != (HOST if key=='solo' else FROG):
+            primary=HOST if key=='solo' else FROG
+            if not isinstance(intro,dict) or intro.get('speaker') != primary:
                 raise ValueError('導入会話の話者が不正です')
-            text(intro['text'])
+            if key=='koala':
+                turns=intro.get('turns')
+                if set(intro) != {'speaker','turns'} or not isinstance(turns,list) or not 2 <= len(turns) <= 16:
+                    raise ValueError('コアラ初登場の導入は2〜16発言です')
+                for i,turn in enumerate(turns):
+                    if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
+                        turn['speaker'] not in cast or (i==0 and turn['speaker']!=primary)):
+                        raise ValueError('コアラ導入会話の話者が不正です')
+                    text(turn['text'])
+                if not any(turn['speaker']==KOALA for turn in turns):
+                    raise ValueError('コアラの導入会話に本人が必要です')
+            else:
+                if set(intro) != {'speaker','text'}:
+                    raise ValueError('導入会話の形式が不正です')
+                text(intro['text'])
         for speaker,items in stage['chatter'].items():
             lines(items, speaker, cast,
                   max_patterns=5 if (key == 'solo' and speaker == HOST) or
-                  (key == 'joined' and speaker == FROG) else 4)
+                  (key in ('joined','settling') and speaker == FROG) else 4)
     if not lines(doc['restingDialogue'], FROG, outdoor, max_patterns=8):
         raise ValueError('休養中のかえるの会話には一人で話せる候補を1本以上残してください')
     if not lines(doc['cleanerDialogue'], FROG, outdoor, max_patterns=8):
@@ -227,22 +242,30 @@ def preview(payload):
     earned=payload.get('earnedKotohogi',0)
     milestone=payload.get('lastKotohogi')
     resignation_at=payload.get('resignationAtKotohogi')
+    settling_at=payload.get('settlingAtKotohogi')
     if type(earned) is not int or earned<0 or earned%10:
         raise ValueError('累積ことほぎは10刻みの0以上で入力してください')
     if milestone is not None and (type(milestone) is not int or
             milestone<0 or milestone%10 or milestone>earned or completed==0):
         raise ValueError('最後の読了時の累積ことほぎが不正です')
-    if type(completed) is not int or not 0<=completed<=3:
+    if type(completed) is not int or not 0<=completed<=5:
         raise ValueError('進行値が不正です')
     if (resignation_at is not None and
             (type(resignation_at) is not int or resignation_at < 0 or
-             resignation_at % 10 or resignation_at > earned or completed != 3 or
+             resignation_at % 10 or resignation_at > earned or completed < 3 or
              (milestone is not None and resignation_at < milestone))):
         raise ValueError('退職会話を読了した時点の累積ことほぎが不正です')
+    if ((completed>=4 and settling_at is None) or
+        (settling_at is not None and
+         (type(settling_at) is not int or settling_at<0 or settling_at%10 or
+          settling_at>earned or completed<4 or
+          (milestone is not None and settling_at<milestone) or
+          (resignation_at is not None and settling_at<resignation_at)))):
+        raise ValueError('新しい暮らしの導入を読了した時点の累積ことほぎが不正です')
     if (completed==0)!=(last is None): raise ValueError('完了段階と最終開催日をセットで指定してください')
     if last: datetime.strptime(last,'%Y-%m-%d')
     owned=payload['owned']
-    if not isinstance(owned,list) or any(i not in (HOST,FROG,MOSA,TONKO) for i in owned): raise ValueError('所持設定が不正です')
+    if not isinstance(owned,list) or any(i not in (HOST,FROG,MOSA,TONKO,KOALA) for i in owned): raise ValueError('所持設定が不正です')
     marche_open=payload.get('marcheOpen', False)
     if type(marche_open) is not bool:
         raise ValueError('茶房の開店状態が不正です')
@@ -263,33 +286,46 @@ def preview(payload):
     night_key=(now-timedelta(days=1 if now.hour<doc['night']['endHour'] else 0)).strftime('%Y-%m-%d')
     story_days=0 if milestone is None else (earned-milestone)//KOTOHOGI_PER_STORY_DAY
     ready=milestone is None or story_days>=1
-    step=1 if FROG not in owned else 4 if completed==3 else (3 if ready else 2) if completed==2 else (2 if ready else 1) if completed==1 else 1
+    if FROG not in owned:
+        step=1
+    elif completed==5:
+        step=6 if KOALA in owned else 5
+    elif completed==4:
+        step=6 if KOALA in owned and earned-settling_at>=KOTOHOGI_PER_STORY_DAY else 5
+    elif completed==3:
+        step=5 if park_cleaner_started else 4
+    elif completed==2:
+        step=3 if ready else 2
+    elif completed==1:
+        step=2 if ready else 1
+    else:
+        step=1
     active=night and HOST in owned
     key=STAGES[step-1]
     stage=doc['stages'][key]
-    cast=([HOST]+([FROG] if step>1 and FROG in owned else [])) if active else []
+    cast=([HOST]+([FROG] if step>1 and FROG in owned else [])+([KOALA] if step==6 and KOALA in owned else [])) if active else []
     tea=doc['teaVisit']
     tea_days=story_days if milestone is not None else earned//KOTOHOGI_PER_STORY_DAY
-    tea_visible=active and completed==3 and FROG in owned and TONKO in owned and marche_open and tea_days>=1 and (tea_days-1)%tea['intervalNights']==0
+    tea_visible=active and completed>=3 and step>=4 and FROG in owned and TONKO in owned and marche_open and tea_days>=1 and (tea_days-1)%tea['intervalNights']==0
     passersby=([MOSA] if active and MOSA in owned else [])+([TONKO] if tea_visible else [])
     positions=({**stage['positions'],
                 **({MOSA:[doc['nightPatrol']['route']['x'],doc['nightPatrol']['route']['y']]} if MOSA in passersby else {}),
                 **({TONKO:tea['position']} if tea_visible else {})}) if active else {}
-    intro=active and step<=3 and completed<step
-    remaining=max(0,KOTOHOGI_PER_STORY_DAY-(earned-milestone)) if milestone is not None else 0
-    reason=('昼のためクラブはお休みです' if not night else 'おやすみくん未所持のため開催しません' if HOST not in owned else 'かえる未所持：一人のクラブを続けます' if FROG not in owned else '導入会話を最後まで読むと進行します' if intro else f'あと{remaining}ことほぎで次の場面に進めます' if step<4 else '参加後のクラブを続けます')
+    intro=active and ((step<=3 and completed<step) or (step==5 and completed==3) or (step==6 and completed==4))
+    remaining=max(0,KOTOHOGI_PER_STORY_DAY-(earned-(settling_at if completed==4 else milestone))) if (settling_at if completed==4 else milestone) is not None else 0
+    reason=('昼のためクラブはお休みです' if not night else 'おやすみくん未所持のため開催しません' if HOST not in owned else 'かえる未所持：一人のクラブを続けます' if FROG not in owned else '導入会話を最後まで読むと進行します' if intro else 'コアラちゃん所持後、次の物語に進めます' if step==5 and completed==4 and KOALA not in owned else f'あと{remaining}ことほぎで次の場面に進めます' if step<4 or (step==5 and completed==4) else '参加後のクラブを続けます')
     def turn_speakers(item):
         return [FROG] if isinstance(item,str) else [turn['speaker'] for turn in item['turns']]
     wish=doc['stages']['joined']['specialConversation']
     rumor=doc['stages']['joined']['rumorConversation']
     cleaner=doc['stages']['joined']['parkCleanerConversation']
     resignation=doc['stages']['joined']['resignationConversation']
-    special_ready=(active and key=='joined' and completed==3)
+    special_ready=(active and key in ('joined','settling','koala') and completed>=3)
     elapsed=earned-(milestone if milestone is not None else 0)
-    resignation_available=(special_ready and
+    resignation_available=(special_ready and completed==3 and
                             elapsed >= resignation['unlockAfterKotohogi'] and
                             resignation_at is None and not park_cleaner_started)
-    cleaner_available=(special_ready and
+    cleaner_available=(special_ready and completed==3 and
                        elapsed >= cleaner['unlockAfterKotohogi'] and
                        resignation_at is not None and
                        earned-resignation_at >= KOTOHOGI_PER_STORY_DAY and
@@ -304,5 +340,5 @@ def preview(payload):
     rest = [
         item for item in daily_lines
         if set(turn_speakers(item)).issubset(set(peers)|{FROG})
-    ] if completed==3 and FROG in owned and not active else []
-    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed==3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},resignationDialogue=resignation if resignation_available else None,parkCleanerDialogue=cleaner if cleaner_available and not resignation_available else None,rumorDialogue=rumor if rumor_available else None,wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=step if intro else completed)
+    ] if completed>=3 and FROG in owned and not active else []
+    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,settlingAtKotohogi=settling_at,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed>=3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},resignationDialogue=resignation if resignation_available else None,parkCleanerDialogue=cleaner if cleaner_available and not resignation_available else None,rumorDialogue=rumor if rumor_available else None,wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=(step if step<=3 else step-1) if intro else completed)

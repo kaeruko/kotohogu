@@ -916,6 +916,10 @@ class ProgressController extends ChangeNotifier {
         progress!.oyasumi.completed != scene.saved.completed ||
         progress!.oyasumi.lastNight != scene.saved.lastNight ||
         progress!.oyasumi.lastKotohogi != scene.saved.lastKotohogi ||
+        progress!.oyasumi.resignationAtKotohogi !=
+            scene.saved.resignationAtKotohogi ||
+        progress!.oyasumi.settlingAtKotohogi !=
+            scene.saved.settlingAtKotohogi ||
         progress!.points != scene.earnedKotohogi) {
       return false;
     }
@@ -960,6 +964,7 @@ class ProgressController extends ChangeNotifier {
         lastNight: current.lastNight,
         lastKotohogi: current.lastKotohogi,
         resignationAtKotohogi: scene.earnedKotohogi,
+        settlingAtKotohogi: current.settlingAtKotohogi,
       )).markDialogueSeen(OyasumiScene.resignationId);
       await store.save(next);
       progress = next;

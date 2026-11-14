@@ -385,7 +385,7 @@ class EventTests(unittest.TestCase):
         self.assertTrue(all(isinstance(item,str) for item in watching))
         self.assertIn('におう',joined[0]['turns'][0]['text'])
         self.assertEqual([t['speaker'] for t in joined[0]['turns']], [frog,host])
-        self.assertEqual(len(joined),4)
+        self.assertEqual(len(joined),5)
         park=joined[1]['turns']
         today=joined[2]['turns']
         self.assertEqual([t['speaker'] for t in park], [frog,host])
@@ -395,14 +395,14 @@ class EventTests(unittest.TestCase):
         self.assertEqual(today[0]['text'],'おやすみくん、今日は何してた？')
         self.assertIn('かえるくんをまってた',today[1]['text'])
         self.assertIn('待ってないじゃん',today[-1]['text'])
-        reunion=joined[-1]['turns']
+        reunion=joined[-2]['turns']
         self.assertEqual([turn['speaker'] for turn in reunion],
                          [frog, frog, frog, host])
         self.assertIn('会いに来たんだけど', reunion[1]['text'])
         self.assertIn('起こさないでおこうね', reunion[2]['text'])
         self.assertIn('……すぅ……もふ……', reunion[-1]['text'])
         self.assertEqual(
-            self.preview(3,'2026-10-19')['dialogues'][frog][-1]['turns'],
+            self.preview(3,'2026-10-19')['dialogues'][frog][-2]['turns'],
             reunion)
         resignation=doc['stages']['joined']['resignationConversation']['turns']
         self.assertEqual(len(resignation),8)
@@ -427,6 +427,67 @@ class EventTests(unittest.TestCase):
         # The existing stage progression contract must remain unchanged.
         self.assertEqual(self.preview(2,'2026-10-19')['stage'],'joining')
         self.assertEqual(self.preview(3,'2026-10-19')['stage'],'joined')
+
+    def test_new_routine_and_koala_story_follow_the_job_report(self):
+        doc=events.load()
+        settling=doc['stages']['settling']
+        koala=doc['stages']['koala']
+        self.assertEqual(set(settling['chatter']), {events.HOST,events.FROG})
+        self.assertEqual(set(koala['chatter']), {events.HOST,events.FROG,events.KOALA})
+        self.assertEqual(len(settling['chatter'][events.FROG]),5)
+        self.assertIn('仕事の帰りがちょっと楽しみ',
+                      settling['chatter'][events.FROG][3]['turns'][0]['text'])
+        self.assertEqual(len(koala['intro']['turns']),13)
+        self.assertEqual(koala['intro']['turns'][0]['speaker'],events.FROG)
+        self.assertIn(events.KOALA,[t['speaker'] for t in koala['intro']['turns']])
+        base=dict(config=doc,completed=3,lastNight='2026-10-20',
+                  lastKotohogi=160,resignationAtKotohogi=190,
+                  earnedKotohogi=220,now='2026-10-25T19:00',
+                  owned=[events.HOST,events.FROG,events.KOALA],
+                  parkCleanerStarted=True)
+        before=events.preview({**base,'parkCleanerStarted':False})
+        self.assertEqual(before['stage'],'joined')
+        fifth=events.preview(base)
+        self.assertEqual(fifth['stage'],'settling')
+        self.assertEqual(fifth['cast'],[events.HOST,events.FROG])
+        self.assertTrue(fifth['canComplete'])
+        self.assertEqual(fifth['nextCompleted'],4)
+        self.assertEqual(fifth['intro'],settling['intro'])
+        saved={**base,'completed':4,'settlingAtKotohogi':220}
+        not_yet=events.preview({**saved,'earnedKotohogi':240})
+        self.assertEqual(not_yet['stage'],'settling')
+        self.assertFalse(not_yet['canComplete'])
+        self.assertEqual(not_yet['nextCompleted'],4)
+        without_koala=events.preview({**saved,'earnedKotohogi':250,
+                                      'owned':[events.HOST,events.FROG]})
+        self.assertEqual(without_koala['stage'],'settling')
+        sixth=events.preview({**saved,'earnedKotohogi':250})
+        self.assertEqual(sixth['stage'],'koala')
+        self.assertTrue(sixth['canComplete'])
+        self.assertEqual(sixth['nextCompleted'],5)
+        self.assertEqual(sixth['cast'],[events.HOST,events.FROG,events.KOALA])
+        self.assertEqual(sixth['intro'],koala['intro'])
+        finished=events.preview({**saved,'completed':5,'earnedKotohogi':250})
+        self.assertEqual(finished['stage'],'koala')
+        self.assertFalse(finished['canComplete'])
+        self.assertTrue(finished['frogResting'])
+        # Unread story chapters remain available after the fifth/sixth phases.
+        backlogged={**saved,'earnedKotohogi':280}
+        self.assertIsNotNone(events.preview(backlogged)['rumorDialogue'])
+        self.assertIsNotNone(events.preview({**backlogged,'rumorSeen':True})['wishDialogue'])
+        with self.assertRaisesRegex(ValueError,'新しい暮らし'):
+            events.preview({**base,'completed':4})
+        with self.assertRaisesRegex(ValueError,'新しい暮らし'):
+            events.preview({**saved,'settlingAtKotohogi':225})
+        with self.assertRaisesRegex(ValueError,'新しい暮らし'):
+            events.preview({**base,'settlingAtKotohogi':220})
+        invalid=copy.deepcopy(doc)
+        invalid['stages']['koala']['intro']['turns']=[
+            {'speaker':events.FROG,'text':'こんにちは'},
+            {'speaker':events.HOST,'text':'もふ〜'},
+        ]
+        with self.assertRaisesRegex(ValueError,'本人'):
+            events.validate(invalid)
 
     def test_park_cleaner_replaces_all_post_club_daytime_lines(self):
         doc=events.load()

@@ -109,7 +109,7 @@ class DebugMenuScreen extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         title: const Text('おやすみクラブを最初からやり直しますか？'),
         content: const Text(
-          'ゆうぐれおやすみクラブの進行を0/3に戻します。'
+          'ゆうぐれおやすみクラブの進行を0/5に戻します。'
           '通常のプレイでも最初の場面からになります。\n\n'
           'ことほぎ・ミッション・ガチャ所持・ほかの会話の既読は変更しません。',
         ),
@@ -413,7 +413,7 @@ class DebugMenuScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '読了した導入：${progress.oyasumi.completed}/3',
+                    '読了した導入：${progress.oyasumi.completed}/5',
                     key: const ValueKey('debug-oyasumi-progress'),
                     style: const TextStyle(
                       color: wood, fontWeight: FontWeight.bold),
@@ -425,6 +425,8 @@ class DebugMenuScreen extends StatelessWidget {
                       '遠巻きに見ている',
                       '参加する夜',
                       '参加後',
+                      'かえるくんの帰り道',
+                      'コアラちゃん、はじめまして',
                     ][progress.oyasumi.completed]}',
                     key: const ValueKey('debug-oyasumi-stage'),
                     style: const TextStyle(color: wood),
@@ -433,7 +435,9 @@ class DebugMenuScreen extends StatelessWidget {
                   const Text(
                     '現在表示されている場面を見たいときは、まず夜の中央ひろばへ。'
                     '「今の導入をスキップして次へ」を押すと、その場面を読了済みにして次へ進みます。'
-                    'たとえば2/3で押すと3/3になり、かえるくんの参加後へ進みます。'
+                    'たとえば2/5で押すと3/5になり、かえるくんの参加後へ進みます。'
+                    'デバッグのスキップは最初の3章だけです。'
+                    '第5・第6段階はおそうじ報告と累積ことほぎ・コアラちゃん所持で進みます。'
                     '累積ことほぎは増えません。'
                     '\n実際にクラブが現れるのは18時〜翌5時の夜で、'
                     '実際の進行は累積ことほぎ30ごとです。'
