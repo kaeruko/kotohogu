@@ -489,6 +489,42 @@ class EventTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'本人'):
             events.validate(invalid)
 
+    def test_aws_followup_chapter_can_be_added_without_new_app_logic(self):
+        doc=copy.deepcopy(events.load())
+        doc['followupChapters'].append({
+            'stage':'after_koala',
+            'requiredSeenDialogues':[],
+            'requiredOwned':[],
+            'kotohogiAfterPrevious':30,
+        })
+        stage=copy.deepcopy(doc['stages']['settling'])
+        stage['label']='もうひとつの夜'
+        stage['intro']={'speaker':events.FROG,
+                        'text':'またお話したいことがあるんだ。'}
+        doc['stages']['after_koala']=stage
+        events.validate(doc)
+        base={
+            'config':doc,'completed':5,'lastNight':'2026-10-25',
+            'lastKotohogi':160,'resignationAtKotohogi':190,
+            'settlingAtKotohogi':220,
+            'chapterKotohogi':{'settling':220,'koala':250},
+            'earnedKotohogi':270,'parkCleanerStarted':True,
+            'owned':[events.HOST,events.FROG,events.KOALA],
+            'now':'2026-10-25T19:00',
+        }
+        still=events.preview(base)
+        self.assertEqual(still['stage'],'koala')
+        future=events.preview({**base,'earnedKotohogi':280})
+        self.assertEqual(future['stage'],'after_koala')
+        self.assertTrue(future['canComplete'])
+        self.assertEqual(future['nextCompleted'],6)
+        self.assertEqual(future['cast'],[events.HOST,events.FROG])
+        ready=events.preview({**base,'earnedKotohogi':280,'completed':6,
+                              'chapterKotohogi':{**base['chapterKotohogi'],
+                                                'after_koala':280}})
+        self.assertFalse(ready['canComplete'])
+        self.assertEqual(ready['stage'],'after_koala')
+
     def test_park_cleaner_replaces_all_post_club_daytime_lines(self):
         doc=events.load()
         self.assertEqual(len(doc['restingDialogue']),7)

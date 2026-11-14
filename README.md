@@ -110,6 +110,10 @@ flutter run -t lib/main.dart --dart-define=KOTOHOGU_LOCAL_CONTENT_URL=http://10.
 
 アプリのコンテンツ公開は、ローカルCMSと次の仕組みを組み合わせています。
 
+**おやすみクラブもAWS配信に対応**：新しいアプリでは `api/runtime/oyasumi` を住民カタログと同じ不変リリースから検証して読みます。進行条件・会話・出演する既存住民の組み合わせ・新しい章は `assets/events/oyasumi_club.json` と `followupChapters` で管理し、以降はAWSの内容更新だけで反映できます。配信に必要な初回のアプリバージョン更新は一度だけ必要です。配信エラー時は内蔵データに黙って戻りません。
+
+新しい章には**アプリに既に登録されている住民IDのみ**を指定できます。ガチャに新しい住民のID自体を登録する変更は別途バイナリ更新が必要です。既読章のID・順序を変更すると既存セーブが解釈できなくなるため、章の追加は `followupChapters` と `stages` の末尾へ行います。既存の第5段階 `settling` と第6段階 `koala` は順序固定です。
+
 ```text
 ローカルCMS（住民・セリフ・画像）
           ↓

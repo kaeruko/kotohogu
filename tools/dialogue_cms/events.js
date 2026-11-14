@@ -4,6 +4,7 @@ const names={'027_daydreamer':'おやすみくん','029_office_worker':'かえ�
 const folders={'027_daydreamer':'027_daydreamer','029_office_worker':'029_office_worker','036_mosa':'036_mosa','041_pig_middle':'041_pig_middle'};
 let outdoorResidents=[];
 let config,result,revision=0;
+let chapterAt={};
 const el=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 async function request(url,options){const response=await fetch(url,options);const data=await response.json();if(!response.ok)throw Error(data.error||'読み込みに失敗しました');return data;}
 function change(){ $('saveStatus').textContent='未保存の変更があります';preview(); }
@@ -116,6 +117,28 @@ function editSpecialTurns(parent,scene,options={}){
 }
 function renderEditor(){
   $('stages').replaceChildren();
+  config.followupChapters.forEach((chapter,index)=>{
+    const details=el('details');
+    details.append(el('summary',`第${index+5}段階：${chapter.stage} の解放条件`));
+    const hint=el('p','ここでの条件はAWS公開後のアプリにも適用されます。既存の段階を削除・改名せず、新しい段階は末尾へ追加してください。');
+    hint.className='hint';details.append(hint);
+    const threshold=el('label','前の章を読んでから必要な累積ことほぎ ');
+    const input=el('input');input.type='number';input.min='0';
+    input.max='3000';input.step='10';input.value=chapter.kotohogiAfterPrevious;
+    input.onchange=()=>{chapter.kotohogiAfterPrevious=Number(input.value);change();};
+    threshold.append(input);details.append(threshold);
+    if(index>1){
+      textField(details,'必要な住民ID（カンマ区切り）',
+        chapter.requiredOwned.join(', '),value=>{
+          chapter.requiredOwned=value.split(',').map(x=>x.trim()).filter(Boolean);
+        });
+      textField(details,'必要な既読会話ID（カンマ区切り）',
+        chapter.requiredSeenDialogues.join(', '),value=>{
+          chapter.requiredSeenDialogues=value.split(',').map(x=>x.trim()).filter(Boolean);
+        });
+    }
+    $('stages').append(details);
+  });
   Object.entries(config.stages).forEach(([key,stage],i)=>{
     const detail=el('details');detail.open=i===0;
     detail.append(el('summary',`${i+1}. ${stage.label}`));
@@ -261,6 +284,7 @@ function payload(){
     lastKotohogi:numericOrNull('lastKotohogi'),
     resignationAtKotohogi:numericOrNull('resignationAtKotohogi'),
     settlingAtKotohogi:numericOrNull('settlingAtKotohogi'),
+    chapterKotohogi:chapterAt,
     owned:[...($('host').checked?['027_daydreamer']:[]),
       ...($('frog').checked?['029_office_worker']:[]),
       ...($('mosa').checked?['036_mosa']:[]),
@@ -410,6 +434,10 @@ $('completed').onchange=()=>{
   $('last').value=isStart?'':$('now').value.slice(0,10);
   $('lastKotohogi').value=isStart?'':$('earnedKotohogi').value;
   $('settlingAtKotohogi').value=count>=4?$('earnedKotohogi').value:'';
+  chapterAt={};
+  for(let i=0;i<count-3;i++){
+    chapterAt[config.followupChapters[i].stage]=Number($('earnedKotohogi').value);
+  }
   preview();
 };
 $('wishSeen').onchange=preview;
@@ -422,14 +450,17 @@ $('read').onclick=async()=>{
   $('last').value=result.nightKey;
   if(result.nextCompleted<=3){
     $('lastKotohogi').value=String(result.earnedKotohogi);
-  }else if(result.nextCompleted===4){
-    $('settlingAtKotohogi').value=String(result.earnedKotohogi);
+  }else{
+    if(result.nextCompleted===4){
+      $('settlingAtKotohogi').value=String(result.earnedKotohogi);
+    }
+    chapterAt[result.stage]=result.earnedKotohogi;
   }
   await preview();
 };
 $('readResignation').onclick=async()=>{if(!result?.resignationDialogue)return;$('resignationAtKotohogi').value=String(result.earnedKotohogi);await preview();};
 $('next').onclick=()=>{$('earnedKotohogi').value=Number($('earnedKotohogi').value)+30;preview();};
-$('reset').onclick=()=>{$('completed').value='0';$('last').value='';$('last').disabled=true;$('lastKotohogi').value='';$('resignationAtKotohogi').value='';$('settlingAtKotohogi').value='';$('cleanerStarted').checked=false;$('wishSeen').checked=false;$('rumorSeen').checked=false;preview();};
+$('reset').onclick=()=>{chapterAt={};$('completed').value='0';$('last').value='';$('last').disabled=true;$('lastKotohogi').value='';$('resignationAtKotohogi').value='';$('settlingAtKotohogi').value='';$('cleanerStarted').checked=false;$('wishSeen').checked=false;$('rumorSeen').checked=false;preview();};
 $('save').onclick=async()=>{try{await request('/api/events',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)});$('saveStatus').textContent='保存しました。アプリは再ビルドすると反映されます。';}catch(error){$('saveStatus').textContent=error.message;}};
 $('reload').onclick=load;
 load();

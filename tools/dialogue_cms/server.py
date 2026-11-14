@@ -382,12 +382,13 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(404, {"error": str(exc)})
             except OSError as exc:
                 self._send(500, {"error": str(exc)})
-        elif path == "/api/runtime/catalog":
+        elif path in {"/api/runtime/catalog", "/api/runtime/oyasumi"}:
             if url.query:
-                self._send(400, {"error": "Runtime catalog takes no query parameters"})
+                self._send(400, {"error": "Runtime content takes no query parameters"})
                 return
             try:
-                self._send(200, runtime_catalog())
+                self._send(200, runtime_catalog() if path.endswith("/catalog")
+                           else events.load())
             except (OSError, ValueError, TypeError) as exc:
                 self._send(500, {"error": str(exc)})
         elif path.startswith("/api/runtime/sprites/"):

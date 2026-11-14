@@ -10,6 +10,7 @@ import 'dialogue_engine.dart';
 import 'marche.dart';
 import 'town_rules.dart';
 import 'oyasumi_club.dart';
+import 'oyasumi_config.g.dart';
 import 'timed_events.dart';
 import 'local_content_preview.dart';
 import 'google_drive_content_source.dart';
@@ -164,7 +165,19 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   // are not selected on every tap.
   final Set<String> _previewSeenDialogues = {};
   Timer? _clubClock;
+  Map<String, dynamic> get _clubConfig {
+    // Deterministic tests without a remote loader use the package fixture.
+    // Production never substitutes bundled content for a failed CDN request.
+    if (widget.remoteContentLoader == null) return oyasumiConfig;
+    final hosted = _activeHostedContent;
+    if (hosted == null) {
+      throw StateError('CloudFront club config was not loaded');
+    }
+    return hosted.clubConfig;
+  }
+
   OyasumiScene _clubScene(Progress progress) => OyasumiScene(
+    config: _clubConfig,
     saved: progress.oyasumi, owned: progress.residents.owned,
     now: controller.clock(),
     earnedKotohogi: progress.points,
@@ -189,6 +202,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   late final Future<DialogueCatalog> _dialoguesFuture;
   // A single future carries both the pinned CDN URL and matching catalog.
   Future<HostedTownContent>? _remoteContentFuture;
+  HostedTownContent? _activeHostedContent;
   ProgressController get controller => widget.controller;
 
   @override
@@ -797,6 +811,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           body: Center(child: CircularProgressIndicator()),
         );
       }
+      _activeHostedContent = hostedSnapshot.data;
       return FutureBuilder<DialogueCatalog>(
     future: _dialoguesFuture,
     builder: (context, snapshot) {
@@ -1162,7 +1177,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     final loader = widget.remoteContentLoader;
     if (loader == null) return;
     setState(() {
-      // Re-read Drive on refresh/resume. Never switch to packaged assets.
+      // The old pin cannot serve as a substitute while a fresh release loads.
+      _activeHostedContent = null;
       _remoteContentFuture = loader();
     });
   }

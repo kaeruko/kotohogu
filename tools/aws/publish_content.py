@@ -19,6 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "dialogue_cms"))
 from server import runtime_catalog, runtime_sprite_path  # noqa: E402
+from events import load as load_oyasumi_event  # noqa: E402
 from characters import DIRECTIONS  # noqa: E402
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
@@ -67,6 +68,9 @@ def prepare(stage):
     catalog = runtime_catalog()
     records = []
     _record(stage, Path("api/runtime/catalog"), encode_json(catalog), records)
+    # The club rules, dialogue, positions and future chapters share one pinned release.
+    _record(stage, Path("api/runtime/oyasumi"),
+            encode_json(load_oyasumi_event()), records)
     for resident in catalog["characters"]:
         for frame in frames_for(resident):
             path = runtime_sprite_path(resident["artFolder"], frame)
@@ -183,6 +187,8 @@ def publish(args):
             "--sse", "AES256", "--only-show-errors", "--no-progress")
         upload(args, bucket, stage / "api" / "runtime" / "catalog",
                prefix + "api/runtime/catalog", "application/json", IMMUTABLE)
+        upload(args, bucket, stage / "api" / "runtime" / "oyasumi",
+               prefix + "api/runtime/oyasumi", "application/json", IMMUTABLE)
         upload(args, bucket, stage / "manifest.json", prefix + "manifest.json",
                "application/json", IMMUTABLE)
         verify_release(args, bucket, prefix, records, stage / "manifest.json")

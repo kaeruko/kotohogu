@@ -1045,5 +1045,23 @@
         }
       ]
     }
+  ],
+  "followupChapters": [
+    {
+      "stage": "settling",
+      "requiredSeenDialogues": [
+        "frog_park_cleaner_started"
+      ],
+      "requiredOwned": [],
+      "kotohogiAfterPrevious": 0
+    },
+    {
+      "stage": "koala",
+      "requiredSeenDialogues": [],
+      "requiredOwned": [
+        "049_koara"
+      ],
+      "kotohogiAfterPrevious": 30
+    }
   ]
 }

@@ -383,3 +383,12 @@ CMS の `/timed-events` でイベントを追加・編集できます。設定�
 検証: `python -m unittest discover -s tools/dialogue_cms -p 'test_*.py'`、
 `flutter test test/timed_events_test.dart test/oyasumi_club_test.dart`、
 `flutter analyze`。
+
+
+## おやすみクラブの追加章をAWSだけで公開する
+
+新しいアプリは CloudFront の `api/runtime/oyasumi` を読み込みます。既存6段階の会話・配置・解放条件はこのCMSで編集できます。第7段階以降は `assets/events/oyasumi_club.json` の `followupChapters` と `stages` の**末尾**に、同じ `stage` IDの章を追加します。
+
+`followupChapters` の `requiredOwned` は既にアプリへ登録された住民ID、`requiredSeenDialogues` は事前に読了する会話ID、`kotohogiAfterPrevious` は前章導入の読了から追加で必要な累積ことほぎ（10刻み）です。追加章の `positions` と `chatter` に出演者を定義し、`intro` を登録します。章IDは一度公開したら変えず、既存章は削除・並べ替えしないでください。
+
+CMS・Flutterのテストが通った後、`main` へpushすると Publish AWS content が起動し、同じリリースの住民・スプライト・クラブ設定が原子的に発行されます。**配布中の旧アプリはAWS配信版のクラブ進行を使いません。最初の対応バイナリ公開は別途必要です。** 新しい住民をガチャ台帳へ追加する変更も、引き続きアプリ更新が必要です。

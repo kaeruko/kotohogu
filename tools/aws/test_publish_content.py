@@ -39,7 +39,8 @@ class PublishContentTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(records, second_records)
         self.assertEqual(current, current2)
-        self.assertEqual(len(records), 20)  # 1 JSON + 19 PNGs
+        self.assertEqual(len(records), 21)  # 2 JSON documents + 19 PNGs
+        self.assertIn("api/runtime/oyasumi", [row["path"] for row in records])
         self.assertEqual(len(first), 64)
         self.assertEqual(
             (self.base / "one" / "api/runtime/catalog").read_bytes(),

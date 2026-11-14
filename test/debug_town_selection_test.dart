@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/debug_menu_screen.dart';
 import 'package:future_lift/google_drive_content_source.dart';
+import 'package:future_lift/oyasumi_config.g.dart';
 import 'package:future_lift/local_content_preview.dart';
 import 'package:future_lift/dialogue_engine.dart';
 import 'package:future_lift/game_home.dart';
@@ -472,6 +473,7 @@ void main() {
       remoteContentLoader: () async => HostedTownContent(
         baseUri: localServerUri('http://10.0.2.2:8765'),
         catalog: remote,
+        clubConfig: oyasumiConfig,
       ),
     ));
     await tester.pumpAndSettle();

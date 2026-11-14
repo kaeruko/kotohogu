@@ -7,7 +7,8 @@ from characters import commit_files, load_catalog
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / 'assets/events/oyasumi_club.json'
 DART = ROOT / 'lib/oyasumi_config.g.dart'
-STAGES = ('solo', 'watching', 'joining', 'joined', 'settling', 'koala')
+BASE_STAGES = ('solo', 'watching', 'joining', 'joined')
+STAGES = BASE_STAGES + ('settling', 'koala')  # retained as a default fixture order
 KOTOHOGI_PER_STORY_DAY = 30
 HOST, FROG, MOSA, TONKO, KOALA = '027_daydreamer', '029_office_worker', '036_mosa', '041_pig_middle', '049_koara'
 
@@ -17,7 +18,7 @@ def load():
 
 
 def validate(doc):
-    if not isinstance(doc, dict) or set(doc) != {'version','id','label','night','background','stages','restingDialogue','cleanerDialogue','nightPatrol','teaVisit'}:
+    if not isinstance(doc, dict) or set(doc) != {'version','id','label','night','background','stages','followupChapters','restingDialogue','cleanerDialogue','nightPatrol','teaVisit'}:
         raise ValueError('イベントの項目が不正です')
     if doc['version'] != 1 or doc['id'] != 'oyasumi_club' or doc['background'] != 'assets/kotohogu/town_background_night.jpg':
         raise ValueError('イベントID・背景は固定です')
@@ -28,12 +29,43 @@ def validate(doc):
     night = doc['night']
     if not isinstance(night,dict) or set(night) != {'startHour','endHour'} or any(type(v) is not int for v in night.values()) or not 12 <= night['startHour'] <= 23 or not 1 <= night['endHour'] <= 11:
         raise ValueError('開始は12〜23時、終了は翌1〜11時で指定してください')
-    if not isinstance(doc['stages'],dict) or set(doc['stages']) != set(STAGES):
-        raise ValueError('物語の4段階は固定です')
+    chapters=doc['followupChapters']
+    if not isinstance(chapters,list) or not 2 <= len(chapters) <= 32:
+        raise ValueError('追加章は2〜32段階で設定してください')
+    chapter_keys=[]
     outdoor = {
         row['id'] for row in load_catalog()['characters']
         if row['walkInTown'] and row['homeAreaId'] != 'salon'
     }
+    for index,chapter in enumerate(chapters):
+        if not isinstance(chapter,dict) or set(chapter) != {
+            'stage','requiredSeenDialogues','requiredOwned','kotohogiAfterPrevious'
+        }:
+            raise ValueError('追加章の解放条件が不正です')
+        key=chapter['stage']
+        if (type(key) is not str or not key or
+            not key.replace('_','').isalnum() or key in BASE_STAGES or
+            key in chapter_keys):
+            raise ValueError('追加章のIDが不正または重複しています')
+        chapter_keys.append(key)
+        required_owned=chapter['requiredOwned']
+        seen=chapter['requiredSeenDialogues']
+        delay=chapter['kotohogiAfterPrevious']
+        if (not isinstance(required_owned,list) or len(set(required_owned))!=len(required_owned) or
+            any(type(x) is not str or x not in outdoor for x in required_owned) or
+            not isinstance(seen,list) or len(seen)>8 or len(set(seen))!=len(seen) or
+            any(type(x) is not str or not x or len(x)>100 for x in seen) or
+            type(delay) is not int or delay<0 or delay>3000 or delay%10):
+            raise ValueError('追加章の解放条件が不正です')
+    if chapter_keys[:2]!=['settling','koala']:
+        raise ValueError('既存セーブ互換のため第5・第6段階のIDと順序は固定です')
+    if (chapters[0]['requiredSeenDialogues']!=['frog_park_cleaner_started'] or
+        chapters[0]['requiredOwned'] or chapters[0]['kotohogiAfterPrevious']!=0 or
+        chapters[1]['requiredOwned']!=[KOALA]):
+        raise ValueError('既存の新生活・コアラ登場の解放条件を変更できません')
+    stage_order=(*BASE_STAGES,*chapter_keys)
+    if not isinstance(doc['stages'],dict) or list(doc['stages']) != list(stage_order):
+        raise ValueError('章データの順序と追加章の定義が一致しません')
     def lines(items, speaker, allowed, *, max_patterns=4):
         if not isinstance(items,list) or not 3 <= len(items) <= max_patterns:
             raise ValueError(f'繰り返し会話は3〜{max_patterns}本で設定してください')
@@ -53,7 +85,7 @@ def validate(doc):
             if len(turns)==1 and turns[0]['speaker']==speaker:
                 has_solo=True
         return has_solo
-    for key in STAGES:
+    for key in stage_order:
         stage = doc['stages'][key]
         required = {'label','positions','intro','chatter'}
         if key == 'joined':
@@ -61,9 +93,20 @@ def validate(doc):
         if not isinstance(stage,dict) or set(stage) != required:
             raise ValueError('段階の項目が不正です')
         text(stage['label'])
-        cast = {HOST} if key == 'solo' else {HOST,FROG,KOALA} if key == 'koala' else {HOST,FROG}
-        if set(stage['positions']) != cast or set(stage['chatter']) != cast:
-            raise ValueError('出演者はこの段階では変更できません')
+        if not isinstance(stage['positions'],dict) or not isinstance(stage['chatter'],dict):
+            raise ValueError('出演者の定義が不正です')
+        cast = set(stage['positions'])
+        expected={HOST} if key=='solo' else {HOST,FROG,KOALA} if key=='koala' else {HOST,FROG}
+        if key in BASE_STAGES or key in ('settling','koala'):
+            if cast!=expected:
+                raise ValueError('既存章の出演者は変更できません')
+        else:
+            chapter=next(c for c in chapters if c['stage']==key)
+            allowed={HOST,FROG,*chapter['requiredOwned']}
+            if not {HOST,FROG}.issubset(cast) or not cast.issubset(allowed) or len(cast)>6:
+                raise ValueError('新しい章の出演者は、所持条件に含めてください')
+        if set(stage['chatter']) != cast:
+            raise ValueError('出演者と通常会話の話者が一致しません')
         for position in stage['positions'].values():
             if not isinstance(position,list) or len(position)!=2 or any(type(v) not in (int,float) or not .1 <= v <= .85 for v in position):
                 raise ValueError('配置は画面内の0.1〜0.85で指定してください')
@@ -149,16 +192,16 @@ def validate(doc):
             primary=HOST if key=='solo' else FROG
             if not isinstance(intro,dict) or intro.get('speaker') != primary:
                 raise ValueError('導入会話の話者が不正です')
-            if key=='koala':
+            if 'turns' in intro:
                 turns=intro.get('turns')
                 if set(intro) != {'speaker','turns'} or not isinstance(turns,list) or not 2 <= len(turns) <= 16:
-                    raise ValueError('コアラ初登場の導入は2〜16発言です')
+                    raise ValueError('初登場の導入は2〜16発言です')
                 for i,turn in enumerate(turns):
                     if (not isinstance(turn,dict) or set(turn) != {'speaker','text'} or
                         turn['speaker'] not in cast or (i==0 and turn['speaker']!=primary)):
                         raise ValueError('コアラ導入会話の話者が不正です')
                     text(turn['text'])
-                if not any(turn['speaker']==KOALA for turn in turns):
+                if key=='koala' and not any(turn['speaker']==KOALA for turn in turns):
                     raise ValueError('コアラの導入会話に本人が必要です')
             else:
                 if set(intro) != {'speaker','text'}:
@@ -243,12 +286,13 @@ def preview(payload):
     milestone=payload.get('lastKotohogi')
     resignation_at=payload.get('resignationAtKotohogi')
     settling_at=payload.get('settlingAtKotohogi')
+    chapter_at=payload.get('chapterKotohogi',{})
     if type(earned) is not int or earned<0 or earned%10:
         raise ValueError('累積ことほぎは10刻みの0以上で入力してください')
     if milestone is not None and (type(milestone) is not int or
             milestone<0 or milestone%10 or milestone>earned or completed==0):
         raise ValueError('最後の読了時の累積ことほぎが不正です')
-    if type(completed) is not int or not 0<=completed<=5:
+    if type(completed) is not int or not 0<=completed<=3+len(doc['followupChapters']):
         raise ValueError('進行値が不正です')
     if (resignation_at is not None and
             (type(resignation_at) is not int or resignation_at < 0 or
@@ -262,6 +306,15 @@ def preview(payload):
           (milestone is not None and settling_at<milestone) or
           (resignation_at is not None and settling_at<resignation_at)))):
         raise ValueError('新しい暮らしの導入を読了した時点の累積ことほぎが不正です')
+    if (not isinstance(chapter_at,dict) or any(
+        type(key) is not str or key not in [c['stage'] for c in doc['followupChapters']]
+        or type(value) is not int or value<0 or value%10 or value>earned
+        for key,value in chapter_at.items()
+    )):
+        raise ValueError('追加章の既読時点の累積ことほぎが不正です')
+    for i,chapter in enumerate(doc['followupChapters']):
+        if chapter['stage'] in chapter_at and completed<4+i:
+            raise ValueError('未読の追加章に進行記録があります')
     if (completed==0)!=(last is None): raise ValueError('完了段階と最終開催日をセットで指定してください')
     if last: datetime.strptime(last,'%Y-%m-%d')
     owned=payload['owned']
@@ -286,14 +339,33 @@ def preview(payload):
     night_key=(now-timedelta(days=1 if now.hour<doc['night']['endHour'] else 0)).strftime('%Y-%m-%d')
     story_days=0 if milestone is None else (earned-milestone)//KOTOHOGI_PER_STORY_DAY
     ready=milestone is None or story_days>=1
+    extra=doc['followupChapters']
+    stage_order=[*BASE_STAGES,*[c['stage'] for c in extra]]
+    seen=set(payload.get('seenDialogues',[]))
+    if any(type(v) is not str or len(v)>100 for v in seen):
+        raise ValueError('特別会話の既読設定が不正です')
+    if park_cleaner_started: seen.add('frog_park_cleaner_started')
+    if rumor_seen: seen.add('oyasumi_joined_kotohoguma_rumor_001')
+    if wish_seen: seen.add('oyasumi_joined_wish_001')
     if FROG not in owned:
         step=1
-    elif completed==5:
-        step=6 if KOALA in owned else 5
-    elif completed==4:
-        step=6 if KOALA in owned and earned-settling_at>=KOTOHOGI_PER_STORY_DAY else 5
-    elif completed==3:
-        step=5 if park_cleaner_started else 4
+    elif completed>=3:
+        extra_completed=completed-3
+        if extra_completed==len(extra):
+            step=4+len(extra)
+        else:
+            next_chapter=extra[extra_completed]
+            if extra_completed==0:
+                since=milestone if milestone is not None else 0
+            else:
+                prev=extra[extra_completed-1]['stage']
+                since=chapter_at.get(prev,settling_at if prev=='settling' else None)
+                if since is None:
+                    raise ValueError(f'追加章の進行チェックポイントがありません: {prev}')
+            eligible=(set(next_chapter['requiredOwned']).issubset(owned) and
+                      set(next_chapter['requiredSeenDialogues']).issubset(seen) and
+                      earned-since >= next_chapter['kotohogiAfterPrevious'])
+            step=(5+extra_completed) if eligible else (4+extra_completed)
     elif completed==2:
         step=3 if ready else 2
     elif completed==1:
@@ -301,9 +373,9 @@ def preview(payload):
     else:
         step=1
     active=night and HOST in owned
-    key=STAGES[step-1]
+    key=stage_order[step-1]
     stage=doc['stages'][key]
-    cast=([HOST]+([FROG] if step>1 and FROG in owned else [])+([KOALA] if step==6 and KOALA in owned else [])) if active else []
+    cast=list(stage['positions']) if active else []
     tea=doc['teaVisit']
     tea_days=story_days if milestone is not None else earned//KOTOHOGI_PER_STORY_DAY
     tea_visible=active and completed>=3 and step>=4 and FROG in owned and TONKO in owned and marche_open and tea_days>=1 and (tea_days-1)%tea['intervalNights']==0
@@ -311,16 +383,16 @@ def preview(payload):
     positions=({**stage['positions'],
                 **({MOSA:[doc['nightPatrol']['route']['x'],doc['nightPatrol']['route']['y']]} if MOSA in passersby else {}),
                 **({TONKO:tea['position']} if tea_visible else {})}) if active else {}
-    intro=active and ((step<=3 and completed<step) or (step==5 and completed==3) or (step==6 and completed==4))
-    remaining=max(0,KOTOHOGI_PER_STORY_DAY-(earned-(settling_at if completed==4 else milestone))) if (settling_at if completed==4 else milestone) is not None else 0
-    reason=('昼のためクラブはお休みです' if not night else 'おやすみくん未所持のため開催しません' if HOST not in owned else 'かえる未所持：一人のクラブを続けます' if FROG not in owned else '導入会話を最後まで読むと進行します' if intro else 'コアラちゃん所持後、次の物語に進めます' if step==5 and completed==4 and KOALA not in owned else f'あと{remaining}ことほぎで次の場面に進めます' if step<4 or (step==5 and completed==4) else '参加後のクラブを続けます')
+    intro=active and ((step<=3 and completed<step) or (step>=5 and completed==step-2))
+    remaining=(max(0,doc['followupChapters'][completed-3]['kotohogiAfterPrevious']-(earned-since)) if completed>=3 and completed<3+len(extra) else max(0,KOTOHOGI_PER_STORY_DAY-(earned-milestone)) if milestone is not None else 0)
+    reason=('昼のためクラブはお休みです' if not night else 'おやすみくん未所持のため開催しません' if HOST not in owned else 'かえる未所持：一人のクラブを続けます' if FROG not in owned else '導入会話を最後まで読むと進行します' if intro else f'あと{remaining}ことほぎで次の場面に進めます（所持・既読条件も必要）' if completed<3+len(extra) else '参加後のクラブを続けます')
     def turn_speakers(item):
         return [FROG] if isinstance(item,str) else [turn['speaker'] for turn in item['turns']]
     wish=doc['stages']['joined']['specialConversation']
     rumor=doc['stages']['joined']['rumorConversation']
     cleaner=doc['stages']['joined']['parkCleanerConversation']
     resignation=doc['stages']['joined']['resignationConversation']
-    special_ready=(active and key in ('joined','settling','koala') and completed>=3)
+    special_ready=(active and step>=4 and completed>=3)
     elapsed=earned-(milestone if milestone is not None else 0)
     resignation_available=(special_ready and completed==3 and
                             elapsed >= resignation['unlockAfterKotohogi'] and
@@ -341,4 +413,4 @@ def preview(payload):
         item for item in daily_lines
         if set(turn_speakers(item)).issubset(set(peers)|{FROG})
     ] if completed>=3 and FROG in owned and not active else []
-    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,settlingAtKotohogi=settling_at,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed>=3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},resignationDialogue=resignation if resignation_available else None,parkCleanerDialogue=cleaner if cleaner_available and not resignation_available else None,rumorDialogue=rumor if rumor_available else None,wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=(step if step<=3 else step-1) if intro else completed)
+    return dict(active=active,stage=key,label=stage['label'],nightKey=night_key,cast=cast,passersby=passersby,positions=positions,intro=stage['intro'] if intro else None,canComplete=intro,completed=completed,lastNight=last,earnedKotohogi=earned,lastKotohogi=milestone,settlingAtKotohogi=settling_at,chapterKotohogi=chapter_at,storyDays=story_days,remainingKotohogi=remaining,reason=reason,frogResting=completed>=3 and FROG in owned,background='night' if active else 'day',dialogues=stage['chatter'] if active else {},resignationDialogue=resignation if resignation_available else None,parkCleanerDialogue=cleaner if cleaner_available and not resignation_available else None,rumorDialogue=rumor if rumor_available else None,wishDialogue=wish if wish_available else None,patrolDialogues=doc['nightPatrol']['dialogues'] if MOSA in passersby else [],teaVisit=tea if tea_visible else None,restingOptions=rest,nextCompleted=(step if step<=3 else step-1) if intro else completed)

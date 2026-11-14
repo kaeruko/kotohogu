@@ -6,6 +6,8 @@ on:
     paths:
       - 'assets/characters/**'
       - 'assets/dialogues/dialogues.json'
+      - 'assets/events/oyasumi_club.json'
+      - 'tools/dialogue_cms/events.py'
       - 'tools/aws/publish_content.py'
       - 'tools/dialogue_cms/server.py'
       - 'tools/dialogue_cms/characters.py'

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kReleaseMode;
 
 import 'local_content_preview.dart';
+import 'oyasumi_remote_config.dart';
 
 /// Public read-only Drive file; the ID is not a credential.
 const String kotohoguContentDriveFileId =
@@ -13,9 +14,16 @@ const Duration driveEndpointTimeout = Duration(seconds: 12);
 
 /// The catalog and all its sprites are pinned to one immutable release.
 class HostedTownContent {
-  const HostedTownContent({required this.baseUri, required this.catalog});
+  const HostedTownContent({
+    required this.baseUri,
+    required this.catalog,
+    required this.clubConfig,
+  });
   final Uri baseUri;
   final RemoteContentCatalog catalog;
+  /// Club dialogue, cast, unlock thresholds and future chapters from the same
+  /// pinned release as catalog and sprites.
+  final Map<String, dynamic> clubConfig;
 }
 
 Uri parseGoogleDriveContentEndpoint(String body) {
@@ -193,6 +201,35 @@ Future<Uri> resolveTownContentEndpoint({
   return loadDriveEndpoint();
 }
 
+/// Read the club event from the exact, already pinned release. A missing,
+/// malformed or mismatched document terminates loading; never use packaged
+/// dialogue as an automatic substitute.
+Future<Map<String, dynamic>> fetchHostedOyasumi(Uri baseUri) async {
+  final url = baseUri.resolve('api/runtime/oyasumi');
+  final client = HttpClient()..connectionTimeout = const Duration(seconds: 8);
+  try {
+    final request = await client.getUrl(url);
+    final response = await request.close();
+    if (response.statusCode != HttpStatus.ok) {
+      throw HttpException('Club event returned HTTP ${response.statusCode}',
+          uri: url);
+    }
+    if (response.headers.contentType?.mimeType != 'application/json') {
+      throw FormatException('Expected application/json for club event: $url');
+    }
+    final bytes = <int>[];
+    await for (final part in response.timeout(const Duration(seconds: 10))) {
+      if (bytes.length + part.length > 256 * 1024) {
+        throw FormatException('Club event exceeds 256 KiB: $url');
+      }
+      bytes.addAll(part);
+    }
+    return parseHostedOyasumi(utf8.decode(bytes, allowMalformed: false));
+  } finally {
+    client.close(force: true);
+  }
+}
+
 Future<HostedTownContent> loadAppTownContent() async {
   const override = String.fromEnvironment('KOTOHOGU_LOCAL_CONTENT_URL');
   final endpoint = await resolveTownContentEndpoint(
@@ -206,5 +243,7 @@ Future<HostedTownContent> loadAppTownContent() async {
       ? endpoint
       : await resolveDriveReleaseBaseUri(endpoint);
   final catalog = await fetchLocalContent(baseUri);
-  return HostedTownContent(baseUri: baseUri, catalog: catalog);
+  final clubConfig = await fetchHostedOyasumi(baseUri);
+  return HostedTownContent(
+      baseUri: baseUri, catalog: catalog, clubConfig: clubConfig);
 }

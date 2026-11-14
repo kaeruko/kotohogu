@@ -561,7 +561,9 @@ class Progress {
       monthlyCompleted: monthly,
       history: history,
       missionCounts: knownCounts,
-      oyasumi: data.containsKey('oyasumi') ? OyasumiProgress.fromJson(data['oyasumi']) : const OyasumiProgress(),
+      oyasumi: data.containsKey('oyasumi')
+          ? OyasumiProgress.fromJson(data['oyasumi']).migrateLegacy(points)
+          : const OyasumiProgress(),
       seenDialogues: version >= 5 ? Set<String>.from(data['seenDialogues'] as List) : {},
       debugResets: debugResets,
     );
@@ -920,6 +922,8 @@ class ProgressController extends ChangeNotifier {
             scene.saved.resignationAtKotohogi ||
         progress!.oyasumi.settlingAtKotohogi !=
             scene.saved.settlingAtKotohogi ||
+        !mapEquals(progress!.oyasumi.chapterKotohogi,
+            scene.saved.chapterKotohogi) ||
         progress!.points != scene.earnedKotohogi) {
       return false;
     }

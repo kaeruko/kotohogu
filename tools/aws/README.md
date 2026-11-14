@@ -41,7 +41,7 @@ if ($LASTEXITCODE -ne 0 -or -not $roleArn -or $roleArn -eq "None") { throw "GitH
 gh variable set AWS_CONTENT_DEPLOY_ROLE_ARN --body $roleArn
 ```
 
-以後は `assets/characters/`、`assets/dialogues/dialogues.json`、CMS／AWS発行ツールの変更を `main` へpushすると自動発行します。再発行したい場合は GitHub の **Actions** → **Publish AWS content** → **Run workflow** でブランチ `main` を選んで手動実行もできます。ワークフローはCMS／発行ツールとFlutter側の配信契約テスト、S3への不変リリース発行、`current.json` 更新、CloudFrontからの公開確認を順番に行います。同時発行は直列化され、AWS認証はOIDCの短期セッションだけを使います。READMEだけの変更など、配信内容に影響しないpushでは実行しません。
+以後は `assets/characters/`、`assets/dialogues/dialogues.json`、`assets/events/oyasumi_club.json`、CMS／AWS発行ツールの変更を `main` へpushすると自動発行します。再発行したい場合は GitHub の **Actions** → **Publish AWS content** → **Run workflow** でブランチ `main` を選んで手動実行もできます。ワークフローはCMS／発行ツールとFlutter側の配信契約テスト、S3への不変リリース発行、`current.json` 更新、CloudFrontからの公開確認を順番に行います。同時発行は直列化され、AWS認証はOIDCの短期セッションだけを使います。READMEだけの変更など、配信内容に影響しないpushでは実行しません。
 
 CloudFront作成直後はDNS/証明書反映に時間がかかります。必要に応じて次のコマンドで配信の準備完了を待てます。
 
@@ -60,7 +60,8 @@ python tools/aws/publish_content.py --stack kotohogu-content --region ap-northea
 
 実行前にCMSのキャラ・セリフ・画像を検証します。不足・不整合があればAWSに書き込む前に停止します。
 
-- `releases/<sha256>/api/runtime/catalog` : キャラ14人などの**公開用**JSON（CMS管理UIや個人データは含みません）
+- `releases/<sha256>/api/runtime/catalog` : 公開用住民カタログ（CMS管理UIや個人データは含みません）
+- `releases/<sha256>/api/runtime/oyasumi` : おやすみクラブの配信設定（章・出演者・会話・解放条件）
 - `releases/<sha256>/api/runtime/sprites/<folder>/*.png` : 実際に使うPNGのみ（元のスプライトシート、プレビューGIFなどはアップしません）
 - `releases/<sha256>/manifest.json` : 全ファイルのSHA-256とサイズ一覧
 - `current.json` : 最新の確定したリリースへの参照先（**最後に**更新）
