@@ -494,7 +494,7 @@ class OyasumiScene {
         ],
       );
     }
-    if (group == stage && step >= 4 &&
+    if ((group == 'joined' || (group == stage && step >= 4)) &&
         resident == frog && rumorDialogueAvailable) {
       return OyasumiDialogue(
         rumorDialogueId,
@@ -507,7 +507,7 @@ class OyasumiScene {
         ],
       );
     }
-    if (group == stage && step >= 4 &&
+    if ((group == 'joined' || (group == stage && step >= 4)) &&
         resident == frog && wishDialogueAvailable) {
       return OyasumiDialogue(
         wishDialogueId,

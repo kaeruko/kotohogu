@@ -166,7 +166,8 @@ Map<String, dynamic> parseHostedOyasumi(String source) {
     final positions = object(stage['positions'], '$name.positions');
     final lines = object(stage['chatter'], '$name.chatter');
     final cast = positions.keys.toSet();
-    if (cast.isEmpty || cast != lines.keys.toSet() ||
+    if (cast.isEmpty || cast.length != lines.length ||
+        !cast.containsAll(lines.keys) ||
         !cast.contains('027_daydreamer') ||
         (name != 'solo' && !cast.contains('029_office_worker'))) {
       throw FormatException('Invalid cast for stage $name');

@@ -47,6 +47,9 @@ void main() {
     final stages = doc['stages'] as Map<String, dynamic>;
     final newStage = jsonDecode(jsonEncode(stages['settling'])) as Map<String, dynamic>;
     newStage['label'] = 'もうひとつの夜';
+    (newStage['chatter'] as Map<String, dynamic>)['029_office_worker'] =
+        ((newStage['chatter'] as Map<String, dynamic>)['029_office_worker']
+            as List).take(4).toList();
     newStage['intro'] = {
       'speaker': '029_office_worker',
       'text': 'またお話したいことがあるんだ。',
