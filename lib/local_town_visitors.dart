@@ -57,6 +57,17 @@ List<RemoteResident> localVisitorsForArea(
       [...acquired, ...newResidents, ...showcase]);
 }
 
+/// Show a genuine first encounter once, then the resident's usual words.
+RemoteDialogue residentGreeting(RemoteContentCatalog catalog, String residentId,
+    Set<String> seenDialogues) {
+  final first = catalog.linesFor(residentId).where(
+      (line) => line.firstGreeting && !seenDialogues.contains(line.id)).toList();
+  if (first.length > 1) {
+    throw StateError('Multiple unread first greetings for $residentId');
+  }
+  return first.isEmpty ? visitorGreeting(catalog, residentId) : first.single;
+}
+
 RemoteDialogue visitorGreeting(RemoteContentCatalog catalog, String residentId) {
   final greetings = catalog.linesFor(residentId)
       .where((line) => line.conditionCount == 0 && !line.once)

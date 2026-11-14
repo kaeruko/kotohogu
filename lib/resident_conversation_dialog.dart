@@ -316,8 +316,10 @@ class RemoteVisitorConversationDialog extends StatelessWidget {
     required this.speaker,
     required this.dialogue,
     required this.baseUri,
+    this.isOwned = false,
   });
 
+  final bool isOwned;
   final RemoteResident speaker;
   final RemoteDialogue dialogue;
   final Uri baseUri;
@@ -325,7 +327,7 @@ class RemoteVisitorConversationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PagedConversationDialog(
         conversationId: 'remote:${speaker.id}:${dialogue.id}',
-        badge: '配信テストの来訪者',
+        badge: isOwned ? 'まちの仲間' : '配信テストの来訪者',
         turns: [
           ConversationTurn(
             label: speaker.label,

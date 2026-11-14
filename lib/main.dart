@@ -924,6 +924,30 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
       if (progress == null) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
+      if (widget.remoteContentLoader != null) {
+        final hosted = _activeHostedContent;
+        if (hosted == null) {
+          throw StateError('CDN catalog not ready for ownership validation');
+        }
+        try {
+          hosted.catalog.validateSavedResidentIds(progress.residents.counts.keys);
+        } catch (error, stack) {
+          return Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: SelectableText(
+                    '所持している住民が配信カタログに見つからないため停止しました。\n'
+                    '$error\n$stack',
+                    key: const ValueKey('owned-resident-catalog-error'),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      }
       return Scaffold(
         body: SafeArea(
           child: Center(
@@ -1184,10 +1208,16 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   }
 
   Future<void> _showLocalVisitor(
-      HostedTownContent hosted, RemoteResident resident) async {
-    // Debug preview only. Reading a remote line must never update ownership
-    // or mark anything as seen in the user's saved dialogue history.
-    final line = visitorGreeting(hosted.catalog, resident.id);
+      HostedTownContent hosted, RemoteResident resident,
+      {bool isOwned = false}) async {
+    final line = isOwned
+        ? residentGreeting(hosted.catalog, resident.id,
+            controller.progress!.seenDialogues)
+        : visitorGreeting(hosted.catalog, resident.id);
+    if (isOwned && !controller.progress!.seenDialogues.contains(line.id)) {
+      final persisted = await controller.recordDialogueSeen(line.id);
+      if (!persisted || !mounted) return;
+    }
     if (!mounted) return;
     await showDialog<void>(
       context: context,
@@ -1195,6 +1225,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         speaker: resident,
         dialogue: line,
         baseUri: hosted.baseUri,
+        isOwned: isOwned,
       ),
     );
   }
@@ -1264,7 +1295,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                 (!developerToolsAvailable || !_showUnownedPreviewVisitors)) {
               throw StateError('Unowned resident dialogue blocked: ${resident.id}');
             }
-            return _showLocalVisitor(hosted, resident);
+            return _showLocalVisitor(hosted, resident, isOwned: isOwned);
           },
           salonUnlockMode: developerToolsAvailable
               ? _salonUnlockMode : SalonUnlockDebugMode.normal,

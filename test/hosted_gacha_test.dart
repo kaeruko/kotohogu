@@ -63,6 +63,24 @@ void main() {
     expect(restored.residents.remotelyOwnedIds, ['060_owl']);
   });
 
+  test('remote resident keeps first greeting until it is recorded', () {
+    final base = testCatalog();
+    final extended = RemoteContentCatalog(base.characters, [
+      ...base.dialogues,
+      const RemoteDialogue(
+        '060_owl_002', '060_owl', 'はじめまして！', 0, 100, true,
+        firstGreeting: true,
+      ),
+    ]);
+    final first = residentGreeting(extended, '060_owl', <String>{});
+    expect(first.id, '060_owl_002');
+    expect(first.firstGreeting, isTrue);
+    final later = residentGreeting(
+        extended, '060_owl', {'060_owl_002'});
+    expect(later.id, '060_owl_001');
+    expect(later.once, isFalse);
+  });
+
   test('retired but registered ID remains readable and never draws', () {
     final catalog = testCatalog();
     final saved = funded(points: 60).acquireResidentId('061_retired');
