@@ -29,7 +29,7 @@ aws cloudformation describe-stacks --stack-name kotohogu-content --region ap-nor
 表示される `ContentBucketName`, `ContentDistributionId`, `ContentDomain`, `GitHubContentDeployRoleArn` を確認してください。
 S3はすべてのパブリックアクセスをブロックし、**公開はCloudFront経由のみ**です。バケット削除防止のためCloudFormationではS3に `Retain` を指定しています。独自ドメインは不要で `https://<ContentDomain>/` を使えます。
 
-このテンプレートは、AWSアカウントに `token.actions.githubusercontent.com` のGitHub OIDCプロバイダーが既にあることを前提にします。発行ロールは `kaeruko/kotohogu` の `main` ブランチだけを信頼し、このスタックの参照と配信バケットの読み書きだけを許可します。
+このテンプレートは、AWSアカウントに `token.actions.githubusercontent.com` のGitHub OIDCプロバイダーが既にあることを前提にします。発行ロールはGitHubの不変ID付きsubject `repo:kaeruko@4452841/kotohogu@1373321581:ref:refs/heads/main` だけを信頼し、このスタックの参照と配信バケットの読み書きだけを許可します。GitHubリポジトリ設定の `use_immutable_subject` を変更した場合は、CloudTrailで実際のsubjectを確認して `GitHubRepositoryIdentity` も同時に更新してください。
 
 ## GitHub Actionsから発行
 
