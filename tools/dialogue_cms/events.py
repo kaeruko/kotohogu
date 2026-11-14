@@ -347,6 +347,7 @@ def preview(payload):
     if park_cleaner_started: seen.add('frog_park_cleaner_started')
     if rumor_seen: seen.add('oyasumi_joined_kotohoguma_rumor_001')
     if wish_seen: seen.add('oyasumi_joined_wish_001')
+    since=milestone if milestone is not None else 0
     if FROG not in owned:
         step=1
     elif completed>=3:

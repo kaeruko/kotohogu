@@ -499,6 +499,7 @@ class EventTests(unittest.TestCase):
         })
         stage=copy.deepcopy(doc['stages']['settling'])
         stage['label']='もうひとつの夜'
+        stage['chatter'][events.FROG]=stage['chatter'][events.FROG][:4]
         stage['intro']={'speaker':events.FROG,
                         'text':'またお話したいことがあるんだ。'}
         doc['stages']['after_koala']=stage
