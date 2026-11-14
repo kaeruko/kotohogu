@@ -147,7 +147,9 @@ enum TownResident {
   // ignore: constant_identifier_names
   c054_tanuki("054_tanuki", "ぽちゃくん", "054_tanuki", true, true, "", "library", archived: false),
   // ignore: constant_identifier_names
-  c020_yagi("020_yagi", "パソコンくん", "020_yagi", true, true, "", "library", archived: false)
+  c020_yagi("020_yagi", "パソコンくん", "020_yagi", true, true, "", "library", archived: false),
+  // ignore: constant_identifier_names
+  c049_koara("049_koara", "コアラちゃん", "049_koara", true, true, "素朴でちょっとぽちゃっとした、のんびり屋のコアラの女の子。ユーカリとおひるねが好き。作業所に通っていて、公民館ではアクセサリーを売ることもある。気弱で遠慮がちだけど、なにもしていないと言われると「ちがうもん……」と小さく反論する。かえるくんの彼女で、おやすみくんと似ていると言われるのはちょっと不本意。", "park", archived: false)
   // END CMS RESIDENTS
   ;
 

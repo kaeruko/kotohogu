@@ -8140,6 +8140,33 @@
       "priority": 90,
       "once": true,
       "logic": "all"
+    },
+    {
+      "id": "049_koara_001",
+      "residentId": "049_koara",
+      "text": "こ、こんにちは……コアラです。ユーカリと、おひるねが好きなの……。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "049_koara_002",
+      "residentId": "049_koara",
+      "text": "わ、わたし、作業所にもいってるもん……。ちょっとずつ、がんばってるんだもん……。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "049_koara_003",
+      "residentId": "049_koara",
+      "text": "公民館でアクセサリーを売ることもあるの……。見てもらえるとうれしいけど、ちょっと緊張するの……。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }

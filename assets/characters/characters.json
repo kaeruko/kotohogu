@@ -341,6 +341,17 @@
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "library"
+    },
+    {
+      "key": "c049_koara",
+      "id": "049_koara",
+      "label": "コアラちゃん",
+      "profile": "素朴でちょっとぽちゃっとした、のんびり屋のコアラの女の子。ユーカリとおひるねが好き。作業所に通っていて、公民館ではアクセサリーを売ることもある。気弱で遠慮がちだけど、なにもしていないと言われると「ちがうもん……」と小さく反論する。かえるくんの彼女で、おやすみくんと似ていると言われるのはちょっと不本意。",
+      "artFolder": "049_koara",
+      "nextDialogueNumber": 4,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "park"
     }
   ]
 }
