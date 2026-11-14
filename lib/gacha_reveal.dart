@@ -184,8 +184,8 @@ class _GachaRevealState extends State<GachaReveal>
                                   key: const ValueKey('gacha-result'),
                                   liveRegion: true,
                                   label: _isNew
-                                      ? '${_residentName}が、まちにやってきました！'
-                                      : '${_residentName}とまた出会いました！',
+                                      ? '$_residentNameが、まちにやってきました！'
+                                      : '$_residentNameとまた出会いました！',
                                   child: LayoutBuilder(
                                     builder: (context, bannerSize) {
                                       final bw = bannerSize.maxWidth;

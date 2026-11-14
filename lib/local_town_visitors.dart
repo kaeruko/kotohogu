@@ -24,7 +24,9 @@ List<RemoteResident> localVisitorsForArea(
   final acquired = catalog.characters.where((resident) {
     if (!remoteOwned.contains(resident.id) ||
         builtInIds.contains(resident.id)) return false;
-    if (!resident.walkInTown || resident.homeAreaId == 'salon') return false;
+    if (!resident.walkInTown || resident.homeAreaId == 'salon') {
+      return false;
+    }
     return visit.destinationFor(
       residentId: resident.id,
       walkInTown: resident.walkInTown,
@@ -35,7 +37,9 @@ List<RemoteResident> localVisitorsForArea(
   if (!debugRemotePreviewEnabled) return List.unmodifiable(acquired);
   final candidates = catalog.characters.where((resident) {
     if (!resident.walkInTown || resident.homeAreaId == 'salon' ||
-        ownedIds.contains(resident.id)) return false;
+        ownedIds.contains(resident.id)) {
+      return false;
+    }
     return visit.destinationFor(
       residentId: resident.id,
       walkInTown: resident.walkInTown,

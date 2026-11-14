@@ -77,9 +77,11 @@ class RemoteResident {
     required this.id, required this.label, required this.artFolder,
     required this.profile, required this.homeAreaId,
     this.walkInTown = true,
+    this.inGacha = true,
   });
   final String id, label, artFolder, profile, homeAreaId;
   final bool walkInTown;
+  final bool inGacha;
 
   factory RemoteResident.fromJson(Object? raw) {
     final row = objectOf(raw, 'resident');
@@ -107,6 +109,7 @@ class RemoteResident {
       profile: row['profile'] as String,
       homeAreaId: row['homeAreaId'] as String,
       walkInTown: row['walkInTown'] as bool,
+      inGacha: row['inGacha'] as bool,
     );
   }
 }
@@ -197,6 +200,20 @@ class RemoteContentCatalog {
     return RemoteContentCatalog(
       List.unmodifiable(characters), List.unmodifiable(dialogues),
     );
+  }
+
+  List<RemoteResident> get gachaPool => List.unmodifiable(
+    characters.where((row) => row.inGacha));
+
+  /// Remote IDs persist in the local save ledger and must remain listed in
+  /// the same pinned release, even when removed from future draws.
+  void validateSavedResidentIds(Iterable<String> savedIds) {
+    final available = characters.map((row) => row.id).toSet();
+    for (final id in savedIds) {
+      if (!available.contains(id)) {
+        throw FormatException('Saved resident absent from CDN catalog: $id');
+      }
+    }
   }
 
   RemoteResident residentById(String id) => characters.singleWhere(
