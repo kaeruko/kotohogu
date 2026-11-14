@@ -23,7 +23,9 @@ List<RemoteResident> localVisitorsForArea(
   final remoteOwned = ownedRemoteIds.toSet();
   final acquired = catalog.characters.where((resident) {
     if (!remoteOwned.contains(resident.id) ||
-        builtInIds.contains(resident.id)) return false;
+        builtInIds.contains(resident.id)) {
+      return false;
+    }
     if (!resident.walkInTown || resident.homeAreaId == 'salon') {
       return false;
     }
