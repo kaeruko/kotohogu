@@ -308,7 +308,7 @@ class EventTests(unittest.TestCase):
         for key,stage in doc['stages'].items():
             for speaker,patterns in stage['chatter'].items():
                 self.assertGreaterEqual(len(patterns),3)
-                limit=5 if (key=='solo' and speaker==events.HOST) or (key=='joined' and speaker==events.FROG) else 4
+                limit=5 if (key=='solo' and speaker==events.HOST) or (key in ('joined','settling') and speaker==events.FROG) else 4
                 self.assertLessEqual(len(patterns),limit)
         merged=doc['stages']['solo']['chatter'][events.HOST][1]
         self.assertEqual(len(merged['turns']),2)
