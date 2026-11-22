@@ -8205,6 +8205,102 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "043_senior_cat_003",
+      "residentId": "043_senior_cat",
+      "text": "この前、病院で聞いたんだけどね。がんの治療を始めるとき、どんな薬が合いそうか、遺伝子を調べる検査があるんですって。",
+      "priority": 60,
+      "once": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "043_senior_cat_004",
+      "residentId": "043_senior_cat",
+      "text": "でも、たくさんの遺伝子をまとめて詳しく調べる検査は、最初から誰でも保険で受けられるわけじゃないそうなの。治療前に受けられる検査もあるんですって。",
+      "priority": 50,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "043_senior_cat_003"
+        }
+      ]
+    },
+    {
+      "id": "043_senior_cat_005",
+      "residentId": "043_senior_cat",
+      "text": "自分に必要な検査がどれなのか、調べるだけじゃ難しいわね。今度、先生に聞いてみようと思うの。",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "043_senior_cat_004"
+        }
+      ]
+    },
+    {
+      "id": "043_senior_cat_006",
+      "residentId": "043_senior_cat",
+      "text": "おしゃべりさん、病院で聞いた話が気になってね。がんの薬を選ぶための遺伝子検査のことなんだけど。",
+      "priority": 45,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "seenDialogue",
+          "dialogueId": "043_senior_cat_004"
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "051_dog_aunt"
+        }
+      ],
+      "reply": {
+        "residentId": "051_dog_aunt",
+        "text": "あら、そうなの？ 治療を始める前に、できるだけ詳しく調べられたら安心よねぇ。"
+      },
+      "closing": "そうよねぇ。検査の種類や受けられる時期は人によって違うそうだから、先生に聞いてみたいわ。"
+    },
+    {
+      "id": "043_senior_cat_007",
+      "residentId": "043_senior_cat",
+      "text": "今日は玄関先に小さな菊が咲いていたの。毎日見ていると、少しずつ変わるのがわかるのねえ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "043_senior_cat_008",
+      "residentId": "043_senior_cat",
+      "text": "お気に入りの湯のみでお茶を飲むと、いつもの景色もちょっと特別に見えるの。うふふ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "043_senior_cat_009",
+      "residentId": "043_senior_cat",
+      "text": "はるまちさん、公園の木に小さなつぼみがついていたわよ。帰りに見ていかない？",
+      "priority": 30,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "053_penguin_lady"
+        }
+      ],
+      "reply": {
+        "residentId": "053_penguin_lady",
+        "text": "まあ、見に行きたいわ。お散歩の楽しみがひとつ増えたわね。"
+      }
     }
   ]
 }
