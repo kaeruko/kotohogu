@@ -18,6 +18,7 @@ class StoryEpisode {
     required this.solution,
     required this.clue,
     required this.result,
+    this.resultDialogue = const [],
     this.destination,
   });
 
@@ -29,6 +30,8 @@ class StoryEpisode {
   final String solution;
   final String clue;
   final String result;
+  /// Conversations after solving. Saved dialogue positions remain unchanged.
+  final List<(TownResident, String)> resultDialogue;
   final TownArea? destination;
 
   int get size => puzzle.length == 16 ? 4 : 6;
@@ -104,14 +107,20 @@ const storyEpisodes = <StoryEpisode>[
     solution: '3214412324311342',
     clue: 'れんしゅうクリア！',
     result: '数字を入れるコツがわかったね。累計30ことほぎで、広場の新しいお話が開くよ。',
+    resultDialogue: [
+      (_pomu, 'これはなにぽむ！？ 広場のすみに、ふしぎな紙が落ちてるぽむ！'),
+      (_shiba, '数字がいっぱい。さっき練習した数独とそっくりだね。'),
+      (_pomu, 'だれが書いたぽむ？ この紙、ひみつがありそうぽむ……！'),
+      (_shiba, 'うん。だれの紙なのか、今度いっしょに調べてみよう！'),
+    ],
   ),
   StoryEpisode(
     title: '広場のふしぎな紙',
     area: TownArea.plaza,
     unlockAt: 30,
     dialogue: [
-      (_pomu, 'しばちゃん！ なぞのかみをひろったぽむ！'),
-      (_shiba, 'なんだろう？ 数字がいっぱいだね。あ、さっき練習した数独だ。'),
+      (_pomu, 'しばちゃん！ このあいだ見つけた紙を、ひろってきたぽむ！'),
+      (_shiba, '数字がいっぱいだね。これも数独だよ。紙の裏に、うすく文字が見えるね。'),
       (_pomu, 'すうどく……？ どくがあるぽむ！？'),
       (_shiba, 'ふふ、大丈夫。数字をうめたら、裏のうすい文字が読めるかもしれないよ。'),
     ],
@@ -119,6 +128,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '1234341241232341',
     clue: 'おおきな',
     result: '数字をうめると、紙の裏に最初のことばが浮かび上がった。',
+    resultDialogue: [
+      (_pomu, '「おおきな」……なにが大きいぽむ？'),
+      (_shiba, 'まだ途中のことばみたい。折り目の向こうに、何かかくれてるよ。'),
+    ],
   ),
   StoryEpisode(
     title: '折り目の向こう',
@@ -132,6 +145,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '3142241312344321',
     clue: 'きのした',
     result: '「おおきな」「きのした」。どこにある木だろう？',
+    resultDialogue: [
+      (_pomu, '「きのした」！ おおきな木の下ぽむ！'),
+      (_shiba, 'どこの木だろう？ まちには何本もあるよ。もうひとつ手がかりがほしいね。'),
+    ],
   ),
   StoryEpisode(
     title: '大きな木はどこ？',
@@ -145,6 +162,11 @@ const storyEpisodes = <StoryEpisode>[
     solution: '1423324143122134',
     clue: 'こうえん',
     result: '3つのことばがそろった！ 次は、ふれあい公園の大きな木の下へ。',
+    resultDialogue: [
+      (_pomu, '「こうえん」！ 公園の大きな木ぽむ！？'),
+      (_shiba, 'きっと、ふれあい公園のあの木だよ。根もとを探しにいってみよう！'),
+      (_pomu, 'たからものがあるかもしれないぽむ！ わくわくするぽむ！'),
+    ],
     destination: TownArea.park,
   ),
   StoryEpisode(
@@ -159,6 +181,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '124563563124245631631245456312312456',
     clue: 'あかい',
     result: '封筒の内側に、赤い色鉛筆の線と短いことばが現れた。',
+    resultDialogue: [
+      (_pomu, '「あかい」……なにが赤いぽむ？'),
+      (_shiba, '赤い何かが目じるしなのかな。封筒にまだ続きがあるよ。'),
+    ],
   ),
   StoryEpisode(
     title: '風にゆれるもの',
@@ -172,6 +198,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '645213132564263451514326421635356142',
     clue: 'のれん',
     result: '「あかい のれん」。お店が並んでいる場所なら、見つかるかもしれない。',
+    resultDialogue: [
+      (_pomu, 'のれん！ 「あかい のれん」ぽむ！'),
+      (_shiba, 'のれんなら、お店にありそうだね。場所も書いてあるかな？'),
+    ],
   ),
   StoryEpisode(
     title: '赤いのれんを探して',
@@ -185,6 +215,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '562143413652125364634215246531351426',
     clue: 'しょうてんがい',
     result: '次の目的地は、ことほぎ商店街。風にゆれる赤いのれんを探そう。',
+    resultDialogue: [
+      (_pomu, 'しょうてんがい！ あまいおやつのお店もあるぽむ！？'),
+      (_shiba, 'ふふ、今日は赤いのれんを探すんだよ。行ってみよう！'),
+    ],
     destination: TownArea.shopping,
   ),
   StoryEpisode(
@@ -199,6 +233,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '253416146523615234324165562341431652',
     clue: 'はたけ',
     result: '包みの中には、数独と小さな種が入っていた。',
+    resultDialogue: [
+      (_pomu, 'はたけ……？ 包みには、たねも入ってるぽむ！'),
+      (_shiba, 'だれかが畑に届けてほしいのかもしれないね。'),
+    ],
   ),
   StoryEpisode(
     title: '種と小さな絵',
@@ -212,6 +250,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '321654465213142365536421254136613542',
     clue: 'はたけのそば',
     result: '畑のそばに何かありそう。包みには、まだ続きがある。',
+    resultDialogue: [
+      (_pomu, 'はたけのそば……この種をまくぽむ？'),
+      (_shiba, 'もう少し読んでみよう。どこの畑かわからないと、届けられないもの。'),
+    ],
   ),
   StoryEpisode(
     title: '歩いていく目じるし',
@@ -225,6 +267,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '231465564132642513315246423651156324',
     clue: 'しろいふだ',
     result: '探すのは「畑のそばの白い札」。包みの底に、行き先を示す最後の暗号がある。',
+    resultDialogue: [
+      (_pomu, 'しろいふだ！ ぽむ、白い札を探すぽむ！'),
+      (_shiba, '畑のそばだね。あとひとつで場所がわかりそう！'),
+    ],
   ),
   StoryEpisode(
     title: '畑へつづく道',
@@ -238,6 +284,10 @@ const storyEpisodes = <StoryEpisode>[
     solution: '351642426135263451514326635214142563',
     clue: 'のんびりざと',
     result: 'のんびり里の畑のそばに、白い札が立っていた。「種を見つけてくれてありがとう」。暗号を置いたのは、誰だろう？',
+    resultDialogue: [
+      (_pomu, 'のんびりざと！ 白い札を見つけたぽむ！'),
+      (_shiba, 'だれかが、ここに種を届けてほしかったんだね。暗号を書いたのはだれだろう？'),
+    ],
     destination: TownArea.village,
   ),
 ];

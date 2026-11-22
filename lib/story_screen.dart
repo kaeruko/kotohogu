@@ -200,6 +200,8 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
                 ),
               ),
             ),
+            if (episode.resultDialogue.isNotEmpty)
+              _StoryResultDialogue(turns: episode.resultDialogue),
             FilledButton(
               key: const ValueKey('story-finish-clue'),
               onPressed: busy
@@ -355,6 +357,48 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
         ],
       );
     },
+  );
+}
+
+/// A short, static conversation after the answer is revealed. It is
+/// derived from the completed episode, so replay and save migrations are safe.
+class _StoryResultDialogue extends StatelessWidget {
+  const _StoryResultDialogue({required this.turns});
+
+  final List<(TownResident, String)> turns;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    key: const ValueKey('story-result-dialogue'),
+    margin: EdgeInsets.zero,
+    child: Padding(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (speaker, line) in turns) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TownResidentAvatar(resident: speaker),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(speaker.label,
+                          style: Theme.of(context).textTheme.labelLarge),
+                      Text(line),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        ],
+      ),
+    ),
   );
 }
 

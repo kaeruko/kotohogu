@@ -93,6 +93,20 @@ void main() {
     },
   );
 
+  test('every solved puzzle has a short story exchange', () {
+    for (final episode in storyEpisodes) {
+      expect(episode.resultDialogue, isNotEmpty, reason: episode.title);
+      expect(
+        episode.resultDialogue.every((turn) => turn.$2.isNotEmpty),
+        isTrue,
+      );
+    }
+    expect(
+      storyEpisodes.first.resultDialogue.first.$2,
+      contains('これはなにぽむ！？'),
+    );
+  });
+
   test('story saves coexist with old saves, gacha and date changes', () {
     var progress = Progress.decode(Progress.empty(today).encode());
     expect(progress.story.hasStarted, isFalse);
@@ -175,9 +189,15 @@ void main() {
       for (var i = 0; i < 4; i++) {
         await tap('story-hint');
       }
+      expect(
+        find.byKey(const ValueKey('story-result-dialogue')),
+        findsOneWidget,
+      );
+      expect(find.textContaining('これはなにぽむ！？'), findsOneWidget);
       expect(find.text('れんしゅうクリア！'), findsOneWidget);
       await launch();
       await open();
+      expect(find.textContaining('これはなにぽむ！？'), findsOneWidget);
       expect(find.text('れんしゅうクリア！'), findsOneWidget);
       await tap('story-finish-clue');
       expect(find.text('あと3回、セルフケアを記録すると開きます。'), findsOneWidget);
