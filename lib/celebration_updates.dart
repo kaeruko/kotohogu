@@ -45,9 +45,9 @@ List<CelebrationUpdate> celebrationUpdates({
     );
     if (!wasOpen && isOpen) {
       updates.add(CelebrationUpdate(
-        id: 'area-' + area.id,
+        id: 'area-${area.id}',
         symbol: '🗺️',
-        title: area.label + 'が開放されました！',
+        title: '${area.label}が開放されました！',
         detail: 'ことほぎのまちで、新しい場所に行けるようになりました。',
       ));
     }
@@ -83,7 +83,7 @@ List<CelebrationUpdate> celebrationUpdates({
       id: 'oyasumi-club',
       symbol: '🌙',
       title: 'おやすみクラブに新しいお話！',
-      detail: '「' + stageLabel + '」へ進めるようになりました。'
+      detail: '「$stageLabel」へ進めるようになりました。'
           '夜の中央ひろばで続きを見てみよう。',
     ));
   }

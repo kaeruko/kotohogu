@@ -316,7 +316,7 @@ class _CelebrationUpdates extends StatelessWidget {
         const SizedBox(height: 6),
         for (final update in updates)
           Padding(
-            key: ValueKey('celebration-update-' + update.id),
+            key: ValueKey('celebration-update-${update.id}'),
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

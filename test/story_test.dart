@@ -160,6 +160,7 @@ void main() {
       Future<void> tap(String key) async {
         final target = find.byKey(ValueKey(key));
         await tester.ensureVisible(target);
+        await tester.pumpAndSettle();
         await tester.tap(target);
         await tester.pumpAndSettle();
       }
@@ -199,6 +200,14 @@ void main() {
       await open();
       expect(find.textContaining('これはなにぽむ！？'), findsOneWidget);
       expect(find.text('れんしゅうクリア！'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('story-finish-clue')),
+        160,
+        scrollable: find.descendant(
+          of: find.byKey(const ValueKey('story-clue')),
+          matching: find.byType(Scrollable),
+        ),
+      );
       await tap('story-finish-clue');
       expect(find.text('あと3回、セルフケアを記録すると開きます。'), findsOneWidget);
       expect(find.byKey(const ValueKey('story-open-episode')), findsNothing);
