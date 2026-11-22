@@ -8167,6 +8167,44 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "055_traveler_001",
+      "residentId": "055_traveler",
+      "text": "こんにちは、たびすけだよ。ふらっと歩いていたら、このまちに着いたんだ。いいところだねえ。しばらくここで過ごしてもいいかな？",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "055_traveler_002",
+      "residentId": "055_traveler",
+      "text": "今日は角をひとつ手前で曲がってみたら、赤い実のなる木を見つけたよ。いつもの散歩も、ちょっとした旅になるねえ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "043_senior_cat_001",
+      "residentId": "043_senior_cat",
+      "text": "こんにちは、こよみです。まちを歩くときも、お気に入りの湯のみを持っていくの。いい景色を見つけたら、そこでひと休みするんですよ。",
+      "priority": 0,
+      "once": true,
+      "firstGreeting": true,
+      "logic": "all",
+      "conditions": []
+    },
+    {
+      "id": "043_senior_cat_002",
+      "residentId": "043_senior_cat",
+      "text": "お茶をいれて、湯気がふわっと消えるまで外を眺めるの。そのうち、向かいの木に小鳥が来るのよ。",
+      "priority": 0,
+      "once": false,
+      "logic": "all",
+      "conditions": []
     }
   ]
 }

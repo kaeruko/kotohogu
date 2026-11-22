@@ -117,6 +117,7 @@ flutter:
     - assets/characters/038_lion_lady/
     - assets/characters/041_pig_middle/
     - assets/characters/042_senior_dog/
+    - assets/characters/043_senior_cat/
     - assets/characters/047_patisie/
     - assets/characters/048_advicer/
     - assets/characters/049_koara/
@@ -125,6 +126,7 @@ flutter:
     - assets/characters/052_pome/
     - assets/characters/053_penguin_lady/
     - assets/characters/054_tanuki/
+    - assets/characters/055_traveler/
     # END CMS CHARACTER ASSETS
     - assets/clap/
     - assets/celebration/

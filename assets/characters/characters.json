@@ -352,6 +352,28 @@
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "park"
+    },
+    {
+      "key": "c055_traveler",
+      "id": "055_traveler",
+      "label": "たびすけ",
+      "profile": "緑の上着と小さなかばんが目印の、旅好きな犬。杖を手に、気になる道をゆっくり歩く。遠くに出かける日も、近くでひと休みする日も好き。旅先で見つけた景色の話を聞かせてくれる。",
+      "artFolder": "055_traveler",
+      "nextDialogueNumber": 3,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
+    },
+    {
+      "key": "c043_senior_cat",
+      "id": "043_senior_cat",
+      "label": "こよみさん",
+      "profile": "花柄の羽織と湯のみが目印のねこ。お茶をいれて、窓の外の景色をぼんやり眺めるのが好き。まちで会うと、このあいだ見つけた花や小鳥の話をしてくれる。",
+      "artFolder": "043_senior_cat",
+      "nextDialogueNumber": 3,
+      "inGacha": true,
+      "walkInTown": true,
+      "homeAreaId": "plaza"
     }
   ]
 }
