@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'celebration.dart';
+import 'celebration_updates.dart';
 import 'dialogue_engine.dart';
 import 'marche.dart';
 import 'town_rules.dart';
@@ -253,9 +254,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
 
   Future<void> _complete(Mission mission) async {
     if (_celebrating) return;
-    final beforeBalance = controller.progress!.residents.availableKotohogi(
-      controller.progress!.points,
-    );
+    final before = controller.progress!;
+    final beforeBalance = before.residents.availableKotohogi(before.points);
     final earned = await controller.complete(mission);
     if (!mounted || !earned) return;
     // Capture one committed snapshot: lifetime mission points and the
@@ -271,6 +271,12 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         total: balance,
         creditedKotohogi: balance - beforeBalance,
         residents: after.residents.owned,
+        updates: celebrationUpdates(
+          before: before,
+          after: after,
+          clubConfig: _clubConfig,
+          now: controller.clock(),
+        ),
       ),
     );
     _celebrating = false;

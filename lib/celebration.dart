@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'clap_characters.dart';
+import 'celebration_updates.dart';
 import 'resident_collection.dart';
 import 'social_security_estimate.dart';
 
@@ -14,11 +15,13 @@ class Celebration extends StatefulWidget {
     this.preview = false,
     required this.residents,
     this.creditedKotohogi = 10,
+    this.updates = const [],
   });
   final String missionTitle;
   final int total;
   final List<TownResident> residents;
   final int creditedKotohogi;
+  final List<CelebrationUpdate> updates;
 
   /// An animation-only replay that does not award points.
   final bool preview;
@@ -211,6 +214,10 @@ class _CelebrationState extends State<Celebration>
                         creditedKotohogi: widget.creditedKotohogi,
                       ),
                     ),
+                    if (widget.updates.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      _CelebrationUpdates(updates: widget.updates),
+                    ],
                     if (widget.preview) ...[
                       const SizedBox(height: 8),
                       const Text(
@@ -264,6 +271,74 @@ class _CelebrationState extends State<Celebration>
             ),
           ),
         ),
+      ],
+    ),
+  );
+}
+
+/// A short, mission-specific report of what changed in the town.
+class _CelebrationUpdates extends StatelessWidget {
+  const _CelebrationUpdates({required this.updates});
+  final List<CelebrationUpdate> updates;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const ValueKey('celebration-updates'),
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    decoration: BoxDecoration(
+      color: const Color(0xF8FFF9E9),
+      border: Border.all(color: const Color(0xFFE8B55C), width: 2),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '🏡 まちからのおしらせ',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF63351F),
+          ),
+        ),
+        const SizedBox(height: 6),
+        for (final update in updates)
+          Padding(
+            key: ValueKey('celebration-update-' + update.id),
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(update.symbol, style: const TextStyle(fontSize: 25)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        update.title,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF63351F),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        update.detail,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          height: 1.3,
+                          color: Color(0xFF63351F),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     ),
   );
