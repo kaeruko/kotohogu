@@ -94,6 +94,60 @@ void main() {
     }
   });
 
+  test('Koyomi shares a staged gene-testing story and talks with neighbors', () async {
+    const resident = TownResident.c043_senior_cat;
+    expect(resident.id, '043_senior_cat');
+    expect(resident.label, 'こよみさん');
+    expect(resident.inGacha, isTrue);
+
+    final catalog = await DialogueCatalog.load();
+    final now = DateTime.utc(2026, 11, 23);
+    var progress = Progress.empty(now);
+    expect(catalog.select(
+      resident: resident, progress: progress, now: now,
+    ).id, '043_senior_cat_001');
+    progress = progress.markDialogueSeen('043_senior_cat_001');
+
+    expect(catalog.select(
+      resident: resident, progress: progress, now: now,
+    ).id, '043_senior_cat_003');
+    progress = progress.markDialogueSeen('043_senior_cat_003');
+    expect(catalog.select(
+      resident: resident, progress: progress, now: now,
+    ).id, '043_senior_cat_004');
+    progress = progress.markDialogueSeen('043_senior_cat_004');
+
+    expect(() => catalog.selectById(
+      id: '043_senior_cat_006', resident: resident,
+      progress: progress, now: now,
+      townResidentIds: {resident.id}, site: 'town',
+    ), throwsStateError);
+    final withNeighbor = catalog.select(
+      resident: resident, progress: progress, now: now,
+      site: 'town',
+      townResidentIds: {resident.id, TownResident.c051_dog_aunt.id},
+    );
+    expect(withNeighbor.id, '043_senior_cat_006');
+    expect(withNeighbor.reply?.residentId, TownResident.c051_dog_aunt.id);
+    expect(withNeighbor.closing, isNotNull);
+    progress = progress.markDialogueSeen(withNeighbor.id);
+
+    expect(catalog.select(
+      resident: resident, progress: progress, now: now,
+    ).id, '043_senior_cat_005');
+    progress = progress.markDialogueSeen('043_senior_cat_005');
+    expect(catalog.select(
+      resident: resident, progress: progress, now: now,
+    ).once, isFalse);
+
+    final withHarumachi = catalog.selectById(
+      id: '043_senior_cat_009', resident: resident,
+      progress: progress, now: now, site: 'town',
+      townResidentIds: {resident.id, TownResident.c053_penguin_lady.id},
+    );
+    expect(withHarumachi.reply?.residentId, TownResident.c053_penguin_lady.id);
+  });
+
   test('Harumachi has a gentle first greeting and talks with Tonko', () async {
     const resident = TownResident.c053_penguin_lady;
     expect(resident.id, '053_penguin_lady');
