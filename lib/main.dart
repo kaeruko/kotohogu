@@ -28,6 +28,8 @@ import 'resident_conversation_dialog.dart';
 import 'resident_gacha.dart';
 import 'gacha_hud.dart';
 import 'kotohogisu_tutorial.dart';
+import 'story_data.dart';
+import 'story_screen.dart';
 import 'town_areas.dart';
 import 'town_area_navigator.dart';
 
@@ -150,6 +152,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   TownArea _townArea = TownArea.plaza;
   late TownVisit _townVisit;
   bool _celebrating = false;
+  bool _storyOpen = false;
   bool _tutorialSaving = false;
   // Replaying is UI-only; it must not modify persisted tutorial or mission state.
   bool _tutorialReplay = false;
@@ -252,6 +255,37 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     super.dispose();
   }
 
+  Future<void> _openStory() async {
+    if (_storyOpen ||
+        controller.progress == null ||
+        controller.failure != null) {
+      return;
+    }
+    _storyOpen = true;
+    try {
+      await Navigator.of(context).push<void>(MaterialPageRoute<void>(
+        settings: const RouteSettings(name: '/story'),
+        builder: (storyContext) => StoryScreen(
+          controller: controller,
+          onSelfCare: () {
+            Navigator.of(storyContext).pop();
+            _selectPage(1);
+          },
+          onVisitDestination: (area) {
+            final progress = controller.progress!;
+            if (!area.isUnlocked(progress.points, owned: progress.residents.owned)) {
+              return;
+            }
+            Navigator.of(storyContext).pop();
+            _selectPage(2, townArea: area);
+          },
+        ),
+      ));
+    } finally {
+      _storyOpen = false;
+    }
+  }
+
   Future<void> _complete(Mission mission) async {
     if (_celebrating) return;
     final before = controller.progress!;
@@ -262,8 +296,10 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     // spendable kotohogi wallet are different values after gacha draws.
     final after = controller.progress!;
     final balance = after.residents.availableKotohogi(after.points);
+    final storyUnlocked = storyEpisodes.any((episode) =>
+        !episode.isAvailable(before.points) && episode.isAvailable(after.points));
     _celebrating = true;
-    await showDialog<void>(
+    final openStory = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (context) => Celebration(
@@ -277,11 +313,13 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
           clubConfig: _clubConfig,
           now: controller.clock(),
         ),
+        onOpenStory: storyUnlocked ? () => Navigator.of(context).pop(true) : null,
       ),
     );
     _celebrating = false;
     // Also catches a midnight that occurred while saving or celebrating.
     await controller.refreshDay();
+    if (openStory == true && mounted) await _openStory();
   }
 
   /// Replays the celebration without touching the progress store.
@@ -456,11 +494,12 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     _ => throw StateError('Unexpected page: $_page'),
   };
 
-  void _selectPage(int index) {
+  void _selectPage(int index, {TownArea? townArea}) {
     setState(() {
       if (index == 2 && _page != 2) {
         _townVisit = TownVisit(random: widget.townRandom);
       }
+      if (townArea != null) _townArea = townArea;
       _page = index;
       if (index == 0) _homeVisit++;
     });
@@ -968,6 +1007,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                           progress: progress,
                           onMissions: () => _selectPage(1),
                           onTown: () => _selectPage(2),
+                          onStory: _openStory,
                           onResident: _showDialogue,
                           debugTownResidents: _debugTownResidents,
                         ),

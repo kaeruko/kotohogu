@@ -16,12 +16,14 @@ class GameHome extends StatefulWidget {
     required this.onMissions,
     required this.onTown,
     required this.onResident,
+    this.onStory,
     this.debugTownResidents,
   });
   final Progress progress;
   final VoidCallback onMissions;
 
   final VoidCallback onTown;
+  final VoidCallback? onStory;
   final ValueChanged<TownResident> onResident;
   /// A temporary debug-only selection; null uses owned residents.
   final List<TownResident>? debugTownResidents;
@@ -281,6 +283,17 @@ class _GameHomeState extends State<GameHome> {
                     ],
                   ),
                 ),
+                if (widget.onStory != null)
+                  Positioned(
+                    top: 10,
+                    right: 14,
+                    child: FilledButton.tonalIcon(
+                      key: const ValueKey('open-story'),
+                      onPressed: widget.onStory,
+                      icon: const Icon(Icons.menu_book_outlined),
+                      label: const Text('ストーリー'),
+                    ),
+                  ),
               ],
             ),
           ),

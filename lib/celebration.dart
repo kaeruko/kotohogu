@@ -16,12 +16,14 @@ class Celebration extends StatefulWidget {
     required this.residents,
     this.creditedKotohogi = 10,
     this.updates = const [],
+    this.onOpenStory,
   });
   final String missionTitle;
   final int total;
   final List<TownResident> residents;
   final int creditedKotohogi;
   final List<CelebrationUpdate> updates;
+  final VoidCallback? onOpenStory;
 
   /// An animation-only replay that does not award points.
   final bool preview;
@@ -229,6 +231,15 @@ class _CelebrationState extends State<Celebration>
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
+                      ),
+                    ],
+                    if (widget.onOpenStory case final openStory?) ...[
+                      const SizedBox(height: 8),
+                      FilledButton.tonalIcon(
+                        key: const ValueKey('celebration-open-story'),
+                        onPressed: openStory,
+                        icon: const Icon(Icons.menu_book_outlined),
+                        label: const Text('新しいお話を見にいく'),
                       ),
                     ],
                     const SizedBox(height: 8),

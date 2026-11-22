@@ -6,6 +6,7 @@ import 'dart:math';
 import 'dev_tools.dart';
 import 'resident_collection.dart';
 import 'local_content_preview.dart';
+import 'story_progress.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,6 +79,7 @@ class Progress {
     Map<Mission, int>? missionCounts,
     Set<String> seenDialogues = const {},
     this.oyasumi = const OyasumiProgress(),
+    this.story = const StoryProgress.empty(),
   }) : residents = residents ?? ResidentCollection.initial(points),
        completed = Set.unmodifiable(completed),
        history = Map.unmodifiable({
@@ -102,6 +104,7 @@ class Progress {
   );
 
   final OyasumiProgress oyasumi;
+  final StoryProgress story;
   final String day;
   final String? lastCompletedDay;
   final int points;
@@ -155,6 +158,7 @@ class Progress {
       missionCounts: missionCounts,
       seenDialogues: seenDialogues,
       oyasumi: oyasumi,
+      story: story,
       debugResets: {
         if (weekStart(today) == weekStart(day) &&
             debugResets.containsKey(MissionPeriod.weekly))
@@ -190,6 +194,7 @@ class Progress {
       missionCounts: {...missionCounts, mission: (missionCounts[mission] ?? 0) + 1},
       seenDialogues: seenDialogues,
       oyasumi: oyasumi,
+      story: story,
       debugResets: debugResets,
     );
   }
@@ -209,6 +214,7 @@ class Progress {
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
     oyasumi: oyasumi,
+    story: story,
     debugResets: {
       MissionPeriod.daily: day,
       MissionPeriod.weekly: weekStart(day),
@@ -229,6 +235,7 @@ class Progress {
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
     oyasumi: oyasumi,
+    story: story,
     debugResets: debugResets,
   );
 
@@ -246,6 +253,7 @@ class Progress {
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
     oyasumi: oyasumi,
+    story: story,
     debugResets: debugResets,
   );
 
@@ -264,6 +272,7 @@ class Progress {
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
     oyasumi: oyasumi,
+    story: story,
     debugResets: debugResets,
   );
 
@@ -280,6 +289,7 @@ class Progress {
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
     oyasumi: oyasumi,
+    story: story,
     debugResets: debugResets,
   );
 
@@ -297,6 +307,7 @@ class Progress {
     missionCounts: missionCounts,
     seenDialogues: seenDialogues,
     oyasumi: oyasumi,
+    story: story,
     debugResets: debugResets,
   );
 
@@ -316,6 +327,7 @@ class Progress {
       missionCounts: missionCounts,
       seenDialogues: {...seenDialogues, id},
       oyasumi: oyasumi,
+      story: story,
       debugResets: debugResets,
     );
   }
@@ -327,6 +339,16 @@ class Progress {
     weeklyCompleted: weeklyCompleted, monthlyCompleted: monthlyCompleted,
     debugResets: debugResets, missionCounts: missionCounts,
     seenDialogues: seenDialogues, oyasumi: value,
+    story: story,
+  );
+
+  Progress withStory(StoryProgress value) => identical(value, story) ? this : Progress(
+    playerName: playerName,
+    day: day, lastCompletedDay: lastCompletedDay, points: points,
+    residents: residents, completed: completed, history: history,
+    weeklyCompleted: weeklyCompleted, monthlyCompleted: monthlyCompleted,
+    debugResets: debugResets, missionCounts: missionCounts,
+    seenDialogues: seenDialogues, oyasumi: oyasumi, story: value,
   );
 
   Progress withPlayerName(String name) {
@@ -347,6 +369,7 @@ class Progress {
       missionCounts: missionCounts,
       seenDialogues: seenDialogues,
       oyasumi: oyasumi,
+      story: story,
       debugResets: debugResets,
     );
   }
@@ -355,6 +378,7 @@ class Progress {
     'version': 5,
     'playerName': playerName,
     if (oyasumi.completed > 0) 'oyasumi': oyasumi.toJson(),
+    if (story.hasStarted) 'story': story.toJson(),
     'residents': residents.encode(),
     'missionCounts': {
       for (final mission in Mission.values)
@@ -398,6 +422,7 @@ class Progress {
     }
     final keys = {
       if (version >= 5 && data.containsKey('oyasumi')) 'oyasumi',
+      if (version >= 5 && data.containsKey('story')) 'story',
       if (version >= 5 && data.containsKey('playerName')) 'playerName',
       if (version >= 4) 'residents',
       if (version >= 5) ...['missionCounts', 'seenDialogues'],
@@ -583,6 +608,9 @@ class Progress {
       oyasumi: data.containsKey('oyasumi')
           ? OyasumiProgress.fromJson(data['oyasumi']).migrateLegacy(points)
           : const OyasumiProgress(),
+      story: data.containsKey('story')
+          ? StoryProgress.fromJson(data['story'], points)
+          : const StoryProgress.empty(),
       seenDialogues: version >= 5 ? Set<String>.from(data['seenDialogues'] as List) : {},
       debugResets: debugResets,
     );
@@ -758,6 +786,26 @@ class ProgressController extends ChangeNotifier {
       return !identical(next, today);
     } catch (error, stack) {
       failure = ProgressFailure('ミッション ${mission.name} の達成保存', error, stack);
+      return false;
+    } finally {
+      _finishOperation();
+    }
+  }
+
+  Future<bool> updateStory(
+      StoryProgress Function(StoryProgress, int) update) async {
+    final current = progress;
+    if (busy || failure != null || current == null) return false;
+    busy = true;
+    notifyListeners();
+    try {
+      final next = current.withStory(update(current.story, current.points));
+      if (identical(next, current)) return false;
+      await store.save(next);
+      progress = next;
+      return true;
+    } catch (error, stack) {
+      failure = ProgressFailure('ストーリーの保存', error, stack);
       return false;
     } finally {
       _finishOperation();

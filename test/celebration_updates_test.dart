@@ -19,13 +19,14 @@ Progress savedAt(
   OyasumiProgress club = const OyasumiProgress(),
 }) => Progress(
   day: '2026-10-09',
-  lastCompletedDay: null,
+  lastCompletedDay: points == 0 ? null : '2026-10-08',
   points: points,
   completed: const {},
   residents: ResidentCollection(
     baselinePoints: 0,
     counts: {
       '001_shiba': 1,
+      '002_usagi': 1,
       if (withClub) OyasumiScene.host.id: 1,
       if (withClub) OyasumiScene.frog.id: 1,
     },
