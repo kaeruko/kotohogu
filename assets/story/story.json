@@ -234,6 +234,179 @@
           "text": "うちに勝てはりますやろか？"
         }
       ]
+    },
+    {
+      "id": "episode_04",
+      "title": "帳簿と数独",
+      "area": "shopping",
+      "unlockAt": 180,
+      "image": "story_003_shopping_clue.png",
+      "dialogue": [
+        {
+          "speaker": "002_usagi",
+          "text": "あら、今月の材料費、ちょっと増えてるわね"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "バターも包み紙も、前より高くなっちゃってね"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "……あれ？ 帳簿の間に、数字のマスがあるわ"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "あ、それは休憩中に解いてた数独だよ。まだ途中なんだ"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "ふふ、帳簿の続きかと思っちゃった。わたしもやってみようかしら"
+        }
+      ],
+      "puzzle": "2140402002303010",
+      "solution": "2143432112343412",
+      "clue": "はじめての一局！",
+      "result": "帳簿に挟まっていたのは、パティシエが休憩中に遊んでいた数独。およめさんもすっかり夢中に。",
+      "resultDialogue": [
+        {
+          "speaker": "002_usagi",
+          "text": "あら、解けたわ！ なんだかすっきりした"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "ぼくが途中で止まってたところまで解けちゃったね"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "じゃあ、帳簿の続きも一緒に見ましょうか"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "うん。お店の数字は二人で考えよう"
+        }
+      ]
+    },
+    {
+      "id": "episode_05",
+      "title": "売れているのに？",
+      "area": "shopping",
+      "unlockAt": 210,
+      "image": "story_003_shopping_clue.png",
+      "dialogue": [
+        {
+          "speaker": "047_patisie",
+          "text": "今月はお客さんが増えたんだ。うれしいな"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "そうね。でも、思ったほどお金が残っていないみたい"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "材料費だけじゃなくて、包み紙や光熱費もあるからね"
+        },
+        {
+          "speaker": "048_advicer",
+          "text": "売上と利益は別の数字です。何にどれくらいかかっているか、一緒に整理しましょう"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "なるほど……今日はここまでにして、ひと休みしましょう"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "数独、もう一問持ってきたよ"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "ふふ。今度はわたしが先に解いちゃうかも"
+        }
+      ],
+      "puzzle": "2104400200433001",
+      "solution": "2134431212433421",
+      "clue": "お店の数字も整理しよう",
+      "result": "しんだんしと支出を整理し、仕入れと売れ残りを見直すことに。数独は二人の楽しい休憩時間。",
+      "resultDialogue": [
+        {
+          "speaker": "047_patisie",
+          "text": "ぼく、最後の二マスで迷っちゃった"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "ふふ、こっちはきれいに答えが決まるのね"
+        },
+        {
+          "speaker": "048_advicer",
+          "text": "お店の数字は、答えを一つに決めるより、続けられる方法を探すことが大事ですね"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "ええ。明日から、仕入れと売れ残りも少しずつ記録してみるわ"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "ぼくも一緒にやるよ"
+        }
+      ]
+    },
+    {
+      "id": "episode_06",
+      "title": "ふたりの休憩時間",
+      "area": "shopping",
+      "unlockAt": 240,
+      "image": "story_003_shopping_clue.png",
+      "dialogue": [
+        {
+          "speaker": "047_patisie",
+          "text": "今週は、材料の発注を少し見直してみたよ"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "売れ残りも前より減ったみたい。無理なく続けたいわね"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "今日はお店も片づいたし、お茶にしようか"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "ええ。あ、今日の数独も持ってきたの？"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "もちろん。今度こそ先に解きたいな"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "ふふ、負けないわよ"
+        }
+      ],
+      "puzzle": "3410003401400021",
+      "solution": "3412123421434321",
+      "clue": "ふたりの休憩時間",
+      "result": "帳簿は二人で相談しながら、数独は楽しい真剣勝負。小さなケーキ屋さんの一日は穏やかに終わった。",
+      "resultDialogue": [
+        {
+          "speaker": "002_usagi",
+          "text": "できた！ 今日はわたしのほうが早かったみたい"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "あれ？ ぼく、まだ一マス残ってる……"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "お店の数字は二人で考えて、数独はわたしの勝ちね"
+        },
+        {
+          "speaker": "047_patisie",
+          "text": "参ったなあ。次は頑張るよ"
+        },
+        {
+          "speaker": "002_usagi",
+          "text": "ふふ。明日も一緒に遊びましょう"
+        }
+      ]
     }
   ]
 }

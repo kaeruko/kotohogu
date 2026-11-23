@@ -52,13 +52,13 @@ void main() {
   );
 
   test(
-    'the four-episode story opens at its scene milestones',
+    'the seven-episode story opens at its scene milestones',
     () {
       var story = const StoryProgress.empty();
       final destinations = <TownArea>[];
       for (final (index, episode) in storyEpisodes.indexed) {
         final points = episode.unlockAt;
-        expect(points, [0, 90, 120, 150][index]);
+        expect(points, [0, 90, 120, 150, 180, 210, 240][index]);
         if (index > 0) {
           expect(story.advanceDialogue(index, points - 10), same(story));
         }
@@ -93,7 +93,7 @@ void main() {
         expect(story.resumeIndex, index + 1);
       }
       expect(destinations, isEmpty);
-      expect(story.completed, 4);
+      expect(story.completed, 7);
     },
   );
 
@@ -432,6 +432,31 @@ void main() {
     expect(episode.resultDialogue.any((turn) => turn.$2.contains('新手の挑戦者')), isFalse);
   });
 
+  test('the bakery couple enjoys three ordinary Sudoku games without the bear legend', () {
+    final bakeryEpisodes = storyEpisodes.skip(4).toList();
+    expect(bakeryEpisodes.map((e) => e.title), [
+      '帳簿と数独',
+      '売れているのに？',
+      'ふたりの休憩時間',
+    ]);
+    expect(bakeryEpisodes.map((e) => e.area), everyElement(TownArea.shopping));
+    expect(bakeryEpisodes.map((e) => e.unlockAt), [180, 210, 240]);
+    expect(bakeryEpisodes.every((e) => e.dialogue.any((turn) => turn.$1.label == 'およめさん')), isTrue);
+    expect(bakeryEpisodes.every((e) => e.dialogue.any((turn) => turn.$1.label == 'パティシエ')), isTrue);
+    expect(bakeryEpisodes[1].dialogue.any((turn) => turn.$1.label == 'しんだんし'), isTrue);
+    for (final episode in bakeryEpisodes) {
+      final text = [
+        episode.clue,
+        episode.result,
+        for (final turn in episode.dialogue) turn.$2,
+        for (final turn in episode.resultDialogue) turn.$2,
+      ].join(' ');
+      expect(text, isNot(contains('コトホグマ')));
+      expect(episode.size, 4);
+    }
+    expect(bakeryEpisodes.last.resultDialogue.last.$2, 'ふふ。明日も一緒に遊びましょう');
+  });
+
   testWidgets('the third chapter reveals Gonsuke before the next arc', (
     tester,
   ) async {
@@ -483,7 +508,7 @@ void main() {
     }
 
     await tap('open-story');
-    expect(find.text('暗号 2 / 4'), findsOneWidget);
+    expect(find.text('暗号 2 / 7'), findsOneWidget);
     await tap('story-open-episode');
     for (final turn in storyEpisodes[2].resultDialogue) {
       expect(find.text(turn.$1.label), findsOneWidget);
@@ -492,7 +517,7 @@ void main() {
     }
     expect(find.text('さくらのはんこ 🌸'), findsOneWidget);
     await tap('story-finish-clue');
-    expect(find.text('暗号 3 / 4'), findsOneWidget);
+    expect(find.text('暗号 3 / 7'), findsOneWidget);
     expect(find.text('数独道場破りでござる！'), findsOneWidget);
     expect(Progress.decode(store.raw!).story.completed, 3);
     expect(Progress.decode(store.raw!).story.unreadClue, isFalse);

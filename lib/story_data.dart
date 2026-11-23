@@ -167,6 +167,9 @@ const _mosa = StorySpeaker.local(TownResident.c036_mosa);
 const _frog = StorySpeaker.local(TownResident.c029_office_worker);
 const _oyasumi = StorySpeaker.local(TownResident.c027_daydreamer);
 const _oshisho = StorySpeaker.local(TownResident.c031_kimono_fox);
+const _wife = StorySpeaker.local(TownResident.rabbit);
+const _pastry = StorySpeaker.local(TownResident.c047_patisie);
+const _advisor = StorySpeaker.local(TownResident.c048_advicer);
 
 const bundledStory = StoryCatalog(title: storyTitle, episodes: storyEpisodes);
 
@@ -271,6 +274,81 @@ const storyEpisodes = <StoryEpisode>[
       (_mosa, 'むむっ！ 何奴！'),
       (_oshisho, 'そないに自信がおありなら……'),
       (_oshisho, 'うちに勝てはりますやろか？'),
+    ],
+  ),
+
+  StoryEpisode(
+    id: 'episode_04',
+    title: '帳簿と数独',
+    area: TownArea.shopping,
+    unlockAt: 180,
+    dialogue: [
+      (_wife, 'あら、今月の材料費、ちょっと増えてるわね'),
+      (_pastry, 'バターも包み紙も、前より高くなっちゃってね'),
+      (_wife, '……あれ？ 帳簿の間に、数字のマスがあるわ'),
+      (_pastry, 'あ、それは休憩中に解いてた数独だよ。まだ途中なんだ'),
+      (_wife, 'ふふ、帳簿の続きかと思っちゃった。わたしもやってみようかしら'),
+    ],
+    puzzle: '2140402002303010',
+    solution: '2143432112343412',
+    clue: 'はじめての一局！',
+    result: '帳簿に挟まっていたのは、パティシエが休憩中に遊んでいた数独。およめさんもすっかり夢中に。',
+    resultDialogue: [
+      (_wife, 'あら、解けたわ！ なんだかすっきりした'),
+      (_pastry, 'ぼくが途中で止まってたところまで解けちゃったね'),
+      (_wife, 'じゃあ、帳簿の続きも一緒に見ましょうか'),
+      (_pastry, 'うん。お店の数字は二人で考えよう'),
+    ],
+  ),
+  StoryEpisode(
+    id: 'episode_05',
+    title: '売れているのに？',
+    area: TownArea.shopping,
+    unlockAt: 210,
+    dialogue: [
+      (_pastry, '今月はお客さんが増えたんだ。うれしいな'),
+      (_wife, 'そうね。でも、思ったほどお金が残っていないみたい'),
+      (_pastry, '材料費だけじゃなくて、包み紙や光熱費もあるからね'),
+      (_advisor, '売上と利益は別の数字です。何にどれくらいかかっているか、一緒に整理しましょう'),
+      (_wife, 'なるほど……今日はここまでにして、ひと休みしましょう'),
+      (_pastry, '数独、もう一問持ってきたよ'),
+      (_wife, 'ふふ。今度はわたしが先に解いちゃうかも'),
+    ],
+    puzzle: '2104400200433001',
+    solution: '2134431212433421',
+    clue: 'お店の数字も整理しよう',
+    result: 'しんだんしと支出を整理し、仕入れと売れ残りを見直すことに。数独は二人の楽しい休憩時間。',
+    resultDialogue: [
+      (_pastry, 'ぼく、最後の二マスで迷っちゃった'),
+      (_wife, 'ふふ、こっちはきれいに答えが決まるのね'),
+      (_advisor, 'お店の数字は、答えを一つに決めるより、続けられる方法を探すことが大事ですね'),
+      (_wife, 'ええ。明日から、仕入れと売れ残りも少しずつ記録してみるわ'),
+      (_pastry, 'ぼくも一緒にやるよ'),
+    ],
+  ),
+  StoryEpisode(
+    id: 'episode_06',
+    title: 'ふたりの休憩時間',
+    area: TownArea.shopping,
+    unlockAt: 240,
+    dialogue: [
+      (_pastry, '今週は、材料の発注を少し見直してみたよ'),
+      (_wife, '売れ残りも前より減ったみたい。無理なく続けたいわね'),
+      (_pastry, '今日はお店も片づいたし、お茶にしようか'),
+      (_wife, 'ええ。あ、今日の数独も持ってきたの？'),
+      (_pastry, 'もちろん。今度こそ先に解きたいな'),
+      (_wife, 'ふふ、負けないわよ'),
+    ],
+    puzzle: '3410003401400021',
+    solution: '3412123421434321',
+    clue: 'ふたりの休憩時間',
+    result: '帳簿は二人で相談しながら、数独は楽しい真剣勝負。小さなケーキ屋さんの一日は穏やかに終わった。',
+    resultDialogue: [
+      (_wife, 'できた！ 今日はわたしのほうが早かったみたい'),
+      (_pastry, 'あれ？ ぼく、まだ一マス残ってる……'),
+      (_wife, 'お店の数字は二人で考えて、数独はわたしの勝ちね'),
+      (_pastry, '参ったなあ。次は頑張るよ'),
+      (_wife, 'ふふ。明日も一緒に遊びましょう'),
     ],
   ),
 ];

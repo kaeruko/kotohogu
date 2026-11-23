@@ -36,13 +36,13 @@ void main() {
       parseHostedStory(jsonEncode(story), base, residents);
 
   test(
-    'the hosted four-episode story pins its cast and artwork',
+    'the hosted seven-episode story pins its cast and artwork',
     () {
       final json = storyDocument();
       final catalog = parse(json);
       expect(catalog.baseUri, base);
       expect(catalog.title, json['title']);
-      expect(catalog.episodes.length, 4);
+      expect(catalog.episodes.length, 7);
       expect(catalog.episodes.length, _episodes(json).length);
       expect(catalog.episodes.first.id, storyEpisodes.first.id);
       final first = catalog.episodes.first.dialogue.first.$1;
@@ -87,23 +87,30 @@ void main() {
       if (index < 3) {
         expect(hosted.first.$2, startsWith('とけたぽむ！\n'), reason: 'episode $index');
         expect(hosted[1].$2, startsWith('すごいわん！\n'), reason: 'episode $index');
-      } else {
+      } else if (index == 3) {
         expect(hosted.first.$2, startsWith('勝ったでござる！'), reason: 'episode $index');
         expect(hosted.last.$2, 'うちに勝てはりますやろか？');
+      } else {
+        expect(hosted.isNotEmpty, isTrue);
+        expect(hosted.last.$1.label, isIn(['およめさん', 'パティシエ']));
       }
       expect(hosted.map((turn) => turn.$2), bundled.map((turn) => turn.$2));
+      expect(hosted.map((turn) => turn.$1.label), bundled.map((turn) => turn.$1.label));
     }
   });
 
   test('stamp arc ends before the Mosædo story begins', () {
     final catalog = parse(storyDocument());
-    expect(catalog.episodes.length, 4);
-    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150]);
+    expect(catalog.episodes.length, 7);
+    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150, 180, 210, 240]);
     expect(catalog.episodes.map((e) => e.title), [
       'たいそうのはんこカード？',
       '木の下になにがある？',
       'ひみつのごほうび',
       '数独道場破りでござる！',
+      '帳簿と数独',
+      '売れているのに？',
+      'ふたりの休憩時間',
     ]);
     expect(catalog.episodes.first.clue, 'おおきな きのした');
     expect(catalog.episodes[1].clue, 'ほんとうにはんこカード！');
@@ -116,6 +123,19 @@ void main() {
     expect(duel.dialogue.any((turn) => turn.$1.label == 'モサエド'), isTrue);
     expect(duel.resultDialogue.last.$1.label, 'おししょう');
     expect(duel.resultDialogue.last.$2, 'うちに勝てはりますやろか？');
+    final bakery = catalog.episodes.skip(4).toList();
+    expect(bakery.length, 3);
+    expect(bakery.map((e) => e.area.id), ['shopping', 'shopping', 'shopping']);
+    expect(bakery[1].dialogue.any((turn) => turn.$1.label == 'しんだんし'), isTrue);
+    for (final episode in bakery) {
+      final allText = [
+        episode.clue,
+        episode.result,
+        for (final turn in episode.dialogue) turn.$2,
+        for (final turn in episode.resultDialogue) turn.$2,
+      ].join(' ');
+      expect(allText, isNot(contains('コトホグマ')));
+    }
     for (final episode in catalog.episodes) {
       expect(episode.size, 4);
     }
