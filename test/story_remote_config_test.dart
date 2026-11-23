@@ -36,13 +36,13 @@ void main() {
       parseHostedStory(jsonEncode(story), base, residents);
 
   test(
-    'the hosted seven-episode story pins its cast and artwork',
+    'the hosted eight-episode story pins its cast and artwork',
     () {
       final json = storyDocument();
       final catalog = parse(json);
       expect(catalog.baseUri, base);
       expect(catalog.title, json['title']);
-      expect(catalog.episodes.length, 7);
+      expect(catalog.episodes.length, 8);
       expect(catalog.episodes.length, _episodes(json).length);
       expect(catalog.episodes.first.id, storyEpisodes.first.id);
       final first = catalog.episodes.first.dialogue.first.$1;
@@ -90,6 +90,9 @@ void main() {
       } else if (index == 3) {
         expect(hosted.first.$2, startsWith('勝ったでござる！'), reason: 'episode $index');
         expect(hosted.last.$2, 'うちに勝てはりますやろか？');
+      } else if (index == 4) {
+        expect(hosted.first.$1.label, 'モサエド');
+        expect(hosted.last.$2, contains('あおんあおん！'));
       } else {
         expect(hosted.isNotEmpty, isTrue);
         expect(hosted.last.$1.label, isIn(['およめさん', 'パティシエ']));
@@ -101,13 +104,14 @@ void main() {
 
   test('stamp arc ends before the Mosædo story begins', () {
     final catalog = parse(storyDocument());
-    expect(catalog.episodes.length, 7);
-    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150, 180, 210, 240]);
+    expect(catalog.episodes.length, 8);
+    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150, 180, 210, 240, 270]);
     expect(catalog.episodes.map((e) => e.title), [
       'たいそうのはんこカード？',
       '木の下になにがある？',
       'ひみつのごほうび',
       '数独道場破りでござる！',
+      'おししょうの一局',
       '帳簿と数独',
       '売れているのに？',
       'ふたりの休憩時間',
@@ -123,7 +127,11 @@ void main() {
     expect(duel.dialogue.any((turn) => turn.$1.label == 'モサエド'), isTrue);
     expect(duel.resultDialogue.last.$1.label, 'おししょう');
     expect(duel.resultDialogue.last.$2, 'うちに勝てはりますやろか？');
-    final bakery = catalog.episodes.skip(4).toList();
+    final oshisho = catalog.episodes[4];
+    expect(oshisho.id, 'episode_04');
+    expect(oshisho.dialogue.first.$1.label, 'おししょう');
+    expect(oshisho.resultDialogue.any((line) => line.$2.contains('白い熊')), isTrue);
+    final bakery = catalog.episodes.skip(5).toList();
     expect(bakery.length, 3);
     expect(bakery.map((e) => e.area.id), ['shopping', 'shopping', 'shopping']);
     expect(bakery[1].dialogue.any((turn) => turn.$1.label == 'しんだんし'), isTrue);

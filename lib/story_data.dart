@@ -279,9 +279,38 @@ const storyEpisodes = <StoryEpisode>[
 
   StoryEpisode(
     id: 'episode_04',
+    title: 'おししょうの一局',
+    area: TownArea.plaza,
+    unlockAt: 180,
+    dialogue: [
+      (_oshisho, 'ほほほ。ほな、うちから一問、お出ししまひょ'),
+      (_mosa, '望むところでござる！ いざ、勝負！'),
+      (_frog, 'おししょう、数独も得意なんですね'),
+      (_oshisho, 'お花も数独も、よう見て、あわてへんことどす'),
+      (_oyasumi, 'ぼくは、見てるだけが得意もふ〜'),
+      (_mosa, 'むむっ、余裕の構え……拙者も負けぬでござる！ あおんあおん！'),
+    ],
+    puzzle: '0021200304101200',
+    solution: '4321214334121234',
+    clue: '白い熊のうわさ',
+    result: 'おししょうとの一局を終えたモサエドは、強者に白い熊から数独が届くという噂を耳にした。本当かどうかは、まだ誰も知らない。',
+    resultDialogue: [
+      (_mosa, 'とけたでござる！ これぞ拙者の勝利！'),
+      (_oshisho, 'ほほ、お見事。うちも先ほど解けましたえ'),
+      (_mosa, 'なっ……いつの間に！'),
+      (_frog, 'おししょう、速いなあ'),
+      (_oshisho, '速さを競うより、楽しむことが一番どすえ'),
+      (_oyasumi, 'ぼくは見てただけなのに楽しかったもふ〜'),
+      (_mosa, '拙者、まだまだ修行が足りぬでござる！'),
+      (_oshisho, 'そうそう。ほんまの強者には、白い熊から数独が届く……なんて噂もありますえ'),
+      (_mosa, 'し、白き熊！？ いずれお手合わせ願うでござる！ あおんあおん！'),
+    ],
+  ),
+  StoryEpisode(
+    id: 'episode_05',
     title: '帳簿と数独',
     area: TownArea.shopping,
-    unlockAt: 180,
+    unlockAt: 210,
     dialogue: [
       (_wife, 'あら、今月の材料費、ちょっと増えてるわね'),
       (_pastry, 'バターも包み紙も、前より高くなっちゃってね'),
@@ -301,10 +330,10 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
-    id: 'episode_05',
+    id: 'episode_06',
     title: '売れているのに？',
     area: TownArea.shopping,
-    unlockAt: 210,
+    unlockAt: 240,
     dialogue: [
       (_pastry, '今月はお客さんが増えたんだ。うれしいな'),
       (_wife, 'そうね。でも、思ったほどお金が残っていないみたい'),
@@ -327,10 +356,10 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
-    id: 'episode_06',
+    id: 'episode_07',
     title: 'ふたりの休憩時間',
     area: TownArea.shopping,
-    unlockAt: 240,
+    unlockAt: 270,
     dialogue: [
       (_pastry, '今週は、材料の発注を少し見直してみたよ'),
       (_wife, '売れ残りも前より減ったみたい。無理なく続けたいわね'),

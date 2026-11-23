@@ -112,7 +112,7 @@ class StoryCmsTests(unittest.TestCase):
         with urlopen(base + "/api/runtime/story", timeout=5) as response:
             frozen = json.load(response)
         self.assertEqual(len(frozen["episodes"]), 11)
-        self.assertEqual(len(doc["episodes"]), 7)
+        self.assertEqual(len(doc["episodes"]), 8)
         before = self.path.read_bytes()
         edited = copy.deepcopy(doc)
         edited["episodes"][0]["resultDialogue"][0]["text"] = "ぽむぽむ、できたぽむ！"

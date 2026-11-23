@@ -237,9 +237,84 @@
     },
     {
       "id": "episode_04",
+      "title": "おししょうの一局",
+      "area": "plaza",
+      "unlockAt": 180,
+      "image": "story_001_plaza_mystery.png",
+      "dialogue": [
+        {
+          "speaker": "031_kimono_fox",
+          "text": "ほほほ。ほな、うちから一問、お出ししまひょ"
+        },
+        {
+          "speaker": "036_mosa",
+          "text": "望むところでござる！ いざ、勝負！"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "おししょう、数独も得意なんですね"
+        },
+        {
+          "speaker": "031_kimono_fox",
+          "text": "お花も数独も、よう見て、あわてへんことどす"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "ぼくは、見てるだけが得意もふ〜"
+        },
+        {
+          "speaker": "036_mosa",
+          "text": "むむっ、余裕の構え……拙者も負けぬでござる！ あおんあおん！"
+        }
+      ],
+      "puzzle": "0021200304101200",
+      "solution": "4321214334121234",
+      "clue": "白い熊のうわさ",
+      "result": "おししょうとの一局を終えたモサエドは、強者に白い熊から数独が届くという噂を耳にした。本当かどうかは、まだ誰も知らない。",
+      "resultDialogue": [
+        {
+          "speaker": "036_mosa",
+          "text": "とけたでござる！ これぞ拙者の勝利！"
+        },
+        {
+          "speaker": "031_kimono_fox",
+          "text": "ほほ、お見事。うちも先ほど解けましたえ"
+        },
+        {
+          "speaker": "036_mosa",
+          "text": "なっ……いつの間に！"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "おししょう、速いなあ"
+        },
+        {
+          "speaker": "031_kimono_fox",
+          "text": "速さを競うより、楽しむことが一番どすえ"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "ぼくは見てただけなのに楽しかったもふ〜"
+        },
+        {
+          "speaker": "036_mosa",
+          "text": "拙者、まだまだ修行が足りぬでござる！"
+        },
+        {
+          "speaker": "031_kimono_fox",
+          "text": "そうそう。ほんまの強者には、白い熊から数独が届く……なんて噂もありますえ"
+        },
+        {
+          "speaker": "036_mosa",
+          "text": "し、白き熊！？ いずれお手合わせ願うでござる！ あおんあおん！"
+        }
+      ]
+    },
+    {
+      "id": "episode_05",
       "title": "帳簿と数独",
       "area": "shopping",
-      "unlockAt": 180,
+      "unlockAt": 210,
       "image": "story_003_shopping_clue.png",
       "dialogue": [
         {
@@ -287,10 +362,10 @@
       ]
     },
     {
-      "id": "episode_05",
+      "id": "episode_06",
       "title": "売れているのに？",
       "area": "shopping",
-      "unlockAt": 210,
+      "unlockAt": 240,
       "image": "story_003_shopping_clue.png",
       "dialogue": [
         {
@@ -350,10 +425,10 @@
       ]
     },
     {
-      "id": "episode_06",
+      "id": "episode_07",
       "title": "ふたりの休憩時間",
       "area": "shopping",
-      "unlockAt": 240,
+      "unlockAt": 270,
       "image": "story_003_shopping_clue.png",
       "dialogue": [
         {

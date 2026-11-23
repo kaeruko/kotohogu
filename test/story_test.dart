@@ -52,13 +52,13 @@ void main() {
   );
 
   test(
-    'the seven-episode story opens at its scene milestones',
+    'the eight-episode story opens at its scene milestones',
     () {
       var story = const StoryProgress.empty();
       final destinations = <TownArea>[];
       for (final (index, episode) in storyEpisodes.indexed) {
         final points = episode.unlockAt;
-        expect(points, [0, 90, 120, 150, 180, 210, 240][index]);
+        expect(points, [0, 90, 120, 150, 180, 210, 240, 270][index]);
         if (index > 0) {
           expect(story.advanceDialogue(index, points - 10), same(story));
         }
@@ -93,7 +93,7 @@ void main() {
         expect(story.resumeIndex, index + 1);
       }
       expect(destinations, isEmpty);
-      expect(story.completed, 7);
+      expect(story.completed, 8);
     },
   );
 
@@ -432,15 +432,27 @@ void main() {
     expect(episode.resultDialogue.any((turn) => turn.$2.contains('新手の挑戦者')), isFalse);
   });
 
+  test('Oshisho accepts the duel and hints at the white bear', () {
+    final duel = storyEpisodes[4];
+    expect(duel.id, 'episode_04');
+    expect(duel.title, 'おししょうの一局');
+    expect(duel.area, TownArea.plaza);
+    expect(duel.unlockAt, 180);
+    expect(duel.dialogue.first.$1.label, 'おししょう');
+    expect(duel.dialogue.any((turn) => turn.$1.label == 'モサエド'), isTrue);
+    expect(duel.resultDialogue.any((turn) => turn.$2.contains('白い熊')), isTrue);
+    expect(duel.resultDialogue.last.$1.label, 'モサエド');
+  });
+
   test('the bakery couple enjoys three ordinary Sudoku games without the bear legend', () {
-    final bakeryEpisodes = storyEpisodes.skip(4).toList();
+    final bakeryEpisodes = storyEpisodes.skip(5).toList();
     expect(bakeryEpisodes.map((e) => e.title), [
       '帳簿と数独',
       '売れているのに？',
       'ふたりの休憩時間',
     ]);
     expect(bakeryEpisodes.map((e) => e.area), everyElement(TownArea.shopping));
-    expect(bakeryEpisodes.map((e) => e.unlockAt), [180, 210, 240]);
+    expect(bakeryEpisodes.map((e) => e.unlockAt), [210, 240, 270]);
     expect(bakeryEpisodes.every((e) => e.dialogue.any((turn) => turn.$1.label == 'およめさん')), isTrue);
     expect(bakeryEpisodes.every((e) => e.dialogue.any((turn) => turn.$1.label == 'パティシエ')), isTrue);
     expect(bakeryEpisodes[1].dialogue.any((turn) => turn.$1.label == 'しんだんし'), isTrue);
@@ -508,7 +520,7 @@ void main() {
     }
 
     await tap('open-story');
-    expect(find.text('暗号 2 / 7'), findsOneWidget);
+    expect(find.text('暗号 2 / 8'), findsOneWidget);
     await tap('story-open-episode');
     for (final turn in storyEpisodes[2].resultDialogue) {
       expect(find.text(turn.$1.label), findsOneWidget);
@@ -517,7 +529,7 @@ void main() {
     }
     expect(find.text('さくらのはんこ 🌸'), findsOneWidget);
     await tap('story-finish-clue');
-    expect(find.text('暗号 3 / 7'), findsOneWidget);
+    expect(find.text('暗号 3 / 8'), findsOneWidget);
     expect(find.text('数独道場破りでござる！'), findsOneWidget);
     expect(Progress.decode(store.raw!).story.completed, 3);
     expect(Progress.decode(store.raw!).story.unreadClue, isFalse);
