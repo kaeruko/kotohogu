@@ -387,20 +387,19 @@ class _StoryTitleBanner extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Text(title, style: TextStyle(
-                  fontSize: 28, fontWeight: FontWeight.w900,
-                  foreground: Paint()
-                    ..style = PaintingStyle.stroke
-                    ..strokeWidth = 5
-                    ..color = const Color(0xFFFFE9BD),
-                )),
-                Text(title, style: const TextStyle(
-                  fontSize: 28, fontWeight: FontWeight.w900, color: _ink,
-                )),
-              ],
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: _ink,
+                shadows: [
+                  Shadow(color: Color(0xFFFFE9BD), offset: Offset(-2, -2)),
+                  Shadow(color: Color(0xFFFFE9BD), offset: Offset(2, -2)),
+                  Shadow(color: Color(0xFFFFE9BD), offset: Offset(-2, 2)),
+                  Shadow(color: Color(0xFFFFE9BD), offset: Offset(2, 2)),
+                ],
+              ),
             ),
           ),
         ),
