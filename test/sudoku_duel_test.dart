@@ -140,7 +140,7 @@ void main() {
   );
 
   testWidgets(
-    'play an NPC from the home screen, rematch, and leave during its turn',
+    'story index has no free-play duel button and still opens the story',
     (tester) async {
       tester.view.physicalSize = const Size(360, 720);
       tester.view.devicePixelRatio = 1;
@@ -155,60 +155,21 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      Future<void> tap(Finder finder) async {
-        await tester.ensureVisible(finder);
-        await tester.tap(finder);
-        await tester.pump();
-      }
 
-      Finder key(String key) => find.byKey(ValueKey(key));
-      await tap(key('open-story'));
-      await tester.pumpAndSettle();
-      final storyBefore = controller.progress!.story;
-      await tap(key('story-open-duel'));
-      await tester.pumpAndSettle();
-      await tap(key('duel-rival-mosaedo'));
-      await tap(key('duel-cell-1'));
-      await tap(key('duel-digit-3'));
-      expect(find.textContaining('入りません'), findsOneWidget);
-      await tap(key('duel-digit-2'));
-      expect(find.text('モサエドが考え中…'), findsOneWidget);
-      expect(tester.widget<FilledButton>(key('duel-digit-2')).enabled, isFalse);
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.text('モサエド　1本'), findsOneWidget);
-      expect(find.text('あなたの番　好きな部屋へ'), findsOneWidget);
-
-      const answer = '1234341221434321';
-      for (var turn = 0; turn < 3; turn++) {
-        final cell = List.generate(16, (i) => i).firstWhere(
-          (i) =>
-              tester.widget<Semantics>(key('duel-cell-$i')).properties.button ==
-              true,
-        );
-        await tap(key('duel-cell-$cell'));
-        await tap(key('duel-digit-${answer[cell]}'));
-        await tester.pump(const Duration(seconds: 1));
-      }
-      expect(find.text('もう一局'), findsOneWidget);
-      await tap(find.text('もう一局'));
-      expect(find.text('あなた　0本'), findsOneWidget);
-      expect(find.text('モサエド　0本'), findsOneWidget);
-      await tap(find.byTooltip('もどる'));
+      await tester.tap(find.byKey(const ValueKey('open-story')));
       await tester.pumpAndSettle();
 
-      await tap(key('story-open-duel'));
+      expect(find.byKey(const ValueKey('story-open-duel')), findsNothing);
+      expect(find.text('おくりマス数独のフリー対戦'), findsNothing);
+      expect(find.text('お話一覧・手がかり帳'), findsOneWidget);
+      expect(find.byKey(const ValueKey('story-open-episode')), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('story-open-episode')));
       await tester.pumpAndSettle();
-      await tap(find.text('9×9'));
-      await tap(key('duel-rival-oshisho'));
-      await tap(key('duel-cell-0'));
-      await tap(key('duel-digit-5'));
-      expect(find.text('おししょうが考え中…'), findsOneWidget);
-      await tap(find.byTooltip('もどる'));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 1));
-      expect(key('story-open-duel'), findsOneWidget);
-      expect(controller.progress!.story, same(storyBefore));
+      expect(find.byKey(const ValueKey('story-dialogue')), findsOneWidget);
       expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
     },
   );
 }
