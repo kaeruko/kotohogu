@@ -350,6 +350,28 @@ class Handler(BaseHTTPRequestHandler):
                 self.wfile.write(raw)
             except (OSError, ValueError, TypeError) as exc:
                 self._send(400, {"error": str(exc)})
+        elif path in {"/story", "/story.js", "/api/story"}:
+            try:
+                if url.query:
+                    raise ValueError("Story CMS takes no query parameters")
+                if path == "/api/story":
+                    registry = validate_catalog(load_catalog())
+                    return self._send(200, story.load_story({
+                        row["id"] for row in registry["characters"]
+                        if not row.get("archived", False)
+                    }))
+                file = Path(__file__).parent / (
+                    "story.html" if path == "/story" else "story.js"
+                )
+                mime = ("text/html; charset=utf-8" if path == "/story"
+                        else "text/javascript; charset=utf-8")
+                raw = file.read_bytes()
+                self._headers(200, mime, len(raw))
+                self.wfile.write(raw)
+            except (ValueError, TypeError) as exc:
+                self._send(400, {"error": str(exc)})
+            except OSError as exc:
+                self._send(500, {"error": str(exc)})
         elif path in {"/events", "/events.js", "/api/events", "/api/event-background"}:
             try:
                 if path == "/api/events":
@@ -485,7 +507,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         endpoint = urlsplit(self.path).path
-        if endpoint not in {"/api/dialogues", "/api/cms", "/api/events", "/api/facilities", "/api/timed-events"}:
+        if endpoint not in {"/api/dialogues", "/api/cms", "/api/events", "/api/facilities", "/api/timed-events", "/api/story"}:
             return self._send(404, {"error": "Not found"})
         # A cross-origin website must not be able to modify local files.
         expected = f"http://127.0.0.1:{self.server.server_port}"
@@ -499,7 +521,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(413, {"error": "Invalid document size"})
             raw = self.rfile.read(size)
             value = json.loads(raw.decode("utf-8"))
-            if endpoint == "/api/facilities":
+            if endpoint == "/api/story":
+                story.save_story(value)
+                self._send(200, {"ok": True, "episodes": len(value["episodes"])})
+            elif endpoint == "/api/facilities":
                 facilities.save(value)
                 self._send(200, {"ok": True})
             elif endpoint == "/api/timed-events":

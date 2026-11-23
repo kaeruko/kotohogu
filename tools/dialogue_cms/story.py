@@ -82,6 +82,32 @@ def validate_story(doc, resident_ids, areas):
     return doc
 
 
+
+def save_story(doc):
+    """Validate the CMS document and atomically replace only story.json.
+
+    Published episode identity, puzzle solutions, unlock thresholds, and
+    saved dialogue offsets are kept stable across deployments.
+    """
+    from characters import commit_files, load_catalog, validate_catalog
+
+    registry = validate_catalog(load_catalog())
+    active = {row["id"] for row in registry["characters"]
+              if not row.get("archived", False)}
+    previous = load_story(active)
+    areas = {row["id"]: row["unlockAt"]
+             for row in validate_areas(load_areas())["areas"]
+             if row["id"] != "hospital"}
+    validate_story(doc, active, areas)
+    validate_story_update(previous, doc)
+    payload = json.dumps(doc, ensure_ascii=False, indent=2) + "\n"
+    if len(payload.encode("utf-8")) > MAX_JSON_BYTES:
+        raise ValueError(f"Sudoku story exceeds {MAX_JSON_BYTES} bytes")
+    for image in story_images(doc):
+        story_image_bytes(image)
+    commit_files({DATA: payload})
+
+
 def _text(value, field):
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"Empty Sudoku story text: {field}")
@@ -120,7 +146,8 @@ def validate_story_update(previous, current):
     fixed = ("id", "area", "destination", "unlockAt", "puzzle", "solution")
     for old, new in zip(before, after):
         if (any(old.get(field) != new.get(field) for field in fixed)
-                or len(old["dialogue"]) != len(new["dialogue"])):
+                or len(old["dialogue"]) != len(new["dialogue"])
+                or len(old["resultDialogue"]) != len(new["resultDialogue"])):
             raise ValueError(f"Published Sudoku story episode is incompatible: {old['id']}")
 
 
