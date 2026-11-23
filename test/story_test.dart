@@ -52,13 +52,13 @@ void main() {
   );
 
   test(
-    'the eight-episode story opens at its scene milestones',
+    'the eleven-episode story opens at its scene milestones',
     () {
       var story = const StoryProgress.empty();
       final destinations = <TownArea>[];
       for (final (index, episode) in storyEpisodes.indexed) {
         final points = episode.unlockAt;
-        expect(points, [0, 90, 120, 150, 180, 210, 240, 270][index]);
+        expect(points, [0, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360][index]);
         if (index > 0) {
           expect(story.advanceDialogue(index, points - 10), same(story));
         }
@@ -93,21 +93,42 @@ void main() {
         expect(story.resumeIndex, index + 1);
       }
       expect(destinations, isEmpty);
-      expect(story.completed, 8);
+      expect(story.completed, 11);
     },
   );
 
-  test('three story chapters preserve the existing episode structure', () {
+  test('four story chapters preserve the existing episode structure', () {
     expect(storyChapters.map((chapter) => chapter.title),
-      ['しばぽめ', 'モサエド', 'およめさん']);
-    expect(storyChapters.map((chapter) => chapter.startIndex), [0, 3, 5]);
+      ['しばぽめ', 'モサエド', 'およめさん', 'おやすみクラブ']);
+    expect(storyChapters.map((chapter) => chapter.startIndex), [0, 3, 5, 8]);
     expect(bundledStory.chapterIndexForEpisode(0), 0);
     expect(bundledStory.chapterIndexForEpisode(2), 0);
     expect(bundledStory.chapterIndexForEpisode(3), 1);
     expect(bundledStory.chapterIndexForEpisode(4), 1);
     expect(bundledStory.chapterIndexForEpisode(5), 2);
     expect(bundledStory.chapterIndexForEpisode(7), 2);
-    expect(() => bundledStory.chapterIndexForEpisode(8), throwsRangeError);
+    expect(bundledStory.chapterIndexForEpisode(8), 3);
+    expect(bundledStory.chapterIndexForEpisode(10), 3);
+    expect(() => bundledStory.chapterIndexForEpisode(11), throwsRangeError);
+  });
+
+  test('Oyasumi Club memories introduce the renamed former coworker', () {
+    final oyasumi = storyEpisodes.skip(8).toList();
+    expect(oyasumi.length, 3);
+    expect(oyasumi.map((e) => e.title), [
+      'むかしのおしごと',
+      'ひさしぶりの同僚',
+      'まだまだこれから',
+    ]);
+    expect(oyasumi.map((e) => e.unlockAt), [300, 330, 360]);
+    expect(oyasumi[1].dialogue.any((turn) => turn.$1.label == 'げんばくん'), isTrue);
+    expect(oyasumi[1].resultDialogue.any((turn) => turn.$1.label == 'げんばくん'), isTrue);
+    expect(oyasumi.last.resultDialogue.last.$2, 'ぼくはまだまだこれからなんだ〜');
+    expect(oyasumi.every((episode) => ![
+      episode.clue, episode.result,
+      for (final turn in episode.dialogue) turn.$2,
+      for (final turn in episode.resultDialogue) turn.$2,
+    ].join(' ').contains('もぐた')), isTrue);
   });
 
   test('every solved puzzle has a short story exchange', () {
@@ -461,7 +482,7 @@ void main() {
   });
 
   test('the bakery couple enjoys three ordinary Sudoku games without the bear legend', () {
-    final bakeryEpisodes = storyEpisodes.skip(5).toList();
+    final bakeryEpisodes = storyEpisodes.skip(5).take(3).toList();
     expect(bakeryEpisodes.map((e) => e.title), [
       '帳簿と数独',
       'ケーキ無料！？',
@@ -541,7 +562,7 @@ void main() {
     }
 
     await tap('open-story');
-    expect(find.text('暗号 2 / 8'), findsOneWidget);
+    expect(find.text('暗号 2 / 11'), findsOneWidget);
     await tap('story-open-episode');
     for (final turn in storyEpisodes[2].resultDialogue) {
       expect(find.text(turn.$1.label), findsOneWidget);
@@ -558,7 +579,7 @@ void main() {
       await tester.drag(find.byType(ListView).last, const Offset(0, 600));
       await tester.pumpAndSettle();
     }
-    expect(find.text('暗号 3 / 8'), findsOneWidget);
+    expect(find.text('暗号 3 / 11'), findsOneWidget);
     expect(find.text('数独道場破りでござる！'), findsWidgets);
     expect(Progress.decode(store.raw!).story.completed, 3);
     expect(Progress.decode(store.raw!).story.unreadClue, isFalse);

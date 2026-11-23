@@ -190,6 +190,7 @@ const _gonsuke = StorySpeaker.local(TownResident.c042_senior_dog);
 const _mosa = StorySpeaker.local(TownResident.c036_mosa);
 const _frog = StorySpeaker.local(TownResident.c029_office_worker);
 const _oyasumi = StorySpeaker.local(TownResident.c027_daydreamer);
+const _genba = StorySpeaker.local(TownResident.c032_miner);
 const _oshisho = StorySpeaker.local(TownResident.c031_kimono_fox);
 const _wife = StorySpeaker.local(TownResident.rabbit);
 const _pastry = StorySpeaker.local(TownResident.c047_patisie);
@@ -199,6 +200,7 @@ const storyChapters = <StoryChapter>[
   StoryChapter(id: 'shibapome', title: 'しばぽめ', startIndex: 0),
   StoryChapter(id: 'mosaedo', title: 'モサエド', startIndex: 3),
   StoryChapter(id: 'oyomesan', title: 'およめさん', startIndex: 5),
+  StoryChapter(id: 'oyasumi_club', title: 'おやすみクラブ', startIndex: 8),
 ];
 
 const bundledStory = StoryCatalog(
@@ -412,6 +414,87 @@ const storyEpisodes = <StoryEpisode>[
       (_wife, 'ふふ。じゃあ、次の数独は？'),
       (_pastry, 'もちろん、無料でどうぞ！'),
       (_wife, 'あら、よかった！ また一緒に遊びましょう'),
+    ],
+  ),
+
+  StoryEpisode(
+    id: 'episode_08',
+    title: 'むかしのおしごと',
+    area: TownArea.plaza,
+    unlockAt: 300,
+    dialogue: [
+      (_frog, 'おやすみくん、向こうの道で工事してるね。なんだかにぎやかだなあ'),
+      (_oyasumi, 'あの音、なつかしいもふ〜。ぼくもむかし、工事現場ではたらいてたもふ'),
+      (_frog, 'えっ！ おやすみくん、ヘルメットかぶってたの！？'),
+      (_oyasumi, 'かぶってたもふ〜。あつい日は、かげでひとやすみしたもふ'),
+      (_frog, 'ほかにも覚えてることある？'),
+      (_oyasumi, '休けい時間に、数字のパズルもやってたもふ。……これ、いっしょにとくもふ？'),
+    ],
+    puzzle: '0014402020301300',
+    solution: '3214412324311342',
+    clue: 'げんばくんに、また会いたいもふ',
+    result: '数独をしながら、工事現場で道具の数を確かめていたころを思い出すおやすみくん。いっしょに働いていた「げんばくん」の名前が出てきた。',
+    resultDialogue: [
+      (_frog, 'できた！ そういえば、現場ではどんなことをしてたの？'),
+      (_oyasumi, '道に印をつけたり、道具の数をかぞえたりしてたもふ〜'),
+      (_frog, 'へえ！ 数を確かめるの、得意だったんだね'),
+      (_oyasumi, 'げんばくんと、いっしょにはたらいてたもふ〜'),
+      (_frog, 'げんばくん？'),
+      (_oyasumi, 'むかしのなかまもふ。ひさしぶりに会いたいなぁ'),
+    ],
+  ),
+  StoryEpisode(
+    id: 'episode_09',
+    title: 'ひさしぶりの同僚',
+    area: TownArea.park,
+    unlockAt: 330,
+    dialogue: [
+      (_frog, 'あっ、工事の人だ。今日は公園の道を直しているんですか？'),
+      (_genba, 'そうだよ！ ……あれっ、おやすみくんじゃないか！'),
+      (_oyasumi, 'げんばくん！ ひさしぶりもふ〜'),
+      (_frog, 'えっ、二人は知り合いなの？'),
+      (_genba, '昔、同じ工事現場で働いてたんだ。道具の数をよく確かめてくれたよ！'),
+      (_oyasumi, 'なくしものすると、さがすのたいへんもふ〜'),
+      (_genba, 'あはは、そうだったね！ ちょうど休けい中なんだ。三人で数独やらない？'),
+    ],
+    puzzle: '4001014004101200',
+    solution: '4321214334121234',
+    clue: 'ゆっくりでも、しっかり確認',
+    result: '公園の工事に来ていたげんばくんは、おやすみくんの元同僚だった。道具の数を確かめてくれた思い出を語り、三人で休けい中の数独を楽しんだ。',
+    resultDialogue: [
+      (_genba, '解けた！ 数独は間違えてもやり直せるから気楽だね'),
+      (_frog, 'おやすみくん、そういうの得意だったんだね！'),
+      (_oyasumi, 'もふ〜。ぼく、けっこうがんばってたもふ'),
+      (_genba, 'あのときは助かったよ！ また一緒に遊ぼうね'),
+      (_oyasumi, 'うん。げんばくん、またね〜'),
+    ],
+  ),
+  StoryEpisode(
+    id: 'episode_10',
+    title: 'まだまだこれから',
+    area: TownArea.plaza,
+    unlockAt: 360,
+    dialogue: [
+      (_frog, 'げんばくんに会えてよかったね'),
+      (_oyasumi, 'うん。むかしのこと、たくさんおもいだしたもふ〜'),
+      (_frog, '今はお休み中だけど、これからやってみたいことってある？'),
+      (_oyasumi, 'もふ〜。まだきめてないもふ'),
+      (_frog, 'そっか。急いで決めなくてもいいよ'),
+      (_oyasumi, 'でもね、きょうはじぶんで数独をといてみたいもふ〜'),
+      (_frog, 'いいね！ ぼくは隣で応援するよ'),
+    ],
+    puzzle: '0140402010043400',
+    solution: '2143432112343412',
+    clue: 'ぼくはまだまだこれからなんだ〜',
+    result: '昔は工事現場で働き、今はお休み中のおやすみくん。これからのことはまだ決まっていないけれど、今日は自分で数独を一局解けた。二人のおやすみクラブは、明日も続く。',
+    resultDialogue: [
+      (_oyasumi, '……とけたもふ！ ひとりでさいごまでできたもふ〜'),
+      (_frog, 'すごい！ 前は途中で引退しちゃったのに！'),
+      (_oyasumi, 'ふふ。きょうは、もうちょっとやってみたくなったもふ'),
+      (_frog, '明日も一局やってみる？'),
+      (_oyasumi, 'あしたのことは、あしたかんがえるもふ〜'),
+      (_frog, 'あはは、おやすみくんらしいね'),
+      (_oyasumi, 'ぼくはまだまだこれからなんだ〜'),
     ],
   ),
 ];

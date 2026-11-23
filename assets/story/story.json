@@ -490,6 +490,203 @@
           "text": "あら、よかった！ また一緒に遊びましょう"
         }
       ]
+    },
+    {
+      "id": "episode_08",
+      "title": "むかしのおしごと",
+      "area": "plaza",
+      "unlockAt": 300,
+      "image": "story_005_community_center_mosaedo.png",
+      "puzzle": "0014402020301300",
+      "solution": "3214412324311342",
+      "clue": "げんばくんに、また会いたいもふ",
+      "result": "数独をしながら、工事現場で道具の数を確かめていたころを思い出すおやすみくん。いっしょに働いていた「げんばくん」の名前が出てきた。",
+      "dialogue": [
+        {
+          "speaker": "029_office_worker",
+          "text": "おやすみくん、向こうの道で工事してるね。なんだかにぎやかだなあ"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "あの音、なつかしいもふ〜。ぼくもむかし、工事現場ではたらいてたもふ"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "えっ！ おやすみくん、ヘルメットかぶってたの！？"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "かぶってたもふ〜。あつい日は、かげでひとやすみしたもふ"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "ほかにも覚えてることある？"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "休けい時間に、数字のパズルもやってたもふ。……これ、いっしょにとくもふ？"
+        }
+      ],
+      "resultDialogue": [
+        {
+          "speaker": "029_office_worker",
+          "text": "できた！ そういえば、現場ではどんなことをしてたの？"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "道に印をつけたり、道具の数をかぞえたりしてたもふ〜"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "へえ！ 数を確かめるの、得意だったんだね"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "げんばくんと、いっしょにはたらいてたもふ〜"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "げんばくん？"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "むかしのなかまもふ。ひさしぶりに会いたいなぁ"
+        }
+      ]
+    },
+    {
+      "id": "episode_09",
+      "title": "ひさしぶりの同僚",
+      "area": "park",
+      "unlockAt": 330,
+      "image": "story_002_park_tree.png",
+      "puzzle": "4001014004101200",
+      "solution": "4321214334121234",
+      "clue": "ゆっくりでも、しっかり確認",
+      "result": "公園の工事に来ていたげんばくんは、おやすみくんの元同僚だった。道具の数を確かめてくれた思い出を語り、三人で休けい中の数独を楽しんだ。",
+      "dialogue": [
+        {
+          "speaker": "029_office_worker",
+          "text": "あっ、工事の人だ。今日は公園の道を直しているんですか？"
+        },
+        {
+          "speaker": "032_miner",
+          "text": "そうだよ！ ……あれっ、おやすみくんじゃないか！"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "げんばくん！ ひさしぶりもふ〜"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "えっ、二人は知り合いなの？"
+        },
+        {
+          "speaker": "032_miner",
+          "text": "昔、同じ工事現場で働いてたんだ。道具の数をよく確かめてくれたよ！"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "なくしものすると、さがすのたいへんもふ〜"
+        },
+        {
+          "speaker": "032_miner",
+          "text": "あはは、そうだったね！ ちょうど休けい中なんだ。三人で数独やらない？"
+        }
+      ],
+      "resultDialogue": [
+        {
+          "speaker": "032_miner",
+          "text": "解けた！ 数独は間違えてもやり直せるから気楽だね"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "おやすみくん、そういうの得意だったんだね！"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "もふ〜。ぼく、けっこうがんばってたもふ"
+        },
+        {
+          "speaker": "032_miner",
+          "text": "あのときは助かったよ！ また一緒に遊ぼうね"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "うん。げんばくん、またね〜"
+        }
+      ]
+    },
+    {
+      "id": "episode_10",
+      "title": "まだまだこれから",
+      "area": "plaza",
+      "unlockAt": 360,
+      "image": "story_005_community_center_mosaedo.png",
+      "puzzle": "0140402010043400",
+      "solution": "2143432112343412",
+      "clue": "ぼくはまだまだこれからなんだ〜",
+      "result": "昔は工事現場で働き、今はお休み中のおやすみくん。これからのことはまだ決まっていないけれど、今日は自分で数独を一局解けた。二人のおやすみクラブは、明日も続く。",
+      "dialogue": [
+        {
+          "speaker": "029_office_worker",
+          "text": "げんばくんに会えてよかったね"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "うん。むかしのこと、たくさんおもいだしたもふ〜"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "今はお休み中だけど、これからやってみたいことってある？"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "もふ〜。まだきめてないもふ"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "そっか。急いで決めなくてもいいよ"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "でもね、きょうはじぶんで数独をといてみたいもふ〜"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "いいね！ ぼくは隣で応援するよ"
+        }
+      ],
+      "resultDialogue": [
+        {
+          "speaker": "027_daydreamer",
+          "text": "……とけたもふ！ ひとりでさいごまでできたもふ〜"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "すごい！ 前は途中で引退しちゃったのに！"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "ふふ。きょうは、もうちょっとやってみたくなったもふ"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "明日も一局やってみる？"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "あしたのことは、あしたかんがえるもふ〜"
+        },
+        {
+          "speaker": "029_office_worker",
+          "text": "あはは、おやすみくんらしいね"
+        },
+        {
+          "speaker": "027_daydreamer",
+          "text": "ぼくはまだまだこれからなんだ〜"
+        }
+      ]
     }
   ],
   "chapters": [
@@ -507,6 +704,11 @@
       "id": "oyomesan",
       "title": "およめさん",
       "startEpisodeId": "episode_05"
+    },
+    {
+      "id": "oyasumi_club",
+      "title": "おやすみクラブ",
+      "startEpisodeId": "episode_08"
     }
   ]
 }
