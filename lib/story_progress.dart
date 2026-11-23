@@ -20,15 +20,19 @@ class StoryProgress {
   int get resumeIndex => unreadClue ? completed - 1 : completed;
   bool get hasStarted => completed != 0 || dialogueTurns != 0;
 
-  bool _canPlay(int index, int points) =>
+  bool _canPlay(int index, int points, List<StoryEpisode> episodes) =>
       !unreadClue &&
       index == completed &&
-      index < storyEpisodes.length &&
-      storyEpisodes[index].isAvailable(points);
+      index < episodes.length &&
+      episodes[index].isAvailable(points);
 
-  StoryProgress advanceDialogue(int index, int points) {
-    if (!_canPlay(index, points) ||
-        dialogueTurns >= storyEpisodes[index].dialogue.length) {
+  StoryProgress advanceDialogue(
+    int index,
+    int points, {
+    List<StoryEpisode> episodes = storyEpisodes,
+  }) {
+    if (!_canPlay(index, points, episodes) ||
+        dialogueTurns >= episodes[index].dialogue.length) {
       return this;
     }
     return StoryProgress._(
@@ -37,9 +41,15 @@ class StoryProgress {
     );
   }
 
-  StoryProgress enterNumber(int index, int points, int cell, int number) {
-    if (!_canPlay(index, points)) return this;
-    final episode = storyEpisodes[index];
+  StoryProgress enterNumber(
+    int index,
+    int points,
+    int cell,
+    int number, {
+    List<StoryEpisode> episodes = storyEpisodes,
+  }) {
+    if (!_canPlay(index, points, episodes)) return this;
+    final episode = episodes[index];
     if (dialogueTurns != episode.dialogue.length ||
         cell < 0 ||
         cell >= episode.puzzle.length ||
@@ -61,9 +71,14 @@ class StoryProgress {
     );
   }
 
-  StoryProgress useHint(int index, int points, int? selectedCell) {
-    if (!_canPlay(index, points)) return this;
-    final episode = storyEpisodes[index];
+  StoryProgress useHint(
+    int index,
+    int points,
+    int? selectedCell, {
+    List<StoryEpisode> episodes = storyEpisodes,
+  }) {
+    if (!_canPlay(index, points, episodes)) return this;
+    final episode = episodes[index];
     final current = board ?? episode.initialBoard();
     bool needsNumber(int cell) => current[cell] != episode.answerAt(cell);
     final cell =
@@ -74,7 +89,13 @@ class StoryProgress {
         ? selectedCell
         : current.asMap().keys.firstWhere(needsNumber, orElse: () => -1);
     if (cell == -1) return this;
-    return enterNumber(index, points, cell, episode.answerAt(cell));
+    return enterNumber(
+      index,
+      points,
+      cell,
+      episode.answerAt(cell),
+      episodes: episodes,
+    );
   }
 
   StoryProgress readClue(int index) => unreadClue && index == completed - 1
@@ -88,7 +109,7 @@ class StoryProgress {
     if (board != null) 'board': board!.join(),
   };
 
-  factory StoryProgress.fromJson(Object? raw, int points) {
+  factory StoryProgress.fromJson(Object? raw) {
     if (raw is! Map<String, dynamic> ||
         raw.keys.any(
           (key) => !const {
@@ -105,46 +126,21 @@ class StoryProgress {
     final unreadClue = raw['unreadClue'];
     if (completed is! int ||
         completed < 0 ||
-        completed > storyEpisodes.length ||
         dialogueTurns is! int ||
         dialogueTurns < 0 ||
         unreadClue is! bool ||
-        (unreadClue && (completed == 0 || dialogueTurns != 0)) ||
-        storyEpisodes
-            .take(completed)
-            .any((episode) => episode.unlockAt > points)) {
+        (unreadClue && (completed == 0 || dialogueTurns != 0))) {
       throw const FormatException('Invalid story progress');
-    }
-    final episode = completed == storyEpisodes.length
-        ? null
-        : storyEpisodes[completed];
-    if (dialogueTurns > 0 &&
-        (episode == null ||
-            episode.unlockAt > points ||
-            dialogueTurns > episode.dialogue.length)) {
-      throw const FormatException('Invalid story dialogue position');
     }
     List<int>? board;
     if (raw.containsKey('board')) {
       final cells = raw['board'];
-      if (episode == null ||
-          dialogueTurns != episode.dialogue.length ||
+      if (dialogueTurns == 0 ||
           cells is! String ||
-          cells.length != episode.puzzle.length) {
+          !RegExp(r'^(?:[0-4]{16}|[0-6]{36})$').hasMatch(cells)) {
         throw const FormatException('Invalid story board');
       }
       board = cells.codeUnits.map((unit) => unit - 48).toList();
-      for (var cell = 0; cell < board.length; cell++) {
-        final given = episode.givenAt(cell);
-        if (board[cell] < 0 ||
-            board[cell] > episode.size ||
-            (given != 0 && board[cell] != given)) {
-          throw const FormatException('Invalid digit in story board');
-        }
-      }
-      if (episode.isSolved(board)) {
-        throw const FormatException('Solved story board must award its clue');
-      }
     }
     return StoryProgress._(
       completed: completed,
@@ -152,5 +148,39 @@ class StoryProgress {
       unreadClue: unreadClue,
       board: board == null ? null : List.unmodifiable(board),
     );
+  }
+
+  /// Validate against the pinned catalog after it loads. A new episode may
+  /// have been released after the app was built, so decoding is catalog-free.
+  void validateFor(StoryCatalog catalog, int points) {
+    final episodes = catalog.episodes;
+    if (completed > episodes.length ||
+        (completed > 0 && episodes[completed - 1].unlockAt > points)) {
+      throw const FormatException(
+        'Story progress is outside the loaded catalog',
+      );
+    }
+    if (dialogueTurns == 0) return;
+    final episode = completed == episodes.length ? null : episodes[completed];
+    if (episode == null ||
+        episode.unlockAt > points ||
+        dialogueTurns > episode.dialogue.length) {
+      throw const FormatException('Invalid story dialogue position');
+    }
+    final cells = board;
+    if (cells == null) return;
+    if (dialogueTurns != episode.dialogue.length ||
+        cells.length != episode.puzzle.length) {
+      throw const FormatException('Invalid story board');
+    }
+    for (var cell = 0; cell < cells.length; cell++) {
+      final given = episode.givenAt(cell);
+      if (given != 0 && cells[cell] != given) {
+        throw const FormatException('Invalid digit in story board');
+      }
+    }
+    if (episode.isSolved(cells)) {
+      throw const FormatException('Solved story board must award its clue');
+    }
   }
 }

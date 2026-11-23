@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'progress.dart';
-import 'resident_collection.dart';
 import 'story_data.dart';
+import 'story_remote_config.dart' show storyImagePath;
 import 'town_areas.dart';
 
 const _paper = Color(0xFFFFF9ED);
@@ -13,18 +13,24 @@ class StoryScreen extends StatelessWidget {
   const StoryScreen({
     super.key,
     required this.controller,
+    required this.catalog,
     required this.onSelfCare,
     required this.onVisitDestination,
   });
 
   final ProgressController controller;
+  final StoryCatalog catalog;
   final VoidCallback onSelfCare;
   final ValueChanged<TownArea> onVisitDestination;
 
   void _openEpisode(BuildContext context, int index) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
-        builder: (_) => _EpisodeScreen(controller: controller, index: index),
+        builder: (_) => _EpisodeScreen(
+          controller: controller,
+          catalog: catalog,
+          index: index,
+        ),
       ),
     );
   }
@@ -36,15 +42,14 @@ class StoryScreen extends StatelessWidget {
       if (controller.failure != null) return const _StorySaveError();
       final progress = controller.progress!;
       final story = progress.story;
+      final episodes = catalog.episodes;
       final nextIndex = story.resumeIndex;
-      final next = nextIndex < storyEpisodes.length
-          ? storyEpisodes[nextIndex]
-          : null;
+      final next = nextIndex < episodes.length ? episodes[nextIndex] : null;
       final playable =
           next != null &&
           (story.unreadClue || next.isAvailable(progress.points));
       final cleared = story.completed > 0 ? story.completed - 1 : 0;
-      final lastDestination = storyEpisodes
+      final lastDestination = episodes
           .take(story.unreadClue ? story.completed - 1 : story.completed)
           .map((episode) => episode.destination)
           .nonNulls
@@ -52,10 +57,11 @@ class StoryScreen extends StatelessWidget {
       return _StoryPage(
         title: 'ストーリー',
         children: [
-          if (!story.hasStarted) const _SceneArt(storyPlazaArt),
-          Text(storyTitle, style: Theme.of(context).textTheme.headlineSmall),
-          Text('暗号 $cleared / ${storyEpisodes.length - 1}'),
-          LinearProgressIndicator(value: cleared / (storyEpisodes.length - 1)),
+          if (!story.hasStarted)
+            _SceneArt(storyPlazaArt, _imageUri(catalog, catalog.coverImage)),
+          Text(catalog.title, style: Theme.of(context).textTheme.headlineSmall),
+          Text('暗号 $cleared / ${episodes.length - 1}'),
+          LinearProgressIndicator(value: cleared / (episodes.length - 1)),
           if (next != null)
             Card(
               margin: EdgeInsets.zero,
@@ -128,8 +134,8 @@ class StoryScreen extends StatelessWidget {
                   margin: EdgeInsets.zero,
                   child: ListTile(
                     leading: const Icon(Icons.check_circle_outline),
-                    title: Text(storyEpisodes[index].title),
-                    subtitle: Text(storyEpisodes[index].clue),
+                    title: Text(episodes[index].title),
+                    subtitle: Text(episodes[index].clue),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => _openEpisode(context, index),
                   ),
@@ -142,9 +148,14 @@ class StoryScreen extends StatelessWidget {
 }
 
 class _EpisodeScreen extends StatefulWidget {
-  const _EpisodeScreen({required this.controller, required this.index});
+  const _EpisodeScreen({
+    required this.controller,
+    required this.catalog,
+    required this.index,
+  });
 
   final ProgressController controller;
+  final StoryCatalog catalog;
   final int index;
 
   @override
@@ -162,7 +173,9 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
       if (controller.failure != null) return const _StorySaveError();
       final story = controller.progress!.story;
       final index = widget.index;
-      final episode = storyEpisodes[index];
+      final catalog = widget.catalog;
+      final episodes = catalog.episodes;
+      final episode = episodes[index];
       final busy = controller.busy;
 
       if (index < story.completed) {
@@ -172,7 +185,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
           contentKey: const ValueKey('story-clue'),
           title: index == 0 ? 'れんしゅう' : '見つけた手がかり',
           children: [
-            _SceneArt(episode.resultArt),
+            _SceneArt(episode.resultArt, _imageUri(catalog, episode.clueImage)),
             Semantics(
               liveRegion: reveal,
               child: TweenAnimationBuilder<double>(
@@ -227,7 +240,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
           contentKey: const ValueKey('story-dialogue'),
           title: episode.title,
           children: [
-            _SceneArt(episode.art),
+            _SceneArt(episode.art, _imageUri(catalog, episode.image)),
             Card(
               margin: EdgeInsets.zero,
               child: Padding(
@@ -237,7 +250,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
                   children: [
                     Row(
                       children: [
-                        TownResidentAvatar(resident: speaker),
+                        _StoryPortrait(speaker),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -264,7 +277,11 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
               onPressed: busy
                   ? null
                   : () => controller.updateStory(
-                      (story, points) => story.advanceDialogue(index, points),
+                      (story, points) => story.advanceDialogue(
+                        index,
+                        points,
+                        episodes: episodes,
+                      ),
                     ),
               child: Text(last ? '数独をはじめる' : 'つぎへ'),
             ),
@@ -281,8 +298,13 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
       void enter(int number) {
         if (selected != null) {
           controller.updateStory(
-            (story, points) =>
-                story.enterNumber(index, points, selected, number),
+            (story, points) => story.enterNumber(
+              index,
+              points,
+              selected,
+              number,
+              episodes: episodes,
+            ),
           );
         }
       }
@@ -341,8 +363,12 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
                 onPressed: busy
                     ? null
                     : () => controller.updateStory(
-                        (story, points) =>
-                            story.useHint(index, points, selected),
+                        (story, points) => story.useHint(
+                          index,
+                          points,
+                          selected,
+                          episodes: episodes,
+                        ),
                       ),
                 icon: const Icon(Icons.lightbulb_outline),
                 label: const Text('ヒントで1マスうめる'),
@@ -365,7 +391,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
 class _StoryResultDialogue extends StatelessWidget {
   const _StoryResultDialogue({required this.turns});
 
-  final List<(TownResident, String)> turns;
+  final List<(StorySpeaker, String)> turns;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -380,14 +406,16 @@ class _StoryResultDialogue extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TownResidentAvatar(resident: speaker),
+                _StoryPortrait(speaker),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(speaker.label,
-                          style: Theme.of(context).textTheme.labelLarge),
+                      Text(
+                        speaker.label,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
                       Text(line),
                     ],
                   ),
@@ -517,16 +545,60 @@ class _PuzzleBoard extends StatelessWidget {
   }
 }
 
+Uri? _imageUri(StoryCatalog catalog, String? image) =>
+    image == null ? null : catalog.baseUri!.resolve('$storyImagePath$image');
+
+class _StoryPortrait extends StatelessWidget {
+  const _StoryPortrait(this.speaker);
+  final StorySpeaker speaker;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 80,
+    height: 80,
+    child: switch (speaker.portrait) {
+      final uri? => _StoryImage(uri, fit: BoxFit.contain),
+      null => Image.asset(
+        speaker.localPortrait,
+        fit: BoxFit.contain,
+        excludeFromSemantics: true,
+      ),
+    },
+  );
+}
+
+class _StoryImage extends StatelessWidget {
+  const _StoryImage(this.uri, {required this.fit});
+  final Uri uri;
+  final BoxFit fit;
+
+  @override
+  Widget build(BuildContext context) => Image.network(
+    uri.toString(),
+    fit: fit,
+    excludeFromSemantics: true,
+    errorBuilder: (context, error, stack) => const Center(
+      child: Tooltip(
+        message: 'ストーリー画像を読み込めませんでした',
+        child: Icon(Icons.broken_image_outlined),
+      ),
+    ),
+  );
+}
+
 class _SceneArt extends StatelessWidget {
-  const _SceneArt(this.asset);
+  const _SceneArt(this.asset, this.uri);
   final String asset;
+  final Uri? uri;
 
   @override
   Widget build(BuildContext context) => ClipRRect(
     borderRadius: BorderRadius.circular(16),
     child: AspectRatio(
       aspectRatio: 4 / 3,
-      child: Image.asset(asset, fit: BoxFit.cover, excludeFromSemantics: true),
+      child: uri == null
+          ? Image.asset(asset, fit: BoxFit.cover, excludeFromSemantics: true)
+          : _StoryImage(uri!, fit: BoxFit.cover),
     ),
   );
 }

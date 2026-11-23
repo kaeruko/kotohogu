@@ -11,6 +11,7 @@ from pathlib import Path
 import events
 import timed_events
 import facilities
+import story
 from urllib.parse import parse_qs, urlsplit
 from characters import (archive_code_blockers, load_catalog, validate_catalog,
                         save_catalog_and_dialogues)
@@ -382,14 +383,34 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(404, {"error": str(exc)})
             except OSError as exc:
                 self._send(500, {"error": str(exc)})
-        elif path in {"/api/runtime/catalog", "/api/runtime/oyasumi"}:
+        elif path in {"/api/runtime/catalog", "/api/runtime/oyasumi", "/api/runtime/story"}:
             if url.query:
                 self._send(400, {"error": "Runtime content takes no query parameters"})
                 return
             try:
-                self._send(200, runtime_catalog() if path.endswith("/catalog")
-                           else events.load())
+                if path.endswith("/story"):
+                    registry = validate_catalog(load_catalog())
+                    self._send(200, story.load_story({
+                        row["id"] for row in registry["characters"]
+                        if not row.get("archived", False)
+                    }))
+                else:
+                    self._send(200, runtime_catalog() if path.endswith("/catalog")
+                               else events.load())
             except (OSError, ValueError, TypeError) as exc:
+                self._send(500, {"error": str(exc)})
+        elif path.startswith("/api/runtime/story-images/"):
+            try:
+                if url.query:
+                    raise ValueError("Story images take no query parameters")
+                raw = story.story_image_bytes(path.removeprefix("/api/runtime/story-images/"))
+                self._headers(200, "image/png", len(raw))
+                self.wfile.write(raw)
+            except ValueError as exc:
+                self._send(400, {"error": str(exc)})
+            except FileNotFoundError as exc:
+                self._send(404, {"error": str(exc)})
+            except OSError as exc:
                 self._send(500, {"error": str(exc)})
         elif path.startswith("/api/runtime/sprites/"):
             try:

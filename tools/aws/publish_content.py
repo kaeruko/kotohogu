@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -21,12 +22,15 @@ sys.path.insert(0, str(ROOT / "tools" / "dialogue_cms"))
 from server import runtime_catalog, runtime_sprite_path  # noqa: E402
 from events import load as load_oyasumi_event  # noqa: E402
 from characters import DIRECTIONS  # noqa: E402
+from story import load_story, story_images, story_image_bytes, validate_story_update  # noqa: E402
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 FRAMES = ("idle_front_01.png", "clap_front_01.png", "clap_front_02.png")
 SPRITE_DIRECTIONS = tuple(DIRECTIONS)
 IMMUTABLE = "public,max-age=31536000,immutable"
 NO_CACHE = "no-store,no-cache,must-revalidate"
+STORY_PATH = Path("api/runtime/story")
+STORY_IMAGES = Path("api/runtime/story-images")
 
 
 def encode_json(payload):
@@ -71,6 +75,10 @@ def prepare(stage):
     # The club rules, dialogue, positions and future chapters share one pinned release.
     _record(stage, Path("api/runtime/oyasumi"),
             encode_json(load_oyasumi_event()), records)
+    story = load_story({row["id"] for row in catalog["characters"]})
+    _record(stage, STORY_PATH, encode_json(story), records)
+    for name in story_images(story):
+        _record(stage, STORY_IMAGES / name, story_image_bytes(name), records)
     for resident in catalog["characters"]:
         for frame in frames_for(resident):
             path = runtime_sprite_path(resident["artFolder"], frame)
@@ -161,6 +169,44 @@ def verify_release(args, bucket, prefix, records, manifest_path):
         )
 
 
+def verify_story_continuity(args, bucket, scratch, story_path):
+    """Compare with the live release before publishing new saved indices."""
+    def download(key, filename):
+        target = scratch / filename
+        aws(args, "s3", "cp", f"s3://{bucket}/{key}", str(target),
+            "--only-show-errors", "--no-progress")
+        return target.read_bytes()
+
+    try:
+        pointer_raw = download("current.json", "previous-current.json")
+    except RuntimeError:
+        # The deploy role can list release keys, but not bucket-root keys.
+        listing = aws_json(args, "s3api", "list-objects-v2", "--bucket", bucket,
+                           "--prefix", "releases/", "--max-keys", "1", "--no-paginate")
+        if listing.get("Contents"):
+            raise
+        return  # Empty bucket, so no released saves to protect.
+    pointer = json.loads(pointer_raw)
+    release = pointer.get("releaseId")
+    if not isinstance(release, str) or not re.fullmatch(r"[0-9a-f]{64}", release):
+        raise ValueError("Invalid current release ID while checking Sudoku continuity")
+    prefix = f"releases/{release}/"
+    manifest_raw = download(prefix + "manifest.json", "previous-manifest.json")
+    if digest(manifest_raw) != pointer.get("manifestSha256"):
+        raise ValueError("Current manifest digest mismatch while checking Sudoku continuity")
+    manifest = json.loads(manifest_raw)
+    if manifest.get("releaseId") != release:
+        raise ValueError("Current manifest release mismatch while checking Sudoku continuity")
+    path = STORY_PATH.as_posix()
+    records = [row for row in manifest["objects"] if row["path"] == path]
+    if not records:
+        return  # Existing release from before stories were hosted.
+    previous = download(prefix + path, "previous-story.json")
+    if len(records) != 1 or digest(previous) != records[0]["sha256"]:
+        raise ValueError("Current Sudoku story digest mismatch")
+    validate_story_update(json.loads(previous), json.loads(story_path.read_bytes()))
+
+
 def publish(args):
     if shutil.which("aws") is None:
         raise RuntimeError("AWS CLI v2 must be installed and on PATH")
@@ -176,6 +222,7 @@ def publish(args):
     with tempfile.TemporaryDirectory(prefix="kotohogu-content-") as tempdir:
         stage = Path(tempdir) / "release"
         release_id, records, pointer = prepare(stage)
+        verify_story_continuity(args, bucket, Path(tempdir), stage / STORY_PATH)
         prefix = f"releases/{release_id}/"
         print(f"Validated {len(records)} objects; release={release_id}", flush=True)
         # The release prefix is content-addressed, and therefore immutable.
@@ -189,6 +236,11 @@ def publish(args):
                prefix + "api/runtime/catalog", "application/json", IMMUTABLE)
         upload(args, bucket, stage / "api" / "runtime" / "oyasumi",
                prefix + "api/runtime/oyasumi", "application/json", IMMUTABLE)
+        upload(args, bucket, stage / STORY_PATH,
+               prefix + STORY_PATH.as_posix(), "application/json", IMMUTABLE)
+        for image in (stage / STORY_IMAGES).iterdir():
+            upload(args, bucket, image, prefix + (STORY_IMAGES / image.name).as_posix(),
+                   "image/png", IMMUTABLE)
         upload(args, bucket, stage / "manifest.json", prefix + "manifest.json",
                "application/json", IMMUTABLE)
         verify_release(args, bucket, prefix, records, stage / "manifest.json")

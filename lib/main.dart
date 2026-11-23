@@ -208,6 +208,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
   Future<HostedTownContent>? _remoteContentFuture;
   HostedTownContent? _activeHostedContent;
   ProgressController get controller => widget.controller;
+  StoryCatalog get _storyCatalog => widget.remoteContentLoader == null
+      ? bundledStory : _activeHostedContent!.story;
 
   @override
   void initState() {
@@ -261,12 +263,14 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         controller.failure != null) {
       return;
     }
+    final catalog = _storyCatalog;
     _storyOpen = true;
     try {
       await Navigator.of(context).push<void>(MaterialPageRoute<void>(
         settings: const RouteSettings(name: '/story'),
         builder: (storyContext) => StoryScreen(
           controller: controller,
+          catalog: catalog,
           onSelfCare: () {
             Navigator.of(storyContext).pop();
             _selectPage(1);
@@ -288,6 +292,8 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
 
   Future<void> _complete(Mission mission) async {
     if (_celebrating) return;
+    final catalog = _storyCatalog;
+    final clubConfig = _clubConfig;
     final before = controller.progress!;
     final beforeBalance = before.residents.availableKotohogi(before.points);
     final earned = await controller.complete(mission);
@@ -296,7 +302,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     // spendable kotohogi wallet are different values after gacha draws.
     final after = controller.progress!;
     final balance = after.residents.availableKotohogi(after.points);
-    final storyUnlocked = storyEpisodes.any((episode) =>
+    final storyUnlocked = catalog.episodes.any((episode) =>
         !episode.isAvailable(before.points) && episode.isAvailable(after.points));
     _celebrating = true;
     final openStory = await showDialog<bool>(
@@ -310,7 +316,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         updates: celebrationUpdates(
           before: before,
           after: after,
-          clubConfig: _clubConfig,
+          clubConfig: clubConfig,
           now: controller.clock(),
         ),
         onOpenStory: storyUnlocked ? () => Navigator.of(context).pop(true) : null,
@@ -319,7 +325,10 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     _celebrating = false;
     // Also catches a midnight that occurred while saving or celebrating.
     await controller.refreshDay();
-    if (openStory == true && mounted) await _openStory();
+    if (openStory == true && mounted &&
+        (widget.remoteContentLoader == null || _activeHostedContent != null)) {
+      await _openStory();
+    }
   }
 
   /// Replays the celebration without touching the progress store.
@@ -992,6 +1001,23 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             ),
           );
         }
+      }
+      try {
+        progress.story.validateFor(_storyCatalog, progress.points);
+      } on FormatException catch (error) {
+        return Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: SelectableText(
+                  '保存されたストーリーの続きが配信内容に見つかりません。\n$error',
+                  key: const ValueKey('story-catalog-save-error'),
+                ),
+              ),
+            ),
+          ),
+        );
       }
       return Scaffold(
         body: SafeArea(

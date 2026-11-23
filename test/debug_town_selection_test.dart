@@ -11,6 +11,7 @@ import 'package:future_lift/game_home.dart';
 import 'package:future_lift/main.dart';
 import 'package:future_lift/progress.dart';
 import 'package:future_lift/resident_collection.dart';
+import 'package:future_lift/story_data.dart';
 import 'package:future_lift/town.dart';
 import 'package:future_lift/town_area_navigator.dart';
 import 'package:future_lift/town_areas.dart';
@@ -474,6 +475,7 @@ void main() {
         baseUri: localServerUri('http://10.0.2.2:8765'),
         catalog: remote,
         clubConfig: oyasumiConfig,
+        story: bundledStory,
       ),
     ));
     await tester.pumpAndSettle();

@@ -41,7 +41,7 @@ if ($LASTEXITCODE -ne 0 -or -not $roleArn -or $roleArn -eq "None") { throw "GitH
 gh variable set AWS_CONTENT_DEPLOY_ROLE_ARN --body $roleArn
 ```
 
-以後は `assets/characters/`、`assets/dialogues/dialogues.json`、`assets/events/oyasumi_club.json`、CMS／AWS発行ツールの変更を `main` へpushすると自動発行します。再発行したい場合は GitHub の **Actions** → **Publish AWS content** → **Run workflow** でブランチ `main` を選んで手動実行もできます。ワークフローはCMS／発行ツールとFlutter側の配信契約テスト、S3への不変リリース発行、`current.json` 更新、CloudFrontからの公開確認を順番に行います。同時発行は直列化され、AWS認証はOIDCの短期セッションだけを使います。READMEだけの変更など、配信内容に影響しないpushでは実行しません。
+以後は `assets/characters/`、`assets/dialogues/dialogues.json`、`assets/events/oyasumi_club.json`、`assets/story/`、CMS／AWS発行ツールの変更を `main` へpushすると自動発行します。再発行したい場合は GitHub の **Actions** → **Publish AWS content** → **Run workflow** でブランチ `main` を選んで手動実行もできます。ワークフローはCMS／発行ツールとFlutter側の配信契約テスト、S3への不変リリース発行、`current.json` 更新、CloudFrontからの公開確認を順番に行います。同時発行は直列化され、AWS認証はOIDCの短期セッションだけを使います。READMEだけの変更など、配信内容に影響しないpushでは実行しません。
 
 CloudFront作成直後はDNS/証明書反映に時間がかかります。必要に応じて次のコマンドで配信の準備完了を待てます。
 
@@ -62,6 +62,7 @@ python tools/aws/publish_content.py --stack kotohogu-content --region ap-northea
 
 - `releases/<sha256>/api/runtime/catalog` : 公開用住民カタログ（CMS管理UIや個人データは含みません）
 - `releases/<sha256>/api/runtime/oyasumi` : おやすみクラブの配信設定（章・出演者・会話・解放条件）
+- `releases/<sha256>/api/runtime/story` と `api/runtime/story-images/` : 数独ストーリーと参照する挿絵
 - `releases/<sha256>/api/runtime/sprites/<folder>/*.png` : 実際に使うPNGのみ（元のスプライトシート、プレビューGIFなどはアップしません）
 - `releases/<sha256>/manifest.json` : 全ファイルのSHA-256とサイズ一覧
 - `current.json` : 最新の確定したリリースへの参照先（**最後に**更新）
@@ -69,6 +70,15 @@ python tools/aws/publish_content.py --stack kotohogu-content --region ap-northea
 S3への転送後はキーとサイズを照合し、最新版ポインタを更新するまで以前の配信を維持します。同じ内容の再実行では同じリリースIDになります。アップロード失敗時は例外と診断情報を出して停止し、自動の経路切り替えはしません。
 
 **重要**：新しいアプリはGoogle Driveの `kotohogu_api.txt` に記載されたURLからCloudFrontドメインを特定し、そのドメインの `/current.json` を毎回取得して最新版リリースを確定します。新しいCMSデータを公開するときは、上記 `publish_content.py` だけでよく、**Google Driveファイルは書き換えないでください**。更新されたリリースは次回の起動・再読み込み時に反映されます。古いアプリは従来の固定リリースURLを直接使うため、最新版への自動追従にはアプリの更新が必要です。
+
+### 数独ストーリーを更新する
+
+初回は **数独入りのAWSリリースを先に発行し、その後で対応版アプリを配布**します。対応版は住民・おやすみクラブと同じリリースから数独を読み込みます。以降は `assets/story/story.json` と参照先のPNGを更新して発行すると、対応版の次回起動・再読み込みに反映されます。
+
+- `title`、`clue`、`result`、会話の本文、クリア後の会話、挿絵は更新できます。`coverImage`・各話の `image`・任意の `resultImage` には `assets/story/` 直下のPNGファイル名を指定します。会話の `speaker` は同じリリースの住民IDです。
+- 新しい話は `episodes` の末尾へ追加し、重複しない `id` と累計ことほぎの `unlockAt` を設定します。`puzzle` と `solution` は4×4または6×6を左上から行順に並べた文字列で、空欄は `0` です。解が一意であることを発行前に検証します。
+- 途中セーブを保つため、公開済みの話のID・順番・場所・解放条件・問題・解答・解く前の会話の件数は固定です。公開済みの話を削除したり、これらを変更したりすると発行が停止します。
+- 手元では既存のローカルCMSを起動し、`KOTOHOGU_LOCAL_CONTENT_URL` を指定した本編のホームから数独を確認できます。
 
 ## 4. 配信確認
 

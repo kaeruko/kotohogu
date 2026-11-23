@@ -8,8 +8,40 @@ const storyPlazaArt = 'assets/story/story_001_plaza_mystery.png';
 const storyParkArt = 'assets/story/story_002_park_tree.png';
 const storyShoppingArt = 'assets/story/story_003_shopping_clue.png';
 
+class StoryCatalog {
+  const StoryCatalog({
+    required this.title,
+    required this.episodes,
+    this.coverImage,
+    this.baseUri,
+  });
+
+  final String title;
+  final List<StoryEpisode> episodes;
+  final String? coverImage;
+  final Uri? baseUri;
+}
+
+class StorySpeaker {
+  const StorySpeaker.local(TownResident resident)
+    : _resident = resident,
+      _label = null,
+      portrait = null;
+  const StorySpeaker.hosted(String label, Uri uri)
+    : _label = label,
+      _resident = null,
+      portrait = uri;
+
+  final TownResident? _resident;
+  final String? _label;
+  final Uri? portrait;
+  String get label => _label ?? _resident!.label;
+  String get localPortrait => _resident!.idleAsset;
+}
+
 class StoryEpisode {
   const StoryEpisode({
+    required this.id,
     required this.title,
     required this.area,
     required this.unlockAt,
@@ -20,19 +52,27 @@ class StoryEpisode {
     required this.result,
     this.resultDialogue = const [],
     this.destination,
+    this.image,
+    this.resultImage,
   });
 
+  final String id;
   final String title;
   final TownArea area;
   final int unlockAt;
-  final List<(TownResident, String)> dialogue;
+  final List<(StorySpeaker, String)> dialogue;
   final String puzzle;
   final String solution;
   final String clue;
   final String result;
+
   /// Conversations after solving. Saved dialogue positions remain unchanged.
-  final List<(TownResident, String)> resultDialogue;
+  final List<(StorySpeaker, String)> resultDialogue;
   final TownArea? destination;
+  final String? image;
+  final String? resultImage;
+
+  String? get clueImage => resultImage ?? (destination == null ? image : null);
 
   int get size => puzzle.length == 16 ? 4 : 6;
   int get boxWidth => size ~/ 2;
@@ -88,13 +128,16 @@ class StoryEpisode {
       );
 }
 
-const _shiba = TownResident.shiba;
-const _pomu = TownResident.c052_pome;
+const _shiba = StorySpeaker.local(TownResident.shiba);
+const _pomu = StorySpeaker.local(TownResident.c052_pome);
 
-// Save data uses the order of these episodes. Keep released puzzles and
-// dialogue turn counts stable, and append new episodes at the end.
+const bundledStory = StoryCatalog(title: storyTitle, episodes: storyEpisodes);
+
+// Original app content retained for compatibility checks and offline tests.
+// Edit assets/story/story.json to publish new story content.
 const storyEpisodes = <StoryEpisode>[
   StoryEpisode(
+    id: 'episode_00',
     title: 'しばちゃんと数独のれんしゅう',
     area: TownArea.plaza,
     unlockAt: 0,
@@ -115,6 +158,7 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
+    id: 'episode_01',
     title: '広場のふしぎな紙',
     area: TownArea.plaza,
     unlockAt: 30,
@@ -134,6 +178,7 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
+    id: 'episode_02',
     title: '折り目の向こう',
     area: TownArea.plaza,
     unlockAt: 60,
@@ -151,6 +196,7 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
+    id: 'episode_03',
     title: '大きな木はどこ？',
     area: TownArea.plaza,
     unlockAt: 90,
@@ -170,6 +216,7 @@ const storyEpisodes = <StoryEpisode>[
     destination: TownArea.park,
   ),
   StoryEpisode(
+    id: 'episode_04',
     title: '木の根もとの封筒',
     area: TownArea.park,
     unlockAt: 120,
@@ -187,6 +234,7 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
+    id: 'episode_05',
     title: '風にゆれるもの',
     area: TownArea.park,
     unlockAt: 150,
@@ -204,6 +252,7 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
+    id: 'episode_06',
     title: '赤いのれんを探して',
     area: TownArea.park,
     unlockAt: 180,
@@ -222,6 +271,7 @@ const storyEpisodes = <StoryEpisode>[
     destination: TownArea.shopping,
   ),
   StoryEpisode(
+    id: 'episode_07',
     title: 'のれんのそばの包み',
     area: TownArea.shopping,
     unlockAt: 210,
@@ -239,6 +289,7 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
+    id: 'episode_08',
     title: '種と小さな絵',
     area: TownArea.shopping,
     unlockAt: 240,
@@ -256,6 +307,7 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
+    id: 'episode_09',
     title: '歩いていく目じるし',
     area: TownArea.shopping,
     unlockAt: 270,
@@ -273,6 +325,7 @@ const storyEpisodes = <StoryEpisode>[
     ],
   ),
   StoryEpisode(
+    id: 'episode_10',
     title: '畑へつづく道',
     area: TownArea.shopping,
     unlockAt: 300,

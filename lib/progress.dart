@@ -609,7 +609,7 @@ class Progress {
           ? OyasumiProgress.fromJson(data['oyasumi']).migrateLegacy(points)
           : const OyasumiProgress(),
       story: data.containsKey('story')
-          ? StoryProgress.fromJson(data['story'], points)
+          ? StoryProgress.fromJson(data['story'])
           : const StoryProgress.empty(),
       seenDialogues: version >= 5 ? Set<String>.from(data['seenDialogues'] as List) : {},
       debugResets: debugResets,

@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart' show kReleaseMode;
 
 import 'local_content_preview.dart';
 import 'oyasumi_remote_config.dart';
+import 'story_data.dart';
+import 'story_remote_config.dart';
 
 /// Public read-only Drive file; the ID is not a credential.
 const String kotohoguContentDriveFileId =
@@ -18,12 +20,14 @@ class HostedTownContent {
     required this.baseUri,
     required this.catalog,
     required this.clubConfig,
+    required this.story,
   });
   final Uri baseUri;
   final RemoteContentCatalog catalog;
   /// Club dialogue, cast, unlock thresholds and future chapters from the same
   /// pinned release as catalog and sprites.
   final Map<String, dynamic> clubConfig;
+  final StoryCatalog story;
 }
 
 Uri parseGoogleDriveContentEndpoint(String body) {
@@ -204,30 +208,47 @@ Future<Uri> resolveTownContentEndpoint({
 /// Read the club event from the exact, already pinned release. A missing,
 /// malformed or mismatched document terminates loading; never use packaged
 /// dialogue as an automatic substitute.
-Future<Map<String, dynamic>> fetchHostedOyasumi(Uri baseUri) async {
-  final url = baseUri.resolve('api/runtime/oyasumi');
+Future<Map<String, dynamic>> fetchHostedOyasumi(Uri baseUri) async =>
+    parseHostedOyasumi(await _fetchPinnedJson(baseUri.resolve('api/runtime/oyasumi')));
+
+Future<String> _fetchPinnedJson(Uri url, {int maxBytes = 256 * 1024}) async {
   final client = HttpClient()..connectionTimeout = const Duration(seconds: 8);
   try {
     final request = await client.getUrl(url);
     final response = await request.close();
     if (response.statusCode != HttpStatus.ok) {
-      throw HttpException('Club event returned HTTP ${response.statusCode}',
+      throw HttpException('Content returned HTTP ${response.statusCode}',
           uri: url);
     }
     if (response.headers.contentType?.mimeType != 'application/json') {
-      throw FormatException('Expected application/json for club event: $url');
+      throw FormatException('Expected application/json: $url');
     }
     final bytes = <int>[];
     await for (final part in response.timeout(const Duration(seconds: 10))) {
-      if (bytes.length + part.length > 256 * 1024) {
-        throw FormatException('Club event exceeds 256 KiB: $url');
+      if (bytes.length + part.length > maxBytes) {
+        throw FormatException('Content exceeds $maxBytes bytes: $url');
       }
       bytes.addAll(part);
     }
-    return parseHostedOyasumi(utf8.decode(bytes, allowMalformed: false));
+    return utf8.decode(bytes, allowMalformed: false);
   } finally {
     client.close(force: true);
   }
+}
+
+Future<HostedTownContent> loadPinnedTownContent(Uri baseUri) async {
+  final contents = await Future.wait<Object>([
+    fetchLocalContent(baseUri),
+    fetchHostedOyasumi(baseUri),
+    _fetchPinnedJson(baseUri.resolve(storyJsonPath), maxBytes: maxStoryJsonBytes),
+  ]);
+  final catalog = contents[0] as RemoteContentCatalog;
+  return HostedTownContent(
+    baseUri: baseUri,
+    catalog: catalog,
+    clubConfig: contents[1] as Map<String, dynamic>,
+    story: parseHostedStory(contents[2] as String, baseUri, catalog),
+  );
 }
 
 Future<HostedTownContent> loadAppTownContent() async {
@@ -242,8 +263,5 @@ Future<HostedTownContent> loadAppTownContent() async {
   final baseUri = override.isNotEmpty
       ? endpoint
       : await resolveDriveReleaseBaseUri(endpoint);
-  final catalog = await fetchLocalContent(baseUri);
-  final clubConfig = await fetchHostedOyasumi(baseUri);
-  return HostedTownContent(
-      baseUri: baseUri, catalog: catalog, clubConfig: clubConfig);
+  return loadPinnedTownContent(baseUri);
 }

@@ -69,7 +69,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/story/
+    - assets/story/story_001_plaza_mystery.png
+    - assets/story/story_002_park_tree.png
+    - assets/story/story_003_shopping_clue.png
     - assets/gacya/parts/
     - assets/dialogues/dialogues.json
     - assets/gacya/bg.png

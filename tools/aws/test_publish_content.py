@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import copy
 import subprocess
 import sys
 import tempfile
@@ -31,7 +32,10 @@ class PublishContentTests(unittest.TestCase):
         }
 
     def test_snapshot_is_deterministic_and_contains_only_runtime_assets(self):
+        actual_catalog = publisher.runtime_catalog()
+        story = publisher.load_story({row["id"] for row in actual_catalog["characters"]})
         with (patch.object(publisher, "runtime_catalog", return_value=self.catalog),
+              patch.object(publisher, "load_story", return_value=story),
               patch.object(publisher, "runtime_sprite_path",
                            return_value=self.png)):
             first, records, current = publisher.prepare(self.base / "one")
@@ -39,8 +43,9 @@ class PublishContentTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(records, second_records)
         self.assertEqual(current, current2)
-        self.assertEqual(len(records), 21)  # 2 JSON documents + 19 PNGs
+        self.assertEqual(len(records), 22 + len(publisher.story_images(story)))
         self.assertIn("api/runtime/oyasumi", [row["path"] for row in records])
+        self.assertIn("api/runtime/story", [row["path"] for row in records])
         self.assertEqual(len(first), 64)
         self.assertEqual(
             (self.base / "one" / "api/runtime/catalog").read_bytes(),
@@ -62,6 +67,8 @@ class PublishContentTests(unittest.TestCase):
 
     def test_missing_png_fails_before_publishing_pointer(self):
         with (patch.object(publisher, "runtime_catalog", return_value=self.catalog),
+              patch.object(publisher, "load_story", return_value={"coverImage": "unused.png", "episodes": []}),
+              patch.object(publisher, "story_image_bytes", return_value=b"art"),
               patch.object(publisher, "runtime_sprite_path",
                            side_effect=FileNotFoundError("missing idle sprite"))):
             with self.assertRaisesRegex(FileNotFoundError, "missing idle sprite"):
@@ -71,9 +78,41 @@ class PublishContentTests(unittest.TestCase):
     def test_non_png_rejected_without_substitution(self):
         self.png.write_bytes(b"not-png")
         with (patch.object(publisher, "runtime_catalog", return_value=self.catalog),
+              patch.object(publisher, "load_story", return_value={"coverImage": "unused.png", "episodes": []}),
+              patch.object(publisher, "story_image_bytes", return_value=b"art"),
               patch.object(publisher, "runtime_sprite_path", return_value=self.png)):
             with self.assertRaisesRegex(ValueError, "Invalid PNG sprite"):
                 publisher.prepare(self.base / "invalid")
+
+    def test_published_story_allows_text_changes_and_appends_but_not_save_changes(self):
+        args = SimpleNamespace(region="ap-northeast-1", profile=None)
+        path = self.base / "new-story.json"
+        previous = {"episodes": [{"id": "first", "puzzle": "before", "dialogue": ["old"]}]}
+        current = copy.deepcopy(previous)
+        current["episodes"][0]["dialogue"] = ["reworded"]
+        current["episodes"].append({"id": "next"})
+        path.write_bytes(publisher.encode_json(current))
+        release = "a" * 64
+        story_json = publisher.encode_json(previous)
+        manifest = publisher.encode_json({"releaseId": release, "objects": [
+            {"path": "api/runtime/story", "sha256": publisher.digest(story_json)},
+        ]})
+        prior = {
+            "current.json": publisher.encode_json({"releaseId": release,
+                                                   "manifestSha256": publisher.digest(manifest)}),
+            f"releases/{release}/manifest.json": manifest,
+            f"releases/{release}/api/runtime/story": story_json,
+        }
+
+        def download(_args, _service, _command, uri, destination, *_flags):
+            Path(destination).write_bytes(prior[uri.removeprefix("s3://bucket/")])
+
+        with patch.object(publisher, "aws", side_effect=download):
+            publisher.verify_story_continuity(args, "bucket", self.base, path)
+            current["episodes"][0]["puzzle"] = "changed"
+            path.write_bytes(publisher.encode_json(current))
+            with self.assertRaisesRegex(ValueError, "episode is incompatible"):
+                publisher.verify_story_continuity(args, "bucket", self.base, path)
 
     def test_explicit_shiba_mirror_exception_only(self):
         shiba = publisher.frames_for({"id": "001_shiba"})

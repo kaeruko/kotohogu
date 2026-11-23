@@ -80,7 +80,8 @@ void main() {
           expect(destination.isUnlocked(points), isTrue);
           destinations.add(destination);
         }
-        final loaded = StoryProgress.fromJson(story.toJson(), points);
+        final loaded = StoryProgress.fromJson(story.toJson());
+        loaded.validateFor(bundledStory, points);
         expect(loaded.unreadClue, isTrue);
         story = loaded.readClue(index);
         expect(story.resumeIndex, index + 1);
@@ -101,10 +102,7 @@ void main() {
         isTrue,
       );
     }
-    expect(
-      storyEpisodes.first.resultDialogue.first.$2,
-      contains('これはなにぽむ！？'),
-    );
+    expect(storyEpisodes.first.resultDialogue.first.$2, contains('これはなにぽむ！？'));
   });
 
   test('story saves coexist with old saves, gacha and date changes', () {
@@ -132,7 +130,14 @@ void main() {
 
     final corrupt = jsonDecode(progress.encode()) as Map<String, dynamic>;
     (corrupt['story'] as Map<String, dynamic>)['board'] = '0204412300301342';
-    expect(() => Progress.decode(jsonEncode(corrupt)), throwsFormatException);
+    final corruptProgress = Progress.decode(jsonEncode(corrupt));
+    expect(
+      () => corruptProgress.story.validateFor(
+        bundledStory,
+        corruptProgress.points,
+      ),
+      throwsFormatException,
+    );
   });
 
   testWidgets(
