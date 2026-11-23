@@ -12,6 +12,23 @@ import 'package:future_lift/town_areas.dart';
 
 import 'progress_test.dart' show MemoryStore;
 
+StoryProgress finishStoryPuzzle(StoryProgress story, int index, int points) {
+  final episode = storyEpisodes[index];
+  if (episode.duel != null) {
+    var game = story.duelPosition(episode);
+    while (!game.isOver) {
+      final cell = game.legalCells.first;
+      story = story.playDuelMove(index, points, cell, episode.answerAt(cell));
+      game = story.duelPosition(episode);
+    }
+    return story.finishDuel(index, points);
+  }
+  for (var cell = 0; cell < episode.puzzle.length; cell++) {
+    if (episode.givenAt(cell) == 0) story = story.useHint(index, points, cell);
+  }
+  return story;
+}
+
 void main() {
   final today = DateTime(2026, 11, 22, 12);
 
@@ -67,11 +84,7 @@ void main() {
           story = story.advanceDialogue(index, points);
         }
         expect(story.board, isNull);
-        for (var cell = 0; cell < episode.puzzle.length; cell++) {
-          if (episode.givenAt(cell) == 0) {
-            story = story.useHint(index, points, cell);
-          }
-        }
+        story = finishStoryPuzzle(story, index, points);
         expect(story.completed, index + 1);
         expect(story.unreadClue, isTrue);
         expect(story.resumeIndex, index);
@@ -481,7 +494,7 @@ void main() {
     expect(duel.resultDialogue.last.$1.label, 'モサエド');
   });
 
-  test('the bakery couple enjoys three ordinary Sudoku games without the bear legend', () {
+  test('the bakery couple finishes its three-episode arc with a friendly duel', () {
     final bakeryEpisodes = storyEpisodes.skip(5).take(3).toList();
     expect(bakeryEpisodes.map((e) => e.title), [
       '帳簿と数独',
@@ -507,7 +520,8 @@ void main() {
     expect(bakeryEpisodes[1].dialogue.any((turn) => turn.$2.contains('ケーキ 無料')), isTrue);
     expect(bakeryEpisodes[1].dialogue.any((turn) => turn.$2.contains('風で飛んじゃった')), isTrue);
     expect(bakeryEpisodes[1].resultDialogue.any((turn) => turn.$2.contains('無料なのは試食だけ')), isTrue);
-    expect(bakeryEpisodes[2].resultDialogue.any((turn) => turn.$2.contains('数独はわたしの勝ち')), isTrue);
+    expect(bakeryEpisodes[2].duel, StoryDuel.cakeShop);
+    expect(bakeryEpisodes[2].resultDialogue.first.$2, contains('いい勝負'));
     expect(bakeryEpisodes.last.resultDialogue.last.$2, 'あら、よかった！ また一緒に遊びましょう');
   });
 
@@ -524,11 +538,7 @@ void main() {
       for (final _ in episode.dialogue) {
         story = story.advanceDialogue(index, points);
       }
-      for (var cell = 0; cell < episode.puzzle.length; cell++) {
-        if (episode.givenAt(cell) == 0) {
-          story = story.useHint(index, points, cell);
-        }
-      }
+      story = finishStoryPuzzle(story, index, points);
       if (index != 2) {
         for (final _ in episode.resultDialogue) {
           story = story.advanceResultDialogue(index);

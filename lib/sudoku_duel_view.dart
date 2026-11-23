@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'resident_collection.dart';
+import 'story_data.dart';
 import 'sudoku_duel.dart';
 
 const _roomMarks = ['', '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨'];
@@ -14,17 +14,17 @@ const _line = Color(0xFFB8A78C);
 const _parchment = Color(0xFFF4EAD7);
 
 extension _RivalProfile on DuelRival {
-  TownResident get resident => switch (this) {
-    DuelRival.mosaedo => TownResident.c036_mosa,
-    DuelRival.oshisho => TownResident.c031_kimono_fox,
-  };
   String get style => switch (this) {
     DuelRival.mosaedo => '旗を狙い、あなたの次の一手を読む',
     DuelRival.oshisho => '4×4は最後まで、9×9は三手先まで読む',
+    DuelRival.pomupomu => '見つけた旗を取りにいく',
+    DuelRival.patissier => '次に取られそうな旗も確かめる',
   };
   String get greeting => switch (this) {
     DuelRival.mosaedo => 'いざ、旗の取り合いでござる！',
     DuelRival.oshisho => 'ほな、ゆっくり一局しまひょ。',
+    DuelRival.pomupomu => 'しばいぬ、旗をいっぱい集めるぽむよ！',
+    DuelRival.patissier => 'お茶の用意もできたよ。さあ、一局やろう！',
   };
 
   String farewell(int playerFlags, int npcFlags) =>
@@ -35,11 +35,36 @@ extension _RivalProfile on DuelRival {
         (DuelRival.oshisho, > 0) => 'ほほほ。うちにええ旗が集まりましたえ。',
         (DuelRival.oshisho, < 0) => 'あの部屋に送りはるとは。お見事どす。',
         (DuelRival.oshisho, _) => '旗も仲よう半分こどすなぁ。',
+        (DuelRival.pomupomu, > 0) => 'やったぽむ！ ぽむの旗、見て見てぽむ！',
+        (DuelRival.pomupomu, < 0) => 'しばいぬ、じょうずぽむ〜！',
+        (DuelRival.pomupomu, _) => 'おそろいの数ぽむ〜！',
+        (DuelRival.patissier, > 0) => '最後までどきどきしたよ。次はお茶にしようか。',
+        (DuelRival.patissier, < 0) => '参ったなあ。その部屋に送られるとは思わなかったよ。',
+        (DuelRival.patissier, _) => 'きれいに半分ずつ。ケーキも半分こしよう。',
       };
 }
 
 class SudokuDuelView extends StatefulWidget {
-  const SudokuDuelView({super.key});
+  const SudokuDuelView({super.key})
+    : match = null,
+      position = null,
+      onMove = null,
+      onFinish = null,
+      busy = false;
+  const SudokuDuelView.story({
+    super.key,
+    required StoryDuel this.match,
+    required SudokuDuel this.position,
+    required VoidCallback this.onFinish,
+    this.onMove,
+    this.busy = false,
+  });
+
+  final StoryDuel? match;
+  final SudokuDuel? position;
+  final void Function(int cell, int digit)? onMove;
+  final VoidCallback? onFinish;
+  final bool busy;
 
   @override
   State<SudokuDuelView> createState() => _SudokuDuelViewState();
@@ -54,6 +79,25 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   int? _selected;
   int? _wrongDigit;
   Timer? _computerTurn;
+  SudokuDuel? get _position => widget.onMove == null ? _game : widget.position;
+
+  @override
+  void initState() {
+    super.initState();
+    _rival = widget.match?.rival;
+    _game = widget.position;
+    _scheduleComputer();
+  }
+
+  @override
+  void didUpdateWidget(SudokuDuelView old) {
+    super.didUpdateWidget(old);
+    if (widget.onMove != null &&
+        (widget.busy != old.busy ||
+            widget.position?.lastCell != old.position?.lastCell)) {
+      _scheduleComputer();
+    }
+  }
 
   @override
   void dispose() {
@@ -63,7 +107,9 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
 
   String _name(DuelPlayer player) {
     if (_rival == null) return player == DuelPlayer.first ? '先手' : '後手';
-    return player == DuelPlayer.first ? 'あなた' : _rival!.resident.label;
+    return player == DuelPlayer.first
+        ? (widget.match?.player.label ?? 'あなた')
+        : _rival!.resident.label;
   }
 
   void _start(DuelRival? rival) {
@@ -80,31 +126,56 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   }
 
   void _enter(int digit) {
-    final game = _game;
+    final game = _position;
     final selected = _selected;
-    if (game == null || selected == null || !game.canPlay(selected)) return;
+    if (widget.busy ||
+        game == null ||
+        selected == null ||
+        !game.canPlay(selected)) {
+      return;
+    }
     if (_rival != null && game.turn == DuelPlayer.second) return;
     final next = game.play(selected, digit);
     if (next == null) {
       setState(() => _wrongDigit = digit);
       return;
     }
+    _record(next);
+  }
+
+  void _record(SudokuDuel next) {
+    final save = widget.onMove;
     setState(() {
-      _game = next;
+      if (save == null) _game = next;
       _selected = null;
       _wrongDigit = null;
     });
+    if (save != null) {
+      final cell = next.lastCell!;
+      save(cell, next.valueAt(cell));
+    } else {
+      _scheduleComputer();
+    }
+  }
+
+  void _scheduleComputer() {
+    _computerTurn?.cancel();
     final rival = _rival;
-    if (rival != null && !next.isOver) {
+    final game = _position;
+    if (!widget.busy &&
+        rival != null &&
+        game != null &&
+        !game.isOver &&
+        game.turn == DuelPlayer.second) {
       _computerTurn = Timer(const Duration(milliseconds: 750), () {
-        setState(() => _game = next.computerMove(rival, _random));
+        _record(game.computerMove(rival, _random));
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final game = _game;
+    final game = _position;
     return game == null ? _lobby(context) : _match(context, game);
   }
 
@@ -133,7 +204,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
         textAlign: TextAlign.center,
       ),
       const SizedBox(height: 12),
-      for (final rival in DuelRival.values)
+      for (final rival in [DuelRival.mosaedo, DuelRival.oshisho])
         Card(
           child: ListTile(
             key: ValueKey('duel-rival-${rival.name}'),
@@ -170,6 +241,8 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
       return switch (_rival!) {
         DuelRival.mosaedo => '$placedでござる！${flag ? ' この旗はいただき！' : ''}',
         DuelRival.oshisho => '$placedどす。${flag ? ' 旗、いただきますえ。' : ''}',
+        DuelRival.pomupomu => '$placedぽむ！${flag ? ' 旗、もらったぽむ！' : ''}',
+        DuelRival.patissier => '$placedを置くよ。${flag ? ' 旗が取れた！' : ''}',
       };
     }
     return '${_name(game.turn.other)}が$placedを置きました。${flag ? ' 旗を獲得！' : ''}';
@@ -190,11 +263,28 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.match case final match?) ...[
+          Text(
+            match.title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          Text(
+            'あなたは${match.player.label}。書いた数字の部屋へ相手を送り、最後の1マスを埋めて旗を取ろう。送り先が満室なら好きな部屋へ。',
+          ),
+        ],
         Card(
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
+                if (widget.match case final match?)
+                  Image.asset(
+                    match.player.idleAsset,
+                    width: 44,
+                    height: 50,
+                    excludeFromSemantics: true,
+                  ),
                 if (_rival case final rival?) ...[
                   Image.asset(
                     rival.resident.idleAsset,
@@ -251,7 +341,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
           game: game,
           selected: selected,
           playerName: _name,
-          onSelect: thinking || ended
+          onSelect: thinking || ended || widget.busy
               ? null
               : (cell) => setState(() {
                   _selected = cell;
@@ -259,7 +349,13 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
                 }),
         ),
         const SizedBox(height: 8),
-        if (ended) ...[
+        if (ended && widget.onFinish != null)
+          FilledButton(
+            key: const ValueKey('story-finish-duel'),
+            onPressed: widget.busy ? null : widget.onFinish,
+            child: const Text('お話のつづきへ'),
+          )
+        else if (ended) ...[
           FilledButton.icon(
             onPressed: () => _start(_rival),
             icon: const Icon(Icons.replay),
@@ -298,7 +394,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(48, 48),
                     ),
-                    onPressed: selected == null || thinking
+                    onPressed: selected == null || thinking || widget.busy
                         ? null
                         : () => _enter(digit),
                     child: Text('$digit', style: const TextStyle(fontSize: 22)),
@@ -330,10 +426,14 @@ class _DuelBoard extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 480),
       child: Column(
         children: [
-          for (var band = 0; band < game.size.boxSide; band++)
+          for (var band = 0; band < game.size.side ~/ game.size.boxRows; band++)
             Row(
               children: [
-                for (var stack = 0; stack < game.size.boxSide; stack++)
+                for (
+                  var stack = 0;
+                  stack < game.size.side ~/ game.size.boxColumns;
+                  stack++
+                )
                   Expanded(child: _room(band, stack)),
               ],
             ),
@@ -343,13 +443,14 @@ class _DuelBoard extends StatelessWidget {
   );
 
   Widget _room(int band, int stack) {
-    final box = game.size.boxSide;
+    final rows = game.size.boxRows;
+    final columns = game.size.boxColumns;
     final side = game.size.side;
-    final room = band * box + stack + 1;
+    final room = band * (side ~/ columns) + stack + 1;
     final owner = game.flagAt(room);
     final active =
         !game.isOver &&
-        owner == null &&
+        game.hasSpace(room) &&
         (game.targetRoom == null || game.targetRoom == room);
     final marking = owner ?? game.turn;
     final color = marking == DuelPlayer.first ? _green : _rust;
@@ -393,13 +494,13 @@ class _DuelBoard extends StatelessWidget {
               ),
             ),
           ),
-          for (var y = 0; y < box; y++)
+          for (var y = 0; y < rows; y++)
             Row(
               children: [
-                for (var x = 0; x < box; x++)
+                for (var x = 0; x < columns; x++)
                   Expanded(
                     child: _cell(
-                      (band * box + y) * side + stack * box + x,
+                      (band * rows + y) * side + stack * columns + x,
                       active,
                     ),
                   ),

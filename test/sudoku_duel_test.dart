@@ -126,8 +126,8 @@ void main() {
             expect(before.valueAt(cell), 0);
           }
           final flags = DuelPlayer.values.map(game.score);
-          if (size == DuelSize.mini) {
-            expect(flags.reduce((a, b) => a + b), 4);
+          if (size != DuelSize.classic) {
+            expect(flags.reduce((a, b) => a + b), size.side);
           } else {
             expect(flags.reduce(max), 5);
             sawEarlyWin |= flags.reduce((a, b) => a + b) < 9;

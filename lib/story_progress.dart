@@ -1,4 +1,5 @@
 import 'story_data.dart';
+import 'sudoku_duel.dart';
 
 /// The completed episodes form a prefix. Only the next episode needs a board
 /// and a dialogue position. Availability is derived from lifetime points.
@@ -9,6 +10,7 @@ class StoryProgress {
     this.completed = 0,
     this.dialogueTurns = 0,
     this.board,
+    this.duelMoves,
     this.unreadClue = false,
     this.resultDialogueTurns = 0,
     this.signature,
@@ -17,6 +19,8 @@ class StoryProgress {
   final int completed;
   final int dialogueTurns;
   final List<int>? board;
+  /// Ordered cells reconstruct both players' turns, flags and next room.
+  final List<int>? duelMoves;
   final bool unreadClue;
   /// Read position in the post-sudoku scene, saved for resume.
   final int resultDialogueTurns;
@@ -62,7 +66,9 @@ class StoryProgress {
   }) {
     if (!_canPlay(index, points, episodes)) return this;
     final episode = episodes[index];
-    if (dialogueTurns != episode.dialogue.length ||
+    // A saved solo board from before story duels can still be finished.
+    if ((episode.duel != null && board == null) ||
+        dialogueTurns != episode.dialogue.length ||
         cell < 0 ||
         cell >= episode.puzzle.length ||
         episode.givenAt(cell) != 0 ||
@@ -83,6 +89,45 @@ class StoryProgress {
       signature: signature,
       dialogueTurns: dialogueTurns,
       board: List.unmodifiable(next),
+    );
+  }
+
+  bool _canDuel(int index, int points, List<StoryEpisode> episodes) =>
+      _canPlay(index, points, episodes) &&
+      episodes[index].duel != null &&
+      dialogueTurns == episodes[index].dialogue.length &&
+      board == null;
+
+  SudokuDuel duelPosition(StoryEpisode episode) =>
+      SudokuDuel.story(episode.puzzle, episode.solution, duelMoves ?? const []);
+
+  StoryProgress playDuelMove(int index, int points, int cell, int digit, {
+    List<StoryEpisode> episodes = storyEpisodes,
+  }) {
+    if (!_canDuel(index, points, episodes)) return this;
+    final episode = episodes[index];
+    if (cell < 0 || cell >= episode.puzzle.length ||
+        digit != episode.answerAt(cell)) {
+      return this;
+    }
+    if (!duelPosition(episode).canPlay(cell)) return this;
+    return StoryProgress._(
+      completed: completed,
+      signature: signature,
+      dialogueTurns: dialogueTurns,
+      duelMoves: List.unmodifiable([...?duelMoves, cell]),
+    );
+  }
+
+  StoryProgress finishDuel(int index, int points, {
+    List<StoryEpisode> episodes = storyEpisodes,
+  }) {
+    if (!_canDuel(index, points, episodes) ||
+        !duelPosition(episodes[index]).isOver) {
+      return this;
+    }
+    return StoryProgress._(
+      completed: completed + 1, unreadClue: true, signature: signature,
     );
   }
 
@@ -153,6 +198,7 @@ class StoryProgress {
         : <String, Object>{'signature': signature!}),
     if (resultDialogueTurns != 0) 'resultDialogueTurns': resultDialogueTurns,
     if (board != null) 'board': board!.join(),
+    'duelMoves': ?duelMoves,
   };
 
   factory StoryProgress.fromJson(Object? raw) {
@@ -165,6 +211,7 @@ class StoryProgress {
             'resultDialogueTurns',
             'signature',
             'board',
+            'duelMoves',
           }.contains(key),
         )) {
       throw const FormatException('Invalid story save schema');
@@ -199,6 +246,16 @@ class StoryProgress {
       }
       board = cells.codeUnits.map((unit) => unit - 48).toList();
     }
+    List<int>? duelMoves;
+    if (raw.containsKey('duelMoves')) {
+      final moves = raw['duelMoves'];
+      if (board != null || dialogueTurns == 0 || unreadClue || moves is! List ||
+          moves.isEmpty || moves.length > 36 ||
+          moves.any((cell) => cell is! int || cell < 0 || cell >= 36)) {
+        throw const FormatException('Invalid story duel move list');
+      }
+      duelMoves = List<int>.unmodifiable(moves);
+    }
     return StoryProgress._(
       completed: completed,
       dialogueTurns: dialogueTurns,
@@ -206,6 +263,7 @@ class StoryProgress {
       resultDialogueTurns: resultDialogueTurns,
       signature: signature as String?,
       board: board == null ? null : List.unmodifiable(board),
+      duelMoves: duelMoves,
     );
   }
 
@@ -236,6 +294,12 @@ class StoryProgress {
         episode.unlockAt > points ||
         dialogueTurns > episode.dialogue.length) {
       throw const FormatException('Invalid story dialogue position');
+    }
+    if (duelMoves != null) {
+      if (episode.duel == null || dialogueTurns != episode.dialogue.length) {
+        throw const FormatException('Duel moves outside a story match');
+      }
+      duelPosition(episode);
     }
     final cells = board;
     if (cells == null) return;

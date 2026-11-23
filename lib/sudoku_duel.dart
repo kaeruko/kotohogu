@@ -1,8 +1,15 @@
 import 'dart:math';
 
 enum DuelSize {
-  mini(2, '1034301001434000', '1234341221434321'),
+  mini(2, 2, '1034301001434000', '1234341221434321'),
+  six(
+    2,
+    3,
+    '023450450123204560560234340610012345',
+    '123456456123234561561234345612612345',
+  ),
   classic(
+    3,
     3,
     '000670012'
         '672095308'
@@ -24,15 +31,18 @@ enum DuelSize {
         '345286179',
   );
 
-  const DuelSize(this.boxSide, this._givens, this._answer);
-  final int boxSide;
+  const DuelSize(this.boxRows, this.boxColumns, this._givens, this._answer);
+  final int boxRows;
+  final int boxColumns;
   final String _givens;
   final String _answer;
-  int get side => boxSide * boxSide;
+  int get side => boxRows * boxColumns;
 
   // Rooms are numbered from 1, exactly like the digits that send a player.
   int roomOf(int cell) =>
-      (cell ~/ side ~/ boxSide) * boxSide + (cell % side ~/ boxSide) + 1;
+      (cell ~/ side ~/ boxRows) * (side ~/ boxColumns) +
+      (cell % side ~/ boxColumns) +
+      1;
 }
 
 enum DuelPlayer {
@@ -42,7 +52,7 @@ enum DuelPlayer {
   DuelPlayer get other => this == first ? second : first;
 }
 
-enum DuelRival { mosaedo, oshisho }
+enum DuelRival { mosaedo, oshisho, pomupomu, patissier }
 
 class SudokuDuel {
   SudokuDuel._(
@@ -60,12 +70,9 @@ class SudokuDuel {
   /// Without a shuffle the mini game opens on the introductory position.
   /// Swapping digits, bands and rows within bands preserves a unique solution.
   factory SudokuDuel.start(DuelSize size, {Random? shuffle}) {
-    List<int> axisOrder() {
-      final bands = List.generate(size.boxSide, (band) {
-        final rows = List.generate(
-          size.boxSide,
-          (i) => band * size.boxSide + i,
-        );
+    List<int> axisOrder(int groupSize) {
+      final bands = List.generate(size.side ~/ groupSize, (band) {
+        final rows = List.generate(groupSize, (i) => band * groupSize + i);
         if (shuffle != null) rows.shuffle(shuffle);
         return rows;
       });
@@ -73,8 +80,8 @@ class SudokuDuel {
       return bands.expand((band) => band).toList();
     }
 
-    final rows = axisOrder();
-    final columns = axisOrder();
+    final rows = axisOrder(size.boxRows);
+    final columns = axisOrder(size.boxColumns);
     final digits = List.generate(size.side, (i) => i + 1);
     if (shuffle != null) digits.shuffle(shuffle);
     final symbols = [0, ...digits];
@@ -83,7 +90,38 @@ class SudokuDuel {
         for (final column in columns)
           symbols[pattern.codeUnitAt(row * size.side + column) - 48],
     ];
-    final givens = read(size._givens);
+    return SudokuDuel._startBoard(size, read(size._givens), read(size._answer));
+  }
+
+  /// The story catalog validates the givens and their solution on load.
+  factory SudokuDuel.story(String puzzle, String solution, List<int> moves) {
+    final size = switch (puzzle.length) {
+      16 => DuelSize.mini,
+      36 => DuelSize.six,
+      _ => throw FormatException(
+        'Invalid story duel dimensions: ${puzzle.length}',
+      ),
+    };
+    List<int> digits(String text) => [
+      for (final unit in text.codeUnits) unit - 48,
+    ];
+    var game = SudokuDuel._startBoard(size, digits(puzzle), digits(solution));
+    for (final cell in moves) {
+      if (cell < 0 || cell >= puzzle.length || !game.canPlay(cell)) {
+        throw FormatException(
+          'Invalid story duel move: cell $cell, room ${game.targetRoom}',
+        );
+      }
+      game = game._place(cell);
+    }
+    return game;
+  }
+
+  factory SudokuDuel._startBoard(
+    DuelSize size,
+    List<int> givens,
+    List<int> answer,
+  ) {
     final blanks = List.filled(size.side, 0);
     for (var cell = 0; cell < givens.length; cell++) {
       if (givens[cell] == 0) blanks[size.roomOf(cell) - 1]++;
@@ -91,12 +129,12 @@ class SudokuDuel {
     return SudokuDuel._(
       size,
       givens,
-      read(size._answer),
+      answer,
       givens,
       blanks,
       List.filled(size.side, null),
       DuelPlayer.first,
-      1,
+      blanks.first == 0 ? null : 1,
       null,
     );
   }
@@ -114,11 +152,13 @@ class SudokuDuel {
   int valueAt(int cell) => _board[cell];
   bool isGiven(int cell) => _givens[cell] != 0;
   DuelPlayer? flagAt(int room) => _flags[room - 1];
+  bool hasSpace(int room) => _blanks[room - 1] > 0;
   int score(DuelPlayer player) =>
       _flags.where((owner) => owner == player).length;
-  bool get isOver => size == DuelSize.mini
-      ? !_flags.contains(null)
-      : score(DuelPlayer.first) >= 5 || score(DuelPlayer.second) >= 5;
+  bool get isOver =>
+      !_blanks.any((count) => count > 0) ||
+      (size == DuelSize.classic &&
+          (score(DuelPlayer.first) >= 5 || score(DuelPlayer.second) >= 5));
 
   bool _available(int cell) =>
       valueAt(cell) == 0 &&
@@ -165,7 +205,8 @@ class SudokuDuel {
   SudokuDuel computerMove(DuelRival rival, Random random) {
     if (isOver) throw StateError('The duel has already ended');
     final depth = switch (rival) {
-      DuelRival.mosaedo => 2,
+      DuelRival.pomupomu => 1,
+      DuelRival.mosaedo || DuelRival.patissier => 2,
       DuelRival.oshisho => size == DuelSize.mini ? _board.length : 3,
     };
     // Shuffle equally good moves so rematches do not always play out alike.

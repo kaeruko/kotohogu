@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'resident_collection.dart';
+import 'sudoku_duel.dart';
 import 'town_areas.dart';
 
 const storyTitle = 'ことほぎのまちの数独ものがたり';
@@ -95,6 +96,26 @@ class StorySpeaker {
   String get localPortrait => _resident!.idleAsset;
 }
 
+extension DuelResident on DuelRival {
+  TownResident get resident => switch (this) {
+    DuelRival.mosaedo => TownResident.c036_mosa,
+    DuelRival.oshisho => TownResident.c031_kimono_fox,
+    DuelRival.pomupomu => TownResident.c052_pome,
+    DuelRival.patissier => TownResident.c047_patisie,
+  };
+}
+
+enum StoryDuel {
+  shibapome(TownResident.shiba, DuelRival.pomupomu),
+  dojo(TownResident.c036_mosa, DuelRival.oshisho),
+  cakeShop(TownResident.rabbit, DuelRival.patissier);
+
+  const StoryDuel(this.player, this.rival);
+  final TownResident player;
+  final DuelRival rival;
+  String get title => '${player.label} VS ${rival.resident.label}';
+}
+
 class StoryEpisode {
   const StoryEpisode({
     required this.id,
@@ -127,6 +148,14 @@ class StoryEpisode {
   final TownArea? destination;
   final String? image;
   final String? resultImage;
+
+  // Episode IDs are shared by the bundled story and its hosted edition.
+  StoryDuel? get duel => switch (id) {
+    'episode_02' => StoryDuel.shibapome,
+    'episode_04' => StoryDuel.dojo,
+    'episode_07' => StoryDuel.cakeShop,
+    _ => null,
+  };
 
   String? get clueImage => resultImage ?? (destination == null ? image : null);
 
@@ -263,7 +292,7 @@ const storyEpisodes = <StoryEpisode>[
     dialogue: [
       (_pomu, 'はんこカード、いっぱいあるぽむ！ 特別なはんこはどこぽむ？'),
       (_shiba, '箱の底に最後の数独があるわん。解いたら持ち主がわかるかもしれないわん！'),
-      (_pomu, 'よーし！ ぽむ、がんばるぽむ！'),
+      (_pomu, 'よーし！ しばいぬと勝負ぽむ！ 特別なはんこ、いっしょに見つけるぽむ！'),
     ],
     puzzle: '3100201310340001',
     solution: '3142241312344321',
@@ -331,8 +360,8 @@ const storyEpisodes = <StoryEpisode>[
     clue: '白い熊のうわさ',
     result: 'おししょうとの一局を終えたモサエドは、強者に白い熊から数独が届くという噂を耳にした。本当かどうかは、まだ誰も知らない。',
     resultDialogue: [
-      (_mosa, 'とけたでござる！ これぞ拙者の勝利！'),
-      (_oshisho, 'ほほ、お見事。うちも先ほど解けましたえ'),
+      (_mosa, 'おししょう、お手合わせ感謝でござる！ あおんあおん！'),
+      (_oshisho, 'ほほ、おおきに。また一局、お相手しておくれやす'),
       (_mosa, 'なっ……いつの間に！'),
       (_frog, 'おししょう、速いなあ'),
       (_oshisho, '速さを競うより、楽しむことが一番どすえ'),
@@ -402,15 +431,15 @@ const storyEpisodes = <StoryEpisode>[
       (_pastry, '味見して気に入って、ケーキを買ってくれたお客さんもいたよ'),
       (_wife, '帳簿には試食の材料費も書いたし、少しずつ工夫していきましょう'),
       (_pastry, 'お店も閉めたし、お茶にしよう。今日は数独もあるよ'),
-      (_wife, 'いいわね。今日はわたしが先に解いちゃうかも'),
+      (_wife, 'いいわね。今日はわたしと一局、勝負しない？'),
     ],
     puzzle: '3410003401400021',
     solution: '3412123421434321',
     clue: '数独は無料でどうぞ！',
     result: 'ケーキ屋さんの「無料」騒動は無事に解決。試食の案内も伝わり、閉店後は夫婦でお茶を飲みながら数独を楽しんだ。',
     resultDialogue: [
-      (_wife, 'できた！ お店の数字は二人で考えて、数独はわたしの勝ちね'),
-      (_pastry, '参ったなあ。「無料」の看板はもうこりごりだけど……'),
+      (_wife, 'いい勝負だったわね。お店の数字も、また二人で考えましょう'),
+      (_pastry, 'そうだね。「無料」の看板はもうこりごりだけど……'),
       (_wife, 'ふふ。じゃあ、次の数独は？'),
       (_pastry, 'もちろん、無料でどうぞ！'),
       (_wife, 'あら、よかった！ また一緒に遊びましょう'),

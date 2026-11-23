@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'progress.dart';
 import 'story_data.dart';
 import 'story_remote_config.dart' show storyImagePath;
+import 'sudoku_duel.dart';
 import 'sudoku_duel_view.dart';
 import 'town_areas.dart';
 
@@ -80,6 +81,8 @@ class StoryScreen extends StatelessWidget {
               eyebrow: story.unreadClue ? 'クリアしたお話:' : '次のお話:',
               description: story.unreadClue
                   ? '数独を解きました。手がかりを確かめよう。'
+                  : next.duel != null && story.board == null
+                  ? 'おくりマス数独　${next.duel!.title}'
                   : nextIndex == 0
                   ? '朝の体操で見つけたふしぎな紙を、数独で調べます。'
                   : '${next.area.label}で${next.size}×${next.size}の暗号に挑戦。'
@@ -109,7 +112,7 @@ class StoryScreen extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.outlined_flag),
-            label: const Text('おくりマス数独で対戦'),
+            label: const Text('おくりマス数独のフリー対戦'),
           ),
           if (lastDestination != null &&
               lastDestination.isUnlocked(progress.points))
@@ -198,6 +201,7 @@ class _EpisodeScreen extends StatefulWidget {
 class _EpisodeScreenState extends State<_EpisodeScreen> {
   int? _selected;
   int _replayResultTurn = 0;
+  bool _replayDuel = false;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -211,6 +215,43 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
       final episodes = catalog.episodes;
       final episode = episodes[index];
       final busy = controller.busy;
+      final match = episode.duel;
+
+      final readyForPuzzle = index == story.completed &&
+          story.dialogueTurns == episode.dialogue.length;
+      if (match != null &&
+          (_replayDuel || (readyForPuzzle && story.board == null))) {
+        return _StoryPage(
+          contentKey: const ValueKey('story-duel'),
+          title: episode.title,
+          showStoryListButton: true,
+          navigationBusy: busy,
+          children: [
+            SudokuDuelView.story(
+              match: match,
+              position: _replayDuel
+                  ? SudokuDuel.story(episode.puzzle, episode.solution, const [])
+                  : story.duelPosition(episode),
+              busy: busy,
+              onMove: _replayDuel
+                  ? null
+                  : (cell, digit) => controller.updateStory(
+                      (saved, points) => saved.playDuelMove(
+                        index, points, cell, digit, episodes: episodes,
+                      ),
+                    ),
+              onFinish: () {
+                if (_replayDuel) {
+                  setState(() => _replayDuel = false);
+                } else {
+                  controller.updateStory((saved, points) =>
+                      saved.finishDuel(index, points, episodes: episodes));
+                }
+              },
+            ),
+          ],
+        );
+      }
 
       if (index < story.completed) {
         final reveal = story.unreadClue && index == story.completed - 1;
@@ -229,6 +270,13 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
           navigationBusy: busy,
           children: [
             _SceneArt(episode.resultArt, _imageUri(catalog, episode.clueImage)),
+            if (!reveal && match != null)
+              OutlinedButton.icon(
+                key: const ValueKey('story-replay-duel'),
+                onPressed: () => setState(() => _replayDuel = true),
+                icon: const Icon(Icons.flag_outlined),
+                label: Text('${match.title}でもう一局'),
+              ),
             if (hasMoreDialogue) ...[
               _StoryDialogueCard(
                 key: const ValueKey('story-result-dialogue'),
@@ -337,7 +385,8 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
                         episodes: episodes,
                       ),
                     ),
-              child: Text(last ? '数独をはじめる' : 'つぎへ'),
+              child: Text(!last ? 'つぎへ' : match == null
+                  ? '数独をはじめる' : '${match.rival.resident.label}と対戦する'),
             ),
           ],
         );
