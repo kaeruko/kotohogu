@@ -174,7 +174,6 @@ const storyEpisodes = <StoryEpisode>[
     title: 'たいそうのはんこカード？',
     area: TownArea.plaza,
     unlockAt: 0,
-    image: storyPlazaArt,
     dialogue: [
       (_pomu, 'いち、に、ぽむ、ぽむ！ あさのたいそう、きもちいいぽむ〜！'),
       (_shiba, 'いち、に、さん、し！ ……あれ？ なにか落ちてるわん。たいそうのはんこカードわん？'),
@@ -196,7 +195,6 @@ const storyEpisodes = <StoryEpisode>[
     title: '木の下になにがある？',
     area: TownArea.park,
     unlockAt: 90,
-    image: storyParkArt,
     dialogue: [
       (_pomu, 'おおきな木、みつけたぽむ〜！ おやつはどこぽむ？'),
       (_shiba, 'あっ！ 木の根っこのあいだに、小さな箱があるわん！'),
@@ -219,7 +217,6 @@ const storyEpisodes = <StoryEpisode>[
     title: 'ひみつのごほうび',
     area: TownArea.park,
     unlockAt: 120,
-    image: storyParkArt,
     dialogue: [
       (_pomu, 'はんこカード、いっぱいあるぽむ！ 特別なはんこはどこぽむ？'),
       (_shiba, '箱の底に最後の数独があるわん。解いたら持ち主がわかるかもしれないわん！'),
