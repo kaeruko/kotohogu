@@ -420,7 +420,7 @@ void main() {
     );
   }
 
-  test('Mosædo first duel starts in the hall and ends with the master's challenge', () {
+  test('Mosædo first duel starts in the hall and ends with Oshishō challenge', () {
     final episode = storyEpisodes[3];
     expect(episode.id, 'episode_03');
     expect(episode.area, TownArea.plaza);
