@@ -2,7 +2,7 @@
 
 正式なBundle ID: `jp.cloxs.kotohogu`
 
-`.github/workflows/ios-app-store.yml` は、公開リポジトリの `macos-26`
+`.github/workflows/ios-app-store.yml` は、公開リポジトリの `xcode-27`
 ランナー上で署名付き `.ipa` を作り、App Store Connectの **TestFlightへ直接アップロードする**手動ワークフローです。
 `workflow_dispatch` 専用で、外部プルリクエストから秘密鍵を利用しません。
 既存の `.github/workflows/flutter.yml` の品質チェックは変更しません。
@@ -73,10 +73,12 @@ ONのビルドでは、インストール後に下部の「メニュー」を開
 公開用ビルドは必ず `enable_developer_menu` をOFFにして新しくビルドしてください。
 初期値はOFFです。ON/OFFはビルド時に確定し、配布後には切り替えられません。
 
-ビルド工程ではFlutter 3.47.6からiOS Runnerを生成し、署名とIPAを確認してから
+ビルド工程ではFlutter 3.47.6からiOS Runnerを生成します。Xcodeの端末用SDKと、
+署名済みIPAの `DTSDKName` がともにiOS 27以上であることを確認してから、
 `xcrun altool` でTestFlightへアップロードします。App Store Connectの処理が完了するまで
 テスト端末に新しいバージョンが出ない場合があります。審査提出や一般公開は自動では行いません。
-署名済みIPAはActionsのartifactにも7日間保存されます。
+署名済みIPAはActionsのartifactにも7日間保存されます。`upload_existing` も
+IPAを検証するため、iOS 26以前のSDKで作ったIPAは新しくビルドしてください。
 
 ローカルPCで実機デバッグする場合は、通常の `flutter run` を使えば
 ビルドフラグ不要で従来どおり「メニュー」が表示されます。

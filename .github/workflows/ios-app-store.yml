@@ -38,7 +38,7 @@ concurrency:
 jobs:
   build-ipa:
     if: inputs.operation == 'build_and_upload'
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 60
     steps:
       - name: Check release branch and prevent build-number reuse
@@ -58,10 +58,13 @@ jobs:
         with:
           ref: main
 
-      - name: Test and plan next iOS release version
+      - name: Verify iOS SDK and plan next release version
         shell: bash
         run: |
           set -euo pipefail
+          xcodebuild -version
+          sdk_version=$(python3 tools/ios/verify_sdk.py --sdk-version "$(xcrun --sdk iphoneos --show-sdk-version)")
+          echo "- Build toolchain SDK: iOS $sdk_version" >> "$GITHUB_STEP_SUMMARY"
           python3 -m unittest discover -s tools/ios -p 'test_*.py'
           python3 tools/ios/release_version.py plan --format github-env >> "$GITHUB_ENV"
 
@@ -81,7 +84,6 @@ jobs:
           fi
           # iOS is generated on the runner, so generate icons afterwards.
           dart run flutter_launcher_icons -f ios_app_icon_config.yaml
-          xcodebuild -version
 
       - name: Validate Dart source before signing and archiving
         shell: bash
@@ -190,6 +192,7 @@ jobs:
           }
           app="${apps[0]}"
           info="$app/Info.plist"
+          sdk_version=$(python3 tools/ios/verify_sdk.py --ipa-info "$info")
           bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")
           display_name=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$info")
           build_name=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")
@@ -235,6 +238,7 @@ jobs:
           {
             echo "- Verified bundle: $bundle_id"
             echo "- Verified version: $build_name ($build_number)"
+            echo "- Verified IPA SDK: iOS $sdk_version"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Install App Store Connect API key
@@ -316,7 +320,7 @@ jobs:
 
   upload-testflight:
     if: inputs.operation == 'upload_existing'
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -438,6 +442,7 @@ jobs:
           }
           app="${apps[0]}"
           info="$app/Info.plist"
+          sdk_version=$(python3 tools/ios/verify_sdk.py --ipa-info "$info")
           bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info")
           display_name=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$info")
           build_name=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")
@@ -486,6 +491,7 @@ jobs:
             echo "- Build run: $SOURCE_RUN_ID"
             echo "- Bundle: $bundle_id"
             echo "- Version: $build_name ($build_number)"
+            echo "- Verified IPA SDK: iOS $sdk_version"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Install App Store Connect API key
