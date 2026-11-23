@@ -57,65 +57,29 @@ class StoryScreen extends StatelessWidget {
       return _StoryPage(
         title: 'ストーリー',
         children: [
-          if (!story.hasStarted)
-            _SceneArt(storyPlazaArt, _imageUri(catalog, catalog.coverImage)),
-          Text(catalog.title, style: Theme.of(context).textTheme.headlineSmall),
-          Text('暗号 $cleared / ${episodes.length - 1}'),
-          LinearProgressIndicator(value: cleared / (episodes.length - 1)),
+          _StoryTitleBanner(title: catalog.title),
+          _StoryProgressMeter(completed: cleared, total: episodes.length - 1),
           if (next != null)
-            Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(story.unreadClue ? 'クリアしたお話' : '次のお話'),
-                    const SizedBox(height: 4),
-                    Text(
-                      next.title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      story.unreadClue
-                          ? '数独を解きました。手がかりを確かめよう。'
-                          : nextIndex == 0
-                          ? '中央ひろばで、4×4の数独をれんしゅうします。'
-                          : '${next.area.label}で${next.size}×${next.size}の暗号に挑戦。'
-                                '${next.destination == null ? '紙にかくれたことば' : '次の行き先'}がわかります。',
-                    ),
-                    const SizedBox(height: 12),
-                    if (playable)
-                      FilledButton.icon(
-                        key: const ValueKey('story-open-episode'),
-                        onPressed: () => _openEpisode(context, nextIndex),
-                        icon: Icon(
-                          story.unreadClue
-                              ? Icons.auto_awesome
-                              : Icons.menu_book_outlined,
-                        ),
-                        label: Text(
-                          story.unreadClue
-                              ? '手がかりを見る'
-                              : story.dialogueTurns > 0
-                              ? 'つづきから'
-                              : 'お話をはじめる',
-                        ),
-                      )
-                    else ...[
-                      Text(
-                        'あと${(next.pointsNeeded(progress.points) + 9) ~/ 10}回、'
-                        'セルフケアを記録すると開きます。',
-                      ),
-                      OutlinedButton(
-                        onPressed: onSelfCare,
-                        child: const Text('セルフケアへ'),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+            _StoryNextEpisodeCard(
+              title: next.title,
+              eyebrow: story.unreadClue ? 'クリアしたお話:' : '次のお話:',
+              description: story.unreadClue
+                  ? '数独を解きました。手がかりを確かめよう。'
+                  : nextIndex == 0
+                  ? '中央ひろばで、4×4の数独をれんしゅうします。'
+                  : '${next.area.label}で${next.size}×${next.size}の暗号に挑戦。'
+                    '${next.destination == null ? '紙にかくれたことば' : '次の行き先'}がわかります。',
+              buttonLabel: story.unreadClue
+                  ? '手がかりを見る'
+                  : story.dialogueTurns > 0
+                  ? 'つづきから'
+                  : 'お話をはじめる',
+              buttonIcon: story.unreadClue
+                  ? Icons.auto_awesome : Icons.menu_book_outlined,
+              playable: playable,
+              remainingCare: (next.pointsNeeded(progress.points) + 9) ~/ 10,
+              onOpen: () => _openEpisode(context, nextIndex),
+              onSelfCare: onSelfCare,
             )
           else
             const Text('今回の暗号はすべて解けました。手がかり帳で旅を振り返れます。'),
@@ -127,18 +91,18 @@ class StoryScreen extends StatelessWidget {
               label: Text('${lastDestination.label}へ行く'),
             ),
           if (story.completed > 0) ...[
-            Text('手がかり帳', style: Theme.of(context).textTheme.titleLarge),
+            const Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text('手がかり帳', style: TextStyle(
+                fontSize: 24, fontWeight: FontWeight.w900, color: _ink,
+              )),
+            ),
             for (var index = story.completed - 1; index >= 0; index--)
               if (!(story.unreadClue && index == story.completed - 1))
-                Card(
-                  margin: EdgeInsets.zero,
-                  child: ListTile(
-                    leading: const Icon(Icons.check_circle_outline),
-                    title: Text(episodes[index].title),
-                    subtitle: Text(episodes[index].clue),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _openEpisode(context, index),
-                  ),
+                _StoryClueRow(
+                  title: episodes[index].title,
+                  clue: episodes[index].clue,
+                  onTap: () => _openEpisode(context, index),
                 ),
           ],
         ],
@@ -403,6 +367,270 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
   );
 }
 
+
+/// Illustrated story index elements; actions remain Flutter controls.
+class _StoryTitleBanner extends StatelessWidget {
+  const _StoryTitleBanner({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: 88,
+    child: Stack(
+      alignment: Alignment.center,
+      children: [
+        Positioned.fill(child: Image.asset(
+          'assets/story/kotohogu_story_ui/story_title_ornament.png',
+          fit: BoxFit.fill, excludeFromSemantics: true,
+        )),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Text(title, style: TextStyle(
+                  fontSize: 28, fontWeight: FontWeight.w900,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 5
+                    ..color = const Color(0xFFFFE9BD),
+                )),
+                Text(title, style: const TextStyle(
+                  fontSize: 28, fontWeight: FontWeight.w900, color: _ink,
+                )),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _StoryProgressMeter extends StatelessWidget {
+  const _StoryProgressMeter({required this.completed, required this.total});
+  final int completed;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final fraction = total == 0
+        ? 0.0 : (completed / total).clamp(0.0, 1.0).toDouble();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('暗号 $completed / $total', style: const TextStyle(
+          fontSize: 18, fontWeight: FontWeight.w900, color: _ink,
+        )),
+        const SizedBox(height: 6),
+        SizedBox(
+          height: 30,
+          child: LayoutBuilder(
+            builder: (context, constraints) => Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  left: 0, right: 0, top: 8,
+                  child: Container(
+                    height: 14, clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF855842),
+                      border: Border.all(
+                        color: const Color(0xFF3C1E17), width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: fraction,
+                      child: const DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(colors: [
+                            Color(0xFFF07FA7), Color(0xFFF9B56D),
+                            Color(0xFFF5DC71), Color(0xFF96CB7E),
+                            Color(0xFF83D2D9),
+                          ]),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: (constraints.maxWidth - 28) * fraction, top: 0,
+                  child: Image.asset('assets/story/kotohogu_story_ui/story_progress_leaf.png',
+                    width: 28, height: 30, excludeFromSemantics: true),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StoryNextEpisodeCard extends StatelessWidget {
+  const _StoryNextEpisodeCard({
+    required this.title, required this.eyebrow, required this.description,
+    required this.buttonLabel, required this.buttonIcon,
+    required this.playable, required this.remainingCare,
+    required this.onOpen, required this.onSelfCare,
+  });
+  final String title;
+  final String eyebrow;
+  final String description;
+  final String buttonLabel;
+  final IconData buttonIcon;
+  final bool playable;
+  final int remainingCare;
+  final VoidCallback onOpen;
+  final VoidCallback onSelfCare;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.fromLTRB(28, 24, 28, 27),
+    decoration: const BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage('assets/story/kotohogu_story_ui/story_episode_card.png'),
+        fit: BoxFit.fill,
+      ),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(eyebrow, style: const TextStyle(
+                    color: _ink, fontWeight: FontWeight.w800, fontSize: 14,
+                  )),
+                  const SizedBox(height: 3),
+                  Text(title, style: const TextStyle(
+                    color: _ink, fontWeight: FontWeight.w900,
+                    fontSize: 21, height: 1.2,
+                  )),
+                ],
+              ),
+            ),
+            const SizedBox(width: 6),
+            Image.asset('assets/story/kotohogu_story_ui/story_tree.png',
+              width: 70, height: 54, fit: BoxFit.contain,
+              excludeFromSemantics: true),
+          ],
+        ),
+        const Divider(
+          color: Color(0xFFB88E68), height: 18, thickness: 1.2),
+        Text(description, style: const TextStyle(
+          color: _ink, fontSize: 14, height: 1.4,
+          fontWeight: FontWeight.w600,
+        )),
+        const SizedBox(height: 12),
+        if (playable)
+          SizedBox(
+            height: 57,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset('assets/story/kotohogu_story_ui/story_button_green.png',
+                  fit: BoxFit.fill, excludeFromSemantics: true),
+                TextButton.icon(
+                  key: const ValueKey('story-open-episode'),
+                  onPressed: onOpen,
+                  icon: Icon(buttonIcon, size: 23),
+                  label: Text(buttonLabel),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w900,
+                      shadows: [
+                        Shadow(
+                          color: Color(0xFF20452B), blurRadius: 3,
+                          offset: Offset(1, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else ...[
+          Text('あと$remainingCare回、セルフケアを記録すると開きます。',
+            style: const TextStyle(color: _ink)),
+          const SizedBox(height: 6),
+          OutlinedButton(
+            onPressed: onSelfCare, child: const Text('セルフケアへ')),
+        ],
+      ],
+    ),
+  );
+}
+
+class _StoryClueRow extends StatelessWidget {
+  const _StoryClueRow({
+    required this.title, required this.clue, required this.onTap,
+  });
+  final String title;
+  final String clue;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: const BoxConstraints(minHeight: 66),
+    decoration: const BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage('assets/story/kotohogu_story_ui/story_clue_row.png'),
+        fit: BoxFit.fill,
+      ),
+    ),
+    child: Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(13, 10, 13, 10),
+          child: Row(
+            children: [
+              Image.asset('assets/story/kotohogu_story_ui/story_check_stamp.png',
+                width: 43, height: 43, excludeFromSemantics: true),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: _ink, fontWeight: FontWeight.w900,
+                        fontSize: 16, height: 1.15,
+                      )),
+                    const SizedBox(height: 2),
+                    Text(clue, maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: _ink, fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      )),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.chevron_right, color: _ink, size: 27),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 /// The same single-turn picture-book dialogue card is used before and
 /// after a puzzle. It never appends previous lines to the screen.
 class _StoryDialogueCard extends StatelessWidget {
@@ -625,11 +853,8 @@ class _SceneArt extends StatelessWidget {
 
 class _StoryPage extends StatelessWidget {
   const _StoryPage({
-    required this.title,
-    required this.children,
-    this.contentKey,
+    required this.title, required this.children, this.contentKey,
   });
-
   final String title;
   final List<Widget> children;
   final Key? contentKey;
@@ -637,21 +862,61 @@ class _StoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: _paper,
-    appBar: AppBar(title: Text(title), backgroundColor: _paper),
-    body: SafeArea(
-      top: false,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: ListView(
-            key: contentKey,
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
-            children: [
-              for (final (index, child) in children.indexed) ...[
-                if (index != 0) const SizedBox(height: 12),
-                child,
+    appBar: AppBar(
+      toolbarHeight: 70,
+      titleSpacing: 0,
+      leadingWidth: 68,
+      elevation: 0,
+      backgroundColor: const Color(0xFF87482D),
+      flexibleSpace: const DecoratedBox(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/story/kotohogu_story_ui/story_header_wood.png'),
+            fit: BoxFit.fill,
+          ),
+        ),
+      ),
+      leading: IconButton(
+        tooltip: 'もどる',
+        onPressed: () => Navigator.of(context).maybePop(),
+        icon: Image.asset('assets/story/kotohogu_story_ui/story_back_arrow.png',
+          width: 52, height: 44, excludeFromSemantics: true),
+      ),
+      title: Text(title, style: const TextStyle(
+        color: Colors.white,
+        fontSize: 24,
+        fontWeight: FontWeight.w900,
+        shadows: [
+          Shadow(
+            offset: Offset(2, 3), blurRadius: 2,
+            color: Color(0xFF3A1A0F),
+          ),
+        ],
+      )),
+    ),
+    body: DecoratedBox(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/story/kotohogu_story_ui/story_paper_tile.png'),
+          fit: BoxFit.none,
+          repeat: ImageRepeat.repeat,
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: ListView(
+              key: contentKey,
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+              children: [
+                for (final (index, child) in children.indexed) ...[
+                  if (index != 0) const SizedBox(height: 12),
+                  child,
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
