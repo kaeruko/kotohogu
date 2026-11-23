@@ -13,13 +13,25 @@ class StoryCatalog {
   const StoryCatalog({
     required this.title,
     required this.episodes,
+    required this.chapters,
     this.coverImage,
     this.baseUri,
   });
 
   final String title;
   final List<StoryEpisode> episodes;
+  final List<StoryChapter> chapters;
   final String? coverImage;
+
+  int chapterIndexForEpisode(int episodeIndex) {
+    if (episodeIndex < 0 || episodeIndex >= episodes.length || chapters.isEmpty) {
+      throw RangeError('Invalid story chapter episode index: $episodeIndex');
+    }
+    for (var index = chapters.length - 1; index >= 0; index--) {
+      if (episodeIndex >= chapters[index].startIndex) return index;
+    }
+    throw StateError('Story chapters do not cover episode $episodeIndex');
+  }
   final Uri? baseUri;
 
   /// Fingerprint of save-relevant structure, not dialogue text or artwork.
@@ -27,7 +39,19 @@ class StoryCatalog {
   String get progressSignature => storyProgressSignature(episodes);
 }
 
-/// Deterministic structural identity without changing the hosted JSON schema.
+class StoryChapter {
+  const StoryChapter({
+    required this.id,
+    required this.title,
+    required this.startIndex,
+  });
+
+  final String id;
+  final String title;
+  final int startIndex;
+}
+
+/// Chapter labels and boundaries are excluded from the saved episode signature.
 String storyProgressSignature(List<StoryEpisode> episodes) {
   final structure = jsonEncode([
     for (final episode in episodes)
@@ -171,7 +195,17 @@ const _wife = StorySpeaker.local(TownResident.rabbit);
 const _pastry = StorySpeaker.local(TownResident.c047_patisie);
 const _advisor = StorySpeaker.local(TownResident.c048_advicer);
 
-const bundledStory = StoryCatalog(title: storyTitle, episodes: storyEpisodes);
+const storyChapters = <StoryChapter>[
+  StoryChapter(id: 'shibapome', title: 'しばぽめ', startIndex: 0),
+  StoryChapter(id: 'mosaedo', title: 'モサエド', startIndex: 3),
+  StoryChapter(id: 'oyomesan', title: 'およめさん', startIndex: 5),
+];
+
+const bundledStory = StoryCatalog(
+  title: storyTitle,
+  episodes: storyEpisodes,
+  chapters: storyChapters,
+);
 
 // Bundled story mirrors the current CMS story for offline and UI tests.
 // The legacy hosted endpoint is separately frozen for older app releases.

@@ -49,6 +49,9 @@ class StoryScreen extends StatelessWidget {
           next != null &&
           (story.unreadClue || next.isAvailable(progress.points));
       final cleared = story.unreadClue ? story.completed - 1 : story.completed;
+      final currentChapter = next == null
+          ? null
+          : catalog.chapters[catalog.chapterIndexForEpisode(nextIndex)];
       final lastDestination = episodes
           .take(story.unreadClue ? story.completed - 1 : story.completed)
           .map((episode) => episode.destination)
@@ -59,6 +62,17 @@ class StoryScreen extends StatelessWidget {
         children: [
           _StoryTitleBanner(title: catalog.title),
           _StoryProgressMeter(completed: cleared, total: episodes.length),
+          if (currentChapter != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                '第${catalog.chapterIndexForEpisode(nextIndex) + 1}章　${currentChapter.title}',
+                key: const ValueKey('story-current-chapter'),
+                style: const TextStyle(
+                  fontSize: 19, fontWeight: FontWeight.w900, color: _ink,
+                ),
+              ),
+            ),
           if (next != null)
             _StoryNextEpisodeCard(
               title: next.title,
@@ -90,19 +104,60 @@ class StoryScreen extends StatelessWidget {
               icon: const Icon(Icons.place_outlined),
               label: Text('${lastDestination.label}へ行く'),
             ),
-          if (story.completed > 0) ...[
-            const Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Text('手がかり帳', style: TextStyle(
+          const Padding(
+            padding: EdgeInsets.only(top: 4),
+            child: Text(
+              'お話一覧・手がかり帳',
+              style: TextStyle(
                 fontSize: 24, fontWeight: FontWeight.w900, color: _ink,
-              )),
+              ),
             ),
-            for (var index = story.completed - 1; index >= 0; index--)
-              if (!(story.unreadClue && index == story.completed - 1))
+          ),
+          for (var chapterIndex = 0;
+              chapterIndex < catalog.chapters.length;
+              chapterIndex++) ...[
+            _StoryChapterHeader(
+              chapterNumber: chapterIndex + 1,
+              title: catalog.chapters[chapterIndex].title,
+              total: (chapterIndex + 1 < catalog.chapters.length
+                      ? catalog.chapters[chapterIndex + 1].startIndex
+                      : episodes.length) -
+                  catalog.chapters[chapterIndex].startIndex,
+              completed: List.generate(
+                (chapterIndex + 1 < catalog.chapters.length
+                        ? catalog.chapters[chapterIndex + 1].startIndex
+                        : episodes.length) -
+                    catalog.chapters[chapterIndex].startIndex,
+                (i) => catalog.chapters[chapterIndex].startIndex + i,
+              ).where((i) => i < cleared).length,
+            ),
+            for (var index = catalog.chapters[chapterIndex].startIndex;
+                index <
+                    (chapterIndex + 1 < catalog.chapters.length
+                        ? catalog.chapters[chapterIndex + 1].startIndex
+                        : episodes.length);
+                index++)
+              if (index < cleared)
                 _StoryClueRow(
                   title: episodes[index].title,
                   clue: episodes[index].clue,
                   onTap: () => _openEpisode(context, index),
+                )
+              else
+                _StoryChapterEpisodeRow(
+                  title: episodes[index].title,
+                  chapterEpisodeNumber:
+                      index - catalog.chapters[chapterIndex].startIndex + 1,
+                  status: index == nextIndex
+                      ? story.unreadClue
+                          ? 'クリア！ お話の続きを読もう'
+                          : playable
+                          ? 'このお話から始めよう'
+                          : 'あと${(episodes[index].pointsNeeded(progress.points) + 9) ~/ 10}回で開放'
+                      : 'これからのお話',
+                  onTap: index == nextIndex && playable
+                      ? () => _openEpisode(context, index)
+                      : null,
                 ),
           ],
         ],
@@ -473,6 +528,72 @@ class _StoryProgressMeter extends StatelessWidget {
       ],
     );
   }
+}
+
+class _StoryChapterHeader extends StatelessWidget {
+  const _StoryChapterHeader({
+    required this.chapterNumber,
+    required this.title,
+    required this.completed,
+    required this.total,
+  });
+  final int chapterNumber;
+  final String title;
+  final int completed;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: ValueKey('story-chapter-$chapterNumber'),
+    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF6E8CB),
+      border: Border.all(color: _rule),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            '第$chapterNumber章　$title',
+            style: const TextStyle(
+              fontSize: 19, fontWeight: FontWeight.w900, color: _ink,
+            ),
+          ),
+        ),
+        Text('$completed / $total 話',
+          style: const TextStyle(fontWeight: FontWeight.w700, color: _ink)),
+      ],
+    ),
+  );
+}
+
+class _StoryChapterEpisodeRow extends StatelessWidget {
+  const _StoryChapterEpisodeRow({
+    required this.title,
+    required this.chapterEpisodeNumber,
+    required this.status,
+    required this.onTap,
+  });
+  final String title;
+  final int chapterEpisodeNumber;
+  final String status;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    color: const Color(0xFFFFF9EF),
+    child: ListTile(
+      leading: Icon(
+        onTap == null ? Icons.lock_outline : Icons.menu_book_outlined,
+        color: _ink,
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+      subtitle: Text('第$chapterEpisodeNumber話　$status'),
+      onTap: onTap,
+      enabled: onTap != null,
+    ),
+  );
 }
 
 class _StoryNextEpisodeCard extends StatelessWidget {

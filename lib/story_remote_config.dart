@@ -21,6 +21,7 @@ StoryCatalog parseHostedStory(
     'title',
     'coverImage',
     'episodes',
+    'chapters',
   }, storyJsonPath);
   if (root['version'] is! int || root['version'] != 1) {
     throw const FormatException('Unsupported story version');
@@ -138,8 +139,41 @@ StoryCatalog parseHostedStory(
     _validatePuzzle(episode);
     episodes.add(episode);
   }
+  final chapterRows = arrayOf(root['chapters'], 'story chapters');
+  if (chapterRows.isEmpty || chapterRows.length > episodes.length) {
+    throw const FormatException('Invalid story chapter count');
+  }
+  final chapterIds = <String>{};
+  final chapters = <StoryChapter>[];
+  for (final (chapterNumber, raw) in chapterRows.indexed) {
+    final field = 'story chapters[$chapterNumber]';
+    final chapter = objectOf(raw, field);
+    requireFields(chapter, {'id', 'title', 'startEpisodeId'}, field);
+    final id = nonempty(chapter['id'], '$field.id');
+    final firstEpisodeId = nonempty(
+      chapter['startEpisodeId'],
+      '$field.startEpisodeId',
+    );
+    final startIndex = episodes.indexWhere(
+      (episode) => episode.id == firstEpisodeId,
+    );
+    if (!_episodeId.hasMatch(id) ||
+        !chapterIds.add(id) ||
+        startIndex < 0 ||
+        (chapterNumber == 0
+            ? startIndex != 0
+            : startIndex <= chapters.last.startIndex)) {
+      throw FormatException('Invalid story chapter boundary: $field');
+    }
+    chapters.add(StoryChapter(
+      id: id,
+      title: nonempty(chapter['title'], '$field.title'),
+      startIndex: startIndex,
+    ));
+  }
   return StoryCatalog(
     title: nonempty(root['title'], 'story title'),
+    chapters: List.unmodifiable(chapters),
     coverImage: image(root['coverImage'], 'story cover'),
     episodes: List.unmodifiable(episodes),
     baseUri: baseUri,

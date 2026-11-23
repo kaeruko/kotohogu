@@ -118,6 +118,11 @@ void main() {
     ]);
     expect(catalog.episodes.first.clue, 'おおきな きのした');
     expect(catalog.episodes[1].clue, 'ほんとうにはんこカード！');
+    expect(catalog.chapters.map((chapter) => chapter.title),
+        ['しばぽめ', 'モサエド', 'およめさん']);
+    expect(catalog.chapters.map((chapter) => chapter.startIndex), [0, 3, 5]);
+    expect(catalog.chapters.map((chapter) => chapter.id),
+        storyChapters.map((chapter) => chapter.id));
     final ending = catalog.episodes[2].resultDialogue;
     expect(ending.any((line) => line.$1.label == 'ごんすけ'), isTrue);
     expect(ending.any((line) => line.$2.contains('朝の体操第二')), isTrue);
@@ -154,9 +159,13 @@ void main() {
     final textEdit = storyDocument();
     _episodes(textEdit).first['dialogue'][0]['text'] = '配信から更新したセリフ';
     expect(parse(textEdit).progressSignature, original.progressSignature);
+    final renamed = storyDocument();
+    (renamed['chapters'] as List).first['title'] = 'しばぽめのふしぎ';
+    expect(parse(renamed).progressSignature, original.progressSignature);
     final rewritten = storyDocument();
     final chapters = _episodes(rewritten);
     chapters.removeRange(2, chapters.length);
+    (rewritten['chapters'] as List).removeRange(1, 3);
     final updated = parse(rewritten);
     expect(updated.episodes.length, 2);
     expect(updated.progressSignature, isNot(original.progressSignature));
@@ -165,6 +174,20 @@ void main() {
       'text': 'あたらしいセリフだわん。',
     });
     expect(parse(rewritten).progressSignature, isNot(updated.progressSignature));
+  });
+
+  test('invalid chapter boundaries fail fast', () {
+    final missing = storyDocument()..remove('chapters');
+    expect(() => parse(missing), throwsFormatException);
+    final unknown = storyDocument();
+    (unknown['chapters'] as List)[1]['startEpisodeId'] = 'missing_episode';
+    expect(() => parse(unknown), throwsFormatException);
+    final outOfOrder = storyDocument();
+    (outOfOrder['chapters'] as List)[1]['startEpisodeId'] = 'episode_07';
+    expect(() => parse(outOfOrder), throwsFormatException);
+    final duplicate = storyDocument();
+    (duplicate['chapters'] as List)[1]['id'] = 'shibapome';
+    expect(() => parse(duplicate), throwsFormatException);
   });
 
   test('unknown cast and external image paths are rejected', () {

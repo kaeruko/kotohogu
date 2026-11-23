@@ -97,6 +97,19 @@ void main() {
     },
   );
 
+  test('three story chapters preserve the existing episode structure', () {
+    expect(storyChapters.map((chapter) => chapter.title),
+      ['しばぽめ', 'モサエド', 'およめさん']);
+    expect(storyChapters.map((chapter) => chapter.startIndex), [0, 3, 5]);
+    expect(bundledStory.chapterIndexForEpisode(0), 0);
+    expect(bundledStory.chapterIndexForEpisode(2), 0);
+    expect(bundledStory.chapterIndexForEpisode(3), 1);
+    expect(bundledStory.chapterIndexForEpisode(4), 1);
+    expect(bundledStory.chapterIndexForEpisode(5), 2);
+    expect(bundledStory.chapterIndexForEpisode(7), 2);
+    expect(() => bundledStory.chapterIndexForEpisode(8), throwsRangeError);
+  });
+
   test('every solved puzzle has a short story exchange', () {
     for (final episode in storyEpisodes) {
       expect(episode.resultDialogue, isNotEmpty, reason: episode.title);
@@ -150,6 +163,9 @@ void main() {
     final edited = StoryCatalog(
       title: '別のお話',
       episodes: storyEpisodes.sublist(0, 2),
+      chapters: const [
+        StoryChapter(id: 'shibapome', title: 'しばぽめ', startIndex: 0),
+      ],
     );
     expect(edited.progressSignature, isNot(bundledStory.progressSignature));
     expect(() => saved.validateFor(edited, 0), throwsFormatException);

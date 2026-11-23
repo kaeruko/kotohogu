@@ -483,5 +483,22 @@
         }
       ]
     }
+  ],
+  "chapters": [
+    {
+      "id": "shibapome",
+      "title": "しばぽめ",
+      "startEpisodeId": "episode_00"
+    },
+    {
+      "id": "mosaedo",
+      "title": "モサエド",
+      "startEpisodeId": "episode_03"
+    },
+    {
+      "id": "oyomesan",
+      "title": "およめさん",
+      "startEpisodeId": "episode_05"
+    }
   ]
 }
