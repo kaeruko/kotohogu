@@ -9,6 +9,7 @@
       "area": "plaza",
       "unlockAt": 0,
       "image": "story_001_plaza_mystery.png",
+      "resultImage": "story_result_00_tree_clue.png",
       "dialogue": [
         {
           "speaker": "052_pome",
@@ -52,6 +53,7 @@
       "area": "park",
       "unlockAt": 90,
       "image": "story_002_park_tree.png",
+      "resultImage": "story_result_01_stamp_card_box.png",
       "dialogue": [
         {
           "speaker": "052_pome",
@@ -99,6 +101,7 @@
       "area": "park",
       "unlockAt": 120,
       "image": "story_002_park_tree.png",
+      "resultImage": "story_004_park_sakura_stamp.png",
       "dialogue": [
         {
           "speaker": "052_pome",
@@ -161,7 +164,8 @@
       "title": "数独道場破りでござる！",
       "area": "plaza",
       "unlockAt": 150,
-      "image": "story_001_plaza_mystery.png",
+      "image": "story_005_community_center_mosaedo.png",
+      "resultImage": "story_result_03_oshisho_challenge.png",
       "dialogue": [
         {
           "speaker": "029_office_worker",
@@ -240,7 +244,8 @@
       "title": "おししょうの一局",
       "area": "plaza",
       "unlockAt": 180,
-      "image": "story_001_plaza_mystery.png",
+      "image": "story_006_community_center_oshisho.png",
+      "resultImage": "story_result_04_white_bear_rumor.png",
       "dialogue": [
         {
           "speaker": "031_kimono_fox",
@@ -316,6 +321,7 @@
       "area": "shopping",
       "unlockAt": 210,
       "image": "story_007_cakeshop_ledger_sudoku.png",
+      "resultImage": "story_010_cakeshop_tasting_preparation.png",
       "dialogue": [
         {
           "speaker": "002_usagi",
@@ -366,7 +372,8 @@
       "title": "ケーキ無料！？",
       "area": "shopping",
       "unlockAt": 240,
-      "image": "story_008_cakeshop_consulting.png",
+      "image": "bc66885d-6413-41b9-9e85-4e20265902bf.png",
+      "resultImage": "story_result_06_sampling_sign_fixed.png",
       "dialogue": [
         {
           "speaker": "047_patisie",
@@ -429,7 +436,8 @@
       "title": "ふたりの休憩時間",
       "area": "shopping",
       "unlockAt": 270,
-      "image": "story_003_shopping_clue.png",
+      "image": "story_007_cakeshop_ledger_sudoku.png",
+      "resultImage": "story_result_07_after_hours_sudoku.png",
       "dialogue": [
         {
           "speaker": "047_patisie",
