@@ -203,6 +203,8 @@ def publish(args):
                prefix + "api/runtime/oyasumi", "application/json", IMMUTABLE)
         upload(args, bucket, stage / STORY_PATH,
                prefix + STORY_PATH.as_posix(), "application/json", IMMUTABLE)
+        upload(args, bucket, stage / STORY_V2_PATH,
+               prefix + STORY_V2_PATH.as_posix(), "application/json", IMMUTABLE)
         for image in (stage / STORY_IMAGES).iterdir():
             upload(args, bucket, image, prefix + (STORY_IMAGES / image.name).as_posix(),
                    "image/png", IMMUTABLE)
