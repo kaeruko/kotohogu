@@ -230,7 +230,9 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
             SudokuDuelView.story(
               match: match,
               position: _replayDuel
-                  ? SudokuDuel.story(episode.puzzle, episode.solution, const [])
+                  ? SudokuDuel.story(
+                      episode.duelPuzzle, episode.solution, const [],
+                    )
                   : story.duelPosition(episode),
               busy: busy,
               onMove: _replayDuel

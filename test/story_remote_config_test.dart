@@ -193,6 +193,23 @@ void main() {
     expect(parse(rewritten).progressSignature, isNot(updated.progressSignature));
   });
 
+  test(
+    'hosted duels use the tuned openings until their catalog puzzle changes',
+    () {
+      final document = storyDocument();
+      final hosted = parse(document);
+      for (final index in [2, 4, 7]) {
+        final episode = hosted.episodes[index];
+        expect(episode.duelPuzzle, storyEpisodes[index].duelPuzzle);
+        expect(episode.duelPuzzle, isNot(episode.puzzle));
+      }
+      final rows = _episodes(document);
+      rows[2]['puzzle'] = rows.first['puzzle'];
+      rows[2]['solution'] = rows.first['solution'];
+      expect(parse(document).episodes[2].duelPuzzle, rows.first['puzzle']);
+    },
+  );
+
   test('invalid chapter boundaries fail fast', () {
     final missing = storyDocument()..remove('chapters');
     expect(() => parse(missing), throwsFormatException);

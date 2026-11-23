@@ -157,6 +157,15 @@ class StoryEpisode {
     _ => null,
   };
 
+  // Tune the flag openings for these published puzzles. A replacement puzzle
+  // from the CMS uses its own givens, and solo saves keep the catalog puzzle.
+  String get duelPuzzle => switch ((duel, puzzle)) {
+    (StoryDuel.shibapome, '3100201310340001') => '3000201310344001',
+    (StoryDuel.dojo, '0021200304101200') => '0021000304101200',
+    (StoryDuel.cakeShop, '3410003401400021') => '3010003421400021',
+    _ => puzzle,
+  };
+
   String? get clueImage => resultImage ?? (destination == null ? image : null);
 
   int get size => puzzle.length == 16 ? 4 : 6;

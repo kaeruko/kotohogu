@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/progress.dart';
@@ -5,8 +7,10 @@ import 'package:future_lift/story_data.dart';
 import 'package:future_lift/story_progress.dart';
 import 'package:future_lift/story_screen.dart';
 import 'package:future_lift/sudoku_duel.dart';
+import 'package:future_lift/sudoku_duel_view.dart';
 
 import 'progress_test.dart' show MemoryStore;
+import 'sudoku_duel_test.dart' show solveSingles;
 
 StoryProgress atEpisode(int index, int turns) => StoryProgress.fromJson({
   'completed': index,
@@ -23,7 +27,7 @@ void main() {
     7: ('およめさん', 'パティシエ'),
   };
 
-  test('a win, draw, and loss all lead back to the bakery story', () {
+  test('legacy bakery duels resume and finish on the original board', () {
     final episode = storyEpisodes[7];
     const endings = {
       1: [4, 5, 3, 8, 11, 12, 13],
@@ -31,15 +35,20 @@ void main() {
       -1: [5, 3, 8, 4, 12, 11, 13],
     };
     for (final ending in endings.entries) {
-      var story = atEpisode(7, episode.dialogue.length);
-      for (final cell in ending.value) {
+      var story = StoryProgress.fromJson({
+        ...atEpisode(7, episode.dialogue.length).toJson(),
+        'duelMoves': [ending.value.first],
+      });
+      for (final cell in ending.value.skip(1)) {
         story = story.playDuelMove(
           7,
           episode.unlockAt,
           cell,
           episode.answerAt(cell),
         );
+        story = StoryProgress.fromJson(story.toJson());
       }
+      story.validateFor(bundledStory, episode.unlockAt);
       final game = story.duelPosition(episode);
       expect(
         game.score(DuelPlayer.first).compareTo(game.score(DuelPlayer.second)),
@@ -66,6 +75,7 @@ void main() {
       expect(saved.finishDuel(index, 180), same(saved));
       expect(saved.useHint(index, 180, null), same(saved));
       final restored = StoryProgress.fromJson(saved.toJson());
+      expect(restored.duelLayout, 2);
       restored.validateFor(bundledStory, 180);
       expect(restored.duelPosition(episode).turn, DuelPlayer.second);
       expect(
@@ -84,6 +94,19 @@ void main() {
           ...saved.toJson(),
           'board': episode.puzzle,
         }),
+        throwsFormatException,
+      );
+      for (final invalid in [null, 3, 2.0, '2']) {
+        expect(
+          () => StoryProgress.fromJson({
+            ...saved.toJson(),
+            'duelLayout': invalid,
+          }),
+          throwsFormatException,
+        );
+      }
+      expect(
+        () => StoryProgress.fromJson({...ready.toJson(), 'duelLayout': 2}),
         throwsFormatException,
       );
       final legacy = StoryProgress.fromJson({
@@ -105,6 +128,53 @@ void main() {
   for (final entry in pairs.entries) {
     final index = entry.key;
     final (player, npc) = entry.value;
+    test(
+      '$player can force a win and all three outcomes occur against $npc',
+      () {
+        final episode = storyEpisodes[index];
+        final start = atEpisode(
+          index,
+          episode.dialogue.length,
+        ).duelPosition(episode);
+        final answer = solveSingles(start);
+        expect(answer.join(), episode.solution);
+
+        Iterable<SudokuDuel> moves(SudokuDuel game) =>
+            game.legalCells.map((cell) => game.play(cell, answer[cell])!);
+        int result(SudokuDuel game) => game
+            .score(DuelPlayer.first)
+            .compareTo(game.score(DuelPlayer.second));
+
+        // Even an opponent who sees the whole game cannot stop every opening.
+        bool canForceWin(SudokuDuel game) {
+          if (game.isOver) return result(game) > 0;
+          return game.turn == DuelPlayer.first
+              ? moves(game).any(canForceWin)
+              : moves(game).every(canForceWin);
+        }
+
+        final winningOpenings = moves(start).where(canForceWin).length;
+        expect(winningOpenings, greaterThan(0));
+        expect(winningOpenings, lessThan(start.legalCells.length));
+
+        // These results must be reachable against the same AI the player faces.
+        final outcomes = <int>{};
+        final random = Random(7);
+        void playAgainstNpc(SudokuDuel game) {
+          if (game.isOver) {
+            outcomes.add(result(game));
+          } else if (game.turn == DuelPlayer.second) {
+            playAgainstNpc(game.computerMove(episode.duel!.rival, random));
+          } else {
+            moves(game).forEach(playAgainstNpc);
+          }
+        }
+
+        playAgainstNpc(start);
+        expect(outcomes, {-1, 0, 1});
+      },
+    );
+
     testWidgets(
       '$player plays $npc inside the episode, resumes, and earns the clue',
       (tester) async {
@@ -212,9 +282,15 @@ void main() {
         await tester.pumpAndSettle();
         await tap(key('story-replay-duel'));
         expect(find.text('$player VS $npc'), findsOneWidget);
-        await humanMove(
-          SudokuDuel.story(episode.puzzle, episode.solution, const []),
+        final opening = tester
+            .widget<SudokuDuelView>(find.byType(SudokuDuelView))
+            .position!;
+        expect(
+          List.generate(episode.puzzle.length, opening.valueAt).join(),
+          episode.duelPuzzle,
         );
+        await humanMove(opening);
+        expect(find.text('$npcが考え中…'), findsOneWidget);
         await tester.pump(const Duration(seconds: 1));
         expect(store.writes, writes);
         expect(tester.takeException(), isNull);
