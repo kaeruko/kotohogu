@@ -24,6 +24,22 @@ class SudokuStoryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "must have one solution"):
             validate_story(doc, self.residents, self.areas)
 
+    def test_invalid_chapter_boundaries_are_rejected(self):
+        for reason, modify in (
+            ("missing chapters", lambda doc: doc.pop("chapters")),
+            ("unknown chapter start", lambda doc:
+             doc["chapters"][1].update(startEpisodeId="missing")),
+            ("out-of-order chapters", lambda doc:
+             doc["chapters"][1].update(startEpisodeId="episode_07")),
+            ("duplicate chapter ID", lambda doc:
+             doc["chapters"][1].update(id="shibapome")),
+        ):
+            with self.subTest(reason=reason):
+                doc = copy.deepcopy(self.story)
+                modify(doc)
+                with self.assertRaisesRegex(ValueError, "chapter|schema"):
+                    validate_story(doc, self.residents, self.areas)
+
     def test_unregistered_speaker_and_nonlocal_png_are_rejected(self):
         doc = copy.deepcopy(self.story)
         doc["episodes"][0]["dialogue"][0]["speaker"] = "missing"

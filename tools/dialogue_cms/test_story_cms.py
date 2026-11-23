@@ -50,6 +50,7 @@ class StoryCmsTests(unittest.TestCase):
         original = self.loaded()
         shortened = copy.deepcopy(original)
         shortened["episodes"] = shortened["episodes"][:2]
+        shortened["chapters"] = shortened["chapters"][:1]
         story.save_story(shortened)
         self.assertEqual(len(self.loaded()["episodes"]), 2)
 
@@ -62,6 +63,14 @@ class StoryCmsTests(unittest.TestCase):
         changed["episodes"][1]["unlockAt"] = 100
         story.save_story(changed)
         self.assertEqual(self.loaded(), changed)
+
+    def test_chapter_titles_edit_without_rewriting_episodes(self):
+        original = self.loaded()
+        changed = copy.deepcopy(original)
+        changed["chapters"][1]["title"] = "モサエドの挑戦"
+        story.save_story(changed)
+        self.assertEqual(self.loaded()["chapters"][1]["title"], "モサエドの挑戦")
+        self.assertEqual(self.loaded()["episodes"], original["episodes"])
 
     def test_invalid_structure_fails_without_overwriting_previous_story(self):
         original = self.loaded()

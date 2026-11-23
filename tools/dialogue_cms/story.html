@@ -24,6 +24,9 @@ button.secondary{background:#fffbf3;border:1px solid #bc9b65;color:var(--ink);bo
 button.episode{display:block;text-align:left;border:1px solid var(--line);background:#fffcf4;width:100%;border-radius:12px;padding:11px 14px;margin:8px 0;color:var(--ink)}
 button.episode[aria-current=true]{border:2px solid var(--green);background:#edf8f4;padding:10px 13px}
 button.episode span{display:block}
+.chapter-header{background:#f3e6ce;border:1px solid #b99b6c;border-radius:12px;padding:6px 12px 10px;margin:16px 0 8px}
+.chapter-header label{margin:0;font-weight:900}
+.chapter-header input{margin-top:4px;font-weight:800}
 .episode-title{font-weight:800;font-size:16px}
 .small{font-size:12px;color:#745e4b}
 .note{font-size:13px;background:#f7f0e2;padding:10px 13px;border-radius:9px}
@@ -59,8 +62,8 @@ input[readonly]{background:#f2eadf}
 <main>
 <section aria-labelledby="listTitle">
   <h2 id="listTitle">お話一覧 <span id="count"></span></h2>
-  <p class="note">お話の数や数独も自由に変更できます。構成が変わるとアプリではストーリーだけ最初からになります（ことほぎ・住民などは保持）。</p>
-  <div id="list" role="group" aria-label="ストーリーの章一覧"></div>
+  <p class="note">3つの章に分けて表示します。章タイトルはこの一覧から編集でき、章の開始話はJSON編集から変更できます。話数や数独などの構成が変わるとストーリーだけ最初からになります。章名や章の区切りだけなら進行状況は変わりません。</p>
+  <div id="list" role="group" aria-label="ストーリーの章と話の一覧"></div>
   <div class="controls">
     <button id="addEpisode" class="secondary" type="button">＋ お話を追加</button>
     <button id="removeEpisode" class="secondary" type="button">最後のお話を削除</button>
@@ -85,7 +88,7 @@ input[readonly]{background:#f2eadf}
         <div id="outro"></div>
         <p class="note">セリフの追加・削除もできます。保存前にプレビューで確認してください。問題や答えは4×4または6×6の解が一意になる必要があります。</p>
         <details id="advancedEditor">
-          <summary>章の並び替え・エリア変更など（JSON編集）</summary>
+          <summary>章の開始話・話の並び替え・エリア変更など（JSON編集）</summary>
           <p class="note">全話のJSONを編集できます。「編集内容を一覧に反映」を押してから保存してください。不正な構成は保存時にエラーになります。</p>
           <textarea id="storyJsonEditor" rows="18" spellcheck="false" aria-label="ストーリー全体のJSON"></textarea>
           <div class="controls"><button id="applyStoryJson" type="button" class="secondary">編集内容を一覧に反映</button></div>

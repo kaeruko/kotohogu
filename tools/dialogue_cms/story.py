@@ -26,17 +26,17 @@ def load_story(resident_ids):
 
 def load_legacy_story(resident_ids):
     """Frozen 11-part story for already-installed app versions."""
-    return _load_document(LEGACY_DATA, resident_ids)
+    return _load_document(LEGACY_DATA, resident_ids, legacy=True)
 
 
-def _load_document(path, resident_ids):
+def _load_document(path, resident_ids, *, legacy=False):
     raw = path.read_bytes()
     if len(raw) > MAX_JSON_BYTES:
         raise ValueError(f"Sudoku story exceeds {MAX_JSON_BYTES} bytes")
     areas = {row["id"]: row["unlockAt"]
              for row in validate_areas(load_areas())["areas"]
              if row["id"] != "hospital"}
-    doc = validate_story(json.loads(raw), resident_ids, areas)
+    doc = validate_story(json.loads(raw), resident_ids, areas, legacy=legacy)
     if len(json.dumps(doc, ensure_ascii=False).encode("utf-8")) + 1 > MAX_JSON_BYTES:
         raise ValueError(f"Encoded Sudoku story exceeds {MAX_JSON_BYTES} bytes")
     for image in story_images(doc):
@@ -44,8 +44,11 @@ def _load_document(path, resident_ids):
     return doc
 
 
-def validate_story(doc, resident_ids, areas):
-    if (not isinstance(doc, dict) or set(doc) != {"version", "title", "coverImage", "episodes"}
+def validate_story(doc, resident_ids, areas, *, legacy=False):
+    required = {"version", "title", "coverImage", "episodes"}
+    if not legacy:
+        required.add("chapters")
+    if (not isinstance(doc, dict) or set(doc) != required
             or type(doc["version"]) is not int or doc["version"] != 1):
         raise ValueError("Invalid Sudoku story schema or version")
     _text(doc["title"], "story title")
@@ -89,6 +92,30 @@ def validate_story(doc, resident_ids, areas):
                     raise ValueError(f"Invalid Sudoku story speaker: {identifier}.{field}")
                 _text(turn["text"], f"{identifier}.{field}")
         _validate_puzzle(row["puzzle"], row["solution"], identifier)
+    if not legacy:
+        chapters = doc["chapters"]
+        if (not isinstance(chapters, list)
+                or not 1 <= len(chapters) <= len(episodes)):
+            raise ValueError("Invalid Sudoku story chapter count")
+        order = {row["id"]: index for index, row in enumerate(episodes)}
+        chapter_ids = set()
+        previous_start = -1
+        for number, chapter in enumerate(chapters):
+            if not isinstance(chapter, dict) or set(chapter) != {
+                    "id", "title", "startEpisodeId"}:
+                raise ValueError(f"Invalid Sudoku chapter fields: {number}")
+            identifier = chapter["id"]
+            first = chapter["startEpisodeId"]
+            if (not isinstance(identifier, str)
+                    or EPISODE_ID.fullmatch(identifier) is None
+                    or identifier in chapter_ids
+                    or not isinstance(first, str) or first not in order
+                    or order[first] <= previous_start
+                    or (number == 0 and order[first] != 0)):
+                raise ValueError(f"Invalid Sudoku chapter boundary: {number}")
+            _text(chapter["title"], f"chapter {identifier} title")
+            chapter_ids.add(identifier)
+            previous_start = order[first]
     return doc
 
 

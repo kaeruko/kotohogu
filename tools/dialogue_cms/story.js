@@ -74,18 +74,72 @@ function readOnly(parent, label, value) {
   parent.append(wrap);
 }
 
+function chapterStarts(data) {
+  if (!data || !Array.isArray(data.episodes) ||
+      !Array.isArray(data.chapters) || !data.chapters.length ||
+      data.chapters.length > data.episodes.length) {
+    throw new Error("ストーリーの章構成が不正です");
+  }
+  const indices = new Map(data.episodes.map((episode, index) => [episode.id, index]));
+  if (indices.size !== data.episodes.length) {
+    throw new Error("お話IDが重複しています");
+  }
+  const ids = new Set();
+  let previous = -1;
+  return data.chapters.map((chapter, number) => {
+    if (!chapter || Object.keys(chapter).sort().join(",") !==
+        "id,startEpisodeId,title" ||
+        typeof chapter.id !== "string" || !/^[a-z][a-z0-9_]{0,47}$/.test(chapter.id) ||
+        ids.has(chapter.id) ||
+        typeof chapter.title !== "string" || !chapter.title.trim() ||
+        typeof chapter.startEpisodeId !== "string") {
+      throw new Error("章データが不正です: " + (number + 1));
+    }
+    const at = indices.get(chapter.startEpisodeId);
+    if (at === undefined || at <= previous || (number === 0 && at !== 0)) {
+      throw new Error("章の開始話が不正です: " + chapter.title);
+    }
+    previous = at;
+    ids.add(chapter.id);
+    return at;
+  });
+}
+
 function renderList() {
   const box = $("list");
   box.replaceChildren();
-  $("count").textContent = "(" + documentData.episodes.length + "話)";
+  const starts = chapterStarts(documentData);
+  $("count").textContent = "(" + documentData.chapters.length + "章・" +
+    documentData.episodes.length + "話)";
+  let currentChapterStart = 0;
   for (const [index, episode] of documentData.episodes.entries()) {
+    const chapterIndex = starts.indexOf(index);
+    if (chapterIndex !== -1) {
+      currentChapterStart = index;
+      const chapter = documentData.chapters[chapterIndex];
+      const heading = el("div");
+      heading.className = "chapter-header";
+      const title = el("label", "第" + (chapterIndex + 1) + "章");
+      const input = el("input");
+      input.type = "text";
+      input.maxLength = 200;
+      input.value = chapter.title;
+      input.setAttribute("aria-label", "第" + (chapterIndex + 1) + "章のタイトル");
+      input.oninput = () => {
+        chapter.title = input.value;
+        changed();
+      };
+      title.append(input);
+      heading.append(title);
+      box.append(heading);
+    }
     const button = el("button");
     button.type = "button";
     button.className = "episode";
     button.dataset.episodeId = episode.id;
     button.setAttribute("aria-current", String(selectedId === episode.id));
     button.append(
-      el("span", "第" + (index + 1) + "話 / " + documentData.episodes.length),
+      el("span", "第" + (index - currentChapterStart + 1) + "話"),
       el("span", episode.title),
       el("span", episode.unlockAt + " ことほぎ ｜ " + episode.clue),
     );
@@ -278,6 +332,7 @@ async function load() {
     if (!Array.isArray(data.episodes) || !Array.isArray(people.characters)) {
       throw new Error("CMSから受け取ったデータ形式が不正です");
     }
+    chapterStarts(data);
     documentData = data;
     residents = people.characters.filter(row => !row.archived);
     selectedId = data.episodes.some(row => row.id === selectedId)
@@ -354,6 +409,10 @@ $("removeEpisode").onclick = () => {
     return;
   }
   const last = documentData.episodes.at(-1);
+  if (documentData.chapters.some(chapter => chapter.startEpisodeId === last.id)) {
+    setStatus("章の先頭の話は削除できません。先にJSON編集で章構成を変更してください", true);
+    return;
+  }
   if (!confirm("最後の「" + last.title + "」を削除しますか？")) return;
   documentData.episodes.pop();
   selectedId = documentData.episodes.at(-1).id;
@@ -381,6 +440,7 @@ $("applyStoryJson").onclick = () => {
           !Array.isArray(row.dialogue) || !Array.isArray(row.resultDialogue))) {
       throw new Error("ストーリーのJSON形式が不正です");
     }
+    chapterStarts(draft);
     documentData = draft;
     selectedId = draft.episodes[0].id;
     previewAt = 0;

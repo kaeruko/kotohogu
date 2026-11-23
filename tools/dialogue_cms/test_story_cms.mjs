@@ -27,4 +27,8 @@ test("story CMS lists episodes and exposes editing and a step-by-step preview", 
   assert.match(script, /method: "PUT"/);
   assert.match(script, /resultDialogue/);
   assert.match(script, /"episode"/);
+  assert.match(script, /chapterStarts/);
+  assert.match(script, /startEpisodeId/);
+  assert.match(script, /"chapter-header"/);
+  assert.match(page, /章タイトルはこの一覧から編集/);
 });
