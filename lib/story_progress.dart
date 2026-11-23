@@ -148,7 +148,9 @@ class StoryProgress {
     'completed': completed,
     'dialogueTurns': dialogueTurns,
     'unreadClue': unreadClue,
-    if (signature != null) 'signature': signature!,
+    ...((signature == null)
+        ? const <String, Object>{}
+        : <String, Object>{'signature': signature!}),
     if (resultDialogueTurns != 0) 'resultDialogueTurns': resultDialogueTurns,
     if (board != null) 'board': board!.join(),
   };
@@ -182,7 +184,8 @@ class StoryProgress {
         resultDialogueTurns is! int ||
         resultDialogueTurns < 0 ||
         (signature != null && (signature is! String ||
-            !RegExp(r'^[0-9a-f]{16} && !unreadClue) ||
+            !RegExp(r'^[0-9a-f]{16}$').hasMatch(signature))) ||
+        (resultDialogueTurns > 0 && !unreadClue) ||
         (unreadClue && (completed == 0 || dialogueTurns != 0))) {
       throw const FormatException('Invalid story progress');
     }
