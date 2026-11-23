@@ -428,7 +428,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(Progress.decode(store.raw!).points, startingPoints + 10);
         expect(find.text(storyTitle), findsOneWidget);
-        expect(find.text('木の下になにがある？'), findsOneWidget);
+        expect(find.text('木の下になにがある？'), findsWidgets);
         expect(find.byKey(const ValueKey('story-open-episode')), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
@@ -485,7 +485,7 @@ void main() {
     expect(bakeryEpisodes.last.resultDialogue.last.$2, 'ふふ。明日も一緒に遊びましょう');
   });
 
-  testWidgets('the third chapter reveals Gonsuke before the next arc', (
+  testWidgets('the third episode reveals Gonsuke before the next chapter', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -545,8 +545,16 @@ void main() {
     }
     expect(find.text('さくらのはんこ 🌸'), findsOneWidget);
     await tap('story-finish-clue');
+    // The grouped episode list may retain its prior scroll position.
+    // Scroll back to the progress meter before checking its visible text.
+    for (var attempt = 0;
+        attempt < 5 && find.text('暗号 3 / 8').evaluate().isEmpty;
+        attempt++) {
+      await tester.drag(find.byType(ListView).last, const Offset(0, 600));
+      await tester.pumpAndSettle();
+    }
     expect(find.text('暗号 3 / 8'), findsOneWidget);
-    expect(find.text('数独道場破りでござる！'), findsOneWidget);
+    expect(find.text('数独道場破りでござる！'), findsWidgets);
     expect(Progress.decode(store.raw!).story.completed, 3);
     expect(Progress.decode(store.raw!).story.unreadClue, isFalse);
     expect(tester.takeException(), isNull);
