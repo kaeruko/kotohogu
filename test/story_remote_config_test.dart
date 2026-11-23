@@ -57,6 +57,19 @@ void main() {
     },
   );
 
+  test('the opening clue conversation matches the bundled story', () {
+    final hosted = parse(storyDocument()).episodes.first.resultDialogue;
+    final bundled = storyEpisodes.first.resultDialogue;
+    const expected = [
+      'これはなにぽむ！？ 広場のすみに、ふしぎな紙が落ちてるぽむ！',
+      'ほんとだ。数字が書いてあるね。',
+      'だれが書いたぽむ？',
+      'なんだろうね。ちょっと調べてみようか。',
+    ];
+    expect(hosted.map((turn) => turn.$2), expected);
+    expect(bundled.map((turn) => turn.$2), expected);
+  });
+
   test(
     'published dialogue can change, but a legacy stage cannot be reordered',
     () {
