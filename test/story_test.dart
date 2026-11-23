@@ -267,7 +267,7 @@ void main() {
       );
       expect(find.byKey(const ValueKey('story-view-list')), findsOneWidget);
       expect(find.textContaining('とけたぽむ！'), findsOneWidget);
-      expect(find.textContaining('数字がぜんぶうまったぽむ〜！'), findsOneWidget);
+      expect(find.textContaining('「おおきな きのした」'), findsOneWidget);
       expect(find.textContaining('すごいわん！'), findsNothing);
       expect(find.text('おおきな きのした'), findsNothing);
       expect(find.byKey(const ValueKey('story-finish-clue')), findsNothing);
@@ -276,7 +276,7 @@ void main() {
       await launch();
       await open();
       expect(find.textContaining('すごいわん！'), findsOneWidget);
-      expect(find.textContaining('数字がぜんぶうまったぽむ〜！'), findsNothing);
+      expect(find.textContaining('「おおきな きのした」'), findsNothing);
       for (var i = 1; i < storyEpisodes.first.resultDialogue.length; i++) {
         await tap('story-advance-result-dialogue');
       }
@@ -352,7 +352,7 @@ void main() {
 
   for (final startingPoints in [20, 80]) {
     testWidgets(
-      'mission after $startingPoints points offers a route to the story',
+      'mission after $startingPoints points follows story unlock rules',
       (tester) async {
         tester.view.physicalSize = const Size(390, 844);
         tester.view.devicePixelRatio = 1;
@@ -397,10 +397,15 @@ void main() {
         await tester.pump(const Duration(milliseconds: 1400));
         expect(find.text(storyTitle), findsNothing);
         final open = find.byKey(const ValueKey('celebration-open-story'));
-        expect(open, findsOneWidget);
-        if (startingPoints == 80) {
-          expect(find.text('ふれあい公園が開放されました！'), findsOneWidget);
+        if (startingPoints == 20) {
+          expect(open, findsNothing);
+          expect(Progress.decode(store.raw!).points, 30);
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox());
+          return;
         }
+        expect(open, findsOneWidget);
+        expect(find.text('ふれあい公園が開放されました！'), findsOneWidget);
         await tester.ensureVisible(open);
         await tester.pump(const Duration(milliseconds: 100));
         await tester.tap(open);
@@ -408,12 +413,7 @@ void main() {
         expect(Progress.decode(store.raw!).points, startingPoints + 10);
         expect(find.text(storyTitle), findsOneWidget);
         expect(find.text('木の下になにがある？'), findsOneWidget);
-        if (startingPoints == 80) {
-          expect(find.byKey(const ValueKey('story-open-episode')), findsOneWidget);
-        } else {
-          expect(find.byKey(const ValueKey('story-open-episode')), findsNothing);
-          expect(find.text('あと6回、セルフケアを記録すると開きます。'), findsOneWidget);
-        }
+        expect(find.byKey(const ValueKey('story-open-episode')), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
       },
