@@ -113,7 +113,7 @@ void main() {
       '数独道場破りでござる！',
       'おししょうの一局',
       '帳簿と数独',
-      '売れているのに？',
+      'ケーキ無料！？',
       'ふたりの休憩時間',
     ]);
     expect(catalog.episodes.first.clue, 'おおきな きのした');
@@ -140,6 +140,9 @@ void main() {
     expect(bakery.length, 3);
     expect(bakery.map((e) => e.area.id), ['shopping', 'shopping', 'shopping']);
     expect(bakery[1].dialogue.any((turn) => turn.$1.label == 'しんだんし'), isTrue);
+    expect(bakery[1].dialogue.any((turn) => turn.$2.contains('ケーキ 無料')), isTrue);
+    expect(bakery[1].resultDialogue.any((turn) => turn.$2.contains('無料なのは試食だけ')), isTrue);
+    expect(bakery[2].resultDialogue.last.$2, 'あら、よかった！ また一緒に遊びましょう');
     for (final episode in bakery) {
       final allText = [
         episode.clue,

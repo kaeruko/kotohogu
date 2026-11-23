@@ -464,7 +464,7 @@ void main() {
     final bakeryEpisodes = storyEpisodes.skip(5).toList();
     expect(bakeryEpisodes.map((e) => e.title), [
       '帳簿と数独',
-      '売れているのに？',
+      'ケーキ無料！？',
       'ふたりの休憩時間',
     ]);
     expect(bakeryEpisodes.map((e) => e.area), everyElement(TownArea.shopping));
@@ -482,7 +482,12 @@ void main() {
       expect(text, isNot(contains('コトホグマ')));
       expect(episode.size, 4);
     }
-    expect(bakeryEpisodes.last.resultDialogue.last.$2, 'ふふ。明日も一緒に遊びましょう');
+    expect(bakeryEpisodes[0].resultDialogue.last.$2, contains('試食'));
+    expect(bakeryEpisodes[1].dialogue.any((turn) => turn.$2.contains('ケーキ 無料')), isTrue);
+    expect(bakeryEpisodes[1].dialogue.any((turn) => turn.$2.contains('風で飛んじゃった')), isTrue);
+    expect(bakeryEpisodes[1].resultDialogue.any((turn) => turn.$2.contains('無料なのは試食だけ')), isTrue);
+    expect(bakeryEpisodes[2].resultDialogue.any((turn) => turn.$2.contains('数独はわたしの勝ち')), isTrue);
+    expect(bakeryEpisodes.last.resultDialogue.last.$2, 'あら、よかった！ また一緒に遊びましょう');
   });
 
   testWidgets('the third episode reveals Gonsuke before the next chapter', (
