@@ -57,6 +57,32 @@ void main() {
     },
   );
 
+  test('the opening clue conversation matches the bundled story', () {
+    final hosted = parse(storyDocument()).episodes.first.resultDialogue;
+    final bundled = storyEpisodes.first.resultDialogue;
+    const expected = [
+      'とけたぽむ！\nこれはなにぽむ！？ 広場のすみに、ふしぎな紙が落ちてるぽむ！',
+      'すごいわん！\nほんとだ。数字が書いてあるね。',
+      'だれが書いたぽむ？',
+      'なんだろうね。ちょっと調べてみようか。',
+    ];
+    expect(hosted.map((turn) => turn.$2), expected);
+    expect(bundled.map((turn) => turn.$2), expected);
+  });
+
+  test('each solved Sudoku opens with two cheers without adding dialogue turns', () {
+    final hostedEpisodes = parse(storyDocument()).episodes;
+    expect(hostedEpisodes.length, storyEpisodes.length);
+    for (var index = 0; index < storyEpisodes.length; index++) {
+      final hosted = hostedEpisodes[index].resultDialogue;
+      final bundled = storyEpisodes[index].resultDialogue;
+      expect(hosted.length, bundled.length, reason: 'episode $index');
+      expect(hosted.first.$2, startsWith('とけたぽむ！\n'), reason: 'episode $index');
+      expect(hosted[1].$2, startsWith('すごいわん！\n'), reason: 'episode $index');
+      expect(hosted.map((turn) => turn.$2), bundled.map((turn) => turn.$2));
+    }
+  });
+
   test(
     'published dialogue can change, but a legacy stage cannot be reordered',
     () {
