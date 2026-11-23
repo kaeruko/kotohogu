@@ -156,6 +156,8 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
         return _StoryPage(
           contentKey: const ValueKey('story-clue'),
           title: index == 0 ? 'れんしゅう' : '見つけた手がかり',
+          showStoryListButton: hasMoreDialogue,
+          navigationBusy: busy,
           children: [
             _SceneArt(episode.resultArt, _imageUri(catalog, episode.clueImage)),
             if (hasMoreDialogue) ...[
@@ -250,6 +252,8 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
         return _StoryPage(
           contentKey: const ValueKey('story-dialogue'),
           title: episode.title,
+          showStoryListButton: true,
+          navigationBusy: busy,
           children: [
             _SceneArt(episode.art, _imageUri(catalog, episode.image)),
             _StoryDialogueCard(speaker: speaker, line: line),
@@ -293,6 +297,8 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
       return _StoryPage(
         contentKey: const ValueKey('story-puzzle'),
         title: episode.title,
+        showStoryListButton: true,
+        navigationBusy: busy,
         children: [
           Text(
             '${episode.size}×${episode.size} 数独',
@@ -852,11 +858,17 @@ class _SceneArt extends StatelessWidget {
 
 class _StoryPage extends StatelessWidget {
   const _StoryPage({
-    required this.title, required this.children, this.contentKey,
+    required this.title,
+    required this.children,
+    this.contentKey,
+    this.showStoryListButton = false,
+    this.navigationBusy = false,
   });
   final String title;
   final List<Widget> children;
   final Key? contentKey;
+  final bool showStoryListButton;
+  final bool navigationBusy;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -913,6 +925,29 @@ class _StoryPage extends StatelessWidget {
                 for (final (index, child) in children.indexed) ...[
                   if (index != 0) const SizedBox(height: 12),
                   child,
+                ],
+                if (showStoryListButton) ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    key: const ValueKey('story-view-list'),
+                    onPressed: navigationBusy
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.menu_book_outlined),
+                    label: const Text('お話一覧へ'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF006C61),
+                      backgroundColor: _paper,
+                      side: const BorderSide(
+                        color: Color(0xFF006C61),
+                        width: 1.5,
+                      ),
+                      minimumSize: const Size.fromHeight(48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
                 ],
               ],
             ),

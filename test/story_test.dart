@@ -217,12 +217,14 @@ void main() {
       await launch();
       await open();
       expect(find.text('ぽむぽむ'), findsOneWidget);
+      expect(find.byKey(const ValueKey('story-view-list')), findsOneWidget);
       await tap('story-advance-dialogue');
       await launch();
       await open();
       expect(find.text('しばいぬ'), findsOneWidget);
       await tap('story-advance-dialogue');
       await tap('story-advance-dialogue');
+      expect(find.byKey(const ValueKey('story-view-list')), findsOneWidget);
       await tap('story-cell-2');
       await tap('story-number-2');
       expect(find.text('同じ数字が重なっているマスがあります。'), findsOneWidget);
@@ -238,6 +240,7 @@ void main() {
         find.byKey(const ValueKey('story-result-dialogue')),
         findsOneWidget,
       );
+      expect(find.byKey(const ValueKey('story-view-list')), findsOneWidget);
       expect(find.textContaining('とけたぽむ！'), findsOneWidget);
       expect(find.textContaining('これはなにぽむ！？'), findsOneWidget);
       expect(find.textContaining('すごいわん！'), findsNothing);
@@ -271,6 +274,54 @@ void main() {
       expect(find.byKey(const ValueKey('story-open-episode')), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets(
+    'episode list button returns to the story index and resumes the same line',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final store = MemoryStore();
+      final controller = ProgressController(store, clock: () => today);
+      final catalog = (await tester.runAsync(DialogueCatalog.load))!;
+      await tester.pumpWidget(
+        FutureLiftApp(
+          controller: controller,
+          dialogueCatalog: catalog,
+          enableTutorial: false,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('open-story')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('story-open-episode')));
+      await tester.pumpAndSettle();
+
+      final listButton = find.byKey(const ValueKey('story-view-list'));
+      expect(listButton, findsOneWidget);
+      expect(find.text('お話一覧へ'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('story-advance-dialogue')));
+      await tester.pumpAndSettle();
+      expect(find.text('しばいぬ'), findsOneWidget);
+
+      await tester.tap(listButton);
+      await tester.pumpAndSettle();
+      expect(find.text('ストーリー'), findsOneWidget);
+      expect(find.byKey(const ValueKey('story-open-episode')), findsOneWidget);
+      expect(find.byKey(const ValueKey('story-view-list')), findsNothing);
+      expect(controller.progress!.story.dialogueTurns, 1);
+
+      await tester.tap(find.byKey(const ValueKey('story-open-episode')));
+      await tester.pumpAndSettle();
+      expect(find.text('しばいぬ'), findsOneWidget);
+      expect(find.byKey(const ValueKey('story-view-list')), findsOneWidget);
+      expect(Progress.decode(store.raw!).story.dialogueTurns, 1);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
     },
   );
 
