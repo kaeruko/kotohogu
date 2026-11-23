@@ -87,9 +87,11 @@ class PublishContentTests(unittest.TestCase):
     def test_published_story_allows_text_changes_and_appends_but_not_save_changes(self):
         args = SimpleNamespace(region="ap-northeast-1", profile=None)
         path = self.base / "new-story.json"
-        previous = {"episodes": [{"id": "first", "puzzle": "before", "dialogue": ["old"]}]}
+        previous = {"episodes": [{"id": "first", "puzzle": "before",
+                                  "dialogue": ["old"], "resultDialogue": ["old clue"]}]}
         current = copy.deepcopy(previous)
         current["episodes"][0]["dialogue"] = ["reworded"]
+        current["episodes"][0]["resultDialogue"] = ["reworded clue"]
         current["episodes"].append({"id": "next"})
         path.write_bytes(publisher.encode_json(current))
         release = "a" * 64
@@ -110,6 +112,11 @@ class PublishContentTests(unittest.TestCase):
         with patch.object(publisher, "aws", side_effect=download):
             publisher.verify_story_continuity(args, "bucket", self.base, path)
             current["episodes"][0]["puzzle"] = "changed"
+            path.write_bytes(publisher.encode_json(current))
+            with self.assertRaisesRegex(ValueError, "episode is incompatible"):
+                publisher.verify_story_continuity(args, "bucket", self.base, path)
+            current["episodes"][0]["puzzle"] = "before"
+            current["episodes"][0]["resultDialogue"].append("extra line")
             path.write_bytes(publisher.encode_json(current))
             with self.assertRaisesRegex(ValueError, "episode is incompatible"):
                 publisher.verify_story_continuity(args, "bucket", self.base, path)
