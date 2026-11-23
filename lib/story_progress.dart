@@ -10,12 +10,15 @@ class StoryProgress {
     this.dialogueTurns = 0,
     this.board,
     this.unreadClue = false,
+    this.resultDialogueTurns = 0,
   });
 
   final int completed;
   final int dialogueTurns;
   final List<int>? board;
   final bool unreadClue;
+  /// Read position in the post-sudoku scene, saved for resume.
+  final int resultDialogueTurns;
 
   int get resumeIndex => unreadClue ? completed - 1 : completed;
   bool get hasStarted => completed != 0 || dialogueTurns != 0;
@@ -98,7 +101,33 @@ class StoryProgress {
     );
   }
 
-  StoryProgress readClue(int index) => unreadClue && index == completed - 1
+  StoryProgress advanceResultDialogue(
+    int index, {
+    List<StoryEpisode> episodes = storyEpisodes,
+  }) {
+    if (!unreadClue ||
+        index != completed - 1 ||
+        index < 0 ||
+        index >= episodes.length ||
+        resultDialogueTurns >= episodes[index].resultDialogue.length) {
+      return this;
+    }
+    return StoryProgress._(
+      completed: completed,
+      unreadClue: true,
+      resultDialogueTurns: resultDialogueTurns + 1,
+    );
+  }
+
+  /// Do not mark the clue read before the final story line is shown.
+  StoryProgress readClue(
+    int index, {
+    List<StoryEpisode> episodes = storyEpisodes,
+  }) => unreadClue &&
+          index == completed - 1 &&
+          index >= 0 &&
+          index < episodes.length &&
+          resultDialogueTurns == episodes[index].resultDialogue.length
       ? StoryProgress._(completed: completed)
       : this;
 
@@ -106,6 +135,7 @@ class StoryProgress {
     'completed': completed,
     'dialogueTurns': dialogueTurns,
     'unreadClue': unreadClue,
+    if (resultDialogueTurns != 0) 'resultDialogueTurns': resultDialogueTurns,
     if (board != null) 'board': board!.join(),
   };
 
@@ -116,6 +146,7 @@ class StoryProgress {
             'completed',
             'dialogueTurns',
             'unreadClue',
+            'resultDialogueTurns',
             'board',
           }.contains(key),
         )) {
@@ -124,11 +155,17 @@ class StoryProgress {
     final completed = raw['completed'];
     final dialogueTurns = raw['dialogueTurns'];
     final unreadClue = raw['unreadClue'];
+    final resultDialogueTurns = raw.containsKey('resultDialogueTurns')
+        ? raw['resultDialogueTurns']
+        : 0;
     if (completed is! int ||
         completed < 0 ||
         dialogueTurns is! int ||
         dialogueTurns < 0 ||
         unreadClue is! bool ||
+        resultDialogueTurns is! int ||
+        resultDialogueTurns < 0 ||
+        (resultDialogueTurns > 0 && !unreadClue) ||
         (unreadClue && (completed == 0 || dialogueTurns != 0))) {
       throw const FormatException('Invalid story progress');
     }
@@ -146,6 +183,7 @@ class StoryProgress {
       completed: completed,
       dialogueTurns: dialogueTurns,
       unreadClue: unreadClue,
+      resultDialogueTurns: resultDialogueTurns,
       board: board == null ? null : List.unmodifiable(board),
     );
   }
@@ -159,6 +197,14 @@ class StoryProgress {
       throw const FormatException(
         'Story progress is outside the loaded catalog',
       );
+    }
+    if (resultDialogueTurns > 0 &&
+        (!unreadClue ||
+            completed == 0 ||
+            completed > episodes.length ||
+            resultDialogueTurns >
+                episodes[completed - 1].resultDialogue.length)) {
+      throw const FormatException('Invalid story result dialogue position');
     }
     if (dialogueTurns == 0) return;
     final episode = completed == episodes.length ? null : episodes[completed];

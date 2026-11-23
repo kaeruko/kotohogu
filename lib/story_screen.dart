@@ -164,6 +164,7 @@ class _EpisodeScreen extends StatefulWidget {
 
 class _EpisodeScreenState extends State<_EpisodeScreen> {
   int? _selected;
+  int _replayResultTurn = 0;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -180,56 +181,102 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
 
       if (index < story.completed) {
         final reveal = story.unreadClue && index == story.completed - 1;
+        // Unread scenes resume from saved progress; older chapters can be
+        // replayed from the beginning without mutating the save.
+        final turnIndex = reveal
+            ? story.resultDialogueTurns
+            : _replayResultTurn;
+        final resultTurns = episode.resultDialogue;
+        final hasMoreDialogue = turnIndex < resultTurns.length;
         final reduceMotion = MediaQuery.disableAnimationsOf(context);
         return _StoryPage(
           contentKey: const ValueKey('story-clue'),
           title: index == 0 ? 'れんしゅう' : '見つけた手がかり',
           children: [
             _SceneArt(episode.resultArt, _imageUri(catalog, episode.clueImage)),
-            Semantics(
-              liveRegion: reveal,
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: reveal && !reduceMotion ? 0 : 1, end: 1),
-                duration: const Duration(milliseconds: 450),
-                builder: (context, opacity, child) =>
-                    Opacity(opacity: opacity, child: child),
-                child: Card(
-                  margin: EdgeInsets.zero,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          episode.clue,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(episode.result, textAlign: TextAlign.center),
-                      ],
+            if (hasMoreDialogue) ...[
+              _StoryDialogueCard(
+                key: const ValueKey('story-result-dialogue'),
+                speaker: resultTurns[turnIndex].$1,
+                line: resultTurns[turnIndex].$2,
+              ),
+              Text(
+                '${turnIndex + 1} / ${resultTurns.length}',
+                textAlign: TextAlign.end,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              FilledButton(
+                key: const ValueKey('story-advance-result-dialogue'),
+                onPressed: busy
+                    ? null
+                    : () {
+                        if (reveal) {
+                          controller.updateStory(
+                            (story, _) => story.advanceResultDialogue(
+                              index,
+                              episodes: episodes,
+                            ),
+                          );
+                        } else {
+                          setState(() => _replayResultTurn++);
+                        }
+                      },
+                child: Text(
+                  turnIndex == resultTurns.length - 1
+                      ? '手がかりを見る'
+                      : 'つぎへ',
+                ),
+              ),
+            ] else ...[
+              Semantics(
+                liveRegion: reveal,
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(
+                    begin: reveal && !reduceMotion ? 0 : 1,
+                    end: 1,
+                  ),
+                  duration: const Duration(milliseconds: 450),
+                  builder: (context, opacity, child) =>
+                      Opacity(opacity: opacity, child: child),
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            episode.clue,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(episode.result, textAlign: TextAlign.center),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            if (episode.resultDialogue.isNotEmpty)
-              _StoryResultDialogue(turns: episode.resultDialogue),
-            FilledButton(
-              key: const ValueKey('story-finish-clue'),
-              onPressed: busy
-                  ? null
-                  : () async {
-                      if (reveal &&
-                          !await controller.updateStory(
-                            (story, _) => story.readClue(index),
-                          )) {
-                        return;
-                      }
-                      if (context.mounted) Navigator.of(context).pop();
-                    },
-              child: const Text('お話の一覧へ'),
-            ),
+              FilledButton(
+                key: const ValueKey('story-finish-clue'),
+                onPressed: busy
+                    ? null
+                    : () async {
+                        if (reveal &&
+                            !await controller.updateStory(
+                              (story, _) => story.readClue(
+                                index,
+                                episodes: episodes,
+                              ),
+                            )) {
+                          return;
+                        }
+                        if (context.mounted) Navigator.of(context).pop();
+                      },
+                child: const Text('お話の一覧へ'),
+              ),
+            ],
           ],
         );
       }
@@ -241,37 +288,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
           title: episode.title,
           children: [
             _SceneArt(episode.art, _imageUri(catalog, episode.image)),
-            Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        _StoryPortrait(speaker),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            speaker.label,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        line,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _StoryDialogueCard(speaker: speaker, line: line),
             FilledButton(
               key: const ValueKey('story-advance-dialogue'),
               onPressed: busy
@@ -386,44 +403,47 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
   );
 }
 
-/// A short, static conversation after the answer is revealed. It is
-/// derived from the completed episode, so replay and save migrations are safe.
-class _StoryResultDialogue extends StatelessWidget {
-  const _StoryResultDialogue({required this.turns});
+/// The same single-turn picture-book dialogue card is used before and
+/// after a puzzle. It never appends previous lines to the screen.
+class _StoryDialogueCard extends StatelessWidget {
+  const _StoryDialogueCard({
+    super.key,
+    required this.speaker,
+    required this.line,
+  });
 
-  final List<(StorySpeaker, String)> turns;
+  final StorySpeaker speaker;
+  final String line;
 
   @override
   Widget build(BuildContext context) => Card(
-    key: const ValueKey('story-result-dialogue'),
     margin: EdgeInsets.zero,
     child: Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
+      padding: const EdgeInsets.all(16),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final (speaker, line) in turns) ...[
-            Row(
+          _StoryPortrait(speaker),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _StoryPortrait(speaker),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        speaker.label,
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      Text(line),
-                    ],
+                Text(
+                  speaker.label,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    line,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-          ],
+          ),
         ],
       ),
     ),

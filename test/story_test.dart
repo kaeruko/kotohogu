@@ -83,7 +83,13 @@ void main() {
         final loaded = StoryProgress.fromJson(story.toJson());
         loaded.validateFor(bundledStory, points);
         expect(loaded.unreadClue, isTrue);
-        story = loaded.readClue(index);
+        expect(loaded.readClue(index), same(loaded));
+        var reading = loaded;
+        for (final _ in episode.resultDialogue) {
+          reading = reading.advanceResultDialogue(index);
+        }
+        expect(reading.resultDialogueTurns, episode.resultDialogue.length);
+        story = reading.readClue(index);
         expect(story.resumeIndex, index + 1);
       }
       expect(destinations, [
@@ -103,6 +109,39 @@ void main() {
       );
     }
     expect(storyEpisodes.first.resultDialogue.first.$2, contains('これはなにぽむ！？'));
+  });
+
+  test('post-sudoku dialogue position survives save/load and fails fast on invalid data', () {
+    var story = const StoryProgress.empty();
+    final episode = storyEpisodes.first;
+    for (final _ in episode.dialogue) {
+      story = story.advanceDialogue(0, 0);
+    }
+    for (var cell = 0; cell < episode.puzzle.length; cell++) {
+      if (episode.givenAt(cell) == 0) {
+        story = story.useHint(0, 0, cell);
+      }
+    }
+    expect(story.unreadClue, isTrue);
+    expect(story.readClue(0), same(story));
+    story = story.advanceResultDialogue(0);
+    expect(story.resultDialogueTurns, 1);
+    final saved = StoryProgress.fromJson(story.toJson());
+    saved.validateFor(bundledStory, 0);
+    expect(saved.resultDialogueTurns, 1);
+    expect(saved.readClue(0), same(saved));
+    final invalid = {...saved.toJson(), 'resultDialogueTurns': 999};
+    expect(
+      () => StoryProgress.fromJson(invalid).validateFor(bundledStory, 0),
+      throwsFormatException,
+    );
+    expect(
+      () => StoryProgress.fromJson({
+        ...saved.toJson(),
+        'resultDialogueTurns': '1',
+      }),
+      throwsFormatException,
+    );
   });
 
   test('story saves coexist with old saves, gacha and date changes', () {
@@ -200,11 +239,24 @@ void main() {
         findsOneWidget,
       );
       expect(find.textContaining('これはなにぽむ！？'), findsOneWidget);
-      expect(find.text('れんしゅうクリア！'), findsOneWidget);
+      expect(find.textContaining('さっき練習した数独とそっくり'), findsNothing);
+      expect(find.text('れんしゅうクリア！'), findsNothing);
+      expect(find.byKey(const ValueKey('story-finish-clue')), findsNothing);
+      await tap('story-advance-result-dialogue');
+      expect(Progress.decode(store.raw!).story.resultDialogueTurns, 1);
       await launch();
       await open();
-      expect(find.textContaining('これはなにぽむ！？'), findsOneWidget);
+      expect(find.textContaining('さっき練習した数独とそっくり'), findsOneWidget);
+      expect(find.textContaining('これはなにぽむ！？'), findsNothing);
+      for (var i = 1; i < storyEpisodes.first.resultDialogue.length; i++) {
+        await tap('story-advance-result-dialogue');
+      }
+      expect(find.byKey(const ValueKey('story-result-dialogue')), findsNothing);
       expect(find.text('れんしゅうクリア！'), findsOneWidget);
+      expect(
+        Progress.decode(store.raw!).story.resultDialogueTurns,
+        storyEpisodes.first.resultDialogue.length,
+      );
       await tester.scrollUntilVisible(
         find.byKey(const ValueKey('story-finish-clue')),
         160,
@@ -244,6 +296,9 @@ void main() {
           if (storyEpisodes.first.givenAt(cell) == 0) {
             story = story.useHint(0, progress.points, cell);
           }
+        }
+        for (final _ in storyEpisodes.first.resultDialogue) {
+          story = story.advanceResultDialogue(0);
         }
         progress = progress.withStory(story.readClue(0));
         await store.save(progress);
@@ -307,7 +362,12 @@ void main() {
           story = story.useHint(index, progress.points, cell);
         }
       }
-      if (index < 3) story = story.readClue(index);
+      if (index < 3) {
+        for (final _ in episode.resultDialogue) {
+          story = story.advanceResultDialogue(index);
+        }
+        story = story.readClue(index);
+      }
     }
     await store.save(progress.withStory(story));
     final catalog = (await tester.runAsync(DialogueCatalog.load))!;
@@ -330,6 +390,10 @@ void main() {
     await tap(find.byKey(const ValueKey('open-story')));
     expect(find.text('ふれあい公園へ行く'), findsNothing);
     await tap(find.byKey(const ValueKey('story-open-episode')));
+    expect(find.text('こうえん'), findsNothing);
+    for (final _ in storyEpisodes[3].resultDialogue) {
+      await tap(find.byKey(const ValueKey('story-advance-result-dialogue')));
+    }
     expect(find.text('こうえん'), findsOneWidget);
     await tap(find.byKey(const ValueKey('story-finish-clue')));
     await tap(find.text('ふれあい公園へ行く'));
