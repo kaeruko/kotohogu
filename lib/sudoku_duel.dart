@@ -1,0 +1,197 @@
+import 'dart:math';
+
+enum DuelSize {
+  mini(2, '1034301001434000', '1234341221434321'),
+  classic(
+    3,
+    '000670012'
+        '672095308'
+        '108002007'
+        '050061020'
+        '420053790'
+        '710004850'
+        '960007204'
+        '200019630'
+        '045280100',
+    '534678912'
+        '672195348'
+        '198342567'
+        '859761423'
+        '426853791'
+        '713924856'
+        '961537284'
+        '287419635'
+        '345286179',
+  );
+
+  const DuelSize(this.boxSide, this._givens, this._answer);
+  final int boxSide;
+  final String _givens;
+  final String _answer;
+  int get side => boxSide * boxSide;
+
+  // Rooms are numbered from 1, exactly like the digits that send a player.
+  int roomOf(int cell) =>
+      (cell ~/ side ~/ boxSide) * boxSide + (cell % side ~/ boxSide) + 1;
+}
+
+enum DuelPlayer {
+  first,
+  second;
+
+  DuelPlayer get other => this == first ? second : first;
+}
+
+enum DuelRival { mosaedo, oshisho }
+
+class SudokuDuel {
+  SudokuDuel._(
+    this.size,
+    this._givens,
+    this._answer,
+    this._board,
+    this._blanks,
+    this._flags,
+    this.turn,
+    this.targetRoom,
+    this.lastCell,
+  );
+
+  /// Without a shuffle the mini game opens on the introductory position.
+  /// Swapping digits, bands and rows within bands preserves a unique solution.
+  factory SudokuDuel.start(DuelSize size, {Random? shuffle}) {
+    List<int> axisOrder() {
+      final bands = List.generate(size.boxSide, (band) {
+        final rows = List.generate(
+          size.boxSide,
+          (i) => band * size.boxSide + i,
+        );
+        if (shuffle != null) rows.shuffle(shuffle);
+        return rows;
+      });
+      if (shuffle != null) bands.shuffle(shuffle);
+      return bands.expand((band) => band).toList();
+    }
+
+    final rows = axisOrder();
+    final columns = axisOrder();
+    final digits = List.generate(size.side, (i) => i + 1);
+    if (shuffle != null) digits.shuffle(shuffle);
+    final symbols = [0, ...digits];
+    List<int> read(String pattern) => [
+      for (final row in rows)
+        for (final column in columns)
+          symbols[pattern.codeUnitAt(row * size.side + column) - 48],
+    ];
+    final givens = read(size._givens);
+    final blanks = List.filled(size.side, 0);
+    for (var cell = 0; cell < givens.length; cell++) {
+      if (givens[cell] == 0) blanks[size.roomOf(cell) - 1]++;
+    }
+    return SudokuDuel._(
+      size,
+      givens,
+      read(size._answer),
+      givens,
+      blanks,
+      List.filled(size.side, null),
+      DuelPlayer.first,
+      1,
+      null,
+    );
+  }
+
+  final DuelSize size;
+  final List<int> _givens;
+  final List<int> _answer;
+  final List<int> _board;
+  final List<int> _blanks;
+  final List<DuelPlayer?> _flags;
+  final DuelPlayer turn;
+  final int? targetRoom;
+  final int? lastCell;
+
+  int valueAt(int cell) => _board[cell];
+  bool isGiven(int cell) => _givens[cell] != 0;
+  DuelPlayer? flagAt(int room) => _flags[room - 1];
+  int score(DuelPlayer player) =>
+      _flags.where((owner) => owner == player).length;
+  bool get isOver => size == DuelSize.mini
+      ? !_flags.contains(null)
+      : score(DuelPlayer.first) >= 5 || score(DuelPlayer.second) >= 5;
+
+  bool _available(int cell) =>
+      valueAt(cell) == 0 &&
+      (targetRoom == null || size.roomOf(cell) == targetRoom);
+
+  bool canPlay(int cell) => !isOver && _available(cell);
+
+  Iterable<int> get legalCells sync* {
+    if (isOver) return;
+    for (var cell = 0; cell < _board.length; cell++) {
+      if (_available(cell)) yield cell;
+    }
+  }
+
+  /// An incorrect guess keeps the current position and turn intact.
+  SudokuDuel? play(int cell, int digit) {
+    RangeError.checkValueInInterval(digit, 1, size.side, 'digit');
+    if (!canPlay(cell)) {
+      throw StateError('Cannot play cell $cell in room $targetRoom');
+    }
+    return digit == _answer[cell] ? _place(cell) : null;
+  }
+
+  SudokuDuel _place(int cell) {
+    final digit = _answer[cell];
+    final room = size.roomOf(cell) - 1;
+    final board = List.of(_board)..[cell] = digit;
+    final blanks = List.of(_blanks);
+    blanks[room]--;
+    final flags = blanks[room] == 0 ? (List.of(_flags)..[room] = turn) : _flags;
+    return SudokuDuel._(
+      size,
+      _givens,
+      _answer,
+      board,
+      blanks,
+      flags,
+      turn.other,
+      blanks[digit - 1] == 0 ? null : digit,
+      cell,
+    );
+  }
+
+  SudokuDuel computerMove(DuelRival rival, Random random) {
+    if (isOver) throw StateError('The duel has already ended');
+    final depth = switch (rival) {
+      DuelRival.mosaedo => 2,
+      DuelRival.oshisho => size == DuelSize.mini ? _board.length : 3,
+    };
+    // Shuffle equally good moves so rematches do not always play out alike.
+    final choices = legalCells.toList()..shuffle(random);
+    late SudokuDuel best;
+    var bestScore = -1000;
+    for (final cell in choices) {
+      final next = _place(cell);
+      final score = -next._lookAhead(depth - 1);
+      if (score > bestScore) {
+        bestScore = score;
+        best = next;
+      }
+    }
+    return best;
+  }
+
+  // Evaluate from the side to move. Ending the game outweighs any partial lead.
+  int _lookAhead(int depth) {
+    final lead = score(turn) - score(turn.other);
+    if (isOver) return 100 * lead.sign;
+    if (depth == 0) return lead;
+    var best = -1000;
+    for (final cell in legalCells) {
+      best = max(best, -_place(cell)._lookAhead(depth - 1));
+    }
+    return best;
+  }
+}

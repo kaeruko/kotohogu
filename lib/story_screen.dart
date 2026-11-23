@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'progress.dart';
 import 'story_data.dart';
 import 'story_remote_config.dart' show storyImagePath;
+import 'sudoku_duel_view.dart';
 import 'town_areas.dart';
 
 const _paper = Color(0xFFFFF9ED);
@@ -97,6 +98,19 @@ class StoryScreen extends StatelessWidget {
             )
           else
             Text('全${episodes.length}話、クリアおめでとう！ 手がかり帳から何度でも読み返せます。'),
+          OutlinedButton.icon(
+            key: const ValueKey('story-open-duel'),
+            onPressed: () => Navigator.of(context).push<void>(
+              MaterialPageRoute<void>(
+                builder: (_) => const _StoryPage(
+                  title: 'おくりマス数独',
+                  children: [SudokuDuelView()],
+                ),
+              ),
+            ),
+            icon: const Icon(Icons.outlined_flag),
+            label: const Text('おくりマス数独で対戦'),
+          ),
           if (lastDestination != null &&
               lastDestination.isUnlocked(progress.points))
             OutlinedButton.icon(
