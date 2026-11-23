@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'resident_collection.dart';
 import 'town_areas.dart';
 
-const storyTitle = 'たいそうのはんこカードのなぞ';
+const storyTitle = 'ことほぎのまちの数独ものがたり';
 const storyPlazaArt = 'assets/story/story_001_plaza_mystery.png';
 const storyParkArt = 'assets/story/story_002_park_tree.png';
 const storyShoppingArt = 'assets/story/story_003_shopping_clue.png';
@@ -163,6 +163,10 @@ class StoryEpisode {
 const _shiba = StorySpeaker.local(TownResident.shiba);
 const _pomu = StorySpeaker.local(TownResident.c052_pome);
 const _gonsuke = StorySpeaker.local(TownResident.c042_senior_dog);
+const _mosa = StorySpeaker.local(TownResident.c036_mosa);
+const _frog = StorySpeaker.local(TownResident.c029_office_worker);
+const _oyasumi = StorySpeaker.local(TownResident.c027_daydreamer);
+const _oshisho = StorySpeaker.local(TownResident.c031_kimono_fox);
 
 const bundledStory = StoryCatalog(title: storyTitle, episodes: storyEpisodes);
 
@@ -236,6 +240,37 @@ const storyEpisodes = <StoryEpisode>[
       (_gonsuke, 'とっておきの、朝の体操第二じゃ！'),
       (_pomu, '…………おやつじゃないぽむ〜！？'),
       (_shiba, 'ふふっ。あしたの体操も楽しみだわん！'),
+    ],
+  ),
+
+  StoryEpisode(
+    id: 'episode_03',
+    title: '数独道場破りでござる！',
+    area: TownArea.plaza,
+    unlockAt: 150,
+    dialogue: [
+      (_frog, 'おやすみくん、ここは3じゃないかな？'),
+      (_oyasumi, 'むむむ……むずかしいもふ〜'),
+      (_frog, 'あっ、そこはもう数字が入ってるよ'),
+      (_oyasumi, 'ぼく、数独にはむいてないもふ。引退するもふ〜'),
+      (_mosa, 'むむっ！ 何やら勝負の気配！'),
+      (_frog, 'あ、モサエドさん。数独やってるんだよ'),
+      (_mosa, '数独！ 近頃まちで噂の、数字の陣取り合戦でござるな！'),
+      (_frog, 'いや、陣取り合戦では……'),
+      (_mosa, '問答無用！ 拙者も挑戦するでござる！ あおんあおん！'),
+    ],
+    puzzle: '1004300220034320',
+    solution: '1234341221434321',
+    clue: 'おししょうからの挑戦！',
+    result: '数独を解いたモサエドに、おししょうが勝負を持ちかけた。次はいよいよおししょうとの一局！',
+    resultDialogue: [
+      (_mosa, '勝ったでござる！ あおんあおん！'),
+      (_frog, 'おお、すごい！ 初めてなのに解けちゃった！'),
+      (_oyasumi, 'ぼく、引退してよかったもふ〜'),
+      (_oshisho, 'ほほほ。威勢のええお侍さんどすなぁ'),
+      (_mosa, 'むむっ！ 何奴！'),
+      (_oshisho, 'そないに自信がおありなら……'),
+      (_oshisho, 'うちに勝てはりますやろか？'),
     ],
   ),
 ];

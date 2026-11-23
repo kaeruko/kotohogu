@@ -52,13 +52,13 @@ void main() {
   );
 
   test(
-    'the three-chapter story opens at its scene milestones',
+    'the four-episode story opens at its scene milestones',
     () {
       var story = const StoryProgress.empty();
       final destinations = <TownArea>[];
       for (final (index, episode) in storyEpisodes.indexed) {
         final points = episode.unlockAt;
-        expect(points, [0, 90, 120][index]);
+        expect(points, [0, 90, 120, 150][index]);
         if (index > 0) {
           expect(story.advanceDialogue(index, points - 10), same(story));
         }
@@ -93,7 +93,7 @@ void main() {
         expect(story.resumeIndex, index + 1);
       }
       expect(destinations, isEmpty);
-      expect(story.completed, 3);
+      expect(story.completed, 4);
     },
   );
 
@@ -420,7 +420,19 @@ void main() {
     );
   }
 
-  testWidgets('the third chapter reveals Gonsuke and completes all 3 chapters', (
+  test('Mosædo first duel starts in the hall and ends with the master's challenge', () {
+    final episode = storyEpisodes[3];
+    expect(episode.id, 'episode_03');
+    expect(episode.area, TownArea.plaza);
+    expect(episode.unlockAt, 150);
+    expect(episode.dialogue.last.$2, contains('あおんあおん！'));
+    expect(episode.dialogue.any((turn) => turn.$2.contains('かわりに解いて')), isFalse);
+    expect(episode.resultDialogue.first.$2, '勝ったでござる！ あおんあおん！');
+    expect(episode.resultDialogue.last.$2, 'うちに勝てはりますやろか？');
+    expect(episode.resultDialogue.any((turn) => turn.$2.contains('新手の挑戦者')), isFalse);
+  });
+
+  testWidgets('the third chapter reveals Gonsuke before the next arc', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -429,7 +441,7 @@ void main() {
     final store = MemoryStore();
     const points = 120;
     var story = const StoryProgress.empty().forCatalog(bundledStory);
-    for (final (index, episode) in storyEpisodes.indexed) {
+    for (final (index, episode) in storyEpisodes.take(3).indexed) {
       for (final _ in episode.dialogue) {
         story = story.advanceDialogue(index, points);
       }
@@ -438,7 +450,7 @@ void main() {
           story = story.useHint(index, points, cell);
         }
       }
-      if (index != storyEpisodes.length - 1) {
+      if (index != 2) {
         for (final _ in episode.resultDialogue) {
           story = story.advanceResultDialogue(index);
         }
@@ -471,17 +483,17 @@ void main() {
     }
 
     await tap('open-story');
-    expect(find.text('暗号 2 / 3'), findsOneWidget);
+    expect(find.text('暗号 2 / 4'), findsOneWidget);
     await tap('story-open-episode');
-    for (final turn in storyEpisodes.last.resultDialogue) {
+    for (final turn in storyEpisodes[2].resultDialogue) {
       expect(find.text(turn.$1.label), findsOneWidget);
       expect(find.text(turn.$2), findsOneWidget);
       await tap('story-advance-result-dialogue');
     }
     expect(find.text('さくらのはんこ 🌸'), findsOneWidget);
     await tap('story-finish-clue');
-    expect(find.text('暗号 3 / 3'), findsOneWidget);
-    expect(find.textContaining('全3話、クリアおめでとう！'), findsOneWidget);
+    expect(find.text('暗号 3 / 4'), findsOneWidget);
+    expect(find.text('数独道場破りでござる！'), findsOneWidget);
     expect(Progress.decode(store.raw!).story.completed, 3);
     expect(Progress.decode(store.raw!).story.unreadClue, isFalse);
     expect(tester.takeException(), isNull);

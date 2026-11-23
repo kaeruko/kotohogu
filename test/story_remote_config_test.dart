@@ -36,13 +36,13 @@ void main() {
       parseHostedStory(jsonEncode(story), base, residents);
 
   test(
-    'the hosted three-chapter story pins its cast and artwork',
+    'the hosted four-episode story pins its cast and artwork',
     () {
       final json = storyDocument();
       final catalog = parse(json);
       expect(catalog.baseUri, base);
       expect(catalog.title, json['title']);
-      expect(catalog.episodes.length, 3);
+      expect(catalog.episodes.length, 4);
       expect(catalog.episodes.length, _episodes(json).length);
       expect(catalog.episodes.first.id, storyEpisodes.first.id);
       final first = catalog.episodes.first.dialogue.first.$1;
@@ -77,34 +77,45 @@ void main() {
     expect(hostedIntro[2].$2, contains('ぽむもはんこほしいぽむ〜！'));
   });
 
-  test('each solved Sudoku opens with two cheers without adding dialogue turns', () {
+  test('each episode keeps its solved dialogue aligned with bundled data', () {
     final hostedEpisodes = parse(storyDocument()).episodes;
     expect(hostedEpisodes.length, storyEpisodes.length);
     for (var index = 0; index < storyEpisodes.length; index++) {
       final hosted = hostedEpisodes[index].resultDialogue;
       final bundled = storyEpisodes[index].resultDialogue;
       expect(hosted.length, bundled.length, reason: 'episode $index');
-      expect(hosted.first.$2, startsWith('とけたぽむ！\n'), reason: 'episode $index');
-      expect(hosted[1].$2, startsWith('すごいわん！\n'), reason: 'episode $index');
+      if (index < 3) {
+        expect(hosted.first.$2, startsWith('とけたぽむ！\n'), reason: 'episode $index');
+        expect(hosted[1].$2, startsWith('すごいわん！\n'), reason: 'episode $index');
+      } else {
+        expect(hosted.first.$2, startsWith('勝ったでござる！'), reason: 'episode $index');
+        expect(hosted.last.$2, 'うちに勝てはりますやろか？');
+      }
       expect(hosted.map((turn) => turn.$2), bundled.map((turn) => turn.$2));
     }
   });
 
-  test('three chapters have distinct scenes and a real final punchline', () {
+  test('stamp arc ends before the Mosædo story begins', () {
     final catalog = parse(storyDocument());
-    expect(catalog.episodes.length, 3);
-    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120]);
+    expect(catalog.episodes.length, 4);
+    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150]);
     expect(catalog.episodes.map((e) => e.title), [
       'たいそうのはんこカード？',
       '木の下になにがある？',
       'ひみつのごほうび',
+      '数独道場破りでござる！',
     ]);
     expect(catalog.episodes.first.clue, 'おおきな きのした');
     expect(catalog.episodes[1].clue, 'ほんとうにはんこカード！');
-    final ending = catalog.episodes.last.resultDialogue;
+    final ending = catalog.episodes[2].resultDialogue;
     expect(ending.any((line) => line.$1.label == 'ごんすけ'), isTrue);
     expect(ending.any((line) => line.$2.contains('朝の体操第二')), isTrue);
     expect(ending.any((line) => line.$2.contains('おやつじゃないぽむ')), isTrue);
+    final duel = catalog.episodes[3];
+    expect(duel.area.id, 'plaza');
+    expect(duel.dialogue.any((turn) => turn.$1.label == 'モサエド'), isTrue);
+    expect(duel.resultDialogue.last.$1.label, 'おししょう');
+    expect(duel.resultDialogue.last.$2, 'うちに勝てはりますやろか？');
     for (final episode in catalog.episodes) {
       expect(episode.size, 4);
     }
