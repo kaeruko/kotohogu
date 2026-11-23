@@ -272,7 +272,8 @@ void main() {
         await tap(key('story-finish-clue'));
         await tester.pumpAndSettle();
 
-        // Previously cleared episodes offer the same cast without awarding the clue twice.
+        // Reopening a cleared clue must not offer another duel or alter
+        // the saved story. The player can still read the dialogue.
         final writes = store.writes;
         await tester.scrollUntilVisible(
           find.text(episode.clue).hitTestable(),
@@ -280,18 +281,15 @@ void main() {
         );
         await tap(find.text(episode.clue));
         await tester.pumpAndSettle();
-        await tap(key('story-replay-duel'));
-        expect(find.text('$player VS $npc'), findsOneWidget);
-        final opening = tester
-            .widget<SudokuDuelView>(find.byType(SudokuDuelView))
-            .position!;
-        expect(
-          List.generate(episode.puzzle.length, opening.valueAt).join(),
-          episode.duelPuzzle,
-        );
-        await humanMove(opening);
-        expect(find.text('$npcが考え中…'), findsOneWidget);
-        await tester.pump(const Duration(seconds: 1));
+        expect(key('story-replay-duel'), findsNothing);
+        expect(find.textContaining('でもう一局'), findsNothing);
+        expect(key('story-result-dialogue'), findsOneWidget);
+        expect(key('story-advance-result-dialogue'), findsOneWidget);
+        expect(find.byType(SudokuDuelView), findsNothing);
+        for (final _ in episode.resultDialogue) {
+          await tap(key('story-advance-result-dialogue'));
+        }
+        expect(find.text(episode.clue), findsOneWidget);
         expect(store.writes, writes);
         expect(tester.takeException(), isNull);
       },

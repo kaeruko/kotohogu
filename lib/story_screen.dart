@@ -188,7 +188,6 @@ class _EpisodeScreen extends StatefulWidget {
 class _EpisodeScreenState extends State<_EpisodeScreen> {
   int? _selected;
   int _replayResultTurn = 0;
-  bool _replayDuel = false;
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -206,8 +205,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
 
       final readyForPuzzle = index == story.completed &&
           story.dialogueTurns == episode.dialogue.length;
-      if (match != null &&
-          (_replayDuel || (readyForPuzzle && story.board == null))) {
+      if (match != null && readyForPuzzle && story.board == null) {
         return _StoryPage(
           contentKey: const ValueKey('story-duel'),
           title: episode.title,
@@ -216,27 +214,17 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
           children: [
             SudokuDuelView.story(
               match: match,
-              position: _replayDuel
-                  ? SudokuDuel.story(
-                      episode.duelPuzzle, episode.solution, const [],
-                    )
-                  : story.duelPosition(episode),
+              position: story.duelPosition(episode),
               busy: busy,
-              onMove: _replayDuel
-                  ? null
-                  : (cell, digit) => controller.updateStory(
-                      (saved, points) => saved.playDuelMove(
-                        index, points, cell, digit, episodes: episodes,
-                      ),
-                    ),
-              onFinish: () {
-                if (_replayDuel) {
-                  setState(() => _replayDuel = false);
-                } else {
-                  controller.updateStory((saved, points) =>
-                      saved.finishDuel(index, points, episodes: episodes));
-                }
-              },
+              onMove: (cell, digit) => controller.updateStory(
+                (saved, points) => saved.playDuelMove(
+                  index, points, cell, digit, episodes: episodes,
+                ),
+              ),
+              onFinish: () => controller.updateStory(
+                (saved, points) =>
+                    saved.finishDuel(index, points, episodes: episodes),
+              ),
             ),
           ],
         );
@@ -259,13 +247,6 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
           navigationBusy: busy,
           children: [
             _SceneArt(episode.resultArt, _imageUri(catalog, episode.clueImage)),
-            if (!reveal && match != null)
-              OutlinedButton.icon(
-                key: const ValueKey('story-replay-duel'),
-                onPressed: () => setState(() => _replayDuel = true),
-                icon: const Icon(Icons.flag_outlined),
-                label: Text('${match.title}でもう一局'),
-              ),
             if (hasMoreDialogue) ...[
               _StoryDialogueCard(
                 key: const ValueKey('story-result-dialogue'),
