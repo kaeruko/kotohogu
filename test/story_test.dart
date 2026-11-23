@@ -108,7 +108,7 @@ void main() {
         isTrue,
       );
     }
-    expect(storyEpisodes.first.resultDialogue.first.$2, contains('これはなにぽむ！？'));
+    expect(storyEpisodes.first.dialogue.last.$2, contains('これはなにぽむ？'));
   });
 
   test('post-sudoku dialogue position survives save/load and fails fast on invalid data', () {
@@ -242,7 +242,7 @@ void main() {
       );
       expect(find.byKey(const ValueKey('story-view-list')), findsOneWidget);
       expect(find.textContaining('とけたぽむ！'), findsOneWidget);
-      expect(find.textContaining('これはなにぽむ！？'), findsOneWidget);
+      expect(find.textContaining('数字がぜんぶうまったぽむ〜！'), findsOneWidget);
       expect(find.textContaining('すごいわん！'), findsNothing);
       expect(find.text('れんしゅうクリア！'), findsNothing);
       expect(find.byKey(const ValueKey('story-finish-clue')), findsNothing);
@@ -251,7 +251,7 @@ void main() {
       await launch();
       await open();
       expect(find.textContaining('すごいわん！'), findsOneWidget);
-      expect(find.textContaining('これはなにぽむ！？'), findsNothing);
+      expect(find.textContaining('数字がぜんぶうまったぽむ〜！'), findsNothing);
       for (var i = 1; i < storyEpisodes.first.resultDialogue.length; i++) {
         await tap('story-advance-result-dialogue');
       }

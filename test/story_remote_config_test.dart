@@ -61,13 +61,19 @@ void main() {
     final hosted = parse(storyDocument()).episodes.first.resultDialogue;
     final bundled = storyEpisodes.first.resultDialogue;
     const expected = [
-      'とけたぽむ！\nこれはなにぽむ！？ 広場のすみに、ふしぎな紙が落ちてるぽむ！',
-      'すごいわん！\nほんとだ。数字が書いてあるね。',
-      'だれが書いたぽむ？',
-      'なんだろうね。ちょっと調べてみようか。',
+      'とけたぽむ！\n数字がぜんぶうまったぽむ〜！',
+      'すごいわん！\nはんこじゃなくて、数独っていう数字のパズルだったわん！',
+      'すうどく……？ ふしぎな紙ぽむ。だれが書いたぽむ？',
+      '紙のうらにも何か書いてあるわん。こんどいっしょに調べるわん！',
     ];
     expect(hosted.map((turn) => turn.$2), expected);
     expect(bundled.map((turn) => turn.$2), expected);
+    final hostedIntro = parse(storyDocument()).episodes.first.dialogue;
+    final bundledIntro = storyEpisodes.first.dialogue;
+    expect(hostedIntro.map((turn) => turn.$2), bundledIntro.map((turn) => turn.$2));
+    expect(hostedIntro.first.$2, contains('いち、に、ぽむ、ぽむ！'));
+    expect(hostedIntro[1].$2, contains('たいそうのはんこカードわん？'));
+    expect(hostedIntro[2].$2, contains('ぽむもはんこほしいぽむ〜！'));
   });
 
   test('each solved Sudoku opens with two cheers without adding dialogue turns', () {
