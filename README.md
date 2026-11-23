@@ -43,7 +43,7 @@ Flutterプロジェクトの内部名は現在も `future_lift` です（`pubspe
 
 ## よく使うコマンド早見表（Windows / PowerShell）
 
-この節は、**Webで確認／Androidエミュレーターで確認／CMSを編集／AABを作成／AWSへ配信**するときのコマンドを1か所にまとめたものです。詳しい仕様は後続の各節・リンク先を参照してください。いずれもリポジトリのルートから実行します。
+この節は、**Androidエミュレーターで確認／CMSを編集／AABを作成／AWSへ配信**するときのコマンドを1か所にまとめたものです。詳しい仕様は後続の各節・リンク先を参照してください。いずれもリポジトリのルートから実行します。
 
 ### 共通：最新の main に更新
 
@@ -57,14 +57,6 @@ flutter pub get
 ~~~
 
 初回だけ、未クローンの作業フォルダで `git clone https://github.com/kaeruko/kotohogu.git` を実行してください。未コミットの変更がある場合は、上書きせず `git status` で確認してください。
-
-### Web（Chrome）で起動
-
-~~~powershell
-flutter run -d chrome --web-port 8085 -t lib/main.dart
-~~~
-
-ブラウザで http://localhost:8085 を開きます。Webのローカル保存はオリジン単位なので、保存済みの進捗を確認するときはポート `8085` を維持してください。
 
 ### Androidエミュレーターで起動
 
@@ -88,16 +80,6 @@ python tools/dialogue_cms/server.py
 
 - CMS画面：http://127.0.0.1:8765
 - APIカタログ：http://127.0.0.1:8765/api/runtime/catalog
-
-**CMSの保存内容をAndroidエミュレーターの本編で試す場合**は、上のサーバーを動かしたまま、別のPowerShellで：
-
-~~~powershell
-cd C:\Users\mail\work\kotohogu
-flutter devices
-flutter run -d emulator-5554 -t lib/main.dart --dart-define=KOTOHOGU_LOCAL_CONTENT_URL=http://10.0.2.2:8765
-~~~
-
-ここでも `emulator-5554` を実際のデバイスIDに合わせてください。`10.0.2.2` はエミュレーターからホストPCへ接続するためのアドレスで、実機では使用できません。この `--dart-define` はデバッグ用で、リリースビルドに指定してはいけません。通常のWeb起動ではこのローカルAPIを指定しません。詳細は [セリフCMSの使い方](tools/dialogue_cms/README.md)。
 
 ### Androidエミュレーターのタイムゾーンを日本にする
 
