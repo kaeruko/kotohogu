@@ -182,7 +182,7 @@ void main() {
     final rewritten = storyDocument();
     final chapters = _episodes(rewritten);
     chapters.removeRange(2, chapters.length);
-    (rewritten['chapters'] as List).removeRange(1, 3);
+    (rewritten['chapters'] as List).removeRange(1, 4);
     final updated = parse(rewritten);
     expect(updated.episodes.length, 2);
     expect(updated.progressSignature, isNot(original.progressSignature));

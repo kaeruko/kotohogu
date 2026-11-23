@@ -574,7 +574,7 @@ void main() {
     // The grouped episode list may retain its prior scroll position.
     // Scroll back to the progress meter before checking its visible text.
     for (var attempt = 0;
-        attempt < 5 && find.text('暗号 3 / 8').evaluate().isEmpty;
+        attempt < 5 && find.text('暗号 3 / 11').evaluate().isEmpty;
         attempt++) {
       await tester.drag(find.byType(ListView).last, const Offset(0, 600));
       await tester.pumpAndSettle();
