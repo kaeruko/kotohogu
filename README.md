@@ -40,6 +40,113 @@
 
 Flutterプロジェクトの内部名は現在も `future_lift` です（`pubspec.yaml` や一部クラス名など）。**利用者向けのアプリ名は「ことほぐ」**です。READMEでは現行のアプリ名に統一しますが、互換性に関わる内部識別子はドキュメント変更だけでは改名しません。
 
+
+## よく使うコマンド早見表（Windows / PowerShell）
+
+この節は、**Webで確認／Androidエミュレーターで確認／CMSを編集／AABを作成／AWSへ配信**するときのコマンドを1か所にまとめたものです。詳しい仕様は後続の各節・リンク先を参照してください。いずれもリポジトリのルートから実行します。
+
+### 共通：最新の main に更新
+
+既に `C:\Users\mail\work\kotohogu` にチェックアウト済みの場合：
+
+~~~powershell
+cd C:\Users\mail\work\kotohogu
+git switch main
+git pull --ff-only origin main
+flutter pub get
+~~~
+
+初回だけ、未クローンの作業フォルダで `git clone https://github.com/kaeruko/kotohogu.git` を実行してください。未コミットの変更がある場合は、上書きせず `git status` で確認してください。
+
+### Web（Chrome）で起動
+
+~~~powershell
+flutter run -d chrome --web-port 8085 -t lib/main.dart
+~~~
+
+ブラウザで http://localhost:8085 を開きます。Webのローカル保存はオリジン単位なので、保存済みの進捗を確認するときはポート `8085` を維持してください。
+
+### Androidエミュレーターで起動
+
+~~~powershell
+flutter emulators
+flutter emulators --launch "YOUR_EMULATOR_ID"
+flutter devices
+flutter run -d emulator-5554 -t lib/main.dart
+~~~
+
+`YOUR_EMULATOR_ID` は `flutter emulators` の表示に置き換えます。`emulator-5554` は一例なので、最後のコマンドも `flutter devices` に表示された実際のデバイスIDへ置き換えてください。Android SDKとエミュレーターを先にセットアップしておきます。
+
+**通常起動の注意：** 現在はGoogle Driveの接続先情報とCloudFrontの `current.json` を使うため、ネットワークが必要です。CMSのローカルサーバーは不要です。データ取得や検証が失敗した場合は、別データへ自動切り替えせず停止します。
+
+### セリフCMSとローカルAPIを起動
+
+~~~powershell
+cd C:\Users\mail\work\kotohogu
+python tools/dialogue_cms/server.py
+~~~
+
+- CMS画面：http://127.0.0.1:8765
+- APIカタログ：http://127.0.0.1:8765/api/runtime/catalog
+
+**CMSの保存内容をAndroidエミュレーターの本編で試す場合**は、上のサーバーを動かしたまま、別のPowerShellで：
+
+~~~powershell
+cd C:\Users\mail\work\kotohogu
+flutter devices
+flutter run -d emulator-5554 -t lib/main.dart --dart-define=KOTOHOGU_LOCAL_CONTENT_URL=http://10.0.2.2:8765
+~~~
+
+ここでも `emulator-5554` を実際のデバイスIDに合わせてください。`10.0.2.2` はエミュレーターからホストPCへ接続するためのアドレスで、実機では使用できません。この `--dart-define` はデバッグ用で、リリースビルドに指定してはいけません。通常のWeb起動ではこのローカルAPIを指定しません。詳細は [セリフCMSの使い方](tools/dialogue_cms/README.md)。
+
+### Androidエミュレーターのタイムゾーンを日本にする
+
+~~~powershell
+adb devices
+adb shell settings put global auto_time_zone 0
+adb shell cmd alarm set-timezone Asia/Tokyo
+adb shell date
+~~~
+
+`adb shell date` は端末に見えている日時の**確認**です（時刻そのものを変更するコマンドではありません）。複数デバイスが接続されている場合は、`adb -s デバイスID shell ...` の形式で対象を明示してください。
+
+### Androidの署名済みAABを作成（Google Play向け）
+
+~~~powershell
+cd C:\Users\mail\work\kotohogu
+.\scripts\build_aab.ps1
+~~~
+
+出力先：`build/app/outputs/bundle/release/app-release.aab`
+
+事前に `android/key.properties`、アップロード用キーストア、Flutter SDK、JDK（`jarsigner` がPATHまたは `JAVA_HOME\bin` にあること）が必要です。スクリプトはアイコン生成、リリースビルド、署名検証を行い、**成功したときだけ** `pubspec.yaml` のビルド番号を更新します。
+
+~~~powershell
+git status
+git add pubspec.yaml
+git commit -m "Bump Android build number"
+git push origin main
+~~~
+
+コミットは実際の差分を確認してから行ってください。署名鍵・`key.properties` はコミットしません。詳細は [Androidリリース手順](docs/android_release.md)。このAABは**Google Play Consoleにアップロードするファイル**であり、下記のAWSコンテンツ配信とは別です。
+
+### CMSのキャラ・セリフ・画像・ストーリーをAWSに配信
+
+~~~powershell
+cd C:\Users\mail\work\kotohogu
+aws sts get-caller-identity --profile new-aws
+python tools/aws/publish_content.py --stack kotohogu-content --region ap-northeast-1 --profile new-aws
+~~~
+
+`new-aws` はこの環境で使用していたプロファイル名の例です。実際に設定済みのAWS CLIプロファイルが異なる場合は、**2コマンドとも同じ正しい名前へ明示的に置き換え**てください。アカウントを確認できない場合はアップロードしないでください。CMSの編集内容を先に保存してください。発行に `server.py` の起動は不要です。
+
+ツールがキャラ・セリフ・画像・イベント・ストーリーなどを検証し、S3へ不変リリースを転送・照合したあと、最後にCloudFront用の `current.json` を更新します。発行結果のURLとCloudFrontの `current.json` を確認してください。**Google Driveの `kotohogu_api.txt` は毎回編集しません**。対象ファイルを `main` にpushするとGitHub Actionsの **Publish AWS content** からも配信されます。詳細は [AWS配信手順](tools/aws/README.md)。
+
+### 停止・確認
+
+`flutter run` とCMSサーバーはそれぞれのPowerShellで `Ctrl+C` で停止できます。実行前後に `git status` で変更状態を確認し、エラーが出たら原因を確認してから同じコマンドを再実行してください。
+
+
 ## アプリを起動する
 
 リポジトリのルートで実行します。
