@@ -71,6 +71,34 @@ flutter run -d emulator-5554 -t lib/main.dart
 
 **通常起動の注意：** 現在はGoogle Driveの接続先情報とCloudFrontの `current.json` を使うため、ネットワークが必要です。CMSのローカルサーバーは不要です。データ取得や検証が失敗した場合は、別データへ自動切り替えせず停止します。
 
+### Androidエミュレーターで `not enough space` と表示されたとき
+
+`flutter run` でAPKのビルドは成功したのに、インストール時に次のエラーが出る場合は、**PC側のFlutterビルド容量ではなく、Androidエミュレーターの内部ストレージ（通常 `/data`）が不足**しています。
+
+```text
+adb.exe: failed to install ... Requested internal only, but not enough space
+```
+
+まず `flutter devices` または `adb devices` でエミュレーターのIDを確認し、対象を明示して空き容量を調べます。
+
+~~~powershell
+adb devices
+adb -s emulator-5554 shell df -h /data
+adb -s emulator-5554 shell pm list packages -3
+~~~
+
+`emulator-5554` は実際のデバイスIDに変更してください。`df` の `Avail` 列が空き容量、`pm list packages -3` が後からインストールしたアプリ一覧です。アプリを消す場合は **何を削除するか確認してから、対象パッケージを明示して操作**してください。アンインストールはそのアプリの保存データも削除します。
+
+ディスク領域が足りなければ、Android Studio の **Device Manager** から内部ストレージの大きい新しい仮想デバイス（AVD）を作成するのが、既存エミュレーターのデータを残しながら試せる方法です。既存AVDの **Wipe Data** でも初期状態にできますが、そのAVDにあるアプリと保存データがすべて消えるので、必要なデータを確認してから選んでください。AVD内の不要アプリを個別に削除する方法もあります。
+
+`flutter clean` はPC側のビルド成果物を消すコマンドで、AVDの内部ストレージ不足には効きません。十分な空き容量を確保したうえで、**同じデバイスID・同じビルド条件**の `flutter run` を再実行します。
+
+~~~powershell
+flutter run -d emulator-5554 -t lib/main.dart
+~~~
+
+また、Flutterがインストール失敗後に `Uninstalling old version...` と表示した場合は、古いアプリが既に削除された可能性があります。保存データが必要なら、この時点で `Wipe Data` や追加のアンインストールを実行する前に状態を確認してください。
+
 ### セリフCMSとローカルAPIを起動
 
 ~~~powershell
