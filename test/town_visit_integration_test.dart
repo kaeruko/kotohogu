@@ -54,7 +54,7 @@ void main() {
     final visit = tester.widget<TownScene>(find.byType(TownScene)).visit;
     expect(visit, isNotNull);
     expect(random.calls, 4);
-    expect(find.byTooltip('もぐた'), findsNothing);
+    expect(find.byTooltip('げんばくん'), findsNothing);
     final rawBeforeNavigation = store.raw;
 
     await tester.tap(find.byKey(const ValueKey('footer-town')));
@@ -62,12 +62,12 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('town-area-next')));
     await tester.pumpAndSettle();
     expect(tester.widget<TownScene>(find.byType(TownScene)).visit, same(visit));
-    expect(find.byTooltip('もぐた'), findsOneWidget);
+    expect(find.byTooltip('げんばくん'), findsOneWidget);
     expect(find.byTooltip('おやすみくん'), findsOneWidget);
     expect(random.calls, 4);
     expect(store.raw, rawBeforeNavigation, reason: 'Outings never change saved progress');
 
-    await tester.tap(find.byTooltip('もぐた'));
+    await tester.tap(find.byTooltip('げんばくん'));
     await tester.pumpAndSettle();
     expect(find.text('公園でも、一緒におしゃべり！'), findsOneWidget);
     expect(tester.widget<TownScene>(find.byType(TownScene)).visit, same(visit));
@@ -84,7 +84,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widget<TownScene>(find.byType(TownScene)).visit, isNot(same(visit)));
     expect(random.calls, 8);
-    expect(find.byTooltip('もぐた'), findsNothing);
+    expect(find.byTooltip('げんばくん'), findsNothing);
     expect(find.byTooltip('しばいぬ'), findsOneWidget);
     expect(controller.progress!.points, 90);
     expect(controller.progress!.residents.counts, progress.residents.counts);

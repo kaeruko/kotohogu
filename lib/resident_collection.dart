@@ -107,7 +107,7 @@ enum TownResident {
   // ignore: constant_identifier_names
   c027_daydreamer("027_daydreamer", "おやすみくん", "027_daydreamer", true, true, "おしごともべんきょうもおやすみ中の子。ぼくはまだまだこれからなんだ～", "park", archived: false),
   // ignore: constant_identifier_names
-  c032_miner("032_miner", "もぐた", "032_miner", true, true, "道路や公園など、まちの土台をつくる土木工事の職人。元気いっぱいで、まちづくりが大好きな子。", "shopping", archived: false),
+  c032_miner("032_miner", "げんばくん", "032_miner", true, true, "道路や公園など、まちの土台をつくる土木工事の職人。元気いっぱいで、まちづくりが大好きな子。", "shopping", archived: false),
   // ignore: constant_identifier_names
   c036_mosa("036_mosa", "モサエド", "036_mosa", true, true, "拙者、猛者江戸（モサエド）と申す！", "plaza", archived: false),
   // ignore: constant_identifier_names

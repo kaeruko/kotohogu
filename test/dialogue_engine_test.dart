@@ -549,7 +549,7 @@ void main() {
     }
   });
 
-  test('carpenter and Moguta talk only when both are in the same scene', () async {
+  test('carpenter and Genba-kun talk only when both are in the same scene', () async {
     final catalog = await DialogueCatalog.load();
     final now = DateTime.utc(2026, 10, 19, 2);
     final progress = Progress.empty(DateTime(2026, 10, 19));
