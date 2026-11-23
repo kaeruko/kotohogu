@@ -49,9 +49,9 @@ class StoryCmsTests(unittest.TestCase):
     def test_revised_structure_can_be_saved_without_preserving_old_indices(self):
         original = self.loaded()
         shortened = copy.deepcopy(original)
-        shortened["episodes"] = shortened["episodes"][:5]
+        shortened["episodes"] = shortened["episodes"][:2]
         story.save_story(shortened)
-        self.assertEqual(len(self.loaded()["episodes"]), 5)
+        self.assertEqual(len(self.loaded()["episodes"]), 2)
 
         changed = copy.deepcopy(shortened)
         changed["episodes"][0]["puzzle"] = original["episodes"][1]["puzzle"]
@@ -59,7 +59,7 @@ class StoryCmsTests(unittest.TestCase):
         changed["episodes"][0]["resultDialogue"].append(
             copy.deepcopy(changed["episodes"][0]["resultDialogue"][0])
         )
-        changed["episodes"][1]["unlockAt"] = 20
+        changed["episodes"][1]["unlockAt"] = 100
         story.save_story(changed)
         self.assertEqual(self.loaded(), changed)
 
@@ -107,6 +107,12 @@ class StoryCmsTests(unittest.TestCase):
         with urlopen(base + "/api/story", timeout=5) as response:
             doc = json.load(response)
         self.assertEqual(doc, self.loaded())
+        with urlopen(base + "/api/runtime/story-v2", timeout=5) as response:
+            self.assertEqual(json.load(response), doc)
+        with urlopen(base + "/api/runtime/story", timeout=5) as response:
+            frozen = json.load(response)
+        self.assertEqual(len(frozen["episodes"]), 11)
+        self.assertEqual(len(doc["episodes"]), 3)
         before = self.path.read_bytes()
         edited = copy.deepcopy(doc)
         edited["episodes"][0]["resultDialogue"][0]["text"] = "ぽむぽむ、できたぽむ！"

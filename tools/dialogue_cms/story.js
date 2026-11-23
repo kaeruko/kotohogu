@@ -85,8 +85,7 @@ function renderList() {
     button.dataset.episodeId = episode.id;
     button.setAttribute("aria-current", String(selectedId === episode.id));
     button.append(
-      el("span", (index === 0 ? "れんしゅう" : "暗号 " + index) +
-          " / " + (documentData.episodes.length - 1)),
+      el("span", "第" + (index + 1) + "話 / " + documentData.episodes.length),
       el("span", episode.title),
       el("span", episode.unlockAt + " ことほぎ ｜ " + episode.clue),
     );

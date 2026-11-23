@@ -36,12 +36,13 @@ void main() {
       parseHostedStory(jsonEncode(story), base, residents);
 
   test(
-    'published story keeps the original save contract and pins its cast',
+    'the hosted three-chapter story pins its cast and artwork',
     () {
       final json = storyDocument();
       final catalog = parse(json);
       expect(catalog.baseUri, base);
       expect(catalog.title, json['title']);
+      expect(catalog.episodes.length, 3);
       expect(catalog.episodes.length, _episodes(json).length);
       expect(catalog.episodes.first.id, storyEpisodes.first.id);
       final first = catalog.episodes.first.dialogue.first.$1;
@@ -61,10 +62,10 @@ void main() {
     final hosted = parse(storyDocument()).episodes.first.resultDialogue;
     final bundled = storyEpisodes.first.resultDialogue;
     const expected = [
-      'とけたぽむ！\n数字がぜんぶうまったぽむ〜！',
-      'すごいわん！\nはんこじゃなくて、数独っていう数字のパズルだったわん！',
-      'すうどく……？ ふしぎな紙ぽむ。だれが書いたぽむ？',
-      '紙のうらにも何か書いてあるわん。こんどいっしょに調べるわん！',
+      'とけたぽむ！\n「おおきな きのした」……おおきなおやつがあるぽむ！？',
+      'すごいわん！\nふれあい公園の大きな木かもしれないわん！',
+      'ぽむ、木の下を見にいきたいぽむ〜！',
+      'いっしょに探しにいくわん！',
     ];
     expect(hosted.map((turn) => turn.$2), expected);
     expect(bundled.map((turn) => turn.$2), expected);
@@ -89,6 +90,26 @@ void main() {
     }
   });
 
+  test('three chapters have distinct scenes and a real final punchline', () {
+    final catalog = parse(storyDocument());
+    expect(catalog.episodes.length, 3);
+    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120]);
+    expect(catalog.episodes.map((e) => e.title), [
+      'たいそうのはんこカード？',
+      '木の下になにがある？',
+      'ひみつのごほうび',
+    ]);
+    expect(catalog.episodes.first.clue, 'おおきな きのした');
+    expect(catalog.episodes[1].clue, 'ほんとうにはんこカード！');
+    final ending = catalog.episodes.last.resultDialogue;
+    expect(ending.any((line) => line.$1.label == 'ごんすけ'), isTrue);
+    expect(ending.any((line) => line.$2.contains('朝の体操第二')), isTrue);
+    expect(ending.any((line) => line.$2.contains('おやつじゃないぽむ')), isTrue);
+    for (final episode in catalog.episodes) {
+      expect(episode.size, 4);
+    }
+  });
+
   test('text edits retain a signature and structural edits create a new edition', () {
     final original = parse(storyDocument());
     final textEdit = storyDocument();
@@ -96,9 +117,9 @@ void main() {
     expect(parse(textEdit).progressSignature, original.progressSignature);
     final rewritten = storyDocument();
     final chapters = _episodes(rewritten);
-    chapters.removeRange(5, chapters.length);
+    chapters.removeRange(2, chapters.length);
     final updated = parse(rewritten);
-    expect(updated.episodes.length, 5);
+    expect(updated.episodes.length, 2);
     expect(updated.progressSignature, isNot(original.progressSignature));
     chapters.first['dialogue'].add({
       'speaker': '001_shiba',

@@ -10,6 +10,7 @@ from areas import load_areas, validate_areas
 
 ROOT = Path(__file__).resolve().parents[2] / "assets" / "story"
 DATA = ROOT / "story.json"
+LEGACY_DATA = ROOT / "legacy_story.json"
 MAX_JSON_BYTES = 256 * 1024
 IMAGE_NAME = re.compile(r"[a-z0-9][a-z0-9_-]{0,79}\.png")
 EPISODE_ID = re.compile(r"[a-z][a-z0-9_]{0,47}")
@@ -20,7 +21,16 @@ EPISODE_FIELDS = {
 
 
 def load_story(resident_ids):
-    raw = DATA.read_bytes()
+    return _load_document(DATA, resident_ids)
+
+
+def load_legacy_story(resident_ids):
+    """Frozen 11-part story for already-installed app versions."""
+    return _load_document(LEGACY_DATA, resident_ids)
+
+
+def _load_document(path, resident_ids):
+    raw = path.read_bytes()
     if len(raw) > MAX_JSON_BYTES:
         raise ValueError(f"Sudoku story exceeds {MAX_JSON_BYTES} bytes")
     areas = {row["id"]: row["unlockAt"]

@@ -52,13 +52,13 @@ void main() {
   );
 
   test(
-    'the entire story advances at 30 point milestones in town unlock order',
+    'the three-chapter story opens at its scene milestones',
     () {
       var story = const StoryProgress.empty();
       final destinations = <TownArea>[];
       for (final (index, episode) in storyEpisodes.indexed) {
-        final points = index * 30;
-        expect(episode.unlockAt, points);
+        final points = episode.unlockAt;
+        expect(points, [0, 90, 120][index]);
         if (index > 0) {
           expect(story.advanceDialogue(index, points - 10), same(story));
         }
@@ -92,11 +92,8 @@ void main() {
         story = reading.readClue(index);
         expect(story.resumeIndex, index + 1);
       }
-      expect(destinations, [
-        TownArea.park,
-        TownArea.shopping,
-        TownArea.village,
-      ]);
+      expect(destinations, isEmpty);
+      expect(story.completed, 3);
     },
   );
 
@@ -152,7 +149,7 @@ void main() {
     expect(saved.forCatalog(bundledStory).dialogueTurns, 1);
     final edited = StoryCatalog(
       title: '別のお話',
-      episodes: storyEpisodes.sublist(0, 5),
+      episodes: storyEpisodes.sublist(0, 2),
     );
     expect(edited.progressSignature, isNot(bundledStory.progressSignature));
     expect(() => saved.validateFor(edited, 0), throwsFormatException);
@@ -190,8 +187,8 @@ void main() {
     final loaded = Progress.decode(progress.encode());
     expect(loaded.points, 90);
     expect(loaded.residents.availableKotohogi(loaded.points), 60);
-    expect(storyEpisodes[3].isAvailable(loaded.points), isTrue);
-    expect(storyEpisodes[3].isAvailable(60), isFalse);
+    expect(storyEpisodes[1].isAvailable(loaded.points), isTrue);
+    expect(storyEpisodes[1].isAvailable(60), isFalse);
     expect(loaded.story.board![2], 2);
     expect(loaded.story.dialogueTurns, storyEpisodes.first.dialogue.length);
 
@@ -272,7 +269,7 @@ void main() {
       expect(find.textContaining('とけたぽむ！'), findsOneWidget);
       expect(find.textContaining('数字がぜんぶうまったぽむ〜！'), findsOneWidget);
       expect(find.textContaining('すごいわん！'), findsNothing);
-      expect(find.text('れんしゅうクリア！'), findsNothing);
+      expect(find.text('おおきな きのした'), findsNothing);
       expect(find.byKey(const ValueKey('story-finish-clue')), findsNothing);
       await tap('story-advance-result-dialogue');
       expect(Progress.decode(store.raw!).story.resultDialogueTurns, 1);
@@ -284,7 +281,7 @@ void main() {
         await tap('story-advance-result-dialogue');
       }
       expect(find.byKey(const ValueKey('story-result-dialogue')), findsNothing);
-      expect(find.text('れんしゅうクリア！'), findsOneWidget);
+      expect(find.text('おおきな きのした'), findsOneWidget);
       expect(
         Progress.decode(store.raw!).story.resultDialogueTurns,
         storyEpisodes.first.resultDialogue.length,
@@ -298,7 +295,7 @@ void main() {
         ),
       );
       await tap('story-finish-clue');
-      expect(find.text('あと3回、セルフケアを記録すると開きます。'), findsOneWidget);
+      expect(find.text('あと9回、セルフケアを記録すると開きます。'), findsOneWidget);
       expect(find.byKey(const ValueKey('story-open-episode')), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
@@ -410,46 +407,51 @@ void main() {
         await tester.pumpAndSettle();
         expect(Progress.decode(store.raw!).points, startingPoints + 10);
         expect(find.text(storyTitle), findsOneWidget);
-        expect(find.text('広場のふしぎな紙'), findsOneWidget);
-        expect(
-          find.byKey(const ValueKey('story-open-episode')),
-          findsOneWidget,
-        );
+        expect(find.text('木の下になにがある？'), findsOneWidget);
+        if (startingPoints == 80) {
+          expect(find.byKey(const ValueKey('story-open-episode')), findsOneWidget);
+        } else {
+          expect(find.byKey(const ValueKey('story-open-episode')), findsNothing);
+          expect(find.text('あと6回、セルフケアを記録すると開きます。'), findsOneWidget);
+        }
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
       },
     );
   }
 
-  testWidgets('the park clue opens the corresponding town area', (
+  testWidgets('the third chapter reveals Gonsuke and completes all 3 chapters', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final store = MemoryStore();
-    var progress = Progress.empty(today);
-    for (final mission in Mission.values.take(9)) {
-      progress = progress.complete(mission);
-    }
-    var story = progress.story.forCatalog(bundledStory);
-    for (final (index, episode) in storyEpisodes.take(4).indexed) {
+    const points = 120;
+    var story = const StoryProgress.empty().forCatalog(bundledStory);
+    for (final (index, episode) in storyEpisodes.indexed) {
       for (final _ in episode.dialogue) {
-        story = story.advanceDialogue(index, progress.points);
+        story = story.advanceDialogue(index, points);
       }
       for (var cell = 0; cell < episode.puzzle.length; cell++) {
         if (episode.givenAt(cell) == 0) {
-          story = story.useHint(index, progress.points, cell);
+          story = story.useHint(index, points, cell);
         }
       }
-      if (index < 3) {
+      if (index != storyEpisodes.length - 1) {
         for (final _ in episode.resultDialogue) {
           story = story.advanceResultDialogue(index);
         }
         story = story.readClue(index);
       }
     }
-    await store.save(progress.withStory(story));
+    await store.save(Progress(
+      day: localDay(today),
+      lastCompletedDay: localDay(today),
+      points: points,
+      completed: {},
+      story: story,
+    ));
     final catalog = (await tester.runAsync(DialogueCatalog.load))!;
     await tester.pumpWidget(
       FutureLiftApp(
@@ -460,25 +462,28 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    Future<void> tap(Finder target) async {
+    Future<void> tap(String key) async {
+      final target = find.byKey(ValueKey(key));
       await tester.ensureVisible(target);
       await tester.pumpAndSettle();
       await tester.tap(target);
       await tester.pumpAndSettle();
     }
 
-    await tap(find.byKey(const ValueKey('open-story')));
-    expect(find.text('ふれあい公園へ行く'), findsNothing);
-    await tap(find.byKey(const ValueKey('story-open-episode')));
-    expect(find.text('こうえん'), findsNothing);
-    for (final _ in storyEpisodes[3].resultDialogue) {
-      await tap(find.byKey(const ValueKey('story-advance-result-dialogue')));
+    await tap('open-story');
+    expect(find.text('暗号 2 / 3'), findsOneWidget);
+    await tap('story-open-episode');
+    for (final turn in storyEpisodes.last.resultDialogue) {
+      expect(find.text(turn.$1.label), findsOneWidget);
+      expect(find.text(turn.$2), findsOneWidget);
+      await tap('story-advance-result-dialogue');
     }
-    expect(find.text('こうえん'), findsOneWidget);
-    await tap(find.byKey(const ValueKey('story-finish-clue')));
-    await tap(find.text('ふれあい公園へ行く'));
-    expect(find.byKey(const ValueKey('town-page-fullscreen')), findsOneWidget);
-    expect(find.text('ふれあい公園'), findsOneWidget);
+    expect(find.text('さくらのはんこ 🌸'), findsOneWidget);
+    await tap('story-finish-clue');
+    expect(find.text('暗号 3 / 3'), findsOneWidget);
+    expect(find.textContaining('全3話、クリアおめでとう！'), findsOneWidget);
+    expect(Progress.decode(store.raw!).story.completed, 3);
+    expect(Progress.decode(store.raw!).story.unreadClue, isFalse);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });

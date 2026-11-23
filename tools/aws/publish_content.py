@@ -22,14 +22,15 @@ sys.path.insert(0, str(ROOT / "tools" / "dialogue_cms"))
 from server import runtime_catalog, runtime_sprite_path  # noqa: E402
 from events import load as load_oyasumi_event  # noqa: E402
 from characters import DIRECTIONS  # noqa: E402
-from story import load_story, story_images, story_image_bytes  # noqa: E402
+from story import load_story, load_legacy_story, story_images, story_image_bytes  # noqa: E402
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 FRAMES = ("idle_front_01.png", "clap_front_01.png", "clap_front_02.png")
 SPRITE_DIRECTIONS = tuple(DIRECTIONS)
 IMMUTABLE = "public,max-age=31536000,immutable"
 NO_CACHE = "no-store,no-cache,must-revalidate"
-STORY_PATH = Path("api/runtime/story")
+STORY_PATH = Path("api/runtime/story")  # Frozen legacy endpoint
+STORY_V2_PATH = Path("api/runtime/story-v2")  # Editable story endpoint
 STORY_IMAGES = Path("api/runtime/story-images")
 
 
@@ -75,9 +76,12 @@ def prepare(stage):
     # The club rules, dialogue, positions and future chapters share one pinned release.
     _record(stage, Path("api/runtime/oyasumi"),
             encode_json(load_oyasumi_event()), records)
-    story = load_story({row["id"] for row in catalog["characters"]})
-    _record(stage, STORY_PATH, encode_json(story), records)
-    for name in story_images(story):
+    people = {row["id"] for row in catalog["characters"]}
+    story = load_story(people)
+    legacy_story = load_legacy_story(people)
+    _record(stage, STORY_PATH, encode_json(legacy_story), records)
+    _record(stage, STORY_V2_PATH, encode_json(story), records)
+    for name in sorted(set(story_images(story)) | set(story_images(legacy_story))):
         _record(stage, STORY_IMAGES / name, story_image_bytes(name), records)
     for resident in catalog["characters"]:
         for frame in frames_for(resident):

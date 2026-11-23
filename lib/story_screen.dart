@@ -48,7 +48,7 @@ class StoryScreen extends StatelessWidget {
       final playable =
           next != null &&
           (story.unreadClue || next.isAvailable(progress.points));
-      final cleared = story.completed > 0 ? story.completed - 1 : 0;
+      final cleared = story.unreadClue ? story.completed - 1 : story.completed;
       final lastDestination = episodes
           .take(story.unreadClue ? story.completed - 1 : story.completed)
           .map((episode) => episode.destination)
@@ -58,7 +58,7 @@ class StoryScreen extends StatelessWidget {
         title: 'ストーリー',
         children: [
           _StoryTitleBanner(title: catalog.title),
-          _StoryProgressMeter(completed: cleared, total: episodes.length - 1),
+          _StoryProgressMeter(completed: cleared, total: episodes.length),
           if (next != null)
             _StoryNextEpisodeCard(
               title: next.title,
@@ -66,7 +66,7 @@ class StoryScreen extends StatelessWidget {
               description: story.unreadClue
                   ? '数独を解きました。手がかりを確かめよう。'
                   : nextIndex == 0
-                  ? '中央ひろばで、4×4の数独をれんしゅうします。'
+                  ? '朝の体操で見つけたふしぎな紙を、数独で調べます。'
                   : '${next.area.label}で${next.size}×${next.size}の暗号に挑戦。'
                     '${next.destination == null ? '紙にかくれたことば' : '次の行き先'}がわかります。',
               buttonLabel: story.unreadClue
@@ -82,7 +82,7 @@ class StoryScreen extends StatelessWidget {
               onSelfCare: onSelfCare,
             )
           else
-            const Text('今回の暗号はすべて解けました。手がかり帳で旅を振り返れます。'),
+            Text('全${episodes.length}話、クリアおめでとう！ 手がかり帳から何度でも読み返せます。'),
           if (lastDestination != null &&
               lastDestination.isUnlocked(progress.points))
             OutlinedButton.icon(
@@ -155,7 +155,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
         final reduceMotion = MediaQuery.disableAnimationsOf(context);
         return _StoryPage(
           contentKey: const ValueKey('story-clue'),
-          title: index == 0 ? 'れんしゅう' : '見つけた手がかり',
+          title: '見つけた手がかり',
           showStoryListButton: hasMoreDialogue,
           navigationBusy: busy,
           children: [

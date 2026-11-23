@@ -33,9 +33,12 @@ class PublishContentTests(unittest.TestCase):
 
     def test_snapshot_is_deterministic_and_contains_only_runtime_assets(self):
         actual_catalog = publisher.runtime_catalog()
-        story = publisher.load_story({row["id"] for row in actual_catalog["characters"]})
+        people = {row["id"] for row in actual_catalog["characters"]}
+        story = publisher.load_story(people)
+        legacy_story = publisher.load_legacy_story(people)
         with (patch.object(publisher, "runtime_catalog", return_value=self.catalog),
               patch.object(publisher, "load_story", return_value=story),
+              patch.object(publisher, "load_legacy_story", return_value=legacy_story),
               patch.object(publisher, "runtime_sprite_path",
                            return_value=self.png)):
             first, records, current = publisher.prepare(self.base / "one")
@@ -43,9 +46,13 @@ class PublishContentTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(records, second_records)
         self.assertEqual(current, current2)
-        self.assertEqual(len(records), 22 + len(publisher.story_images(story)))
+        all_images = set(publisher.story_images(story)) | set(publisher.story_images(legacy_story))
+        self.assertEqual(len(records), 23 + len(all_images))
         self.assertIn("api/runtime/oyasumi", [row["path"] for row in records])
         self.assertIn("api/runtime/story", [row["path"] for row in records])
+        self.assertIn("api/runtime/story-v2", [row["path"] for row in records])
+        self.assertEqual(json.loads((self.base / "one" / "api/runtime/story").read_text("utf-8"))["episodes"], legacy_story["episodes"])
+        self.assertEqual(json.loads((self.base / "one" / "api/runtime/story-v2").read_text("utf-8"))["episodes"], story["episodes"])
         self.assertEqual(len(first), 64)
         self.assertEqual(
             (self.base / "one" / "api/runtime/catalog").read_bytes(),
@@ -68,6 +75,7 @@ class PublishContentTests(unittest.TestCase):
     def test_missing_png_fails_before_publishing_pointer(self):
         with (patch.object(publisher, "runtime_catalog", return_value=self.catalog),
               patch.object(publisher, "load_story", return_value={"coverImage": "unused.png", "episodes": []}),
+              patch.object(publisher, "load_legacy_story", return_value={"coverImage": "unused.png", "episodes": []}),
               patch.object(publisher, "story_image_bytes", return_value=b"art"),
               patch.object(publisher, "runtime_sprite_path",
                            side_effect=FileNotFoundError("missing idle sprite"))):
@@ -79,6 +87,7 @@ class PublishContentTests(unittest.TestCase):
         self.png.write_bytes(b"not-png")
         with (patch.object(publisher, "runtime_catalog", return_value=self.catalog),
               patch.object(publisher, "load_story", return_value={"coverImage": "unused.png", "episodes": []}),
+              patch.object(publisher, "load_legacy_story", return_value={"coverImage": "unused.png", "episodes": []}),
               patch.object(publisher, "story_image_bytes", return_value=b"art"),
               patch.object(publisher, "runtime_sprite_path", return_value=self.png)):
             with self.assertRaisesRegex(ValueError, "Invalid PNG sprite"):
@@ -90,16 +99,20 @@ class PublishContentTests(unittest.TestCase):
             {row["id"] for row in actual_catalog["characters"]}
         )
         shorter = copy.deepcopy(story_doc)
-        shorter["episodes"] = shorter["episodes"][:5]
+        shorter["episodes"] = shorter["episodes"][:2]
         with (patch.object(publisher, "runtime_catalog", return_value=self.catalog),
               patch.object(publisher, "load_story", return_value=shorter),
+              patch.object(publisher, "load_legacy_story", return_value=story_doc),
               patch.object(publisher, "runtime_sprite_path",
                            return_value=self.png)):
             _, records, _ = publisher.prepare(self.base / "rewritten")
         saved = json.loads((self.base / "rewritten" /
-                            "api/runtime/story").read_text("utf-8"))
-        self.assertEqual(len(saved["episodes"]), 5)
-        self.assertTrue(any(row["path"] == "api/runtime/story" for row in records))
+                            "api/runtime/story-v2").read_text("utf-8"))
+        self.assertEqual(len(saved["episodes"]), 2)
+        frozen = json.loads((self.base / "rewritten" /
+                             "api/runtime/story").read_text("utf-8"))
+        self.assertEqual(len(frozen["episodes"]), 3)
+        self.assertTrue(any(row["path"] == "api/runtime/story-v2" for row in records))
 
     def test_explicit_shiba_mirror_exception_only(self):
         shiba = publisher.frames_for({"id": "001_shiba"})
