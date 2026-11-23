@@ -238,15 +238,16 @@ void main() {
         find.byKey(const ValueKey('story-result-dialogue')),
         findsOneWidget,
       );
+      expect(find.textContaining('とけたぽむ！'), findsOneWidget);
       expect(find.textContaining('これはなにぽむ！？'), findsOneWidget);
-      expect(find.textContaining('さっき練習した数独とそっくり'), findsNothing);
+      expect(find.textContaining('すごいわん！'), findsNothing);
       expect(find.text('れんしゅうクリア！'), findsNothing);
       expect(find.byKey(const ValueKey('story-finish-clue')), findsNothing);
       await tap('story-advance-result-dialogue');
       expect(Progress.decode(store.raw!).story.resultDialogueTurns, 1);
       await launch();
       await open();
-      expect(find.textContaining('さっき練習した数独とそっくり'), findsOneWidget);
+      expect(find.textContaining('すごいわん！'), findsOneWidget);
       expect(find.textContaining('これはなにぽむ！？'), findsNothing);
       for (var i = 1; i < storyEpisodes.first.resultDialogue.length; i++) {
         await tap('story-advance-result-dialogue');
