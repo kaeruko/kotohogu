@@ -111,7 +111,7 @@ class PublishContentTests(unittest.TestCase):
         self.assertEqual(len(saved["episodes"]), 2)
         frozen = json.loads((self.base / "rewritten" /
                              "api/runtime/story").read_text("utf-8"))
-        self.assertEqual(len(frozen["episodes"]), 3)
+        self.assertEqual(len(frozen["episodes"]), len(story_doc["episodes"]))
         self.assertTrue(any(row["path"] == "api/runtime/story-v2" for row in records))
 
     def test_explicit_shiba_mirror_exception_only(self):
