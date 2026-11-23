@@ -46,26 +46,31 @@ class StoryCmsTests(unittest.TestCase):
             [row["id"] for row in original["episodes"]],
         )
 
-    def test_rejects_changed_puzzles_unlocks_and_saved_dialogue_offsets(self):
+    def test_revised_structure_can_be_saved_without_preserving_old_indices(self):
+        original = self.loaded()
+        shortened = copy.deepcopy(original)
+        shortened["episodes"] = shortened["episodes"][:5]
+        story.save_story(shortened)
+        self.assertEqual(len(self.loaded()["episodes"]), 5)
+
+        changed = copy.deepcopy(shortened)
+        changed["episodes"][0]["puzzle"] = original["episodes"][1]["puzzle"]
+        changed["episodes"][0]["solution"] = original["episodes"][1]["solution"]
+        changed["episodes"][0]["resultDialogue"].append(
+            copy.deepcopy(changed["episodes"][0]["resultDialogue"][0])
+        )
+        changed["episodes"][1]["unlockAt"] = 20
+        story.save_story(changed)
+        self.assertEqual(self.loaded(), changed)
+
+    def test_invalid_structure_fails_without_overwriting_previous_story(self):
         original = self.loaded()
         raw = self.path.read_bytes()
-        for field, value in (
-            ("puzzle", "0" * 16),
-            ("unlockAt", 10),
-        ):
-            doc = copy.deepcopy(original)
-            doc["episodes"][0][field] = value
-            with self.subTest(field=field), self.assertRaises(ValueError):
-                story.save_story(doc)
-            self.assertEqual(self.path.read_bytes(), raw)
-        for key in ("dialogue", "resultDialogue"):
-            doc = copy.deepcopy(original)
-            doc["episodes"][0][key].append(copy.deepcopy(doc["episodes"][0][key][0]))
-            with self.subTest(turns=key), self.assertRaisesRegex(
-                ValueError, "incompatible"
-            ):
-                story.save_story(doc)
-            self.assertEqual(self.path.read_bytes(), raw)
+        invalid = copy.deepcopy(original)
+        invalid["episodes"][0]["puzzle"] = "0" * 16
+        with self.assertRaisesRegex(ValueError, "one solution"):
+            story.save_story(invalid)
+        self.assertEqual(self.path.read_bytes(), raw)
 
     def test_unknown_speaker_and_missing_picture_fail_without_overwrite(self):
         original = self.loaded()
@@ -130,7 +135,7 @@ class StoryCmsTests(unittest.TestCase):
         self.assertEqual(self.loaded(), edited)
 
         illegal = copy.deepcopy(edited)
-        illegal["episodes"][0]["resultDialogue"].pop()
+        illegal["episodes"][0]["resultDialogue"][0]["speaker"] = "missing_resident"
         request = Request(
             base + "/api/story",
             data=json.dumps(illegal, ensure_ascii=False).encode("utf-8"),

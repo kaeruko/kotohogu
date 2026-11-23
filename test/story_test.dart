@@ -144,13 +144,41 @@ void main() {
     );
   });
 
+  test('editions restart only story, preserve other data, reject invalid signatures', () {
+    var original = const StoryProgress.empty().forCatalog(bundledStory);
+    original = original.advanceDialogue(0, 0);
+    final saved = StoryProgress.fromJson(original.toJson());
+    expect(saved.signature, bundledStory.progressSignature);
+    expect(saved.forCatalog(bundledStory).dialogueTurns, 1);
+    final edited = StoryCatalog(
+      title: '別のお話',
+      episodes: storyEpisodes.sublist(0, 5),
+    );
+    expect(edited.progressSignature, isNot(bundledStory.progressSignature));
+    expect(() => saved.validateFor(edited, 0), throwsFormatException);
+    final restart = saved.forCatalog(edited);
+    expect(restart.hasStarted, isFalse);
+    expect(restart.signature, edited.progressSignature);
+    final user = Progress.empty(today).complete(Mission.strength)
+        .withStory(saved);
+    final migrated = user.withStory(user.story.forCatalog(edited));
+    expect(migrated.points, user.points);
+    expect(migrated.residents.encode(), user.residents.encode());
+    expect(migrated.completed, user.completed);
+    expect(migrated.story.hasStarted, isFalse);
+    expect(
+      () => StoryProgress.fromJson({...saved.toJson(), 'signature': 'broken'}),
+      throwsFormatException,
+    );
+  });
+
   test('story saves coexist with old saves, gacha and date changes', () {
     var progress = Progress.decode(Progress.empty(today).encode());
     expect(progress.story.hasStarted, isFalse);
     for (final mission in Mission.values.take(9)) {
       progress = progress.complete(mission);
     }
-    var story = progress.story;
+    var story = progress.story.forCatalog(bundledStory);
     for (final _ in storyEpisodes.first.dialogue) {
       story = story.advanceDialogue(0, progress.points);
     }
@@ -340,7 +368,7 @@ void main() {
                 .take(startingPoints ~/ 10)) {
           progress = progress.complete(mission);
         }
-        var story = progress.story;
+        var story = progress.story.forCatalog(bundledStory);
         for (final _ in storyEpisodes.first.dialogue) {
           story = story.advanceDialogue(0, progress.points);
         }
@@ -404,7 +432,7 @@ void main() {
     for (final mission in Mission.values.take(9)) {
       progress = progress.complete(mission);
     }
-    var story = progress.story;
+    var story = progress.story.forCatalog(bundledStory);
     for (final (index, episode) in storyEpisodes.take(4).indexed) {
       for (final _ in episode.dialogue) {
         story = story.advanceDialogue(index, progress.points);

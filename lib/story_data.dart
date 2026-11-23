@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'resident_collection.dart';
@@ -20,7 +21,38 @@ class StoryCatalog {
   final List<StoryEpisode> episodes;
   final String? coverImage;
   final Uri? baseUri;
+
+  /// Fingerprint of save-relevant structure, not dialogue text or artwork.
+  /// A structural edit starts a new story; text edits keep progress.
+  String get progressSignature => storyProgressSignature(episodes);
 }
+
+/// Deterministic structural identity without changing the hosted JSON schema.
+String storyProgressSignature(List<StoryEpisode> episodes) {
+  final structure = jsonEncode([
+    for (final episode in episodes)
+      [
+        episode.id,
+        episode.area.id,
+        episode.destination?.id,
+        episode.unlockAt,
+        episode.puzzle,
+        episode.solution,
+        episode.dialogue.length,
+        episode.resultDialogue.length,
+      ],
+  ]);
+  // Two 32-bit accumulators; content identity, not an authentication token.
+  var hashA = 0x811c9dc5;
+  var hashB = 0x9e3779b9;
+  for (final value in structure.codeUnits) {
+    hashA = ((hashA ^ value) * 0x01000193) & 0xffffffff;
+    hashB = ((hashB + value) * 0x27d4eb2d) & 0xffffffff;
+  }
+  return "${hashA.toRadixString(16).padLeft(8, '0')}"
+      "${hashB.toRadixString(16).padLeft(8, '0')}";
+}
+
 
 class StorySpeaker {
   const StorySpeaker.local(TownResident resident)

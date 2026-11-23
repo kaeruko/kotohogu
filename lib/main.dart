@@ -259,6 +259,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
 
   Future<void> _openStory() async {
     if (_storyOpen ||
+        controller.busy ||
         controller.progress == null ||
         controller.failure != null) {
       return;
@@ -266,6 +267,27 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
     final catalog = _storyCatalog;
     _storyOpen = true;
     try {
+      final before = controller.progress!.story;
+      if (before.signature != catalog.progressSignature) {
+        await controller.updateStory(
+          (story, _) => story.forCatalog(catalog),
+        );
+        if (controller.failure != null ||
+            controller.progress?.story.signature != catalog.progressSignature ||
+            !mounted) {
+          return;
+        }
+        if (before.hasStarted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('お話が新しくなったので、ストーリーを最初から楽しめます。'),
+            ),
+          );
+        }
+      }
+      controller.progress!.story.validateFor(
+        catalog, controller.progress!.points,
+      );
       await Navigator.of(context).push<void>(MaterialPageRoute<void>(
         settings: const RouteSettings(name: '/story'),
         builder: (storyContext) => StoryScreen(
@@ -1003,7 +1025,10 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
         }
       }
       try {
-        progress.story.validateFor(_storyCatalog, progress.points);
+        // A different edition is restarted on story entry, not reinterpreted.
+        if (progress.story.signature == _storyCatalog.progressSignature) {
+          progress.story.validateFor(_storyCatalog, progress.points);
+        }
       } on FormatException catch (error) {
         return Scaffold(
           body: SafeArea(

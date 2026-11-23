@@ -18,6 +18,8 @@ test("story CMS lists episodes and exposes editing and a step-by-step preview", 
     'id="list"', 'id="fields"', 'id="intro"', 'id="outro"',
     'id="scenePreview"', 'id="previewText"', 'id="previousTurn"',
     'id="nextTurn"', 'id="save"', 'id="reload"',
+    'id="addEpisode"', 'id="removeEpisode"', 'id="storyJsonEditor"',
+    'id="applyStoryJson"',
   ]) {
     assert.ok(page.includes(text), `Missing story CMS element: ${text}`);
   }

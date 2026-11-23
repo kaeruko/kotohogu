@@ -59,8 +59,12 @@ input[readonly]{background:#f2eadf}
 <main>
 <section aria-labelledby="listTitle">
   <h2 id="listTitle">お話一覧 <span id="count"></span></h2>
-  <p class="note">既存の話数・順番・数独の答えはセーブデータと結びついています。ここでは編集できません。</p>
+  <p class="note">お話の数や数独も自由に変更できます。構成が変わるとアプリではストーリーだけ最初からになります（ことほぎ・住民などは保持）。</p>
   <div id="list" role="group" aria-label="ストーリーの章一覧"></div>
+  <div class="controls">
+    <button id="addEpisode" class="secondary" type="button">＋ お話を追加</button>
+    <button id="removeEpisode" class="secondary" type="button">最後のお話を削除</button>
+  </div>
   <div class="controls">
     <button id="reload" class="secondary" type="button">保存済みを再読み込み</button>
   </div>
@@ -79,7 +83,13 @@ input[readonly]{background:#f2eadf}
         <div id="intro"></div>
         <h3>数独を解いた後の会話</h3>
         <div id="outro"></div>
-        <p class="note">セリフは1つずつ表示されます。保存済みの読了位置を守るため、現在は発言の追加・削除・並び替えはできません。話す住民と文章は変更できます。</p>
+        <p class="note">セリフの追加・削除もできます。保存前にプレビューで確認してください。問題や答えは4×4または6×6の解が一意になる必要があります。</p>
+        <details id="advancedEditor">
+          <summary>章の並び替え・エリア変更など（JSON編集）</summary>
+          <p class="note">全話のJSONを編集できます。「編集内容を一覧に反映」を押してから保存してください。不正な構成は保存時にエラーになります。</p>
+          <textarea id="storyJsonEditor" rows="18" spellcheck="false" aria-label="ストーリー全体のJSON"></textarea>
+          <div class="controls"><button id="applyStoryJson" type="button" class="secondary">編集内容を一覧に反映</button></div>
+        </details>
       </div>
       <div>
         <h3>お話のプレビュー</h3>

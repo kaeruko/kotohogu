@@ -41,7 +41,7 @@ def validate_story(doc, resident_ids, areas):
     _text(doc["title"], "story title")
     _image_name(doc["coverImage"])
     episodes = doc["episodes"]
-    if not isinstance(episodes, list) or not 11 <= len(episodes) <= 128:
+    if not isinstance(episodes, list) or not 1 <= len(episodes) <= 128:
         raise ValueError("Invalid Sudoku story episode count")
     previous_unlock = -1
     ids = set()
@@ -86,20 +86,18 @@ def validate_story(doc, resident_ids, areas):
 def save_story(doc):
     """Validate the CMS document and atomically replace only story.json.
 
-    Published episode identity, puzzle solutions, unlock thresholds, and
-    saved dialogue offsets are kept stable across deployments.
+    Valid story structures may be revised freely. A changed structure
+    receives a new story signature in the app.
     """
     from characters import commit_files, load_catalog, validate_catalog
 
     registry = validate_catalog(load_catalog())
     active = {row["id"] for row in registry["characters"]
               if not row.get("archived", False)}
-    previous = load_story(active)
     areas = {row["id"]: row["unlockAt"]
              for row in validate_areas(load_areas())["areas"]
              if row["id"] != "hospital"}
     validate_story(doc, active, areas)
-    validate_story_update(previous, doc)
     payload = json.dumps(doc, ensure_ascii=False, indent=2) + "\n"
     if len(payload.encode("utf-8")) > MAX_JSON_BYTES:
         raise ValueError(f"Sudoku story exceeds {MAX_JSON_BYTES} bytes")
@@ -136,19 +134,6 @@ def story_image_bytes(name):
             or not all(1 <= size <= 4096 for size in struct.unpack(">II", raw[16:24]))):
         raise ValueError(f"Invalid Sudoku story PNG: {name}")
     return raw
-
-
-def validate_story_update(previous, current):
-    """Saved indices, dialogue offsets and boards refer to this prefix."""
-    before, after = previous["episodes"], current["episodes"]
-    if len(after) < len(before):
-        raise ValueError("Published Sudoku story episodes cannot be removed")
-    fixed = ("id", "area", "destination", "unlockAt", "puzzle", "solution")
-    for old, new in zip(before, after):
-        if (any(old.get(field) != new.get(field) for field in fixed)
-                or len(old["dialogue"]) != len(new["dialogue"])
-                or len(old["resultDialogue"]) != len(new["resultDialogue"])):
-            raise ValueError(f"Published Sudoku story episode is incompatible: {old['id']}")
 
 
 def _validate_puzzle(puzzle, solution, identifier):

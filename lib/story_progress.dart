@@ -11,6 +11,7 @@ class StoryProgress {
     this.board,
     this.unreadClue = false,
     this.resultDialogueTurns = 0,
+    this.signature,
   });
 
   final int completed;
@@ -19,6 +20,13 @@ class StoryProgress {
   final bool unreadClue;
   /// Read position in the post-sudoku scene, saved for resume.
   final int resultDialogueTurns;
+  final String? signature;
+
+  /// A structural content edit starts a fresh story-only run.
+  StoryProgress forCatalog(StoryCatalog catalog) {
+    final next = catalog.progressSignature;
+    return signature == next ? this : StoryProgress._(signature: next);
+  }
 
   int get resumeIndex => unreadClue ? completed - 1 : completed;
   bool get hasStarted => completed != 0 || dialogueTurns != 0;
@@ -40,6 +48,7 @@ class StoryProgress {
     }
     return StoryProgress._(
       completed: completed,
+      signature: signature,
       dialogueTurns: dialogueTurns + 1,
     );
   }
@@ -65,10 +74,13 @@ class StoryProgress {
     if (next[cell] == number) return this;
     next[cell] = number;
     if (episode.isSolved(next)) {
-      return StoryProgress._(completed: completed + 1, unreadClue: true);
+      return StoryProgress._(
+        completed: completed + 1, unreadClue: true, signature: signature,
+      );
     }
     return StoryProgress._(
       completed: completed,
+      signature: signature,
       dialogueTurns: dialogueTurns,
       board: List.unmodifiable(next),
     );
@@ -114,6 +126,7 @@ class StoryProgress {
     }
     return StoryProgress._(
       completed: completed,
+      signature: signature,
       unreadClue: true,
       resultDialogueTurns: resultDialogueTurns + 1,
     );
@@ -128,13 +141,14 @@ class StoryProgress {
           index >= 0 &&
           index < episodes.length &&
           resultDialogueTurns == episodes[index].resultDialogue.length
-      ? StoryProgress._(completed: completed)
+      ? StoryProgress._(completed: completed, signature: signature)
       : this;
 
   Map<String, Object> toJson() => {
     'completed': completed,
     'dialogueTurns': dialogueTurns,
     'unreadClue': unreadClue,
+    if (signature != null) 'signature': signature!,
     if (resultDialogueTurns != 0) 'resultDialogueTurns': resultDialogueTurns,
     if (board != null) 'board': board!.join(),
   };
@@ -147,6 +161,7 @@ class StoryProgress {
             'dialogueTurns',
             'unreadClue',
             'resultDialogueTurns',
+            'signature',
             'board',
           }.contains(key),
         )) {
@@ -158,6 +173,7 @@ class StoryProgress {
     final resultDialogueTurns = raw.containsKey('resultDialogueTurns')
         ? raw['resultDialogueTurns']
         : 0;
+    final signature = raw['signature'];
     if (completed is! int ||
         completed < 0 ||
         dialogueTurns is! int ||
@@ -165,7 +181,8 @@ class StoryProgress {
         unreadClue is! bool ||
         resultDialogueTurns is! int ||
         resultDialogueTurns < 0 ||
-        (resultDialogueTurns > 0 && !unreadClue) ||
+        (signature != null && (signature is! String ||
+            !RegExp(r'^[0-9a-f]{16} && !unreadClue) ||
         (unreadClue && (completed == 0 || dialogueTurns != 0))) {
       throw const FormatException('Invalid story progress');
     }
@@ -184,6 +201,7 @@ class StoryProgress {
       dialogueTurns: dialogueTurns,
       unreadClue: unreadClue,
       resultDialogueTurns: resultDialogueTurns,
+      signature: signature as String?,
       board: board == null ? null : List.unmodifiable(board),
     );
   }
@@ -192,6 +210,9 @@ class StoryProgress {
   /// have been released after the app was built, so decoding is catalog-free.
   void validateFor(StoryCatalog catalog, int points) {
     final episodes = catalog.episodes;
+    if (signature != null && signature != catalog.progressSignature) {
+      throw const FormatException('Story progress belongs to another edition');
+    }
     if (completed > episodes.length ||
         (completed > 0 && episodes[completed - 1].unlockAt > points)) {
       throw const FormatException(

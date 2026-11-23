@@ -15,6 +15,7 @@ let residents = null;
 let selectedId = null;
 let previewAt = 0;
 let dirty = false;
+let rawPending = false;
 
 async function request(url, options) {
   const response = await fetch(url, options);
@@ -132,8 +133,34 @@ function renderTurns(targetId, episode, key) {
     labelInput(card, "セリフ", turn.text, value => {
       turn.text = value;
     }, {multiline: true, refreshPreview: true});
+    const remove = el("button", "このセリフを削除");
+    remove.type = "button";
+    remove.className = "secondary";
+    remove.onclick = () => {
+      turns.splice(index, 1);
+      previewAt = 0;
+      changed();
+      renderTurns(targetId, episode, key);
+      renderPreview();
+    };
+    card.append(remove);
     target.append(card);
   }
+  const add = el("button", "＋ セリフを追加");
+  add.type = "button";
+  add.className = "secondary";
+  add.onclick = () => {
+    if (turns.length >= 20) {
+      setStatus("セリフは最大20個です", true);
+      return;
+    }
+    turns.push({speaker: residents[0].id, text: "新しいセリフ"});
+    previewAt = 0;
+    changed();
+    renderTurns(targetId, episode, key);
+    renderPreview();
+  };
+  target.append(add);
 }
 
 function renderImages() {
@@ -209,8 +236,15 @@ function renderEditor() {
   readOnly(immutable, "舞台（エリアID）", episode.area);
   readOnly(immutable, "数独のサイズ", (episode.puzzle.length === 16 ? 4 : 6) + "×" +
            (episode.puzzle.length === 16 ? 4 : 6));
-  readOnly(immutable, "数独の問題・答え", "保存済みの盤面に固定");
+  readOnly(immutable, "数独の問題・答え", "下の欄で編集できます");
   fields.append(immutable);
+  labelInput(fields, "数独の問題（0は空きマス）", episode.puzzle, value => {
+    episode.puzzle = value;
+    renderPreview();
+  }, {maxLength: 36});
+  labelInput(fields, "数独の正解", episode.solution, value => {
+    episode.solution = value;
+  }, {maxLength: 36});
   labelInput(fields, "場面絵のPNGファイル名", episode.image, value => {
     episode.image = value;
   }, {refreshImage: true});
@@ -228,9 +262,8 @@ function renderEditor() {
   renderImages();
   renderPreview();
   $("puzzleInfo").replaceChildren(
-    el("h3", "数独の情報（参照のみ）"),
-    el("p", "問題: " + episode.puzzle),
-    el("p", "正解: " + episode.solution),
+    el("h3", "数独の内容"),
+    el("p", "問題と正解は編集欄で変更できます"),
     el("p", "次の目的地: " + (episode.destination || "この章では未指定")),
   );
 }
@@ -252,6 +285,8 @@ async function load() {
       ? selectedId : data.episodes[0].id;
     previewAt = 0;
     dirty = false;
+    rawPending = false;
+    $("advancedEditor").open = false;
     renderList();
     renderEditor();
     $("save").disabled = false;
@@ -265,6 +300,10 @@ async function load() {
 }
 
 async function save() {
+  if (rawPending) {
+    setStatus("JSONの編集内容を一覧に反映してから保存してください", true);
+    return;
+  }
   if (!documentData || !dirty) return;
   $("save").disabled = true;
   setStatus("保存中...");
@@ -286,12 +325,79 @@ async function save() {
 
 $("save").onclick = save;
 $("reload").onclick = () => {
-  if (!dirty || confirm("未保存の変更を破棄して読み込み直しますか？")) load();
+  if (!(dirty || rawPending) || confirm("未保存の変更を破棄して読み込み直しますか？")) load();
+};
+$("addEpisode").onclick = () => {
+  if (documentData.episodes.length >= 128) {
+    setStatus("お話は最大128話です", true);
+    return;
+  }
+  const previous = documentData.episodes.at(-1);
+  const clone = structuredClone(previous);
+  let number = documentData.episodes.length;
+  while (documentData.episodes.some(entry =>
+    entry.id === "episode_" + String(number).padStart(2, "0"))) number++;
+  clone.id = "episode_" + String(number).padStart(2, "0");
+  clone.title = "新しいお話";
+  clone.unlockAt = previous.unlockAt + 30;
+  delete clone.destination;
+  delete clone.resultImage;
+  documentData.episodes.push(clone);
+  selectedId = clone.id;
+  previewAt = 0;
+  changed();
+  renderList();
+  renderEditor();
+};
+$("removeEpisode").onclick = () => {
+  if (documentData.episodes.length <= 1) {
+    setStatus("少なくとも1話は残してください", true);
+    return;
+  }
+  const last = documentData.episodes.at(-1);
+  if (!confirm("最後の「" + last.title + "」を削除しますか？")) return;
+  documentData.episodes.pop();
+  selectedId = documentData.episodes.at(-1).id;
+  previewAt = 0;
+  changed();
+  renderList();
+  renderEditor();
+};
+$("advancedEditor").ontoggle = () => {
+  if ($("advancedEditor").open) {
+    $("storyJsonEditor").value = JSON.stringify(documentData, null, 2);
+    rawPending = false;
+  }
+};
+$("storyJsonEditor").oninput = () => {
+  rawPending = true;
+  setStatus("JSON編集中。保存前に「編集内容を一覧に反映」を押してください");
+};
+$("applyStoryJson").onclick = () => {
+  try {
+    const draft = JSON.parse($("storyJsonEditor").value);
+    if (!draft || !Array.isArray(draft.episodes) || draft.episodes.length === 0 ||
+        draft.episodes.some(row =>
+          !row || typeof row.id !== "string" ||
+          !Array.isArray(row.dialogue) || !Array.isArray(row.resultDialogue))) {
+      throw new Error("ストーリーのJSON形式が不正です");
+    }
+    documentData = draft;
+    selectedId = draft.episodes[0].id;
+    previewAt = 0;
+    rawPending = false;
+    changed();
+    $("advancedEditor").open = false;
+    renderList();
+    renderEditor();
+  } catch (error) {
+    setStatus("JSONの適用エラー: " + error.message, true);
+  }
 };
 $("previousTurn").onclick = () => {previewAt--; renderPreview();};
 $("nextTurn").onclick = () => {previewAt++; renderPreview();};
 window.addEventListener("beforeunload", event => {
-  if (!dirty) return;
+  if (!(dirty || rawPending)) return;
   event.preventDefault();
   event.returnValue = "";
 });

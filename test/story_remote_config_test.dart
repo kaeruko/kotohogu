@@ -89,21 +89,23 @@ void main() {
     }
   });
 
-  test(
-    'published dialogue can change, but a legacy stage cannot be reordered',
-    () {
-      final json = storyDocument();
-      json['title'] = '配信から更新した章';
-      final episodes = _episodes(json);
-      episodes.first['dialogue'][0]['text'] = '配信から更新したセリフ';
-      final catalog = parse(json);
-      expect(catalog.title, '配信から更新した章');
-      expect(catalog.episodes.first.dialogue.first.$2, '配信から更新したセリフ');
-
-      episodes[1]['id'] = 'changed_stage';
-      expect(() => parse(json), throwsFormatException);
-    },
-  );
+  test('text edits retain a signature and structural edits create a new edition', () {
+    final original = parse(storyDocument());
+    final textEdit = storyDocument();
+    _episodes(textEdit).first['dialogue'][0]['text'] = '配信から更新したセリフ';
+    expect(parse(textEdit).progressSignature, original.progressSignature);
+    final rewritten = storyDocument();
+    final chapters = _episodes(rewritten);
+    chapters.removeRange(5, chapters.length);
+    final updated = parse(rewritten);
+    expect(updated.episodes.length, 5);
+    expect(updated.progressSignature, isNot(original.progressSignature));
+    chapters.first['dialogue'].add({
+      'speaker': '001_shiba',
+      'text': 'あたらしいセリフだわん。',
+    });
+    expect(parse(rewritten).progressSignature, isNot(updated.progressSignature));
+  });
 
   test('unknown cast and external image paths are rejected', () {
     final json = storyDocument();
@@ -187,6 +189,7 @@ void main() {
       'completed': index,
       'dialogueTurns': 0,
       'unreadClue': false,
+      'signature': hosted.progressSignature,
     });
     for (final _ in episode.dialogue) {
       story = story.advanceDialogue(index, points, episodes: hosted.episodes);

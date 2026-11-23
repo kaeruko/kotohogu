@@ -84,42 +84,22 @@ class PublishContentTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Invalid PNG sprite"):
                 publisher.prepare(self.base / "invalid")
 
-    def test_published_story_allows_text_changes_and_appends_but_not_save_changes(self):
-        args = SimpleNamespace(region="ap-northeast-1", profile=None)
-        path = self.base / "new-story.json"
-        previous = {"episodes": [{"id": "first", "puzzle": "before",
-                                  "dialogue": ["old"], "resultDialogue": ["old clue"]}]}
-        current = copy.deepcopy(previous)
-        current["episodes"][0]["dialogue"] = ["reworded"]
-        current["episodes"][0]["resultDialogue"] = ["reworded clue"]
-        current["episodes"].append({"id": "next"})
-        path.write_bytes(publisher.encode_json(current))
-        release = "a" * 64
-        story_json = publisher.encode_json(previous)
-        manifest = publisher.encode_json({"releaseId": release, "objects": [
-            {"path": "api/runtime/story", "sha256": publisher.digest(story_json)},
-        ]})
-        prior = {
-            "current.json": publisher.encode_json({"releaseId": release,
-                                                   "manifestSha256": publisher.digest(manifest)}),
-            f"releases/{release}/manifest.json": manifest,
-            f"releases/{release}/api/runtime/story": story_json,
-        }
-
-        def download(_args, _service, _command, uri, destination, *_flags):
-            Path(destination).write_bytes(prior[uri.removeprefix("s3://bucket/")])
-
-        with patch.object(publisher, "aws", side_effect=download):
-            publisher.verify_story_continuity(args, "bucket", self.base, path)
-            current["episodes"][0]["puzzle"] = "changed"
-            path.write_bytes(publisher.encode_json(current))
-            with self.assertRaisesRegex(ValueError, "episode is incompatible"):
-                publisher.verify_story_continuity(args, "bucket", self.base, path)
-            current["episodes"][0]["puzzle"] = "before"
-            current["episodes"][0]["resultDialogue"].append("extra line")
-            path.write_bytes(publisher.encode_json(current))
-            with self.assertRaisesRegex(ValueError, "episode is incompatible"):
-                publisher.verify_story_continuity(args, "bucket", self.base, path)
+    def test_content_publisher_accepts_a_shorter_rewritten_story(self):
+        actual_catalog = publisher.runtime_catalog()
+        story_doc = publisher.load_story(
+            {row["id"] for row in actual_catalog["characters"]}
+        )
+        shorter = copy.deepcopy(story_doc)
+        shorter["episodes"] = shorter["episodes"][:5]
+        with (patch.object(publisher, "runtime_catalog", return_value=self.catalog),
+              patch.object(publisher, "load_story", return_value=shorter),
+              patch.object(publisher, "runtime_sprite_path",
+                           return_value=self.png)):
+            _, records, _ = publisher.prepare(self.base / "rewritten")
+        saved = json.loads((self.base / "rewritten" /
+                            "api/runtime/story").read_text("utf-8"))
+        self.assertEqual(len(saved["episodes"]), 5)
+        self.assertTrue(any(row["path"] == "api/runtime/story" for row in records))
 
     def test_explicit_shiba_mirror_exception_only(self):
         shiba = publisher.frames_for({"id": "001_shiba"})

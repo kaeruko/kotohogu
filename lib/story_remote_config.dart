@@ -26,7 +26,7 @@ StoryCatalog parseHostedStory(
     throw const FormatException('Unsupported story version');
   }
   final rows = arrayOf(root['episodes'], 'story episodes');
-  if (rows.length < storyEpisodes.length || rows.length > 128) {
+  if (rows.isEmpty || rows.length > 128) {
     throw const FormatException('Invalid story episode count');
   }
   final speakers = {
@@ -136,20 +136,6 @@ StoryCatalog parseHostedStory(
       ),
     );
     _validatePuzzle(episode);
-    if (index < storyEpisodes.length) {
-      final original = storyEpisodes[index];
-      if (original.id != id ||
-          original.area != scene ||
-          original.destination != destination ||
-          original.unlockAt != unlockAt ||
-          original.puzzle != episode.puzzle ||
-          original.solution != episode.solution ||
-          original.dialogue.length != episode.dialogue.length) {
-        throw FormatException(
-          'Story episode is incompatible with existing saves: $id',
-        );
-      }
-    }
     episodes.add(episode);
   }
   return StoryCatalog(
