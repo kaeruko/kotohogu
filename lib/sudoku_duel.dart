@@ -54,6 +54,15 @@ enum DuelPlayer {
 
 enum DuelRival { mosaedo, oshisho, pomupomu, patissier }
 
+enum DuelDifficulty {
+  easy('やさしい'),
+  normal('ふつう'),
+  hard('むずかしい');
+
+  const DuelDifficulty(this.label);
+  final String label;
+}
+
 class SudokuDuel {
   SudokuDuel._(
     this.size,
@@ -202,36 +211,58 @@ class SudokuDuel {
     );
   }
 
-  SudokuDuel computerMove(DuelRival rival, Random random) {
+  static const _winScore = 100;
+  int get _strongDepth => size == DuelSize.mini ? _board.length : 3;
+
+  /// Suggest a legal move without changing the game or consuming the NPC's RNG.
+  SudokuDuel hintMove() {
     if (isOver) throw StateError('The duel has already ended');
-    final depth = switch (rival) {
-      DuelRival.pomupomu => 1,
-      DuelRival.mosaedo || DuelRival.patissier => 2,
-      DuelRival.oshisho => size == DuelSize.mini ? _board.length : 3,
-    };
-    // Shuffle equally good moves so rematches do not always play out alike.
+    return _bestMove(legalCells, _strongDepth);
+  }
+
+  SudokuDuel computerMove(
+    DuelRival rival,
+    Random random, {
+    DuelDifficulty difficulty = DuelDifficulty.normal,
+  }) {
+    if (isOver) throw StateError('The duel has already ended');
     final choices = legalCells.toList()..shuffle(random);
+    return switch (difficulty) {
+      DuelDifficulty.easy => _place(choices.first),
+      DuelDifficulty.hard => _bestMove(choices, _strongDepth),
+      DuelDifficulty.normal => _bestMove(choices, switch (rival) {
+        DuelRival.pomupomu => 1,
+        DuelRival.mosaedo || DuelRival.patissier => 2,
+        DuelRival.oshisho => _strongDepth,
+      }),
+    };
+  }
+
+  SudokuDuel _bestMove(Iterable<int> choices, int depth) {
     late SudokuDuel best;
-    var bestScore = -1000;
+    var bestScore = -_winScore - 1;
     for (final cell in choices) {
       final next = _place(cell);
-      final score = -next._lookAhead(depth - 1);
+      final score = -next._lookAhead(depth - 1, -_winScore - 1, -bestScore);
       if (score > bestScore) {
         bestScore = score;
         best = next;
+        if (score == _winScore) break;
       }
     }
     return best;
   }
 
   // Evaluate from the side to move. Ending the game outweighs any partial lead.
-  int _lookAhead(int depth) {
+  int _lookAhead(int depth, int alpha, int beta) {
     final lead = score(turn) - score(turn.other);
-    if (isOver) return 100 * lead.sign;
+    if (isOver) return _winScore * lead.sign;
     if (depth == 0) return lead;
-    var best = -1000;
+    var best = -_winScore - 1;
     for (final cell in legalCells) {
-      best = max(best, -_place(cell)._lookAhead(depth - 1));
+      best = max(best, -_place(cell)._lookAhead(depth - 1, -beta, -alpha));
+      if (best >= beta || best == _winScore) break;
+      alpha = max(alpha, best);
     }
     return best;
   }

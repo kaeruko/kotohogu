@@ -12,6 +12,7 @@ class StoryProgress {
     this.board,
     this.duelMoves,
     this.duelLayout,
+    this._selectedDifficulty,
     this.unreadClue = false,
     this.resultDialogueTurns = 0,
     this.signature,
@@ -25,6 +26,8 @@ class StoryProgress {
   // Move logs from the first release used the catalog puzzle and have no tag.
   static const _currentDuelLayout = 2;
   final int? duelLayout;
+  final DuelDifficulty? _selectedDifficulty;
+  DuelDifficulty get duelDifficulty => _selectedDifficulty ?? DuelDifficulty.normal;
   final bool unreadClue;
   /// Read position in the post-sudoku scene, saved for resume.
   final int resultDialogueTurns;
@@ -105,9 +108,28 @@ class StoryProgress {
   SudokuDuel duelPosition(StoryEpisode episode) {
     final legacy = duelMoves != null && duelLayout == null;
     return SudokuDuel.story(
-      legacy ? episode.puzzle : episode.duelPuzzle,
+      legacy ? episode.puzzle : episode.duelPuzzleFor(duelDifficulty),
       episode.solution,
       duelMoves ?? const [],
+    );
+  }
+
+  StoryProgress selectDuelDifficulty(
+    int index,
+    int points,
+    DuelDifficulty difficulty, {
+    List<StoryEpisode> episodes = storyEpisodes,
+  }) {
+    if (!_canDuel(index, points, episodes) ||
+        duelMoves != null ||
+        difficulty == duelDifficulty) {
+      return this;
+    }
+    return StoryProgress._(
+      completed: completed,
+      dialogueTurns: dialogueTurns,
+      signature: signature,
+      selectedDifficulty: difficulty == DuelDifficulty.normal ? null : difficulty,
     );
   }
 
@@ -127,6 +149,7 @@ class StoryProgress {
       dialogueTurns: dialogueTurns,
       duelMoves: List.unmodifiable([...?duelMoves, cell]),
       duelLayout: duelMoves == null ? _currentDuelLayout : duelLayout,
+      selectedDifficulty: _selectedDifficulty,
     );
   }
 
@@ -211,6 +234,7 @@ class StoryProgress {
     if (board != null) 'board': board!.join(),
     'duelMoves': ?duelMoves,
     'duelLayout': ?duelLayout,
+    'duelDifficulty': ?_selectedDifficulty?.name,
   };
 
   factory StoryProgress.fromJson(Object? raw) {
@@ -225,6 +249,7 @@ class StoryProgress {
             'board',
             'duelMoves',
             'duelLayout',
+            'duelDifficulty',
           }.contains(key),
         )) {
       throw const FormatException('Invalid story save schema');
@@ -278,6 +303,19 @@ class StoryProgress {
         throw FormatException('Unsupported story duel layout: $layout');
       }
     }
+    DuelDifficulty? difficulty;
+    if (raw.containsKey('duelDifficulty')) {
+      difficulty = switch (raw['duelDifficulty']) {
+        'easy' => DuelDifficulty.easy,
+        'normal' => DuelDifficulty.normal,
+        'hard' => DuelDifficulty.hard,
+        final value => throw FormatException('Unknown story duel difficulty: $value'),
+      };
+      if (dialogueTurns == 0 || unreadClue || board != null ||
+          (duelMoves != null && layout == null)) {
+        throw const FormatException('Duel difficulty outside a current story match');
+      }
+    }
     return StoryProgress._(
       completed: completed,
       dialogueTurns: dialogueTurns,
@@ -287,6 +325,7 @@ class StoryProgress {
       board: board == null ? null : List.unmodifiable(board),
       duelMoves: duelMoves,
       duelLayout: layout as int?,
+      selectedDifficulty: difficulty,
     );
   }
 
@@ -318,11 +357,11 @@ class StoryProgress {
         dialogueTurns > episode.dialogue.length) {
       throw const FormatException('Invalid story dialogue position');
     }
-    if (duelMoves != null) {
+    if (duelMoves != null || _selectedDifficulty != null) {
       if (episode.duel == null || dialogueTurns != episode.dialogue.length) {
-        throw const FormatException('Duel moves outside a story match');
+        throw const FormatException('Duel data outside a story match');
       }
-      duelPosition(episode);
+      if (duelMoves != null) duelPosition(episode);
     }
     final cells = board;
     if (cells == null) return;

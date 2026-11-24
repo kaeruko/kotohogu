@@ -125,60 +125,139 @@ void main() {
     },
   );
 
+  test('difficulty belongs to the active duel and is locked after a move', () {
+    const index = 4;
+    final episode = storyEpisodes[index];
+    final ready = atEpisode(index, episode.dialogue.length);
+    final points = episode.unlockAt;
+    expect(ready.duelDifficulty, DuelDifficulty.normal);
+    final hard = ready.selectDuelDifficulty(index, points, DuelDifficulty.hard);
+    final saved = StoryProgress.fromJson(hard.toJson());
+    saved.validateFor(bundledStory, points);
+    expect(saved.duelDifficulty, DuelDifficulty.hard);
+    expect(saved.duelMoves, isNull);
+    expect(
+      saved.selectDuelDifficulty(index, points, DuelDifficulty.normal).toJson(),
+      ready.toJson(),
+    );
+    final cell = saved.duelPosition(episode).legalCells.first;
+    final played = saved.playDuelMove(
+      index,
+      points,
+      cell,
+      episode.answerAt(cell),
+    );
+    expect(
+      played.selectDuelDifficulty(index, points, DuelDifficulty.easy),
+      same(played),
+    );
+    expect(
+      StoryProgress.fromJson(played.toJson()).duelDifficulty,
+      DuelDifficulty.hard,
+    );
+    for (final value in [null, 'expert', 1]) {
+      expect(
+        () => StoryProgress.fromJson({
+          ...ready.toJson(),
+          'duelDifficulty': value,
+        }),
+        throwsFormatException,
+      );
+    }
+    final solo = atEpisode(0, storyEpisodes.first.dialogue.length);
+    expect(
+      () =>
+          StoryProgress.fromJson({...solo.toJson(), 'duelDifficulty': 'normal'})
+              .validateFor(bundledStory, points),
+      throwsFormatException,
+    );
+    expect(
+      () => StoryProgress.fromJson({
+        ...hard.toJson(),
+        'duelMoves': [cell],
+      }),
+      throwsFormatException,
+    );
+    expect(
+      () =>
+          StoryProgress.fromJson({...hard.toJson(), 'dialogueTurns': 1})
+              .validateFor(bundledStory, points),
+      throwsFormatException,
+    );
+  });
+
   for (final entry in pairs.entries) {
     final index = entry.key;
     final (player, npc) = entry.value;
-    test(
-      '$player can force a win and all three outcomes occur against $npc',
-      () {
-        final episode = storyEpisodes[index];
-        final start = atEpisode(
-          index,
-          episode.dialogue.length,
-        ).duelPosition(episode);
-        final answer = solveSingles(start);
-        expect(answer.join(), episode.solution);
+    for (final level in DuelDifficulty.values) {
+      test(
+        '$player can force a win and all three outcomes occur against $npc on ${level.name}',
+        () {
+          final episode = storyEpisodes[index];
+          final start = atEpisode(index, episode.dialogue.length)
+              .selectDuelDifficulty(index, episode.unlockAt, level)
+              .duelPosition(episode);
+          final answer = solveSingles(start);
+          expect(answer.join(), episode.solution);
 
-        Iterable<SudokuDuel> moves(SudokuDuel game) =>
-            game.legalCells.map((cell) => game.play(cell, answer[cell])!);
-        int result(SudokuDuel game) => game
-            .score(DuelPlayer.first)
-            .compareTo(game.score(DuelPlayer.second));
+          Iterable<SudokuDuel> moves(SudokuDuel game) =>
+              game.legalCells.map((cell) => game.play(cell, answer[cell])!);
+          int result(SudokuDuel game) => game
+              .score(DuelPlayer.first)
+              .compareTo(game.score(DuelPlayer.second));
 
-        // Even an opponent who sees the whole game cannot stop every opening.
-        bool canForceWin(SudokuDuel game) {
-          if (game.isOver) return result(game) > 0;
-          return game.turn == DuelPlayer.first
-              ? moves(game).any(canForceWin)
-              : moves(game).every(canForceWin);
-        }
-
-        final winningOpenings = moves(start).where(canForceWin).length;
-        expect(winningOpenings, greaterThan(0));
-        expect(winningOpenings, lessThan(start.legalCells.length));
-
-        // These results must be reachable against the same AI the player faces.
-        final outcomes = <int>{};
-        final random = Random(7);
-        void playAgainstNpc(SudokuDuel game) {
-          if (game.isOver) {
-            outcomes.add(result(game));
-          } else if (game.turn == DuelPlayer.second) {
-            playAgainstNpc(game.computerMove(episode.duel!.rival, random));
-          } else {
-            moves(game).forEach(playAgainstNpc);
+          // Even an opponent who sees the whole game cannot stop every opening.
+          bool canForceWin(SudokuDuel game) {
+            if (game.isOver) return result(game) > 0;
+            return game.turn == DuelPlayer.first
+                ? moves(game).any(canForceWin)
+                : moves(game).every(canForceWin);
           }
-        }
 
-        playAgainstNpc(start);
-        expect(outcomes, {-1, 0, 1});
-      },
-    );
+          final winningOpenings = moves(start).where(canForceWin).length;
+          expect(winningOpenings, level == DuelDifficulty.easy ? 2 : 1);
+          expect(winningOpenings, lessThan(start.legalCells.length));
+
+          if (level == DuelDifficulty.easy) {
+            bool hintsWin(SudokuDuel game) {
+              if (game.isOver) return result(game) > 0;
+              return game.turn == DuelPlayer.first
+                  ? hintsWin(game.hintMove())
+                  : moves(game).every(hintsWin);
+            }
+
+            expect(hintsWin(start), isTrue);
+          }
+
+          // These results must be reachable against the same AI the player faces.
+          final outcomes = <int>{};
+          final random = Random(7);
+          void playAgainstNpc(SudokuDuel game) {
+            if (game.isOver) {
+              outcomes.add(result(game));
+            } else if (game.turn == DuelPlayer.second) {
+              playAgainstNpc(
+                game.computerMove(
+                  episode.duel!.rival,
+                  random,
+                  difficulty: level,
+                ),
+              );
+            } else {
+              moves(game).forEach(playAgainstNpc);
+            }
+          }
+
+          playAgainstNpc(start);
+          expect(outcomes, {-1, 0, 1});
+        },
+      );
+    }
 
     testWidgets(
       '$player plays $npc inside the episode, resumes, and earns the clue',
       (tester) async {
-        tester.view.physicalSize = const Size(390, 800);
+        tester.view.physicalSize = const Size(345, 742);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         final episode = storyEpisodes[index];
@@ -239,7 +318,45 @@ void main() {
         await tap(key('story-advance-dialogue'));
         expect(find.text('$player VS $npc'), findsOneWidget);
         expect(key('story-puzzle'), findsNothing);
-        await humanMove(controller.progress!.story.duelPosition(episode));
+        expect(
+          tester.widget<ChoiceChip>(key('duel-difficulty-normal')).selected,
+          isTrue,
+        );
+        final level = switch (index) {
+          2 => DuelDifficulty.easy,
+          4 => DuelDifficulty.hard,
+          _ => DuelDifficulty.normal,
+        };
+        if (level != DuelDifficulty.normal) {
+          await tap(key('duel-difficulty-${level.name}'));
+          await launch();
+          await open();
+          expect(
+            tester
+                .widget<ChoiceChip>(key('duel-difficulty-${level.name}'))
+                .selected,
+            isTrue,
+          );
+        }
+        final start = controller.progress!.story.duelPosition(episode);
+        expect(
+          List.generate(episode.puzzle.length, start.valueAt).join(),
+          episode.duelPuzzleFor(level),
+        );
+        if (level == DuelDifficulty.easy) {
+          final writes = store.writes;
+          await tap(key('duel-hint'));
+          final move = start.hintMove();
+          final digit = move.valueAt(move.lastCell!);
+          expect(find.textContaining('「$digit」を入れよう'), findsOneWidget);
+          expect(store.writes, writes);
+          await tap(key('duel-digit-$digit'));
+        } else {
+          expect(key('duel-hint'), findsNothing);
+          await humanMove(start);
+        }
+        expect(key('duel-difficulty-hard'), findsNothing);
+        expect(key('duel-hint'), findsNothing);
         expect(Progress.decode(store.raw!).story.duelMoves, hasLength(1));
         expect(find.text('$npcが考え中…'), findsOneWidget);
         await launch();
@@ -247,6 +364,7 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
         await tester.pump();
         expect(Progress.decode(store.raw!).story.duelMoves, hasLength(2));
+        expect(controller.progress!.story.duelDifficulty, level);
         var game = controller.progress!.story.duelPosition(episode);
         while (!game.isOver) {
           final before = controller.progress!.story.duelMoves!.length;
@@ -266,6 +384,10 @@ void main() {
         expect(key('story-result-dialogue'), findsOneWidget);
         expect(controller.progress!.story.completed, index + 1);
         expect(controller.progress!.story.duelMoves, isNull);
+        expect(
+          controller.progress!.story.duelDifficulty,
+          DuelDifficulty.normal,
+        );
         for (final _ in episode.resultDialogue) {
           await tap(key('story-advance-result-dialogue'));
         }

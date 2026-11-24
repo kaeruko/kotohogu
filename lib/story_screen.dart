@@ -215,6 +215,12 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
               match: match,
               position: story.duelPosition(episode),
               busy: busy,
+              difficulty: story.duelDifficulty,
+              onDifficultyChanged: (difficulty) => controller.updateStory(
+                (saved, points) => saved.selectDuelDifficulty(
+                  index, points, difficulty, episodes: episodes,
+                ),
+              ),
               onMove: (cell, digit) => controller.updateStory(
                 (saved, points) => saved.playDuelMove(
                   index, points, cell, digit, episodes: episodes,
