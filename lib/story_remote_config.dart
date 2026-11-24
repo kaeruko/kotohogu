@@ -191,7 +191,7 @@ StoryCatalog parseHostedStory(
       }
       match = StoryDuel.authored(player, opponent, stage, variant: duelVariant++);
     }
-    final board = match == null ? null : match.stage!.boardForVariant(match.variant);
+    final board = match?.stage!.boardForVariant(match.variant);
     final episode = StoryEpisode(
       id: id,
       title: nonempty(row['title'], '$field.title'),
