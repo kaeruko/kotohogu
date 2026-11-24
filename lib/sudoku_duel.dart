@@ -56,8 +56,6 @@ enum DuelPlayer {
 
 enum DuelRival { mosaedo, oshisho, pomupomu, patissier }
 
-enum DuelDifficulty { easy, normal, hard }
-
 class SudokuDuel {
   SudokuDuel._(
     this.size,
@@ -238,32 +236,18 @@ class SudokuDuel {
   static const _winScore = 100;
   int get _strongDepth => size == DuelSize.mini ? _board.length : 3;
 
-  /// Suggest a legal move without changing the game or consuming the NPC's RNG.
-  SudokuDuel hintMove() {
-    if (isOver) throw StateError('The duel has already ended');
-    return _bestMove(legalCells, _strongDepth);
-  }
-
-  SudokuDuel computerMove(
-    DuelRival? rival,
-    Random random, {
-    DuelDifficulty difficulty = DuelDifficulty.normal,
-  }) {
+  SudokuDuel computerMove(DuelRival? rival, Random random) {
     if (isOver) throw StateError('The duel has already ended');
     final choices = legalCells.toList()..shuffle(random);
     if (stage case final authored?) {
       return _bestMove(choices, authored.lookAhead);
     }
-    return switch (difficulty) {
-      DuelDifficulty.easy => _place(choices.first),
-      DuelDifficulty.hard => _bestMove(choices, _strongDepth),
-      DuelDifficulty.normal => _bestMove(choices, switch (rival) {
-        DuelRival.pomupomu => 1,
-        DuelRival.mosaedo || DuelRival.patissier => 2,
-        DuelRival.oshisho => _strongDepth,
-        null => throw StateError('Missing NPC for a standard duel'),
-      }),
-    };
+    return _bestMove(choices, switch (rival) {
+      DuelRival.pomupomu => 1,
+      DuelRival.mosaedo || DuelRival.patissier => 2,
+      DuelRival.oshisho => _strongDepth,
+      null => throw StateError('Missing NPC for a standard duel'),
+    });
   }
 
   SudokuDuel _bestMove(Iterable<int> choices, int depth) {

@@ -137,7 +137,7 @@ void main() {
     });
   }
 
-  test('appending preserves published matches, unread clues and existing save layouts', () {
+  test('appending preserves published matches, unread clues and current save data', () {
     final catalog = parse(jsonEncode(append(StoryDuelStage.firstFlag)));
     for (var i = 0; i < old.episodes.length; i++) {
       expect(catalog.episodes[i].duel, same(old.episodes[i].duel));
@@ -145,12 +145,11 @@ void main() {
     }
     final turns = old.episodes[2].dialogue.length;
     for (final extras in [
-      {'completed': 2, 'dialogueTurns': turns, 'duelDifficulty': 'hard'},
+      {'completed': 2, 'dialogueTurns': turns},
       {
         'completed': 2,
         'dialogueTurns': turns,
         'duelMoves': [1],
-        'duelLayout': 2,
       },
       {'completed': 3, 'unreadClue': true, 'resultDialogueTurns': 1},
       {'completed': 11},

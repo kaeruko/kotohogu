@@ -204,7 +204,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
 
       final readyForPuzzle = index == story.completed &&
           story.dialogueTurns == episode.dialogue.length;
-      if (match != null && readyForPuzzle && story.board == null) {
+      if (match != null && readyForPuzzle) {
         return _StoryPage(
           contentKey: const ValueKey('story-duel'),
           title: episode.title,
@@ -215,7 +215,6 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
               match: match,
               position: story.duelPosition(episode),
               busy: busy,
-              difficulty: story.duelDifficulty,
               onMove: (cell, digit) => controller.updateStory(
                 (saved, points) => saved.playDuelMove(
                   index, points, cell, digit, episodes: episodes,

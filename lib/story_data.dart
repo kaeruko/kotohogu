@@ -169,26 +169,14 @@ class StoryEpisode {
     _ => null,
   };
 
-  // Tune the flag openings for these published puzzles. A replacement puzzle
-  // from the CMS uses its own givens, and solo saves keep the catalog puzzle.
-  String get duelPuzzle => duelPuzzleFor(DuelDifficulty.normal);
-
-  String duelPuzzleFor(DuelDifficulty difficulty) {
-    final (easy, normal, hard) = switch ((duel, puzzle)) {
-      (StoryDuel.shibapome, '3100201310340001') =>
-        ('3002001310344020', '3000201310344001', '3000001310340001'),
-      (StoryDuel.dojo, '0021200304101200') =>
-        ('0021010334121000', '0021000304101200', '0020000304101000'),
-      (StoryDuel.cakeShop, '3410003401400021') =>
-        ('3012003021430020', '3010003421400021', '3000000420000021'),
-      _ => (puzzle, puzzle, puzzle),
-    };
-    return switch (difficulty) {
-      DuelDifficulty.easy => easy,
-      DuelDifficulty.normal => normal,
-      DuelDifficulty.hard => hard,
-    };
-  }
+  // Use the established opening for each of the original three matches.
+  // New authored matches and edited puzzles use their own givens.
+  String get duelPuzzle => switch ((duel, puzzle)) {
+    (StoryDuel.shibapome, '3100201310340001') => '3000201310344001',
+    (StoryDuel.dojo, '0021200304101200') => '0021000304101200',
+    (StoryDuel.cakeShop, '3410003401400021') => '3010003421400021',
+    _ => puzzle,
+  };
 
   String? get clueImage => resultImage ?? (destination == null ? image : null);
 

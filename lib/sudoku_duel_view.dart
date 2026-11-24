@@ -48,7 +48,6 @@ class SudokuDuelView extends StatefulWidget {
   const SudokuDuelView({super.key})
     : match = null,
       position = null,
-      difficulty = DuelDifficulty.normal,
       onMove = null,
       onFinish = null,
       busy = false;
@@ -57,14 +56,12 @@ class SudokuDuelView extends StatefulWidget {
     required StoryDuel this.match,
     required SudokuDuel this.position,
     required VoidCallback this.onFinish,
-    this.difficulty = DuelDifficulty.normal,
     this.onMove,
     this.busy = false,
   });
 
   final StoryDuel? match;
   final SudokuDuel? position;
-  final DuelDifficulty difficulty;
   final void Function(int cell, int digit)? onMove;
   final VoidCallback? onFinish;
   final bool busy;
@@ -81,7 +78,6 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   SudokuDuel? _game;
   int? _selected;
   int? _wrongDigit;
-  String? _hint;
   Timer? _computerTurn;
   SudokuDuel? get _position => widget.onMove == null ? _game : widget.position;
   bool get _hasNpc => widget.match != null || _rival != null;
@@ -97,12 +93,6 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   @override
   void didUpdateWidget(SudokuDuelView old) {
     super.didUpdateWidget(old);
-    if (widget.difficulty != old.difficulty) {
-      _selected = null;
-      _wrongDigit = null;
-      _hint = null;
-      _game = widget.position;
-    }
     if (widget.onMove != null &&
         (widget.busy != old.busy ||
             widget.position?.lastCell != old.position?.lastCell)) {
@@ -163,7 +153,6 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
       if (save == null) _game = next;
       _selected = null;
       _wrongDigit = null;
-      _hint = null;
     });
     if (save != null) {
       final cell = next.lastCell!;
@@ -184,33 +173,10 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
         game.turn == DuelPlayer.second) {
       _computerTurn = Timer(const Duration(milliseconds: 750), () {
         _record(
-          game.computerMove(rival, _random, difficulty: widget.difficulty),
+          game.computerMove(rival, _random),
         );
       });
     }
-  }
-
-  void _showHint(SudokuDuel game) {
-    final next = game.hintMove();
-    final cell = next.lastCell!;
-    final digit = next.valueAt(cell);
-    final room = game.size.roomOf(cell);
-    final row = cell ~/ game.size.side + 1;
-    final column = cell % game.size.side + 1;
-    final location = game.size == DuelSize.mini
-        ? '${_roomMarks[room]}の部屋の${column.isOdd ? '左' : '右'}${row.isOdd ? '上' : '下'}'
-        : '盤面の$row行$column列';
-    final destination = next.targetRoom;
-    final effect = next.flagAt(room) == game.turn
-        ? '${_roomMarks[room]}の旗が取れるよ。'
-        : destination == null
-        ? '相手は好きな部屋へ。'
-        : '相手は${_roomMarks[destination]}の部屋へ。';
-    setState(() {
-      _selected = cell;
-      _wrongDigit = null;
-      _hint = '$locationに「$digit」を入れよう。$effect';
-    });
   }
 
   @override
@@ -402,7 +368,6 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
               : (cell) => setState(() {
                   _selected = cell;
                   _wrongDigit = null;
-                  _hint = null;
                 }),
         ),
         const SizedBox(height: 8),
@@ -430,10 +395,9 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
                   ? 'ここには「$_wrongDigit」は入りません。もう一度どうぞ。'
                   : thinking
                   ? '${_name(DuelPlayer.second)}が考え中…'
-                  : _hint ??
-                        (selected == null
-                            ? '空きマスを選んでね。'
-                            : '${selected ~/ game.size.side + 1}行${selected % game.size.side + 1}列に入れる数字は？'),
+                  : selected == null
+                  ? '空きマスを選んでね。'
+                  : '${selected ~/ game.size.side + 1}行${selected % game.size.side + 1}列に入れる数字は？',
               textAlign: TextAlign.center,
             ),
           ),
@@ -460,13 +424,6 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
                 ),
             ],
           ),
-          if (widget.difficulty == DuelDifficulty.easy && !thinking)
-            TextButton.icon(
-              key: const ValueKey('duel-hint'),
-              onPressed: widget.busy ? null : () => _showHint(game),
-              icon: const Icon(Icons.lightbulb_outline),
-              label: const Text('次の一手を聞く'),
-            ),
         ],
       ],
     );

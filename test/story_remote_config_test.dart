@@ -12,7 +12,6 @@ import 'package:future_lift/progress.dart';
 import 'package:future_lift/story_data.dart';
 import 'package:future_lift/story_progress.dart';
 import 'package:future_lift/story_remote_config.dart';
-import 'package:future_lift/sudoku_duel.dart';
 
 import 'progress_test.dart' show MemoryStore;
 
@@ -201,18 +200,14 @@ void main() {
       final hosted = parse(document);
       for (final index in [2, 4, 7]) {
         final episode = hosted.episodes[index];
-        for (final level in DuelDifficulty.values) {
-          expect(episode.duelPuzzleFor(level), storyEpisodes[index].duelPuzzleFor(level));
-        }
+        expect(episode.duelPuzzle, storyEpisodes[index].duelPuzzle);
         expect(episode.duelPuzzle, isNot(episode.puzzle));
       }
       final rows = _episodes(document);
       rows[2]['puzzle'] = rows.first['puzzle'];
       rows[2]['solution'] = rows.first['solution'];
       final edited = parse(document).episodes[2];
-      for (final level in DuelDifficulty.values) {
-        expect(edited.duelPuzzleFor(level), rows.first['puzzle']);
-      }
+      expect(edited.duelPuzzle, rows.first['puzzle']);
     },
   );
 

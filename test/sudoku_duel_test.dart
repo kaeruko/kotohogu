@@ -72,25 +72,6 @@ void main() {
       expect(reply.flagAt(1), DuelPlayer.second);
       expect(open.valueAt(5), 0);
       expect(open.flagAt(1), isNull);
-      for (final rival in DuelRival.values) {
-        final hardReply = open.computerMove(
-          rival,
-          Random(7),
-          difficulty: DuelDifficulty.hard,
-        );
-        expect(hardReply.lastCell, reply.lastCell);
-      }
-      final easyReplies = {
-        for (var seed = 0; seed < 32; seed++)
-          open
-              .computerMove(
-                DuelRival.oshisho,
-                Random(seed),
-                difficulty: DuelDifficulty.easy,
-              )
-              .lastCell,
-      };
-      expect(easyReplies, open.legalCells.toSet());
     },
   );
 
@@ -117,7 +98,6 @@ void main() {
       throwsStateError,
     );
     expect(() => game.play(1, 2), throwsStateError);
-    expect(game.hintMove, throwsStateError);
   });
 
   test(
