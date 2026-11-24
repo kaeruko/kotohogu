@@ -5,7 +5,7 @@ import 'story_data.dart';
 import 'story_duel_stage.dart';
 import 'town_areas.dart';
 
-const storyJsonPath = 'api/runtime/story-v4';
+const storyJsonPath = 'api/runtime/story';
 const storyImagePath = 'api/runtime/story-images/';
 const maxStoryJsonBytes = 256 * 1024;
 final _imageName = RegExp(r'^[a-z0-9][a-z0-9_-]{0,79}\.(?:png|webp)$');

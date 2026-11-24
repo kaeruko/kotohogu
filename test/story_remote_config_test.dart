@@ -230,12 +230,9 @@ void main() {
     expect(() => parse(duplicate), throwsFormatException);
   });
 
-  test('WebP images preserve the PNG story progress signature', () {
+  test('the story uses WebP art and rejects unsupported image types', () {
     final current = parse(storyDocument());
-    final previous = parse(_document('assets/story/story_v2.json'));
     expect(current.coverImage, endsWith('.webp'));
-    expect(previous.coverImage, endsWith('.png'));
-    expect(current.progressSignature, previous.progressSignature);
     expect(() => parse(storyDocument()..['coverImage'] = 'cover.jpg'),
         throwsFormatException);
   });

@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT / "tools" / "dialogue_cms"))
 from server import runtime_catalog, runtime_sprite_path  # noqa: E402
 from events import load as load_oyasumi_event  # noqa: E402
 from characters import DIRECTIONS  # noqa: E402
-from story import (load_story, load_legacy_story, load_v2_story, load_v3_story, story_images,
+from story import (load_story, story_images,
                    story_image_bytes, story_image_mime)  # noqa: E402
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
@@ -30,10 +30,7 @@ FRAMES = ("idle_front_01.png", "clap_front_01.png", "clap_front_02.png")
 SPRITE_DIRECTIONS = tuple(DIRECTIONS)
 IMMUTABLE = "public,max-age=31536000,immutable"
 NO_CACHE = "no-store,no-cache,must-revalidate"
-STORY_PATH = Path("api/runtime/story")  # Frozen legacy endpoint
-STORY_V2_PATH = Path("api/runtime/story-v2")  # Frozen PNG chapter endpoint
-STORY_V3_PATH = Path("api/runtime/story-v3")  # Frozen WebP chapter endpoint
-STORY_V4_PATH = Path("api/runtime/story-v4")  # Chapter duel stages
+STORY_PATH = Path("api/runtime/story")
 STORY_IMAGES = Path("api/runtime/story-images")
 
 
@@ -81,15 +78,8 @@ def prepare(stage):
             encode_json(load_oyasumi_event()), records)
     people = {row["id"] for row in catalog["characters"]}
     story = load_story(people)
-    legacy_story = load_legacy_story(people)
-    _record(stage, STORY_PATH, encode_json(legacy_story), records)
-    v2_story = load_v2_story(people)
-    _record(stage, STORY_V2_PATH, encode_json(v2_story), records)
-    v3_story = load_v3_story(people)
-    _record(stage, STORY_V3_PATH, encode_json(v3_story), records)
-    _record(stage, STORY_V4_PATH, encode_json(story), records)
-    for name in sorted(set(story_images(story)) | set(story_images(legacy_story))
-                       | set(story_images(v2_story)) | set(story_images(v3_story))):
+    _record(stage, STORY_PATH, encode_json(story), records)
+    for name in story_images(story):
         _record(stage, STORY_IMAGES / name, story_image_bytes(name), records)
     for resident in catalog["characters"]:
         for frame in frames_for(resident):
@@ -211,12 +201,6 @@ def publish(args):
                prefix + "api/runtime/oyasumi", "application/json", IMMUTABLE)
         upload(args, bucket, stage / STORY_PATH,
                prefix + STORY_PATH.as_posix(), "application/json", IMMUTABLE)
-        upload(args, bucket, stage / STORY_V2_PATH,
-               prefix + STORY_V2_PATH.as_posix(), "application/json", IMMUTABLE)
-        upload(args, bucket, stage / STORY_V3_PATH,
-               prefix + STORY_V3_PATH.as_posix(), "application/json", IMMUTABLE)
-        upload(args, bucket, stage / STORY_V4_PATH,
-               prefix + STORY_V4_PATH.as_posix(), "application/json", IMMUTABLE)
         for image in (stage / STORY_IMAGES).iterdir():
             upload(args, bucket, image, prefix + (STORY_IMAGES / image.name).as_posix(),
                    story_image_mime(image.name), IMMUTABLE)

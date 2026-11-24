@@ -278,7 +278,6 @@ const bundledStory = StoryCatalog(
 );
 
 // Bundled story mirrors the current CMS story for offline and UI tests.
-// The legacy hosted endpoint is separately frozen for older app releases.
 const storyEpisodes = <StoryEpisode>[
   StoryEpisode(
     id: 'episode_00',

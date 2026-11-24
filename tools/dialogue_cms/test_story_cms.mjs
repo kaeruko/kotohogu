@@ -35,7 +35,7 @@ test("story CMS lists episodes and exposes editing and a step-by-step preview", 
 
 test("adding chapter duels through the editor preserves the published episodes", async () => {
   const base = join(root, "../../assets");
-  const original = JSON.parse(readFileSync(join(base, "story/story_v3.json")));
+  const original = JSON.parse(readFileSync(join(base, "story/story.json")));
   const registry = JSON.parse(readFileSync(join(base, "characters/characters.json")));
   class Element {
     children = [];

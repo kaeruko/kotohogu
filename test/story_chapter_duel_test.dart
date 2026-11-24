@@ -16,7 +16,7 @@ import 'package:future_lift/sudoku_duel_view.dart';
 import 'sudoku_duel_test.dart' show solveSingles;
 
 void main() {
-  final original = File('assets/story/story_v3.json').readAsStringSync();
+  final original = File('assets/story/story.json').readAsStringSync();
   final registry = jsonDecode(
     File('assets/characters/characters.json').readAsStringSync(),
   );

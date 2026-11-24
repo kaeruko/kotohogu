@@ -34,7 +34,7 @@ class StoryCmsTests(unittest.TestCase):
         return story.load_story(self.residents)
 
     def test_new_chapter_duels_require_a_stage_and_do_not_edit_the_old_catalog(self):
-        original = story.load_v3_story(self.residents)
+        original = self.loaded()
         draft = copy.deepcopy(original)
         episode = copy.deepcopy(draft["episodes"][-1])
         for field in ("puzzle", "solution"):
@@ -50,7 +50,6 @@ class StoryCmsTests(unittest.TestCase):
         story.save_story(draft)
         self.assertEqual(self.loaded(), draft)
         self.assertEqual(draft["episodes"][:-1], original["episodes"])
-        self.assertEqual(story.load_v3_story(self.residents), original)
         for stage in ("typo", None, []):
             chapter["duelStage"] = stage
             with self.assertRaisesRegex(ValueError, "Unknown Sudoku duel stage"):
@@ -144,20 +143,15 @@ class StoryCmsTests(unittest.TestCase):
         with urlopen(base + "/api/story", timeout=5) as response:
             doc = json.load(response)
         self.assertEqual(doc, self.loaded())
-        with urlopen(base + "/api/runtime/story-v3", timeout=5) as response:
-            self.assertEqual(json.load(response), doc)
-        with urlopen(base + "/api/runtime/story-v4", timeout=5) as response:
-            self.assertEqual(json.load(response), doc)
-        with urlopen(base + "/api/runtime/story-v2", timeout=5) as response:
-            v2 = json.load(response)
-        self.assertTrue(all(name.endswith(".png") for name in story.story_images(v2)))
-        for name, mime in ((doc["coverImage"], "image/webp"), (v2["coverImage"], "image/png")):
-            with urlopen(base + "/api/runtime/story-images/" + name, timeout=5) as response:
-                self.assertEqual(response.headers.get_content_type(), mime)
-                self.assertEqual(response.read(), story.story_image_bytes(name))
         with urlopen(base + "/api/runtime/story", timeout=5) as response:
-            frozen = json.load(response)
-        self.assertEqual(len(frozen["episodes"]), 11)
+            self.assertEqual(json.load(response), doc)
+        with urlopen(base + "/api/runtime/story-images/" + doc["coverImage"], timeout=5) as response:
+            self.assertEqual(response.headers.get_content_type(), "image/webp")
+            self.assertEqual(response.read(), story.story_image_bytes(doc["coverImage"]))
+        for suffix in ("-v2", "-v3", "-v4"):
+            with self.assertRaises(HTTPError) as missing:
+                urlopen(base + "/api/runtime/story" + suffix, timeout=5)
+            self.assertEqual(missing.exception.code, 404)
         self.assertEqual(len(doc["episodes"]), 11)
         before = self.path.read_bytes()
         edited = copy.deepcopy(doc)
@@ -185,9 +179,7 @@ class StoryCmsTests(unittest.TestCase):
             result = json.load(response)
         self.assertEqual(result, {"ok": True, "episodes": len(edited["episodes"])})
         self.assertEqual(self.loaded(), edited)
-        with urlopen(base + "/api/runtime/story-v3", timeout=5) as response:
-            self.assertEqual(json.load(response), doc)
-        with urlopen(base + "/api/runtime/story-v4", timeout=5) as response:
+        with urlopen(base + "/api/runtime/story", timeout=5) as response:
             self.assertEqual(json.load(response), edited)
 
         illegal = copy.deepcopy(edited)
