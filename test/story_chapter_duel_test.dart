@@ -137,6 +137,116 @@ void main() {
     });
   }
 
+  for (final stage in StoryDuelStage.values) {
+    test('${stage.name}: five matches vary safely within a chapter', () {
+      final doc = append(stage);
+      final originalEpisode = doc['episodes'].last as Map;
+      for (var variant = 1; variant < 5; variant++) {
+        doc['episodes'].add({
+          ...originalEpisode,
+          'id': 'new_duel_$variant',
+          'unlockAt': 9000 + variant * 30,
+        });
+      }
+      final catalog = parse(jsonEncode(doc));
+      final matches = catalog.episodes.skip(old.episodes.length).toList();
+      expect(matches.map((episode) => episode.puzzle).toSet(), hasLength(5));
+      final originalGame = SudokuDuel.story(
+        stage.puzzle, stage.solution, [], stage: stage,
+      );
+      for (final (variant, episode) in matches.indexed) {
+        expect(episode.duel!.stage, stage);
+        expect(episode.duel!.variant, variant);
+        final board = stage.boardForVariant(variant);
+        expect(episode.puzzle, board.puzzle);
+        expect(episode.solution, board.solution);
+        expect(
+          solveSingles(SudokuDuel.story(episode.puzzle, episode.solution, [])).join(),
+          episode.solution,
+        );
+        final index = old.episodes.length + variant;
+        var progress = StoryProgress.fromJson({
+          'completed': index,
+          'dialogueTurns': episode.dialogue.length,
+          'unreadClue': false,
+          'signature': catalog.progressSignature,
+        });
+        var game = progress.duelPosition(episode);
+        var reference = originalGame;
+        // Compare the same sequence on both boards, including pre-played moves.
+        // Every legal alternative has a one-to-one corresponding move.
+        while (true) {
+          expect(game.turn, reference.turn);
+          expect(game.targetRoom, reference.targetRoom);
+          expect(game.isOver, reference.isOver);
+          expect(
+            game.legalCells.toSet(),
+            reference.legalCells.map((cell) => board.cellMap[cell]).toSet(),
+          );
+          for (final player in DuelPlayer.values) {
+            expect(game.score(player), reference.score(player));
+          }
+          for (var room = 1; room <= game.size.side; room++) {
+            expect(game.flagAt(room), reference.flagAt(room));
+          }
+          for (var cell = 0; cell < board.cellMap.length; cell++) {
+            final mapped = board.cellMap[cell];
+            expect(game.size.roomOf(mapped), reference.size.roomOf(cell));
+            expect(game.valueAt(mapped), reference.valueAt(cell));
+            expect(game.isGiven(mapped), reference.isGiven(cell));
+            expect(episode.answerAt(mapped), int.parse(stage.solution[cell]));
+          }
+          if (game.isOver) break;
+          final cell = reference.legalCells.first;
+          final digit = int.parse(stage.solution[cell]);
+          reference = reference.play(cell, digit)!;
+          progress = progress.playDuelMove(
+            index, episode.unlockAt, board.cellMap[cell], digit,
+            episodes: catalog.episodes,
+          );
+          progress = StoryProgress.fromJson(progress.toJson());
+          // Loading the same JSON again must reconstruct the identical board.
+          final reopened = parse(jsonEncode(doc));
+          progress.validateFor(reopened, episode.unlockAt);
+          game = progress.duelPosition(reopened.episodes[index]);
+        }
+      }
+    });
+  }
+
+  test('appending a match keeps earlier board variants and their progress', () {
+    final doc = append(StoryDuelStage.flagOrder);
+    final first = doc['episodes'].last as Map;
+    doc['episodes'].add({...first, 'id': 'second_duel', 'unlockAt': 9030});
+    final before = parse(jsonEncode(doc));
+    final index = old.episodes.length + 1;
+    final episode = before.episodes[index];
+    var progress = StoryProgress.fromJson({
+      'completed': index,
+      'dialogueTurns': episode.dialogue.length,
+      'unreadClue': false,
+      'signature': before.progressSignature,
+    });
+    final cell = progress.duelPosition(episode).legalCells.first;
+    progress = progress.playDuelMove(
+      index, 9030, cell, episode.answerAt(cell), episodes: before.episodes,
+    );
+    doc['episodes'].add({...first, 'id': 'third_duel', 'unlockAt': 9060});
+    final after = parse(jsonEncode(doc));
+    final resumed = progress.forCatalog(after);
+    resumed.validateFor(after, 9030);
+    expect(after.episodes[index].puzzle, episode.puzzle);
+    expect(resumed.duelMoves, progress.duelMoves);
+    expect(resumed.duelPosition(after.episodes[index]).lastCell, cell);
+    expect(after.episodes.last.duel!.variant, 2);
+    expect(
+      () => SudokuDuel.story(
+        episode.puzzle, episode.solution, [], stage: StoryDuelStage.flagOrder,
+      ),
+      throwsFormatException,
+    );
+  });
+
   test('appending preserves published matches, unread clues and current save data', () {
     final catalog = parse(jsonEncode(append(StoryDuelStage.firstFlag)));
     for (var i = 0; i < old.episodes.length; i++) {

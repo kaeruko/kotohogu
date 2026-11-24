@@ -273,7 +273,10 @@ function puzzleName(episode) {
   const chapter = chapterStarts(documentData).findLastIndex(start => start <= index);
   const name = duelStages.get(documentData.chapters[chapter].duelStage);
   if (!name) throw new Error("対戦の話には章の対戦ルールが必要です: " + episode.id);
-  return name;
+  const matchNumber = documentData.episodes
+    .slice(chapterStarts(documentData)[chapter], index + 1)
+    .filter(row => row.duel).length;
+  return name + "（章内対戦 " + matchNumber + "・盤面自動変換）";
 }
 
 function previewSteps(episode) {

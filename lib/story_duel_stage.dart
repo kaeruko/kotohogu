@@ -1,3 +1,11 @@
+/// The cell map takes each original cell index to its displayed index.
+typedef StoryDuelBoard = ({
+  String puzzle,
+  String solution,
+  List<int> opening,
+  List<int> cellMap,
+});
+
 const _four = '1234341221434321';
 const _six = '123456456123234561561234345612612345';
 const _nine =
@@ -85,4 +93,52 @@ enum StoryDuelStage {
   final int? firstTo;
   final int? doubleRoom;
   final List<int> opening;
+
+  /// Enumerate permutations within each row band and column stack only.
+  /// Digits and room numbers never change, so every legal move, flag,
+  /// sending destination and winning strategy has an equivalent move.
+  /// Variant zero is the authored board. After all permutations, cycle.
+  StoryDuelBoard boardForVariant(int variant) {
+    if (variant < 0) throw RangeError.value(variant, 'variant');
+    final side = switch (puzzle.length) {
+      16 => 4,
+      36 => 6,
+      81 => 9,
+      _ => throw StateError('Invalid duel board dimensions: ${puzzle.length}'),
+    };
+    final boxRows = side == 9 ? 3 : 2;
+    final boxColumns = side ~/ boxRows;
+    var remaining = variant;
+    List<int> axisOrder(int groupSize) {
+      final order = <int>[];
+      for (var start = 0; start < side; start += groupSize) {
+        final choices = List.generate(groupSize, (i) => start + i);
+        while (choices.isNotEmpty) {
+          final index = remaining % choices.length;
+          remaining ~/= choices.length;
+          order.add(choices.removeAt(index));
+        }
+      }
+      return order;
+    }
+
+    final rows = axisOrder(boxRows);
+    final columns = axisOrder(boxColumns);
+    final cellMap = List.filled(puzzle.length, 0);
+    for (var row = 0; row < side; row++) {
+      for (var column = 0; column < side; column++) {
+        cellMap[rows[row] * side + columns[column]] = row * side + column;
+      }
+    }
+    String transform(String source) => [
+      for (final row in rows)
+        for (final column in columns) source[row * side + column],
+    ].join();
+    return (
+      puzzle: transform(puzzle),
+      solution: transform(solution),
+      opening: List<int>.unmodifiable(opening.map((cell) => cellMap[cell])),
+      cellMap: List<int>.unmodifiable(cellMap),
+    );
+  }
 }

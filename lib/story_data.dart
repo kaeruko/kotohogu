@@ -69,7 +69,7 @@ String storyProgressSignature(List<StoryEpisode> episodes) {
         episode.dialogue.length,
         episode.resultDialogue.length,
         if (episode.duel?.stage case final stage?)
-          [stage.name, stage.opening, stage.firstTo, stage.doubleRoom, stage.lookAhead],
+          [stage.name, episode.duel!.variant, stage.opening, stage.firstTo, stage.doubleRoom, stage.lookAhead],
       ],
   ]);
   // Two 32-bit accumulators; content identity, not an authentication token.
@@ -115,14 +115,20 @@ class StoryDuel {
   static const dojo = StoryDuel._(_mosa, _oshisho, DuelRival.oshisho);
   static const cakeShop = StoryDuel._(_wife, _pastry, DuelRival.patissier);
 
-  const StoryDuel._(this.player, this.opponent, this.rival) : stage = null;
-  const StoryDuel.authored(this.player, this.opponent, StoryDuelStage this.stage)
-      : rival = null;
+  const StoryDuel._(this.player, this.opponent, this.rival)
+      : stage = null, variant = 0;
+  const StoryDuel.authored(
+    this.player,
+    this.opponent,
+    StoryDuelStage this.stage, {
+    this.variant = 0,
+  }) : rival = null;
 
   final StorySpeaker player;
   final StorySpeaker opponent;
   final DuelRival? rival;
   final StoryDuelStage? stage;
+  final int variant;
   String get title => '${player.label} VS ${opponent.label}';
 }
 

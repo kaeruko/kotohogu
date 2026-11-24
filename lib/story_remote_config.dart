@@ -130,6 +130,7 @@ StoryCatalog parseHostedStory(
     );
   }
   var chapterIndex = 0;
+  var duelVariant = 0;
   for (final (index, raw) in rows.indexed) {
     final field = 'story episodes[$index]';
     final row = objectOf(raw, field);
@@ -171,6 +172,7 @@ StoryCatalog parseHostedStory(
     if (chapterIndex + 1 < chapters.length &&
         chapters[chapterIndex + 1].startIndex == index) {
       chapterIndex++;
+      duelVariant = 0;
     }
     StoryDuel? match;
     if (isDuel) {
@@ -187,8 +189,9 @@ StoryCatalog parseHostedStory(
           'Invalid duel cast for $id: ${cast['player']} VS ${cast['opponent']}',
         );
       }
-      match = StoryDuel.authored(player, opponent, stage);
+      match = StoryDuel.authored(player, opponent, stage, variant: duelVariant++);
     }
+    final board = match == null ? null : match.stage!.boardForVariant(match.variant);
     final episode = StoryEpisode(
       id: id,
       title: nonempty(row['title'], '$field.title'),
@@ -201,12 +204,12 @@ StoryCatalog parseHostedStory(
           : null,
       dialogue: turns(row['dialogue'], '$field.dialogue'),
       authoredDuel: match,
-      puzzle: match == null
+      puzzle: board == null
           ? nonempty(row['puzzle'], '$field.puzzle')
-          : match.stage!.puzzle,
-      solution: match == null
+          : board.puzzle,
+      solution: board == null
           ? nonempty(row['solution'], '$field.solution')
-          : match.stage!.solution,
+          : board.solution,
       clue: nonempty(row['clue'], '$field.clue'),
       result: nonempty(row['result'], '$field.result'),
       resultDialogue: turns(

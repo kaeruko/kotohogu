@@ -121,6 +121,7 @@ class StoryProgress {
       episode.solution,
       duelMoves ?? const [],
       stage: episode.duel?.stage,
+      variant: episode.duel?.variant ?? 0,
     );
   }
 

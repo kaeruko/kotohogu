@@ -102,11 +102,16 @@ class SudokuDuel {
     String solution,
     List<int> moves, {
     StoryDuelStage? stage,
+    int variant = 0,
   }) {
-    if (stage != null &&
-        (stage.puzzle != puzzle || stage.solution != solution)) {
+    if (stage == null && variant != 0) {
+      throw const FormatException('Board variant requires a story duel stage');
+    }
+    final board = stage?.boardForVariant(variant);
+    if (board != null &&
+        (board.puzzle != puzzle || board.solution != solution)) {
       throw FormatException(
-        'Board does not match story duel stage: ${stage.name}',
+        'Board does not match story duel stage: ${stage!.name}, variant $variant',
       );
     }
     final size = switch (puzzle.length) {
@@ -126,7 +131,7 @@ class SudokuDuel {
       digits(solution),
       stage: stage,
     );
-    for (final cell in [...?stage?.opening, ...moves]) {
+    for (final cell in [...?board?.opening, ...moves]) {
       if (cell < 0 || cell >= puzzle.length || !game.canPlay(cell)) {
         throw FormatException(
           'Invalid story duel move: cell $cell, room ${game.targetRoom}',
