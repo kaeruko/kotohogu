@@ -33,6 +33,34 @@ class StoryCmsTests(unittest.TestCase):
     def loaded(self):
         return story.load_story(self.residents)
 
+    def test_new_chapter_duels_require_a_stage_and_do_not_edit_the_old_catalog(self):
+        original = story.load_v3_story(self.residents)
+        draft = copy.deepcopy(original)
+        episode = copy.deepcopy(draft["episodes"][-1])
+        for field in ("puzzle", "solution"):
+            del episode[field]
+        episode.update(id="future_duel", unlockAt=episode["unlockAt"] + 30,
+                       duel={"player": "001_shiba", "opponent": "038_lion_lady"})
+        draft["episodes"].append(episode)
+        chapter = {"id": "future", "title": "追加章", "startEpisodeId": episode["id"]}
+        draft["chapters"].append(chapter)
+        with self.assertRaisesRegex(ValueError, "requires a chapter stage"):
+            story.save_story(draft)
+        chapter["duelStage"] = "sacrifice"
+        story.save_story(draft)
+        self.assertEqual(self.loaded(), draft)
+        self.assertEqual(draft["episodes"][:-1], original["episodes"])
+        self.assertEqual(story.load_v3_story(self.residents), original)
+        for stage in ("typo", None, []):
+            chapter["duelStage"] = stage
+            with self.assertRaisesRegex(ValueError, "Unknown Sudoku duel stage"):
+                story.save_story(draft)
+        chapter["duelStage"] = "firstFlag"
+        for opponent in ("not_a_resident", episode["duel"]["player"]):
+            episode["duel"]["opponent"] = opponent
+            with self.assertRaisesRegex(ValueError, "Invalid Sudoku duel cast"):
+                story.save_story(draft)
+
     def test_editing_text_and_speakers_is_saved_without_changing_progress_contract(self):
         original = self.loaded()
         edited = copy.deepcopy(original)
@@ -118,6 +146,8 @@ class StoryCmsTests(unittest.TestCase):
         self.assertEqual(doc, self.loaded())
         with urlopen(base + "/api/runtime/story-v3", timeout=5) as response:
             self.assertEqual(json.load(response), doc)
+        with urlopen(base + "/api/runtime/story-v4", timeout=5) as response:
+            self.assertEqual(json.load(response), doc)
         with urlopen(base + "/api/runtime/story-v2", timeout=5) as response:
             v2 = json.load(response)
         self.assertTrue(all(name.endswith(".png") for name in story.story_images(v2)))
@@ -155,6 +185,10 @@ class StoryCmsTests(unittest.TestCase):
             result = json.load(response)
         self.assertEqual(result, {"ok": True, "episodes": len(edited["episodes"])})
         self.assertEqual(self.loaded(), edited)
+        with urlopen(base + "/api/runtime/story-v3", timeout=5) as response:
+            self.assertEqual(json.load(response), doc)
+        with urlopen(base + "/api/runtime/story-v4", timeout=5) as response:
+            self.assertEqual(json.load(response), edited)
 
         illegal = copy.deepcopy(edited)
         illegal["episodes"][0]["resultDialogue"][0]["speaker"] = "missing_resident"

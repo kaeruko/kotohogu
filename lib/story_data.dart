@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'resident_collection.dart';
+import 'story_duel_stage.dart';
 import 'sudoku_duel.dart';
 import 'town_areas.dart';
 
@@ -45,11 +46,13 @@ class StoryChapter {
     required this.id,
     required this.title,
     required this.startIndex,
+    this.duelStage,
   });
 
   final String id;
   final String title;
   final int startIndex;
+  final StoryDuelStage? duelStage;
 }
 
 /// Chapter labels and boundaries are excluded from the saved episode signature.
@@ -65,6 +68,8 @@ String storyProgressSignature(List<StoryEpisode> episodes) {
         episode.solution,
         episode.dialogue.length,
         episode.resultDialogue.length,
+        if (episode.duel?.stage case final stage?)
+          [stage.name, stage.opening, stage.firstTo, stage.doubleRoom, stage.lookAhead],
       ],
   ]);
   // Two 32-bit accumulators; content identity, not an authentication token.
@@ -105,15 +110,20 @@ extension DuelResident on DuelRival {
   };
 }
 
-enum StoryDuel {
-  shibapome(TownResident.shiba, DuelRival.pomupomu),
-  dojo(TownResident.c036_mosa, DuelRival.oshisho),
-  cakeShop(TownResident.rabbit, DuelRival.patissier);
+class StoryDuel {
+  static const shibapome = StoryDuel._(_shiba, _pomu, DuelRival.pomupomu);
+  static const dojo = StoryDuel._(_mosa, _oshisho, DuelRival.oshisho);
+  static const cakeShop = StoryDuel._(_wife, _pastry, DuelRival.patissier);
 
-  const StoryDuel(this.player, this.rival);
-  final TownResident player;
-  final DuelRival rival;
-  String get title => '${player.label} VS ${rival.resident.label}';
+  const StoryDuel._(this.player, this.opponent, this.rival) : stage = null;
+  const StoryDuel.authored(this.player, this.opponent, StoryDuelStage this.stage)
+      : rival = null;
+
+  final StorySpeaker player;
+  final StorySpeaker opponent;
+  final DuelRival? rival;
+  final StoryDuelStage? stage;
+  String get title => '${player.label} VS ${opponent.label}';
 }
 
 class StoryEpisode {
@@ -131,6 +141,7 @@ class StoryEpisode {
     this.destination,
     this.image,
     this.resultImage,
+    this.authoredDuel,
   });
 
   final String id;
@@ -148,9 +159,10 @@ class StoryEpisode {
   final TownArea? destination;
   final String? image;
   final String? resultImage;
+  final StoryDuel? authoredDuel;
 
   // Episode IDs are shared by the bundled story and its hosted edition.
-  StoryDuel? get duel => switch (id) {
+  StoryDuel? get duel => authoredDuel ?? switch (id) {
     'episode_02' => StoryDuel.shibapome,
     'episode_04' => StoryDuel.dojo,
     'episode_07' => StoryDuel.cakeShop,
@@ -180,8 +192,14 @@ class StoryEpisode {
 
   String? get clueImage => resultImage ?? (destination == null ? image : null);
 
-  int get size => puzzle.length == 16 ? 4 : 6;
-  int get boxWidth => size ~/ 2;
+  int get size => switch (puzzle.length) {
+    16 => 4,
+    36 => 6,
+    81 => 9,
+    final length => throw FormatException('Invalid puzzle size $length in $id'),
+  };
+  int get boxWidth => size == 9 ? 3 : size ~/ 2;
+  int get boxHeight => size ~/ boxWidth;
   String get art => artFor(area);
   String get resultArt => artFor(destination ?? area);
 
@@ -214,7 +232,7 @@ class StoryEpisode {
     final otherColumn = b % size;
     return row == otherRow ||
         column == otherColumn ||
-        (row ~/ 2 == otherRow ~/ 2 &&
+        (row ~/ boxHeight == otherRow ~/ boxHeight &&
             column ~/ boxWidth == otherColumn ~/ boxWidth);
   }
 

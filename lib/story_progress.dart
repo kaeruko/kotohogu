@@ -25,6 +25,7 @@ class StoryProgress {
   final List<int>? duelMoves;
   // Move logs from the first release used the catalog puzzle and have no tag.
   static const _currentDuelLayout = 2;
+  static const _chapterDuelLayout = 3;
   final int? duelLayout;
   // Keep the rival and opening for matches saved by the difficulty-picker build.
   final DuelDifficulty? _savedDifficulty;
@@ -34,10 +35,30 @@ class StoryProgress {
   final int resultDialogueTurns;
   final String? signature;
 
-  /// A structural content edit starts a fresh story-only run.
+  /// Appending chapters preserves the position within the published prefix.
   StoryProgress forCatalog(StoryCatalog catalog) {
     final next = catalog.progressSignature;
-    return signature == next ? this : StoryProgress._(signature: next);
+    if (signature == next) return this;
+    if (signature != null && hasStarted) {
+      final minimumLength = completed + (dialogueTurns > 0 ? 1 : 0);
+      for (var end = catalog.episodes.length - 1; end >= minimumLength; end--) {
+        final prefix = catalog.episodes.sublist(0, end);
+        if (storyProgressSignature(prefix) == signature) {
+          return StoryProgress._(
+            completed: completed,
+            dialogueTurns: dialogueTurns,
+            board: board,
+            duelMoves: duelMoves,
+            duelLayout: duelLayout,
+            savedDifficulty: _savedDifficulty,
+            unreadClue: unreadClue,
+            resultDialogueTurns: resultDialogueTurns,
+            signature: next,
+          );
+        }
+      }
+    }
+    return StoryProgress._(signature: next);
   }
 
   int get resumeIndex => unreadClue ? completed - 1 : completed;
@@ -112,6 +133,7 @@ class StoryProgress {
       legacy ? episode.puzzle : episode.duelPuzzleFor(duelDifficulty),
       episode.solution,
       duelMoves ?? const [],
+      stage: episode.duel?.stage,
     );
   }
 
@@ -130,7 +152,9 @@ class StoryProgress {
       signature: signature,
       dialogueTurns: dialogueTurns,
       duelMoves: List.unmodifiable([...?duelMoves, cell]),
-      duelLayout: duelMoves == null ? _currentDuelLayout : duelLayout,
+      duelLayout: duelMoves != null
+          ? duelLayout
+          : episode.duel?.stage == null ? _currentDuelLayout : _chapterDuelLayout,
       savedDifficulty: _savedDifficulty,
     );
   }
@@ -269,9 +293,10 @@ class StoryProgress {
     List<int>? duelMoves;
     if (raw.containsKey('duelMoves')) {
       final moves = raw['duelMoves'];
+      final maxCells = raw['duelLayout'] == _chapterDuelLayout ? 81 : 36;
       if (board != null || dialogueTurns == 0 || unreadClue || moves is! List ||
-          moves.isEmpty || moves.length > 36 ||
-          moves.any((cell) => cell is! int || cell < 0 || cell >= 36)) {
+          moves.isEmpty || moves.length > maxCells ||
+          moves.any((cell) => cell is! int || cell < 0 || cell >= maxCells)) {
         throw const FormatException('Invalid story duel move list');
       }
       duelMoves = List<int>.unmodifiable(moves);
@@ -281,7 +306,7 @@ class StoryProgress {
       if (duelMoves == null) {
         throw const FormatException('Story duel layout without a move log');
       }
-      if (layout is! int || layout != _currentDuelLayout) {
+      if (layout is! int || (layout != _currentDuelLayout && layout != _chapterDuelLayout)) {
         throw FormatException('Unsupported story duel layout: $layout');
       }
     }
@@ -340,7 +365,11 @@ class StoryProgress {
       throw const FormatException('Invalid story dialogue position');
     }
     if (duelMoves != null || _savedDifficulty != null) {
-      if (episode.duel == null || dialogueTurns != episode.dialogue.length) {
+      final chapterDuel = episode.duel?.stage != null;
+      if (episode.duel == null ||
+          dialogueTurns != episode.dialogue.length ||
+          (chapterDuel && _savedDifficulty != null) ||
+          (duelMoves != null && (duelLayout == _chapterDuelLayout) != chapterDuel)) {
         throw const FormatException('Duel data outside a story match');
       }
       if (duelMoves != null) duelPosition(episode);

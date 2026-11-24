@@ -84,6 +84,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   String? _hint;
   Timer? _computerTurn;
   SudokuDuel? get _position => widget.onMove == null ? _game : widget.position;
+  bool get _hasNpc => widget.match != null || _rival != null;
 
   @override
   void initState() {
@@ -116,10 +117,13 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   }
 
   String _name(DuelPlayer player) {
+    if (widget.match case final match?) {
+      return player == DuelPlayer.first
+          ? match.player.label
+          : match.opponent.label;
+    }
     if (_rival == null) return player == DuelPlayer.first ? '先手' : '後手';
-    return player == DuelPlayer.first
-        ? (widget.match?.player.label ?? 'あなた')
-        : _rival!.resident.label;
+    return player == DuelPlayer.first ? 'あなた' : _rival!.resident.label;
   }
 
   void _start(DuelRival? rival) {
@@ -144,7 +148,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
         !game.canPlay(selected)) {
       return;
     }
-    if (_rival != null && game.turn == DuelPlayer.second) return;
+    if (_hasNpc && game.turn == DuelPlayer.second) return;
     final next = game.play(selected, digit);
     if (next == null) {
       setState(() => _wrongDigit = digit);
@@ -174,7 +178,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
     final rival = _rival;
     final game = _position;
     if (!widget.busy &&
-        rival != null &&
+        _hasNpc &&
         game != null &&
         !game.isOver &&
         game.turn == DuelPlayer.second) {
@@ -284,11 +288,28 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
     return '${_name(game.turn.other)}が$placedを置きました。${flag ? ' 旗を獲得！' : ''}';
   }
 
+  Widget _castPortrait(StorySpeaker speaker, double width) {
+    return switch (speaker.portrait) {
+      final uri? => Image.network(
+        uri.toString(),
+        width: width,
+        height: 50,
+        excludeFromSemantics: true,
+      ),
+      null => Image.asset(
+        speaker.localPortrait,
+        width: width,
+        height: 50,
+        excludeFromSemantics: true,
+      ),
+    };
+  }
+
   Widget _match(BuildContext context, SudokuDuel game) {
     final first = game.score(DuelPlayer.first);
     final second = game.score(DuelPlayer.second);
     final ended = game.isOver;
-    final thinking = !ended && _rival != null && game.turn == DuelPlayer.second;
+    final thinking = !ended && _hasNpc && game.turn == DuelPlayer.second;
     final room = game.targetRoom;
     final heading = ended
         ? first == second
@@ -308,20 +329,19 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
           Text(
             'あなたは${match.player.label}。書いた数字の部屋へ相手を送り、最後の1マスを埋めて旗を取ろう。送り先が満室なら好きな部屋へ。',
           ),
+          if (match.stage case final stage?)
+            Text('${stage.label}　${stage.objective}'),
         ],
         Card(
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                if (widget.match case final match?)
-                  Image.asset(
-                    match.player.idleAsset,
-                    width: 44,
-                    height: 50,
-                    excludeFromSemantics: true,
-                  ),
-                if (_rival case final rival?) ...[
+                if (widget.match case final match?) ...[
+                  _castPortrait(match.player, 44),
+                  _castPortrait(match.opponent, 50),
+                  const SizedBox(width: 8),
+                ] else if (_rival case final rival?) ...[
                   Image.asset(
                     rival.resident.idleAsset,
                     width: 50,
@@ -339,7 +359,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
                         children: [
                           for (final player in DuelPlayer.values)
                             Text(
-                              '${_name(player)}　${game.score(player)}本',
+                              '${_name(player)}　${game.score(player)}${game.stage?.doubleRoom == null ? '本' : '点'}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: player == DuelPlayer.first
@@ -493,6 +513,7 @@ class _DuelBoard extends StatelessWidget {
     final side = game.size.side;
     final room = band * (side ~/ columns) + stack + 1;
     final owner = game.flagAt(room);
+    final bonus = game.stage?.doubleRoom == room;
     final active =
         !game.isOver &&
         game.hasSpace(room) &&
@@ -514,7 +535,7 @@ class _DuelBoard extends StatelessWidget {
             alignment: Alignment.center,
             child: Semantics(
               label:
-                  '$room番の部屋${owner == null ? '' : '、${playerName(owner)}の旗'}',
+                  '$room番の部屋${bonus ? '、いちごの旗2点' : ''}${owner == null ? '' : '、${playerName(owner)}の旗'}',
               excludeSemantics: true,
               child: FittedBox(
                 fit: BoxFit.scaleDown,
@@ -528,7 +549,7 @@ class _DuelBoard extends StatelessWidget {
                         color: Colors.white,
                       ),
                     Text(
-                      '${_roomMarks[room]}${owner == null ? '' : ' ${playerName(owner)}'}',
+                      '${_roomMarks[room]}${bonus ? ' 🍓2点' : ''}${owner == null ? '' : ' ${playerName(owner)}'}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: highlighted ? Colors.white : _ink,

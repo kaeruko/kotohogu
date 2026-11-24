@@ -277,7 +277,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
             !mounted) {
           return;
         }
-        if (before.hasStarted) {
+        if (before.hasStarted && !controller.progress!.story.hasStarted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('お話が新しくなったので、ストーリーを最初から楽しめます。'),

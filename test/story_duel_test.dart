@@ -101,7 +101,7 @@ void main() {
         }),
         throwsFormatException,
       );
-      for (final invalid in [null, 3, 2.0, '2']) {
+      for (final invalid in [null, 4, 2.0, '2']) {
         expect(
           () => StoryProgress.fromJson({
             ...saved.toJson(),

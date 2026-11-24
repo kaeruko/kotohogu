@@ -356,7 +356,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
                       ),
                     ),
               child: Text(!last ? 'つぎへ' : match == null
-                  ? '数独をはじめる' : '${match.rival.resident.label}と対戦する'),
+                  ? '数独をはじめる' : '${match.opponent.label}と対戦する'),
             ),
           ],
         );
