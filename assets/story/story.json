@@ -1,15 +1,15 @@
 {
   "version": 1,
   "title": "ことほぎのまちの数独ものがたり",
-  "coverImage": "story_001_plaza_mystery.png",
+  "coverImage": "story_001_plaza_mystery.webp",
   "episodes": [
     {
       "id": "episode_00",
       "title": "たいそうのはんこカード？",
       "area": "plaza",
       "unlockAt": 0,
-      "image": "story_001_plaza_mystery.png",
-      "resultImage": "story_result_00_tree_clue.png",
+      "image": "story_001_plaza_mystery.webp",
+      "resultImage": "story_result_00_tree_clue.webp",
       "dialogue": [
         {
           "speaker": "052_pome",
@@ -52,8 +52,8 @@
       "title": "木の下になにがある？",
       "area": "park",
       "unlockAt": 90,
-      "image": "story_002_park_tree.png",
-      "resultImage": "story_result_01_stamp_card_box.png",
+      "image": "story_002_park_tree.webp",
+      "resultImage": "story_result_01_stamp_card_box.webp",
       "dialogue": [
         {
           "speaker": "052_pome",
@@ -100,8 +100,8 @@
       "title": "ひみつのごほうび",
       "area": "park",
       "unlockAt": 120,
-      "image": "story_002_park_tree.png",
-      "resultImage": "story_004_park_sakura_stamp.png",
+      "image": "story_002_park_tree.webp",
+      "resultImage": "story_004_park_sakura_stamp.webp",
       "dialogue": [
         {
           "speaker": "052_pome",
@@ -164,8 +164,8 @@
       "title": "数独道場破りでござる！",
       "area": "plaza",
       "unlockAt": 150,
-      "image": "story_005_community_center_mosaedo.png",
-      "resultImage": "story_result_03_oshisho_challenge.png",
+      "image": "story_005_community_center_mosaedo.webp",
+      "resultImage": "story_result_03_oshisho_challenge.webp",
       "dialogue": [
         {
           "speaker": "029_office_worker",
@@ -244,8 +244,8 @@
       "title": "おししょうの一局",
       "area": "plaza",
       "unlockAt": 180,
-      "image": "story_006_community_center_oshisho.png",
-      "resultImage": "story_result_04_white_bear_rumor.png",
+      "image": "story_006_community_center_oshisho.webp",
+      "resultImage": "story_result_04_white_bear_rumor.webp",
       "dialogue": [
         {
           "speaker": "031_kimono_fox",
@@ -320,8 +320,8 @@
       "title": "帳簿と数独",
       "area": "shopping",
       "unlockAt": 210,
-      "image": "story_007_cakeshop_ledger_sudoku.png",
-      "resultImage": "story_010_cakeshop_tasting_preparation.png",
+      "image": "story_007_cakeshop_ledger_sudoku.webp",
+      "resultImage": "story_010_cakeshop_tasting_preparation.webp",
       "dialogue": [
         {
           "speaker": "002_usagi",
@@ -372,8 +372,8 @@
       "title": "ケーキ無料！？",
       "area": "shopping",
       "unlockAt": 240,
-      "image": "bc66885d-6413-41b9-9e85-4e20265902bf.png",
-      "resultImage": "story_result_06_sampling_sign_fixed.png",
+      "image": "bc66885d-6413-41b9-9e85-4e20265902bf.webp",
+      "resultImage": "story_result_06_sampling_sign_fixed.webp",
       "dialogue": [
         {
           "speaker": "047_patisie",
@@ -436,8 +436,8 @@
       "title": "ふたりの休憩時間",
       "area": "shopping",
       "unlockAt": 270,
-      "image": "story_007_cakeshop_ledger_sudoku.png",
-      "resultImage": "story_result_07_after_hours_sudoku.png",
+      "image": "story_007_cakeshop_ledger_sudoku.webp",
+      "resultImage": "story_result_07_after_hours_sudoku.webp",
       "dialogue": [
         {
           "speaker": "047_patisie",
@@ -496,7 +496,7 @@
       "title": "むかしのおしごと",
       "area": "plaza",
       "unlockAt": 300,
-      "image": "story_005_community_center_mosaedo.png",
+      "image": "story_005_community_center_mosaedo.webp",
       "puzzle": "0014402020301300",
       "solution": "3214412324311342",
       "clue": "げんばくんに、また会いたいもふ",
@@ -559,7 +559,7 @@
       "title": "ひさしぶりの同僚",
       "area": "park",
       "unlockAt": 330,
-      "image": "story_002_park_tree.png",
+      "image": "story_002_park_tree.webp",
       "puzzle": "4001014004101200",
       "solution": "4321214334121234",
       "clue": "ゆっくりでも、しっかり確認",
@@ -622,7 +622,7 @@
       "title": "まだまだこれから",
       "area": "plaza",
       "unlockAt": 360,
-      "image": "story_005_community_center_mosaedo.png",
+      "image": "story_005_community_center_mosaedo.webp",
       "puzzle": "0140402010043400",
       "solution": "2143432112343412",
       "clue": "ぼくはまだまだこれからなんだ〜",

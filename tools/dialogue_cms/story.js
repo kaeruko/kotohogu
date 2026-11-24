@@ -298,7 +298,7 @@ function renderEditor() {
   labelInput(fields, "数独の正解", episode.solution, value => {
     episode.solution = value;
   }, {maxLength: 36});
-  labelInput(fields, "場面絵のPNGファイル名", episode.image, value => {
+  labelInput(fields, "場面絵の画像ファイル名（WebP / PNG）", episode.image, value => {
     episode.image = value;
   }, {refreshImage: true});
   labelInput(fields, "クリア後の画像（空欄なら通常の場面絵）",

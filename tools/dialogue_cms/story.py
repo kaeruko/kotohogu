@@ -11,8 +11,9 @@ from areas import load_areas, validate_areas
 ROOT = Path(__file__).resolve().parents[2] / "assets" / "story"
 DATA = ROOT / "story.json"
 LEGACY_DATA = ROOT / "legacy_story.json"
+V2_DATA = ROOT / "story_v2.json"
 MAX_JSON_BYTES = 256 * 1024
-IMAGE_NAME = re.compile(r"[a-z0-9][a-z0-9_-]{0,79}\.png")
+IMAGE_NAME = re.compile(r"[a-z0-9][a-z0-9_-]{0,79}\.(?:png|webp)")
 EPISODE_ID = re.compile(r"[a-z][a-z0-9_]{0,47}")
 EPISODE_FIELDS = {
     "id", "title", "area", "unlockAt", "image", "dialogue", "puzzle",
@@ -29,7 +30,12 @@ def load_legacy_story(resident_ids):
     return _load_document(LEGACY_DATA, resident_ids, legacy=True)
 
 
-def _load_document(path, resident_ids, *, legacy=False):
+def load_v2_story(resident_ids):
+    """Frozen PNG-only chapter catalog for installed v2 clients."""
+    return _load_document(V2_DATA, resident_ids, png_only=True)
+
+
+def _load_document(path, resident_ids, *, legacy=False, png_only=False):
     raw = path.read_bytes()
     if len(raw) > MAX_JSON_BYTES:
         raise ValueError(f"Sudoku story exceeds {MAX_JSON_BYTES} bytes")
@@ -40,6 +46,8 @@ def _load_document(path, resident_ids, *, legacy=False):
     if len(json.dumps(doc, ensure_ascii=False).encode("utf-8")) + 1 > MAX_JSON_BYTES:
         raise ValueError(f"Encoded Sudoku story exceeds {MAX_JSON_BYTES} bytes")
     for image in story_images(doc):
+        if (legacy or png_only) and not image.endswith(".png"):
+            raise ValueError(f"Frozen story requires PNG: {image}")
         story_image_bytes(image)
     return doc
 
@@ -150,7 +158,7 @@ def _text(value, field):
 
 def _image_name(name):
     if not isinstance(name, str) or not IMAGE_NAME.fullmatch(name):
-        raise ValueError(f"Invalid Sudoku story PNG name: {name!r}")
+        raise ValueError(f"Invalid Sudoku story image name: {name!r}")
 
 
 def story_images(doc):
@@ -163,14 +171,72 @@ def story_image_bytes(name):
     root = ROOT.resolve()
     path = (root / name).resolve()
     if not path.is_relative_to(root):
-        raise ValueError(f"Sudoku story PNG is outside the asset directory: {name}")
+        raise ValueError(f"Sudoku story image is outside the asset directory: {name}")
     with path.open("rb") as source:
         raw = source.read(8 * 1024 * 1024 + 1)
-    if (len(raw) < 33 or len(raw) > 8 * 1024 * 1024
-            or raw[:16] != b"\x89PNG\r\n\x1a\n\x00\x00\x00\x0dIHDR"
-            or not all(1 <= size <= 4096 for size in struct.unpack(">II", raw[16:24]))):
-        raise ValueError(f"Invalid Sudoku story PNG: {name}")
+    if len(raw) > 8 * 1024 * 1024:
+        raise ValueError(f"Sudoku story image exceeds size limit: {name}")
+    if name.endswith(".png"):
+        if (len(raw) < 33
+                or raw[:16] != b"\x89PNG\r\n\x1a\n\x00\x00\x00\x0dIHDR"
+                or not all(1 <= size <= 4096 for size in struct.unpack(">II", raw[16:24]))):
+            raise ValueError(f"Invalid Sudoku story PNG: {name}")
+    else:
+        _validate_webp(raw, name)
     return raw
+
+
+def story_image_mime(name):
+    _image_name(name)
+    return {"png": "image/png", "webp": "image/webp"}[name.rsplit(".", 1)[1]]
+
+
+def _validate_webp(raw, name):
+    def invalid():
+        raise ValueError(f"Invalid Sudoku story WebP: {name}")
+
+    if (len(raw) < 20 or raw[:4] != b"RIFF" or raw[8:12] != b"WEBP"
+            or int.from_bytes(raw[4:8], "little") != len(raw) - 8):
+        invalid()
+    offset = 12
+    dimensions = []
+    image_count = 0
+    while offset < len(raw):
+        if offset + 8 > len(raw):
+            invalid()
+        tag = raw[offset:offset + 4]
+        length = int.from_bytes(raw[offset + 4:offset + 8], "little")
+        end = offset + 8 + length
+        padded_end = end + (length & 1)
+        if padded_end > len(raw):
+            invalid()
+        chunk = raw[offset + 8:end]
+        if tag == b"VP8X":
+            if offset != 12 or length != 10 or chunk[0] & 0x02:
+                invalid()
+            dimensions.append((1 + int.from_bytes(chunk[4:7], "little"),
+                               1 + int.from_bytes(chunk[7:10], "little")))
+        elif tag == b"VP8 ":
+            if length < 10 or chunk[0] & 1 or chunk[3:6] != b"\x9d\x01\x2a":
+                invalid()
+            dimensions.append((int.from_bytes(chunk[6:8], "little") & 0x3fff,
+                               int.from_bytes(chunk[8:10], "little") & 0x3fff))
+            image_count += 1
+        elif tag == b"VP8L":
+            if length < 5 or chunk[0] != 0x2f:
+                invalid()
+            bits = int.from_bytes(chunk[1:5], "little")
+            if bits >> 29:
+                invalid()
+            dimensions.append((1 + (bits & 0x3fff), 1 + ((bits >> 14) & 0x3fff)))
+            image_count += 1
+        elif tag in (b"ANIM", b"ANMF"):
+            invalid()
+        offset = padded_end
+    if (image_count != 1 or not dimensions
+            or any(not all(1 <= size <= 4096 for size in pair) for pair in dimensions)
+            or any(pair != dimensions[0] for pair in dimensions)):
+        invalid()
 
 
 def _validate_puzzle(puzzle, solution, identifier):

@@ -4,10 +4,10 @@ import 'local_content_preview.dart';
 import 'story_data.dart';
 import 'town_areas.dart';
 
-const storyJsonPath = 'api/runtime/story-v2';
+const storyJsonPath = 'api/runtime/story-v3';
 const storyImagePath = 'api/runtime/story-images/';
 const maxStoryJsonBytes = 256 * 1024;
-final _imageName = RegExp(r'^[a-z0-9][a-z0-9_-]{0,79}\.png$');
+final _imageName = RegExp(r'^[a-z0-9][a-z0-9_-]{0,79}\.(?:png|webp)$');
 final _episodeId = RegExp(r'^[a-z][a-z0-9_]{0,47}$');
 
 StoryCatalog parseHostedStory(

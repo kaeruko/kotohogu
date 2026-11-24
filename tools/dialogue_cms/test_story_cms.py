@@ -116,8 +116,15 @@ class StoryCmsTests(unittest.TestCase):
         with urlopen(base + "/api/story", timeout=5) as response:
             doc = json.load(response)
         self.assertEqual(doc, self.loaded())
-        with urlopen(base + "/api/runtime/story-v2", timeout=5) as response:
+        with urlopen(base + "/api/runtime/story-v3", timeout=5) as response:
             self.assertEqual(json.load(response), doc)
+        with urlopen(base + "/api/runtime/story-v2", timeout=5) as response:
+            v2 = json.load(response)
+        self.assertTrue(all(name.endswith(".png") for name in story.story_images(v2)))
+        for name, mime in ((doc["coverImage"], "image/webp"), (v2["coverImage"], "image/png")):
+            with urlopen(base + "/api/runtime/story-images/" + name, timeout=5) as response:
+                self.assertEqual(response.headers.get_content_type(), mime)
+                self.assertEqual(response.read(), story.story_image_bytes(name))
         with urlopen(base + "/api/runtime/story", timeout=5) as response:
             frozen = json.load(response)
         self.assertEqual(len(frozen["episodes"]), 11)

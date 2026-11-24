@@ -5,7 +5,7 @@ import unittest
 
 from areas import load_areas
 from characters import load_catalog
-from story import load_story, story_image_bytes, validate_story
+from story import load_story, story_image_bytes, story_image_mime, validate_story, _validate_webp
 
 
 class SudokuStoryTests(unittest.TestCase):
@@ -45,5 +45,15 @@ class SudokuStoryTests(unittest.TestCase):
         doc["episodes"][0]["dialogue"][0]["speaker"] = "missing"
         with self.assertRaisesRegex(ValueError, "Invalid Sudoku story speaker"):
             validate_story(doc, self.residents, self.areas)
-        with self.assertRaisesRegex(ValueError, "Invalid Sudoku story PNG name"):
+        with self.assertRaisesRegex(ValueError, "Invalid Sudoku story image name"):
             story_image_bytes("../cover.png")
+
+    def test_webp_images_and_invalid_header(self):
+        name = self.story["coverImage"]
+        self.assertEqual(story_image_mime(name), "image/webp")
+        raw = story_image_bytes(name)
+        self.assertEqual(raw[8:12], b"WEBP")
+        with self.assertRaisesRegex(ValueError, "Invalid Sudoku story WebP"):
+            _validate_webp(raw[:-1], name)
+        with self.assertRaisesRegex(ValueError, "Invalid Sudoku story WebP"):
+            _validate_webp(b"not an image", name)

@@ -6,9 +6,9 @@ import 'sudoku_duel.dart';
 import 'town_areas.dart';
 
 const storyTitle = 'ことほぎのまちの数独ものがたり';
-const storyPlazaArt = 'assets/story/story_001_plaza_mystery.png';
-const storyParkArt = 'assets/story/story_002_park_tree.png';
-const storyShoppingArt = 'assets/story/story_003_shopping_clue.png';
+const storyPlazaArt = 'assets/story/story_001_plaza_mystery.webp';
+const storyParkArt = 'assets/story/story_002_park_tree.webp';
+const storyShoppingArt = 'assets/story/story_003_shopping_clue.webp';
 
 class StoryCatalog {
   const StoryCatalog({
