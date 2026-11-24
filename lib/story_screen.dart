@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'progress.dart';
 import 'story_data.dart';
 import 'story_remote_config.dart' show storyImagePath;
-import 'sudoku_duel.dart';
 import 'sudoku_duel_view.dart';
 import 'town_areas.dart';
 
