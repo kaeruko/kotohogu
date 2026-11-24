@@ -10,52 +10,35 @@ from areas import load_areas, validate_areas
 
 ROOT = Path(__file__).resolve().parents[2] / "assets" / "story"
 DATA = ROOT / "story.json"
-LEGACY_DATA = ROOT / "legacy_story.json"
-V2_DATA = ROOT / "story_v2.json"
 MAX_JSON_BYTES = 256 * 1024
 IMAGE_NAME = re.compile(r"[a-z0-9][a-z0-9_-]{0,79}\.(?:png|webp)")
 EPISODE_ID = re.compile(r"[a-z][a-z0-9_]{0,47}")
 EPISODE_FIELDS = {
-    "id", "title", "area", "unlockAt", "image", "dialogue", "puzzle",
-    "solution", "clue", "result", "resultDialogue",
+    "id", "title", "area", "unlockAt", "image", "dialogue", "clue", "result", "resultDialogue",
+}
+DUEL_STAGES = {
+    "firstFlag", "safeSend", "berryFlag", "flagOrder", "doubleCapture",
+    "endgame", "readAhead", "sacrifice", "fiveFlags",
 }
 
 
 def load_story(resident_ids):
-    return _load_document(DATA, resident_ids)
-
-
-def load_legacy_story(resident_ids):
-    """Frozen 11-part story for already-installed app versions."""
-    return _load_document(LEGACY_DATA, resident_ids, legacy=True)
-
-
-def load_v2_story(resident_ids):
-    """Frozen PNG-only chapter catalog for installed v2 clients."""
-    return _load_document(V2_DATA, resident_ids, png_only=True)
-
-
-def _load_document(path, resident_ids, *, legacy=False, png_only=False):
-    raw = path.read_bytes()
+    raw = DATA.read_bytes()
     if len(raw) > MAX_JSON_BYTES:
         raise ValueError(f"Sudoku story exceeds {MAX_JSON_BYTES} bytes")
     areas = {row["id"]: row["unlockAt"]
              for row in validate_areas(load_areas())["areas"]
              if row["id"] != "hospital"}
-    doc = validate_story(json.loads(raw), resident_ids, areas, legacy=legacy)
+    doc = validate_story(json.loads(raw), resident_ids, areas)
     if len(json.dumps(doc, ensure_ascii=False).encode("utf-8")) + 1 > MAX_JSON_BYTES:
         raise ValueError(f"Encoded Sudoku story exceeds {MAX_JSON_BYTES} bytes")
     for image in story_images(doc):
-        if (legacy or png_only) and not image.endswith(".png"):
-            raise ValueError(f"Frozen story requires PNG: {image}")
         story_image_bytes(image)
     return doc
 
 
-def validate_story(doc, resident_ids, areas, *, legacy=False):
-    required = {"version", "title", "coverImage", "episodes"}
-    if not legacy:
-        required.add("chapters")
+def validate_story(doc, resident_ids, areas):
+    required = {"version", "title", "coverImage", "episodes", "chapters"}
     if (not isinstance(doc, dict) or set(doc) != required
             or type(doc["version"]) is not int or doc["version"] != 1):
         raise ValueError("Invalid Sudoku story schema or version")
@@ -66,9 +49,12 @@ def validate_story(doc, resident_ids, areas, *, legacy=False):
         raise ValueError("Invalid Sudoku story episode count")
     previous_unlock = -1
     ids = set()
+    duel_ids = set()
     for index, row in enumerate(episodes):
-        if (not isinstance(row, dict) or not EPISODE_FIELDS <= row.keys()
-                or row.keys() - EPISODE_FIELDS - {"destination", "resultImage"}):
+        authored = isinstance(row, dict) and "duel" in row
+        fields = EPISODE_FIELDS | ({"duel"} if authored else {"puzzle", "solution"})
+        if (not isinstance(row, dict) or not fields <= row.keys()
+                or row.keys() - fields - {"destination", "resultImage"}):
             raise ValueError(f"Invalid Sudoku story episode fields: {index}")
         identifier = row["id"]
         if (not isinstance(identifier, str) or not EPISODE_ID.fullmatch(identifier)
@@ -99,31 +85,50 @@ def validate_story(doc, resident_ids, areas, *, legacy=False):
                         or turn["speaker"] not in resident_ids):
                     raise ValueError(f"Invalid Sudoku story speaker: {identifier}.{field}")
                 _text(turn["text"], f"{identifier}.{field}")
-        _validate_puzzle(row["puzzle"], row["solution"], identifier)
-    if not legacy:
-        chapters = doc["chapters"]
-        if (not isinstance(chapters, list)
-                or not 1 <= len(chapters) <= len(episodes)):
-            raise ValueError("Invalid Sudoku story chapter count")
-        order = {row["id"]: index for index, row in enumerate(episodes)}
-        chapter_ids = set()
-        previous_start = -1
-        for number, chapter in enumerate(chapters):
-            if not isinstance(chapter, dict) or set(chapter) != {
-                    "id", "title", "startEpisodeId"}:
-                raise ValueError(f"Invalid Sudoku chapter fields: {number}")
-            identifier = chapter["id"]
-            first = chapter["startEpisodeId"]
-            if (not isinstance(identifier, str)
-                    or EPISODE_ID.fullmatch(identifier) is None
-                    or identifier in chapter_ids
-                    or not isinstance(first, str) or first not in order
-                    or order[first] <= previous_start
-                    or (number == 0 and order[first] != 0)):
-                raise ValueError(f"Invalid Sudoku chapter boundary: {number}")
-            _text(chapter["title"], f"chapter {identifier} title")
-            chapter_ids.add(identifier)
-            previous_start = order[first]
+        if authored:
+            cast = row["duel"]
+            if (not isinstance(cast, dict) or set(cast) != {"player", "opponent"}
+                    or any(not isinstance(actor, str) or actor not in resident_ids
+                           for actor in cast.values()) or cast["player"] == cast["opponent"]):
+                raise ValueError(f"Invalid Sudoku duel cast for {identifier}: {cast!r}")
+            duel_ids.add(identifier)
+        else:
+            _validate_puzzle(row["puzzle"], row["solution"], identifier)
+    chapters = doc["chapters"]
+    if (not isinstance(chapters, list)
+            or not 1 <= len(chapters) <= len(episodes)):
+        raise ValueError("Invalid Sudoku story chapter count")
+    order = {row["id"]: index for index, row in enumerate(episodes)}
+    chapter_ids = set()
+    previous_start = -1
+    stage_starts = {}
+    for number, chapter in enumerate(chapters):
+        fields = {"id", "title", "startEpisodeId"}
+        if (not isinstance(chapter, dict) or not fields <= chapter.keys()
+                or chapter.keys() - fields - {"duelStage"}):
+            raise ValueError(f"Invalid Sudoku chapter fields: {number}")
+        identifier = chapter["id"]
+        first = chapter["startEpisodeId"]
+        if (not isinstance(identifier, str)
+                or EPISODE_ID.fullmatch(identifier) is None
+                or identifier in chapter_ids
+                or not isinstance(first, str) or first not in order
+                or order[first] <= previous_start
+                or (number == 0 and order[first] != 0)):
+            raise ValueError(f"Invalid Sudoku chapter boundary: {number}")
+        _text(chapter["title"], f"chapter {identifier} title")
+        chapter_ids.add(identifier)
+        previous_start = order[first]
+        stage = chapter.get("duelStage")
+        if "duelStage" in chapter and (not isinstance(stage, str) or stage not in DUEL_STAGES):
+            raise ValueError(f"Unknown Sudoku duel stage in {identifier}: {stage!r}")
+        stage_starts[first] = stage
+    stage = None
+    for row in episodes:
+        if row["id"] in stage_starts:
+            stage = stage_starts[row["id"]]
+        if row["id"] in duel_ids and stage is None:
+            raise ValueError(f"Sudoku duel requires a chapter stage: {row['id']}")
     return doc
 
 

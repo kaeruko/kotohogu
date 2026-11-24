@@ -11,7 +11,6 @@ class StoryProgress {
     this.dialogueTurns = 0,
     this.board,
     this.duelMoves,
-    this.duelLayout,
     this.unreadClue = false,
     this.resultDialogueTurns = 0,
     this.signature,
@@ -22,18 +21,33 @@ class StoryProgress {
   final List<int>? board;
   /// Ordered cells reconstruct both players' turns, flags and next room.
   final List<int>? duelMoves;
-  // Move logs from the first release used the catalog puzzle and have no tag.
-  static const _currentDuelLayout = 2;
-  final int? duelLayout;
   final bool unreadClue;
   /// Read position in the post-sudoku scene, saved for resume.
   final int resultDialogueTurns;
   final String? signature;
 
-  /// A structural content edit starts a fresh story-only run.
+  /// Appending chapters preserves the position within the published prefix.
   StoryProgress forCatalog(StoryCatalog catalog) {
     final next = catalog.progressSignature;
-    return signature == next ? this : StoryProgress._(signature: next);
+    if (signature == next) return this;
+    if (signature != null && hasStarted) {
+      final minimumLength = completed + (dialogueTurns > 0 ? 1 : 0);
+      for (var end = catalog.episodes.length - 1; end >= minimumLength; end--) {
+        final prefix = catalog.episodes.sublist(0, end);
+        if (storyProgressSignature(prefix) == signature) {
+          return StoryProgress._(
+            completed: completed,
+            dialogueTurns: dialogueTurns,
+            board: board,
+            duelMoves: duelMoves,
+            unreadClue: unreadClue,
+            resultDialogueTurns: resultDialogueTurns,
+            signature: next,
+          );
+        }
+      }
+    }
+    return StoryProgress._(signature: next);
   }
 
   int get resumeIndex => unreadClue ? completed - 1 : completed;
@@ -70,8 +84,7 @@ class StoryProgress {
   }) {
     if (!_canPlay(index, points, episodes)) return this;
     final episode = episodes[index];
-    // A saved solo board from before story duels can still be finished.
-    if ((episode.duel != null && board == null) ||
+    if (episode.duel != null ||
         dialogueTurns != episode.dialogue.length ||
         cell < 0 ||
         cell >= episode.puzzle.length ||
@@ -103,11 +116,11 @@ class StoryProgress {
       board == null;
 
   SudokuDuel duelPosition(StoryEpisode episode) {
-    final legacy = duelMoves != null && duelLayout == null;
     return SudokuDuel.story(
-      legacy ? episode.puzzle : episode.duelPuzzle,
+      episode.duelPuzzle,
       episode.solution,
       duelMoves ?? const [],
+      stage: episode.duel?.stage,
     );
   }
 
@@ -126,7 +139,6 @@ class StoryProgress {
       signature: signature,
       dialogueTurns: dialogueTurns,
       duelMoves: List.unmodifiable([...?duelMoves, cell]),
-      duelLayout: duelMoves == null ? _currentDuelLayout : duelLayout,
     );
   }
 
@@ -210,7 +222,6 @@ class StoryProgress {
     if (resultDialogueTurns != 0) 'resultDialogueTurns': resultDialogueTurns,
     if (board != null) 'board': board!.join(),
     'duelMoves': ?duelMoves,
-    'duelLayout': ?duelLayout,
   };
 
   factory StoryProgress.fromJson(Object? raw) {
@@ -224,7 +235,6 @@ class StoryProgress {
             'signature',
             'board',
             'duelMoves',
-            'duelLayout',
           }.contains(key),
         )) {
       throw const FormatException('Invalid story save schema');
@@ -262,21 +272,13 @@ class StoryProgress {
     List<int>? duelMoves;
     if (raw.containsKey('duelMoves')) {
       final moves = raw['duelMoves'];
+      const maxCells = 81;
       if (board != null || dialogueTurns == 0 || unreadClue || moves is! List ||
-          moves.isEmpty || moves.length > 36 ||
-          moves.any((cell) => cell is! int || cell < 0 || cell >= 36)) {
+          moves.isEmpty || moves.length > maxCells ||
+          moves.any((cell) => cell is! int || cell < 0 || cell >= maxCells)) {
         throw const FormatException('Invalid story duel move list');
       }
       duelMoves = List<int>.unmodifiable(moves);
-    }
-    final layout = raw['duelLayout'];
-    if (raw.containsKey('duelLayout')) {
-      if (duelMoves == null) {
-        throw const FormatException('Story duel layout without a move log');
-      }
-      if (layout is! int || layout != _currentDuelLayout) {
-        throw FormatException('Unsupported story duel layout: $layout');
-      }
     }
     return StoryProgress._(
       completed: completed,
@@ -286,7 +288,6 @@ class StoryProgress {
       signature: signature as String?,
       board: board == null ? null : List.unmodifiable(board),
       duelMoves: duelMoves,
-      duelLayout: layout as int?,
     );
   }
 
@@ -320,13 +321,13 @@ class StoryProgress {
     }
     if (duelMoves != null) {
       if (episode.duel == null || dialogueTurns != episode.dialogue.length) {
-        throw const FormatException('Duel moves outside a story match');
+        throw const FormatException('Duel data outside a story match');
       }
       duelPosition(episode);
     }
     final cells = board;
     if (cells == null) return;
-    if (dialogueTurns != episode.dialogue.length ||
+    if (episode.duel != null || dialogueTurns != episode.dialogue.length ||
         cells.length != episode.puzzle.length) {
       throw const FormatException('Invalid story board');
     }

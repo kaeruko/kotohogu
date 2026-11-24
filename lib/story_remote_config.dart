@@ -2,9 +2,10 @@ import 'dart:convert';
 
 import 'local_content_preview.dart';
 import 'story_data.dart';
+import 'story_duel_stage.dart';
 import 'town_areas.dart';
 
-const storyJsonPath = 'api/runtime/story-v3';
+const storyJsonPath = 'api/runtime/story';
 const storyImagePath = 'api/runtime/story-images/';
 const maxStoryJsonBytes = 256 * 1024;
 final _imageName = RegExp(r'^[a-z0-9][a-z0-9_-]{0,79}\.(?:png|webp)$');
@@ -77,9 +78,62 @@ StoryCatalog parseHostedStory(
     );
   }
 
+  final rowIds = [
+    for (final row in rows)
+      nonempty(objectOf(row, 'story episode')['id'], 'episode.id'),
+  ];
+  final chapterRows = arrayOf(root['chapters'], 'story chapters');
+  if (chapterRows.isEmpty || chapterRows.length > rows.length) {
+    throw const FormatException('Invalid story chapter count');
+  }
+  final chapterIds = <String>{};
+  final chapters = <StoryChapter>[];
+  for (final (chapterNumber, raw) in chapterRows.indexed) {
+    final field = 'story chapters[$chapterNumber]';
+    final chapter = objectOf(raw, field);
+    requireFields(
+      chapter,
+      {'id', 'title', 'startEpisodeId'},
+      field,
+      optional: {'duelStage'},
+    );
+    final id = nonempty(chapter['id'], '$field.id');
+    final firstEpisodeId = nonempty(
+      chapter['startEpisodeId'],
+      '$field.startEpisodeId',
+    );
+    final startIndex = rowIds.indexOf(firstEpisodeId);
+    if (!_episodeId.hasMatch(id) ||
+        !chapterIds.add(id) ||
+        startIndex < 0 ||
+        (chapterNumber == 0
+            ? startIndex != 0
+            : startIndex <= chapters.last.startIndex)) {
+      throw FormatException('Invalid story chapter boundary: $field');
+    }
+    StoryDuelStage? stage;
+    if (chapter.containsKey('duelStage')) {
+      stage = StoryDuelStage.values.asNameMap()[chapter['duelStage']];
+      if (stage == null) {
+        throw FormatException(
+          'Unknown duel stage in $id: ${chapter['duelStage']}',
+        );
+      }
+    }
+    chapters.add(
+      StoryChapter(
+        id: id,
+        title: nonempty(chapter['title'], '$field.title'),
+        startIndex: startIndex,
+        duelStage: stage,
+      ),
+    );
+  }
+  var chapterIndex = 0;
   for (final (index, raw) in rows.indexed) {
     final field = 'story episodes[$index]';
     final row = objectOf(raw, field);
+    final isDuel = row.containsKey('duel');
     requireFields(
       row,
       {
@@ -89,8 +143,7 @@ StoryCatalog parseHostedStory(
         'unlockAt',
         'image',
         'dialogue',
-        'puzzle',
-        'solution',
+        if (isDuel) 'duel' else ...{'puzzle', 'solution'},
         'clue',
         'result',
         'resultDialogue',
@@ -115,6 +168,27 @@ StoryCatalog parseHostedStory(
         'Invalid story episode ID or unlock threshold: $field',
       );
     }
+    if (chapterIndex + 1 < chapters.length &&
+        chapters[chapterIndex + 1].startIndex == index) {
+      chapterIndex++;
+    }
+    StoryDuel? match;
+    if (isDuel) {
+      final stage = chapters[chapterIndex].duelStage;
+      final cast = objectOf(row['duel'], '$field.duel');
+      requireFields(cast, {'player', 'opponent'}, '$field.duel');
+      final player = speakers[cast['player']];
+      final opponent = speakers[cast['opponent']];
+      if (stage == null) {
+        throw FormatException('Duel $id requires a chapter stage');
+      }
+      if (player == null || opponent == null || player == opponent) {
+        throw FormatException(
+          'Invalid duel cast for $id: ${cast['player']} VS ${cast['opponent']}',
+        );
+      }
+      match = StoryDuel.authored(player, opponent, stage);
+    }
     final episode = StoryEpisode(
       id: id,
       title: nonempty(row['title'], '$field.title'),
@@ -126,8 +200,13 @@ StoryCatalog parseHostedStory(
           ? image(row['resultImage'], '$field.resultImage')
           : null,
       dialogue: turns(row['dialogue'], '$field.dialogue'),
-      puzzle: nonempty(row['puzzle'], '$field.puzzle'),
-      solution: nonempty(row['solution'], '$field.solution'),
+      authoredDuel: match,
+      puzzle: match == null
+          ? nonempty(row['puzzle'], '$field.puzzle')
+          : match.stage!.puzzle,
+      solution: match == null
+          ? nonempty(row['solution'], '$field.solution')
+          : match.stage!.solution,
       clue: nonempty(row['clue'], '$field.clue'),
       result: nonempty(row['result'], '$field.result'),
       resultDialogue: turns(
@@ -136,40 +215,8 @@ StoryCatalog parseHostedStory(
         allowEmpty: true,
       ),
     );
-    _validatePuzzle(episode);
+    if (!isDuel) _validatePuzzle(episode);
     episodes.add(episode);
-  }
-  final chapterRows = arrayOf(root['chapters'], 'story chapters');
-  if (chapterRows.isEmpty || chapterRows.length > episodes.length) {
-    throw const FormatException('Invalid story chapter count');
-  }
-  final chapterIds = <String>{};
-  final chapters = <StoryChapter>[];
-  for (final (chapterNumber, raw) in chapterRows.indexed) {
-    final field = 'story chapters[$chapterNumber]';
-    final chapter = objectOf(raw, field);
-    requireFields(chapter, {'id', 'title', 'startEpisodeId'}, field);
-    final id = nonempty(chapter['id'], '$field.id');
-    final firstEpisodeId = nonempty(
-      chapter['startEpisodeId'],
-      '$field.startEpisodeId',
-    );
-    final startIndex = episodes.indexWhere(
-      (episode) => episode.id == firstEpisodeId,
-    );
-    if (!_episodeId.hasMatch(id) ||
-        !chapterIds.add(id) ||
-        startIndex < 0 ||
-        (chapterNumber == 0
-            ? startIndex != 0
-            : startIndex <= chapters.last.startIndex)) {
-      throw FormatException('Invalid story chapter boundary: $field');
-    }
-    chapters.add(StoryChapter(
-      id: id,
-      title: nonempty(chapter['title'], '$field.title'),
-      startIndex: startIndex,
-    ));
   }
   return StoryCatalog(
     title: nonempty(root['title'], 'story title'),

@@ -12,7 +12,10 @@ import 'package:future_lift/sudoku_duel_view.dart';
 import 'progress_test.dart' show MemoryStore;
 import 'sudoku_duel_test.dart' show solveSingles;
 
-StoryProgress atEpisode(int index, int turns) => StoryProgress.fromJson({
+StoryProgress atEpisode(
+  int index,
+  int turns,
+) => StoryProgress.fromJson({
   'completed': index,
   'dialogueTurns': turns,
   'unreadClue': false,
@@ -27,39 +30,8 @@ void main() {
     7: ('およめさん', 'パティシエ'),
   };
 
-  test('legacy bakery duels resume and finish on the original board', () {
-    final episode = storyEpisodes[7];
-    const endings = {
-      1: [4, 5, 3, 8, 11, 12, 13],
-      0: [4, 5, 3, 8, 12, 11, 13],
-      -1: [5, 3, 8, 4, 12, 11, 13],
-    };
-    for (final ending in endings.entries) {
-      var story = StoryProgress.fromJson({
-        ...atEpisode(7, episode.dialogue.length).toJson(),
-        'duelMoves': [ending.value.first],
-      });
-      for (final cell in ending.value.skip(1)) {
-        story = story.playDuelMove(
-          7,
-          episode.unlockAt,
-          cell,
-          episode.answerAt(cell),
-        );
-        story = StoryProgress.fromJson(story.toJson());
-      }
-      story.validateFor(bundledStory, episode.unlockAt);
-      final game = story.duelPosition(episode);
-      expect(
-        game.score(DuelPlayer.first).compareTo(game.score(DuelPlayer.second)),
-        ending.key,
-      );
-      expect(story.finishDuel(7, episode.unlockAt).unreadClue, isTrue);
-    }
-  });
-
   test(
-    'story duel logs reject impossible moves and preserve old solo saves',
+    'story duel logs reject impossible moves and obsolete save fields',
     () {
       const index = 4;
       final episode = storyEpisodes[index];
@@ -75,7 +47,7 @@ void main() {
       expect(saved.finishDuel(index, 180), same(saved));
       expect(saved.useHint(index, 180, null), same(saved));
       final restored = StoryProgress.fromJson(saved.toJson());
-      expect(restored.duelLayout, 2);
+      expect(restored.duelMoves, [first]);
       restored.validateFor(bundledStory, 180);
       expect(restored.duelPosition(episode).turn, DuelPlayer.second);
       expect(
@@ -96,31 +68,17 @@ void main() {
         }),
         throwsFormatException,
       );
-      for (final invalid in [null, 3, 2.0, '2']) {
+      for (final field in {'duelLayout': 2, 'duelDifficulty': 'hard'}.entries) {
         expect(
-          () => StoryProgress.fromJson({
-            ...saved.toJson(),
-            'duelLayout': invalid,
-          }),
+          () => StoryProgress.fromJson({...saved.toJson(), field.key: field.value}),
           throwsFormatException,
         );
       }
       expect(
-        () => StoryProgress.fromJson({...ready.toJson(), 'duelLayout': 2}),
+        () => StoryProgress.fromJson({
+          ...ready.toJson(), 'board': episode.puzzle,
+        }).validateFor(bundledStory, 180),
         throwsFormatException,
-      );
-      final legacy = StoryProgress.fromJson({
-        ...ready.toJson(),
-        'board': episode.puzzle,
-      });
-      legacy.validateFor(bundledStory, 180);
-      expect(
-        legacy.useHint(index, 180, first).board![first],
-        episode.answerAt(first),
-      );
-      expect(
-        legacy.playDuelMove(index, 180, first, episode.answerAt(first)),
-        same(legacy),
       );
     },
   );
@@ -154,8 +112,9 @@ void main() {
         }
 
         final winningOpenings = moves(start).where(canForceWin).length;
-        expect(winningOpenings, greaterThan(0));
+        expect(winningOpenings, 1);
         expect(winningOpenings, lessThan(start.legalCells.length));
+
 
         // These results must be reachable against the same AI the player faces.
         final outcomes = <int>{};
@@ -164,7 +123,12 @@ void main() {
           if (game.isOver) {
             outcomes.add(result(game));
           } else if (game.turn == DuelPlayer.second) {
-            playAgainstNpc(game.computerMove(episode.duel!.rival, random));
+            playAgainstNpc(
+              game.computerMove(
+                episode.duel!.rival,
+                random,
+              ),
+            );
           } else {
             moves(game).forEach(playAgainstNpc);
           }
@@ -178,7 +142,7 @@ void main() {
     testWidgets(
       '$player plays $npc inside the episode, resumes, and earns the clue',
       (tester) async {
-        tester.view.physicalSize = const Size(390, 800);
+        tester.view.physicalSize = const Size(345, 742);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         final episode = storyEpisodes[index];
@@ -239,7 +203,15 @@ void main() {
         await tap(key('story-advance-dialogue'));
         expect(find.text('$player VS $npc'), findsOneWidget);
         expect(key('story-puzzle'), findsNothing);
-        await humanMove(controller.progress!.story.duelPosition(episode));
+        expect(find.byType(ChoiceChip), findsNothing);
+        final start = controller.progress!.story.duelPosition(episode);
+        expect(
+          List.generate(episode.puzzle.length, start.valueAt).join(),
+          episode.duelPuzzle,
+        );
+        await humanMove(start);
+        expect(key('duel-difficulty-hard'), findsNothing);
+        expect(key('duel-hint'), findsNothing);
         expect(Progress.decode(store.raw!).story.duelMoves, hasLength(1));
         expect(find.text('$npcが考え中…'), findsOneWidget);
         await launch();

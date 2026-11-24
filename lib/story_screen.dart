@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'progress.dart';
 import 'story_data.dart';
 import 'story_remote_config.dart' show storyImagePath;
-import 'sudoku_duel.dart';
 import 'sudoku_duel_view.dart';
 import 'town_areas.dart';
 
@@ -205,7 +204,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
 
       final readyForPuzzle = index == story.completed &&
           story.dialogueTurns == episode.dialogue.length;
-      if (match != null && readyForPuzzle && story.board == null) {
+      if (match != null && readyForPuzzle) {
         return _StoryPage(
           contentKey: const ValueKey('story-duel'),
           title: episode.title,
@@ -356,7 +355,7 @@ class _EpisodeScreenState extends State<_EpisodeScreen> {
                       ),
                     ),
               child: Text(!last ? 'つぎへ' : match == null
-                  ? '数独をはじめる' : '${match.rival.resident.label}と対戦する'),
+                  ? '数独をはじめる' : '${match.opponent.label}と対戦する'),
             ),
           ],
         );

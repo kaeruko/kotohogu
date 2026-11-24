@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'story_duel_stage.dart';
+
 enum DuelSize {
   mini(2, 2, '1034301001434000', '1234341221434321'),
   six(
@@ -65,6 +67,7 @@ class SudokuDuel {
     this.turn,
     this.targetRoom,
     this.lastCell,
+    this.stage,
   );
 
   /// Without a shuffle the mini game opens on the introductory position.
@@ -94,10 +97,22 @@ class SudokuDuel {
   }
 
   /// The story catalog validates the givens and their solution on load.
-  factory SudokuDuel.story(String puzzle, String solution, List<int> moves) {
+  factory SudokuDuel.story(
+    String puzzle,
+    String solution,
+    List<int> moves, {
+    StoryDuelStage? stage,
+  }) {
+    if (stage != null &&
+        (stage.puzzle != puzzle || stage.solution != solution)) {
+      throw FormatException(
+        'Board does not match story duel stage: ${stage.name}',
+      );
+    }
     final size = switch (puzzle.length) {
       16 => DuelSize.mini,
       36 => DuelSize.six,
+      81 => DuelSize.classic,
       _ => throw FormatException(
         'Invalid story duel dimensions: ${puzzle.length}',
       ),
@@ -105,8 +120,13 @@ class SudokuDuel {
     List<int> digits(String text) => [
       for (final unit in text.codeUnits) unit - 48,
     ];
-    var game = SudokuDuel._startBoard(size, digits(puzzle), digits(solution));
-    for (final cell in moves) {
+    var game = SudokuDuel._startBoard(
+      size,
+      digits(puzzle),
+      digits(solution),
+      stage: stage,
+    );
+    for (final cell in [...?stage?.opening, ...moves]) {
       if (cell < 0 || cell >= puzzle.length || !game.canPlay(cell)) {
         throw FormatException(
           'Invalid story duel move: cell $cell, room ${game.targetRoom}',
@@ -120,8 +140,9 @@ class SudokuDuel {
   factory SudokuDuel._startBoard(
     DuelSize size,
     List<int> givens,
-    List<int> answer,
-  ) {
+    List<int> answer, {
+    StoryDuelStage? stage,
+  }) {
     final blanks = List.filled(size.side, 0);
     for (var cell = 0; cell < givens.length; cell++) {
       if (givens[cell] == 0) blanks[size.roomOf(cell) - 1]++;
@@ -136,6 +157,7 @@ class SudokuDuel {
       DuelPlayer.first,
       blanks.first == 0 ? null : 1,
       null,
+      stage,
     );
   }
 
@@ -148,17 +170,25 @@ class SudokuDuel {
   final DuelPlayer turn;
   final int? targetRoom;
   final int? lastCell;
+  final StoryDuelStage? stage;
 
   int valueAt(int cell) => _board[cell];
   bool isGiven(int cell) => _givens[cell] != 0;
   DuelPlayer? flagAt(int room) => _flags[room - 1];
   bool hasSpace(int room) => _blanks[room - 1] > 0;
-  int score(DuelPlayer player) =>
-      _flags.where((owner) => owner == player).length;
-  bool get isOver =>
-      !_blanks.any((count) => count > 0) ||
-      (size == DuelSize.classic &&
-          (score(DuelPlayer.first) >= 5 || score(DuelPlayer.second) >= 5));
+  int score(DuelPlayer player) {
+    final bonus = stage?.doubleRoom;
+    return _flags.where((owner) => owner == player).length +
+        (bonus != null && flagAt(bonus) == player ? 1 : 0);
+  }
+
+  bool get isOver {
+    if (!_blanks.any((count) => count > 0)) return true;
+    final target = stage?.firstTo ?? (size == DuelSize.classic ? 5 : null);
+    return target != null &&
+        (score(DuelPlayer.first) >= target ||
+            score(DuelPlayer.second) >= target);
+  }
 
   bool _available(int cell) =>
       valueAt(cell) == 0 &&
@@ -199,39 +229,52 @@ class SudokuDuel {
       turn.other,
       blanks[digit - 1] == 0 ? null : digit,
       cell,
+      stage,
     );
   }
 
-  SudokuDuel computerMove(DuelRival rival, Random random) {
+  static const _winScore = 100;
+  int get _strongDepth => size == DuelSize.mini ? _board.length : 3;
+
+  SudokuDuel computerMove(DuelRival? rival, Random random) {
     if (isOver) throw StateError('The duel has already ended');
-    final depth = switch (rival) {
+    final choices = legalCells.toList()..shuffle(random);
+    if (stage case final authored?) {
+      return _bestMove(choices, authored.lookAhead);
+    }
+    return _bestMove(choices, switch (rival) {
       DuelRival.pomupomu => 1,
       DuelRival.mosaedo || DuelRival.patissier => 2,
-      DuelRival.oshisho => size == DuelSize.mini ? _board.length : 3,
-    };
-    // Shuffle equally good moves so rematches do not always play out alike.
-    final choices = legalCells.toList()..shuffle(random);
+      DuelRival.oshisho => _strongDepth,
+      null => throw StateError('Missing NPC for a standard duel'),
+    });
+  }
+
+  SudokuDuel _bestMove(Iterable<int> choices, int depth) {
     late SudokuDuel best;
-    var bestScore = -1000;
+    var bestScore = -_winScore - 1;
     for (final cell in choices) {
       final next = _place(cell);
-      final score = -next._lookAhead(depth - 1);
+      final score = -next._lookAhead(depth - 1, -_winScore - 1, -bestScore);
       if (score > bestScore) {
         bestScore = score;
         best = next;
+        if (score == _winScore) break;
       }
     }
     return best;
   }
 
   // Evaluate from the side to move. Ending the game outweighs any partial lead.
-  int _lookAhead(int depth) {
+  int _lookAhead(int depth, int alpha, int beta) {
     final lead = score(turn) - score(turn.other);
-    if (isOver) return 100 * lead.sign;
+    if (isOver) return _winScore * lead.sign;
     if (depth == 0) return lead;
-    var best = -1000;
+    var best = -_winScore - 1;
     for (final cell in legalCells) {
-      best = max(best, -_place(cell)._lookAhead(depth - 1));
+      best = max(best, -_place(cell)._lookAhead(depth - 1, -beta, -alpha));
+      if (best >= beta || best == _winScore) break;
+      alpha = max(alpha, best);
     }
     return best;
   }

@@ -4,7 +4,7 @@
 
 ## たいそうのはんこカード？
 
-[story_result_00_tree_clue.png](../assets/story/story_result_00_tree_clue.png) · 参照画像 `story_001_plaza_mystery.png`
+[story_result_00_tree_clue.webp](../assets/story/story_result_00_tree_clue.webp) · 参照画像 `story_001_plaza_mystery.webp`
 
 ```text
 Use case: illustration-story. Asset type: a single landscape 4:3 full-bleed cleared-scene illustration for the Japanese cozy animal game Kotohogu, legible at phone size. Input image 1 is the character and illustration-style anchor. Preserve the named characters’ exact species, colors, clothing and round proportions, but make a new camera angle and scene composition. Match the warm hand-painted storybook texture and gentle lighting. Center the main action with safe margins for cropping. No captions, logos, watermarks, UI, or random writing.
@@ -14,7 +14,7 @@ Scene: In the same flower-lined town square after morning exercise, use a low th
 
 ## 木の下になにがある？
 
-[story_result_01_stamp_card_box.png](../assets/story/story_result_01_stamp_card_box.png) · 参照画像 `story_002_park_tree.png`
+[story_result_01_stamp_card_box.webp](../assets/story/story_result_01_stamp_card_box.webp) · 参照画像 `story_002_park_tree.webp`
 
 ```text
 Use case: illustration-story. Asset type: a single landscape 4:3 full-bleed cleared-scene illustration for the Japanese cozy animal game Kotohogu, legible at phone size. Input image 1 is the character and illustration-style anchor. Preserve the named characters’ exact species, colors, clothing and round proportions, but make a new camera angle and scene composition. Match the warm hand-painted storybook texture and gentle lighting. Center the main action with safe margins for cropping. No captions, logos, watermarks, UI, or random writing.
@@ -30,7 +30,7 @@ Use case: precise-object-edit. Asset type: landscape 4:3 post-puzzle cutscene fo
 
 ## 数独道場破りでござる！
 
-[story_result_03_oshisho_challenge.png](../assets/story/story_result_03_oshisho_challenge.png) · 参照画像 `story_006_community_center_oshisho.png`
+[story_result_03_oshisho_challenge.webp](../assets/story/story_result_03_oshisho_challenge.webp) · 参照画像 `story_006_community_center_oshisho.webp`
 
 ```text
 Use case: illustration-story. Asset type: a single landscape 4:3 full-bleed cleared-scene illustration for the Japanese cozy animal game Kotohogu, legible at phone size. Input image 1 is the character and illustration-style anchor. Preserve the named characters’ exact species, colors, clothing and round proportions, but make a new camera angle and scene composition. Match the warm hand-painted storybook texture and gentle lighting. Center the main action with safe margins for cropping. No captions, logos, watermarks, UI, or random writing.
@@ -40,7 +40,7 @@ Scene: A newly composed eye-level view across the low wooden table in the same J
 
 ## おししょうの一局
 
-[story_result_04_white_bear_rumor.png](../assets/story/story_result_04_white_bear_rumor.png) · 参照画像 `story_006_community_center_oshisho.png`
+[story_result_04_white_bear_rumor.webp](../assets/story/story_result_04_white_bear_rumor.webp) · 参照画像 `story_006_community_center_oshisho.webp`
 
 ```text
 Use case: illustration-story. Asset type: a single landscape 4:3 full-bleed cleared-scene illustration for the Japanese cozy animal game Kotohogu, legible at phone size. Input image 1 is the character and illustration-style anchor. Preserve the named characters’ exact species, colors, clothing and round proportions, but make a new camera angle and scene composition. Match the warm hand-painted storybook texture and gentle lighting. Center the main action with safe margins for cropping. No captions, logos, watermarks, UI, or random writing.
@@ -50,7 +50,7 @@ Scene: After the friendly Sudoku match at the same community center, show a clos
 
 ## ケーキ無料！？
 
-[story_result_06_sampling_sign_fixed.png](../assets/story/story_result_06_sampling_sign_fixed.png) · 参照画像 `story_008_cakeshop_consulting.png`
+[story_result_06_sampling_sign_fixed.webp](../assets/story/story_result_06_sampling_sign_fixed.webp) · 参照画像 `story_008_cakeshop_consulting.webp`
 
 ```text
 Use case: illustration-story. Asset type: a single landscape 4:3 full-bleed cleared-scene illustration for the Japanese cozy animal game Kotohogu, legible at phone size. Input image 1 is the character and illustration-style anchor. Preserve the named characters’ exact species, colors, clothing and round proportions, but make a new camera angle and scene composition. Match the warm hand-painted storybook texture and gentle lighting. Center the main action with safe margins for cropping. No captions, logos, watermarks, UI, or random writing.
@@ -60,7 +60,7 @@ Scene: The cake-shop doorway from the street, spring afternoon. The tan bear pas
 
 ## ふたりの休憩時間
 
-[story_result_07_after_hours_sudoku.png](../assets/story/story_result_07_after_hours_sudoku.png) · 参照画像 `story_010_cakeshop_tasting_preparation.png`
+[story_result_07_after_hours_sudoku.webp](../assets/story/story_result_07_after_hours_sudoku.webp) · 参照画像 `story_010_cakeshop_tasting_preparation.webp`
 
 ```text
 Use case: illustration-story. Asset type: a single landscape 4:3 full-bleed cleared-scene illustration for the Japanese cozy animal game Kotohogu, legible at phone size. Input image 1 is the character and illustration-style anchor. Preserve the named characters’ exact species, colors, clothing and round proportions, but make a new camera angle and scene composition. Match the warm hand-painted storybook texture and gentle lighting. Center the main action with safe margins for cropping. No captions, logos, watermarks, UI, or random writing.

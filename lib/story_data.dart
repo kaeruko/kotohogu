@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'resident_collection.dart';
+import 'story_duel_stage.dart';
 import 'sudoku_duel.dart';
 import 'town_areas.dart';
 
@@ -45,11 +46,13 @@ class StoryChapter {
     required this.id,
     required this.title,
     required this.startIndex,
+    this.duelStage,
   });
 
   final String id;
   final String title;
   final int startIndex;
+  final StoryDuelStage? duelStage;
 }
 
 /// Chapter labels and boundaries are excluded from the saved episode signature.
@@ -65,6 +68,8 @@ String storyProgressSignature(List<StoryEpisode> episodes) {
         episode.solution,
         episode.dialogue.length,
         episode.resultDialogue.length,
+        if (episode.duel?.stage case final stage?)
+          [stage.name, stage.opening, stage.firstTo, stage.doubleRoom, stage.lookAhead],
       ],
   ]);
   // Two 32-bit accumulators; content identity, not an authentication token.
@@ -105,15 +110,20 @@ extension DuelResident on DuelRival {
   };
 }
 
-enum StoryDuel {
-  shibapome(TownResident.shiba, DuelRival.pomupomu),
-  dojo(TownResident.c036_mosa, DuelRival.oshisho),
-  cakeShop(TownResident.rabbit, DuelRival.patissier);
+class StoryDuel {
+  static const shibapome = StoryDuel._(_shiba, _pomu, DuelRival.pomupomu);
+  static const dojo = StoryDuel._(_mosa, _oshisho, DuelRival.oshisho);
+  static const cakeShop = StoryDuel._(_wife, _pastry, DuelRival.patissier);
 
-  const StoryDuel(this.player, this.rival);
-  final TownResident player;
-  final DuelRival rival;
-  String get title => '${player.label} VS ${rival.resident.label}';
+  const StoryDuel._(this.player, this.opponent, this.rival) : stage = null;
+  const StoryDuel.authored(this.player, this.opponent, StoryDuelStage this.stage)
+      : rival = null;
+
+  final StorySpeaker player;
+  final StorySpeaker opponent;
+  final DuelRival? rival;
+  final StoryDuelStage? stage;
+  String get title => '${player.label} VS ${opponent.label}';
 }
 
 class StoryEpisode {
@@ -131,6 +141,7 @@ class StoryEpisode {
     this.destination,
     this.image,
     this.resultImage,
+    this.authoredDuel,
   });
 
   final String id;
@@ -148,17 +159,18 @@ class StoryEpisode {
   final TownArea? destination;
   final String? image;
   final String? resultImage;
+  final StoryDuel? authoredDuel;
 
   // Episode IDs are shared by the bundled story and its hosted edition.
-  StoryDuel? get duel => switch (id) {
+  StoryDuel? get duel => authoredDuel ?? switch (id) {
     'episode_02' => StoryDuel.shibapome,
     'episode_04' => StoryDuel.dojo,
     'episode_07' => StoryDuel.cakeShop,
     _ => null,
   };
 
-  // Tune the flag openings for these published puzzles. A replacement puzzle
-  // from the CMS uses its own givens, and solo saves keep the catalog puzzle.
+  // Use the established opening for each of the original three matches.
+  // New authored matches and edited puzzles use their own givens.
   String get duelPuzzle => switch ((duel, puzzle)) {
     (StoryDuel.shibapome, '3100201310340001') => '3000201310344001',
     (StoryDuel.dojo, '0021200304101200') => '0021000304101200',
@@ -168,8 +180,14 @@ class StoryEpisode {
 
   String? get clueImage => resultImage ?? (destination == null ? image : null);
 
-  int get size => puzzle.length == 16 ? 4 : 6;
-  int get boxWidth => size ~/ 2;
+  int get size => switch (puzzle.length) {
+    16 => 4,
+    36 => 6,
+    81 => 9,
+    final length => throw FormatException('Invalid puzzle size $length in $id'),
+  };
+  int get boxWidth => size == 9 ? 3 : size ~/ 2;
+  int get boxHeight => size ~/ boxWidth;
   String get art => artFor(area);
   String get resultArt => artFor(destination ?? area);
 
@@ -202,7 +220,7 @@ class StoryEpisode {
     final otherColumn = b % size;
     return row == otherRow ||
         column == otherColumn ||
-        (row ~/ 2 == otherRow ~/ 2 &&
+        (row ~/ boxHeight == otherRow ~/ boxHeight &&
             column ~/ boxWidth == otherColumn ~/ boxWidth);
   }
 
@@ -248,7 +266,6 @@ const bundledStory = StoryCatalog(
 );
 
 // Bundled story mirrors the current CMS story for offline and UI tests.
-// The legacy hosted endpoint is separately frozen for older app releases.
 const storyEpisodes = <StoryEpisode>[
   StoryEpisode(
     id: 'episode_00',
@@ -371,11 +388,11 @@ const storyEpisodes = <StoryEpisode>[
     resultDialogue: [
       (_mosa, 'おししょう、お手合わせ感謝でござる！ あおんあおん！'),
       (_oshisho, 'ほほ、おおきに。また一局、お相手しておくれやす'),
-      (_mosa, 'なっ……いつの間に！'),
-      (_frog, 'おししょう、速いなあ'),
-      (_oshisho, '速さを競うより、楽しむことが一番どすえ'),
+      (_mosa, 'むむむ……旗を取るだけではいかぬのでござるな！'),
+      (_frog, '次に相手がどの部屋に送られるかも考えるんだね'),
+      (_oshisho, 'そうどす。目の前の旗ばかり見てたらあきまへんえ'),
       (_oyasumi, 'ぼくは見てただけなのに楽しかったもふ〜'),
-      (_mosa, '拙者、まだまだ修行が足りぬでござる！'),
+      (_mosa, 'むむっ！ 奥が深いでござる。もっと修行するでござる！'),
       (_oshisho, 'そうそう。ほんまの強者には、白い熊から数独が届く……なんて噂もありますえ'),
       (_mosa, 'し、白き熊！？ いずれお手合わせ願うでござる！ あおんあおん！'),
     ],

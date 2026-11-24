@@ -62,10 +62,12 @@ input[readonly]{background:#f2eadf}
 <main>
 <section aria-labelledby="listTitle">
   <h2 id="listTitle">お話一覧 <span id="count"></span></h2>
-  <p class="note">章ごとに分けて表示します。章タイトルはこの一覧から編集でき、章の開始話はJSON編集から変更できます。話数や数独などの構成が変わるとストーリーだけ最初からになります。章名や章の区切りだけなら進行状況は変わりません。</p>
+  <p class="note">章タイトルはこの一覧から編集できます。末尾に章や話を追加すると、読者は今の続きから遊べます。対戦章では章のルールと各話の配役を設定します。</p>
   <div id="list" role="group" aria-label="ストーリーの章と話の一覧"></div>
   <div class="controls">
     <button id="addEpisode" class="secondary" type="button">＋ お話を追加</button>
+    <button id="addDuelChapter" class="secondary" type="button">＋ 対戦の章を追加</button>
+    <button id="addDuelEpisode" class="secondary" type="button" hidden>＋ 同じ章に対戦を追加</button>
     <button id="removeEpisode" class="secondary" type="button">最後のお話を削除</button>
   </div>
   <div class="controls">

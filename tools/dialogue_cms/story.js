@@ -16,6 +16,13 @@ let selectedId = null;
 let previewAt = 0;
 let dirty = false;
 let rawPending = false;
+const duelStages = new Map([
+  ["firstFlag", "4×4・一本勝負"], ["safeSend", "4×4・送り先の稽古"],
+  ["berryFlag", "4×4・いちごの旗"], ["flagOrder", "4×4・旗を取る順番"],
+  ["doubleCapture", "6×6・旗の二連取り"], ["endgame", "9×9・あと2本の終盤戦"],
+  ["readAhead", "4×4・読み切り"], ["sacrifice", "6×6・旗を譲る一局"],
+  ["fiveFlags", "9×9・五本先取"],
+]);
 
 async function request(url, options) {
   const response = await fetch(url, options);
@@ -74,6 +81,20 @@ function readOnly(parent, label, value) {
   parent.append(wrap);
 }
 
+function selectField(parent, label, options, value, update) {
+  const wrap = el("label", label);
+  const select = el("select");
+  for (const [id, name] of options) {
+    const option = el("option", name);
+    option.value = id;
+    select.append(option);
+  }
+  select.value = value;
+  select.onchange = () => { update(select.value); changed(); renderEditor(); };
+  wrap.append(select);
+  parent.append(wrap);
+}
+
 function chapterStarts(data) {
   if (!data || !Array.isArray(data.episodes) ||
       !Array.isArray(data.chapters) || !data.chapters.length ||
@@ -87,8 +108,9 @@ function chapterStarts(data) {
   const ids = new Set();
   let previous = -1;
   return data.chapters.map((chapter, number) => {
-    if (!chapter || Object.keys(chapter).sort().join(",") !==
-        "id,startEpisodeId,title" ||
+    if (!chapter || Object.keys(chapter).some(key =>
+        !["id", "startEpisodeId", "title", "duelStage"].includes(key)) ||
+        ("duelStage" in chapter && !duelStages.has(chapter.duelStage)) ||
         typeof chapter.id !== "string" || !/^[a-z][a-z0-9_]{0,47}$/.test(chapter.id) ||
         ids.has(chapter.id) ||
         typeof chapter.title !== "string" || !chapter.title.trim() ||
@@ -109,6 +131,7 @@ function renderList() {
   const box = $("list");
   box.replaceChildren();
   const starts = chapterStarts(documentData);
+  $("addDuelEpisode").hidden = !documentData.chapters.at(-1).duelStage;
   $("count").textContent = "(" + documentData.chapters.length + "章・" +
     documentData.episodes.length + "話)";
   let currentChapterStart = 0;
@@ -131,6 +154,10 @@ function renderList() {
       };
       title.append(input);
       heading.append(title);
+      if (chapter.duelStage) {
+        selectField(heading, "この章の対戦", duelStages, chapter.duelStage,
+          value => {chapter.duelStage = value;});
+      }
       box.append(heading);
     }
     const button = el("button");
@@ -240,11 +267,19 @@ function renderImages() {
   }
 }
 
+function puzzleName(episode) {
+  if (!episode.duel) return (episode.puzzle.length === 16 ? "4×4" : "6×6") + " 数独";
+  const index = documentData.episodes.indexOf(episode);
+  const chapter = chapterStarts(documentData).findLastIndex(start => start <= index);
+  const name = duelStages.get(documentData.chapters[chapter].duelStage);
+  if (!name) throw new Error("対戦の話には章の対戦ルールが必要です: " + episode.id);
+  return name;
+}
+
 function previewSteps(episode) {
   return [
     ...episode.dialogue.map(turn => ({phase: "数独の前", speaker: turn.speaker, text: turn.text})),
-    {phase: "数独", speaker: null, text: episode.puzzle.length === 16
-      ? "4×4 数独に挑戦" : "6×6 数独に挑戦"},
+    {phase: "数独", speaker: null, text: puzzleName(episode) + "に挑戦"},
     ...episode.resultDialogue.map(turn => ({
       phase: "数独クリア後", speaker: turn.speaker, text: turn.text,
     })),
@@ -287,17 +322,21 @@ function renderEditor() {
   immutable.className = "fields";
   readOnly(immutable, "開放に必要な累積ことほぎ", episode.unlockAt);
   readOnly(immutable, "舞台（エリアID）", episode.area);
-  readOnly(immutable, "数独のサイズ", (episode.puzzle.length === 16 ? 4 : 6) + "×" +
-           (episode.puzzle.length === 16 ? 4 : 6));
-  readOnly(immutable, "数独の問題・答え", "下の欄で編集できます");
+  readOnly(immutable, "この話の数独", puzzleName(episode));
   fields.append(immutable);
-  labelInput(fields, "数独の問題（0は空きマス）", episode.puzzle, value => {
-    episode.puzzle = value;
-    renderPreview();
-  }, {maxLength: 36});
-  labelInput(fields, "数独の正解", episode.solution, value => {
-    episode.solution = value;
-  }, {maxLength: 36});
+  if (episode.duel) {
+    const options = [["", "住民を選ぶ"], ...residents.map(r => [r.id, r.label])];
+    selectField(fields, "主人公", options, episode.duel.player, id => {episode.duel.player = id;});
+    selectField(fields, "対戦相手", options, episode.duel.opponent, id => {episode.duel.opponent = id;});
+  } else {
+    labelInput(fields, "数独の問題（0は空きマス）", episode.puzzle, value => {
+      episode.puzzle = value;
+      renderPreview();
+    }, {maxLength: 36});
+    labelInput(fields, "数独の正解", episode.solution, value => {
+      episode.solution = value;
+    }, {maxLength: 36});
+  }
   labelInput(fields, "場面絵の画像ファイル名（WebP / PNG）", episode.image, value => {
     episode.image = value;
   }, {refreshImage: true});
@@ -316,7 +355,7 @@ function renderEditor() {
   renderPreview();
   $("puzzleInfo").replaceChildren(
     el("h3", "数独の内容"),
-    el("p", "問題と正解は編集欄で変更できます"),
+    el("p", episode.duel ? puzzleName(episode) : "問題と正解は編集欄で変更できます"),
     el("p", "次の目的地: " + (episode.destination || "この章では未指定")),
   );
 }
@@ -381,7 +420,10 @@ $("save").onclick = save;
 $("reload").onclick = () => {
   if (!(dirty || rawPending) || confirm("未保存の変更を破棄して読み込み直しますか？")) load();
 };
-$("addEpisode").onclick = () => {
+$("addEpisode").onclick = () => addEpisode("solo");
+$("addDuelEpisode").onclick = () => addEpisode("duel");
+$("addDuelChapter").onclick = () => addEpisode("chapter");
+function addEpisode(kind) {
   if (documentData.episodes.length >= 128) {
     setStatus("お話は最大128話です", true);
     return;
@@ -396,13 +438,28 @@ $("addEpisode").onclick = () => {
   clone.unlockAt = previous.unlockAt + 30;
   delete clone.destination;
   delete clone.resultImage;
+  if (kind === "duel" || kind === "chapter") {
+    delete clone.puzzle;
+    delete clone.solution;
+    clone.duel = {player: "", opponent: ""};
+    if (kind === "chapter") {
+      let num = documentData.chapters.length + 1;
+      while (documentData.chapters.some(c => c.id === "chapter_" + num)) num++;
+      documentData.chapters.push({id: "chapter_" + num, title: "新しい対戦の章",
+        startEpisodeId: clone.id, duelStage: "firstFlag"});
+    }
+  } else if (clone.duel) {
+    delete clone.duel;
+    clone.puzzle = "3204412300301342";
+    clone.solution = "3214412324311342";
+  }
   documentData.episodes.push(clone);
   selectedId = clone.id;
   previewAt = 0;
   changed();
   renderList();
   renderEditor();
-};
+}
 $("removeEpisode").onclick = () => {
   if (documentData.episodes.length <= 1) {
     setStatus("少なくとも1話は残してください", true);

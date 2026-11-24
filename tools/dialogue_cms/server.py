@@ -405,23 +405,18 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(404, {"error": str(exc)})
             except OSError as exc:
                 self._send(500, {"error": str(exc)})
-        elif path in {"/api/runtime/catalog", "/api/runtime/oyasumi", "/api/runtime/story", "/api/runtime/story-v2", "/api/runtime/story-v3"}:
+        elif path in {"/api/runtime/catalog", "/api/runtime/oyasumi", "/api/runtime/story"}:
             if url.query:
                 self._send(400, {"error": "Runtime content takes no query parameters"})
                 return
             try:
-                if path in {"/api/runtime/story", "/api/runtime/story-v2", "/api/runtime/story-v3"}:
+                if path == "/api/runtime/story":
                     registry = validate_catalog(load_catalog())
                     people = {
                         row["id"] for row in registry["characters"]
                         if not row.get("archived", False)
                     }
-                    if path == "/api/runtime/story":
-                        self._send(200, story.load_legacy_story(people))
-                    elif path == "/api/runtime/story-v2":
-                        self._send(200, story.load_v2_story(people))
-                    else:
-                        self._send(200, story.load_story(people))
+                    self._send(200, story.load_story(people))
                 else:
                     self._send(200, runtime_catalog() if path.endswith("/catalog")
                                else events.load())
