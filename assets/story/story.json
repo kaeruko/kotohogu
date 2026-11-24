@@ -552,7 +552,8 @@
           "speaker": "027_daydreamer",
           "text": "むかしのなかまもふ。ひさしぶりに会いたいなぁ"
         }
-      ]
+      ],
+      "resultImage": "story_result_08_genba_memory.png"
     },
     {
       "id": "episode_09",
@@ -615,7 +616,8 @@
           "speaker": "027_daydreamer",
           "text": "うん。げんばくん、またね〜"
         }
-      ]
+      ],
+      "resultImage": "story_result_09_genba_reunion.webp"
     },
     {
       "id": "episode_10",
@@ -686,7 +688,8 @@
           "speaker": "027_daydreamer",
           "text": "ぼくはまだまだこれからなんだ〜"
         }
-      ]
+      ],
+      "resultImage": "story_result_10_oyasumi_future.webp"
     }
   ],
   "chapters": [
