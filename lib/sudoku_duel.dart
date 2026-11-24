@@ -54,14 +54,7 @@ enum DuelPlayer {
 
 enum DuelRival { mosaedo, oshisho, pomupomu, patissier }
 
-enum DuelDifficulty {
-  easy('やさしい'),
-  normal('ふつう'),
-  hard('むずかしい');
-
-  const DuelDifficulty(this.label);
-  final String label;
-}
+enum DuelDifficulty { easy, normal, hard }
 
 class SudokuDuel {
   SudokuDuel._(

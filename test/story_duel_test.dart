@@ -12,11 +12,16 @@ import 'package:future_lift/sudoku_duel_view.dart';
 import 'progress_test.dart' show MemoryStore;
 import 'sudoku_duel_test.dart' show solveSingles;
 
-StoryProgress atEpisode(int index, int turns) => StoryProgress.fromJson({
+StoryProgress atEpisode(
+  int index,
+  int turns, {
+  DuelDifficulty? savedDifficulty,
+}) => StoryProgress.fromJson({
   'completed': index,
   'dialogueTurns': turns,
   'unreadClue': false,
   'signature': bundledStory.progressSignature,
+  if (savedDifficulty != null) 'duelDifficulty': savedDifficulty.name,
 });
 
 void main() {
@@ -125,31 +130,27 @@ void main() {
     },
   );
 
-  test('difficulty belongs to the active duel and is locked after a move', () {
+  test('a previously saved difficulty still restores its original match', () {
     const index = 4;
     final episode = storyEpisodes[index];
     final ready = atEpisode(index, episode.dialogue.length);
     final points = episode.unlockAt;
     expect(ready.duelDifficulty, DuelDifficulty.normal);
-    final hard = ready.selectDuelDifficulty(index, points, DuelDifficulty.hard);
+    final hard = atEpisode(
+      index,
+      episode.dialogue.length,
+      savedDifficulty: DuelDifficulty.hard,
+    );
     final saved = StoryProgress.fromJson(hard.toJson());
     saved.validateFor(bundledStory, points);
     expect(saved.duelDifficulty, DuelDifficulty.hard);
     expect(saved.duelMoves, isNull);
-    expect(
-      saved.selectDuelDifficulty(index, points, DuelDifficulty.normal).toJson(),
-      ready.toJson(),
-    );
     final cell = saved.duelPosition(episode).legalCells.first;
     final played = saved.playDuelMove(
       index,
       points,
       cell,
       episode.answerAt(cell),
-    );
-    expect(
-      played.selectDuelDifficulty(index, points, DuelDifficulty.easy),
-      same(played),
     );
     expect(
       StoryProgress.fromJson(played.toJson()).duelDifficulty,
@@ -194,9 +195,11 @@ void main() {
         '$player can force a win and all three outcomes occur against $npc on ${level.name}',
         () {
           final episode = storyEpisodes[index];
-          final start = atEpisode(index, episode.dialogue.length)
-              .selectDuelDifficulty(index, episode.unlockAt, level)
-              .duelPosition(episode);
+          final start = atEpisode(
+            index,
+            episode.dialogue.length,
+            savedDifficulty: level,
+          ).duelPosition(episode);
           final answer = solveSingles(start);
           expect(answer.join(), episode.solution);
 
@@ -318,9 +321,10 @@ void main() {
         await tap(key('story-advance-dialogue'));
         expect(find.text('$player VS $npc'), findsOneWidget);
         expect(key('story-puzzle'), findsNothing);
+        expect(find.byType(ChoiceChip), findsNothing);
         expect(
-          tester.widget<ChoiceChip>(key('duel-difficulty-normal')).selected,
-          isTrue,
+          controller.progress!.story.duelDifficulty,
+          DuelDifficulty.normal,
         );
         final level = switch (index) {
           2 => DuelDifficulty.easy,
@@ -328,15 +332,15 @@ void main() {
           _ => DuelDifficulty.normal,
         };
         if (level != DuelDifficulty.normal) {
-          await tap(key('duel-difficulty-${level.name}'));
+          // Resume a game saved when the player could still pick a difficulty.
+          await store.save(
+            controller.progress!.withStory(
+              atEpisode(index, episode.dialogue.length, savedDifficulty: level),
+            ),
+          );
           await launch();
           await open();
-          expect(
-            tester
-                .widget<ChoiceChip>(key('duel-difficulty-${level.name}'))
-                .selected,
-            isTrue,
-          );
+          expect(find.byType(ChoiceChip), findsNothing);
         }
         final start = controller.progress!.story.duelPosition(episode);
         expect(

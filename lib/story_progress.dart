@@ -12,7 +12,7 @@ class StoryProgress {
     this.board,
     this.duelMoves,
     this.duelLayout,
-    this._selectedDifficulty,
+    this._savedDifficulty,
     this.unreadClue = false,
     this.resultDialogueTurns = 0,
     this.signature,
@@ -26,8 +26,9 @@ class StoryProgress {
   // Move logs from the first release used the catalog puzzle and have no tag.
   static const _currentDuelLayout = 2;
   final int? duelLayout;
-  final DuelDifficulty? _selectedDifficulty;
-  DuelDifficulty get duelDifficulty => _selectedDifficulty ?? DuelDifficulty.normal;
+  // Keep the rival and opening for matches saved by the difficulty-picker build.
+  final DuelDifficulty? _savedDifficulty;
+  DuelDifficulty get duelDifficulty => _savedDifficulty ?? DuelDifficulty.normal;
   final bool unreadClue;
   /// Read position in the post-sudoku scene, saved for resume.
   final int resultDialogueTurns;
@@ -114,25 +115,6 @@ class StoryProgress {
     );
   }
 
-  StoryProgress selectDuelDifficulty(
-    int index,
-    int points,
-    DuelDifficulty difficulty, {
-    List<StoryEpisode> episodes = storyEpisodes,
-  }) {
-    if (!_canDuel(index, points, episodes) ||
-        duelMoves != null ||
-        difficulty == duelDifficulty) {
-      return this;
-    }
-    return StoryProgress._(
-      completed: completed,
-      dialogueTurns: dialogueTurns,
-      signature: signature,
-      selectedDifficulty: difficulty == DuelDifficulty.normal ? null : difficulty,
-    );
-  }
-
   StoryProgress playDuelMove(int index, int points, int cell, int digit, {
     List<StoryEpisode> episodes = storyEpisodes,
   }) {
@@ -149,7 +131,7 @@ class StoryProgress {
       dialogueTurns: dialogueTurns,
       duelMoves: List.unmodifiable([...?duelMoves, cell]),
       duelLayout: duelMoves == null ? _currentDuelLayout : duelLayout,
-      selectedDifficulty: _selectedDifficulty,
+      savedDifficulty: _savedDifficulty,
     );
   }
 
@@ -234,7 +216,7 @@ class StoryProgress {
     if (board != null) 'board': board!.join(),
     'duelMoves': ?duelMoves,
     'duelLayout': ?duelLayout,
-    'duelDifficulty': ?_selectedDifficulty?.name,
+    'duelDifficulty': ?_savedDifficulty?.name,
   };
 
   factory StoryProgress.fromJson(Object? raw) {
@@ -325,7 +307,7 @@ class StoryProgress {
       board: board == null ? null : List.unmodifiable(board),
       duelMoves: duelMoves,
       duelLayout: layout as int?,
-      selectedDifficulty: difficulty,
+      savedDifficulty: difficulty,
     );
   }
 
@@ -357,7 +339,7 @@ class StoryProgress {
         dialogueTurns > episode.dialogue.length) {
       throw const FormatException('Invalid story dialogue position');
     }
-    if (duelMoves != null || _selectedDifficulty != null) {
+    if (duelMoves != null || _savedDifficulty != null) {
       if (episode.duel == null || dialogueTurns != episode.dialogue.length) {
         throw const FormatException('Duel data outside a story match');
       }

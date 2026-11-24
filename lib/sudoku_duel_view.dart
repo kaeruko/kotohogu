@@ -49,7 +49,6 @@ class SudokuDuelView extends StatefulWidget {
     : match = null,
       position = null,
       difficulty = DuelDifficulty.normal,
-      onDifficultyChanged = null,
       onMove = null,
       onFinish = null,
       busy = false;
@@ -59,7 +58,6 @@ class SudokuDuelView extends StatefulWidget {
     required SudokuDuel this.position,
     required VoidCallback this.onFinish,
     this.difficulty = DuelDifficulty.normal,
-    this.onDifficultyChanged,
     this.onMove,
     this.busy = false,
   });
@@ -67,7 +65,6 @@ class SudokuDuelView extends StatefulWidget {
   final StoryDuel? match;
   final SudokuDuel? position;
   final DuelDifficulty difficulty;
-  final ValueChanged<DuelDifficulty>? onDifficultyChanged;
   final void Function(int cell, int digit)? onMove;
   final VoidCallback? onFinish;
   final bool busy;
@@ -311,33 +308,6 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
           Text(
             'あなたは${match.player.label}。書いた数字の部屋へ相手を送り、最後の1マスを埋めて旗を取ろう。送り先が満室なら好きな部屋へ。',
           ),
-          if (widget.onDifficultyChanged case final choose?)
-            if (game.lastCell == null)
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 6,
-                children: [
-                  const Text('難易度'),
-                  for (final level in DuelDifficulty.values)
-                    ChoiceChip(
-                      key: ValueKey('duel-difficulty-${level.name}'),
-                      label: Text(level.label),
-                      showCheckmark: false,
-                      selected: widget.difficulty == level,
-                      onSelected: widget.busy
-                          ? null
-                          : (selected) {
-                              if (selected) choose(level);
-                            },
-                    ),
-                ],
-              )
-            else
-              Text(
-                '難易度　${widget.difficulty.label}',
-                textAlign: TextAlign.center,
-              ),
         ],
         Card(
           child: Padding(
