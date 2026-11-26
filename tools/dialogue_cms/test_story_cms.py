@@ -46,10 +46,16 @@ class StoryCmsTests(unittest.TestCase):
         draft["chapters"].append(chapter)
         with self.assertRaisesRegex(ValueError, "requires a chapter stage"):
             story.save_story(draft)
-        chapter["duelStage"] = "sacrifice"
-        story.save_story(draft)
-        self.assertEqual(self.loaded(), draft)
-        self.assertEqual(draft["episodes"][:-1], original["episodes"])
+        for stage in (
+            "firstFlag", "safeSend", "berryFlag", "flagOrder", "counterRead",
+            "readAhead", "sixIntro", "crossRoom", "doubleCapture", "comeback",
+            "sacrifice", "endgame", "nineDeduction", "fiveFlags", "master",
+        ):
+            with self.subTest(stage=stage):
+                chapter["duelStage"] = stage
+                story.save_story(draft)
+                self.assertEqual(self.loaded(), draft)
+                self.assertEqual(draft["episodes"][:-1], original["episodes"])
         for stage in ("typo", None, []):
             chapter["duelStage"] = stage
             with self.assertRaisesRegex(ValueError, "Unknown Sudoku duel stage"):

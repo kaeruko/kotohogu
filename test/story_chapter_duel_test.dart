@@ -94,6 +94,19 @@ void main() {
       if (stage == StoryDuelStage.endgame) {
         expect(DuelPlayer.values.map(game.score), [3, 3]);
       }
+      if (stage == StoryDuelStage.comeback) {
+        expect(DuelPlayer.values.map(game.score), [0, 1]);
+        expect(canWin(place(game, 33)), isTrue);
+        expect(canWin(place(game, 35)), isFalse);
+      }
+      if (stage == StoryDuelStage.counterRead) {
+        expect(canWin(place(game, 4)), isTrue);
+        expect(canWin(place(game, 0)), isFalse);
+      }
+      if (stage == StoryDuelStage.master) {
+        expect(canWin(place(game, 2)), isTrue);
+        expect(canWin(place(game, 9)), isFalse);
+      }
       if (stage == StoryDuelStage.flagOrder ||
           stage == StoryDuelStage.sacrifice) {
         final take = stage == StoryDuelStage.flagOrder ? 0 : 32;

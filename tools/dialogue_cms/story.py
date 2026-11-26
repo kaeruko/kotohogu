@@ -19,6 +19,7 @@ EPISODE_FIELDS = {
 DUEL_STAGES = {
     "firstFlag", "safeSend", "berryFlag", "flagOrder", "doubleCapture",
     "endgame", "readAhead", "sacrifice", "fiveFlags",
+    "counterRead", "sixIntro", "crossRoom", "comeback", "nineDeduction", "master",
 }
 
 

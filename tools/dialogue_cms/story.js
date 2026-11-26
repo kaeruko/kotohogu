@@ -19,9 +19,12 @@ let rawPending = false;
 const duelStages = new Map([
   ["firstFlag", "4×4・一本勝負"], ["safeSend", "4×4・送り先の稽古"],
   ["berryFlag", "4×4・いちごの旗"], ["flagOrder", "4×4・旗を取る順番"],
-  ["doubleCapture", "6×6・旗の二連取り"], ["endgame", "9×9・あと2本の終盤戦"],
-  ["readAhead", "4×4・読み切り"], ["sacrifice", "6×6・旗を譲る一局"],
-  ["fiveFlags", "9×9・五本先取"],
+  ["counterRead", "4×4・相手の狙いを読む"], ["readAhead", "4×4・読み切り"],
+  ["sixIntro", "6×6・初めての6部屋"], ["crossRoom", "6×6・部屋をまたぐ推理"],
+  ["doubleCapture", "6×6・旗の二連取り"], ["comeback", "6×6・逆転の一局"],
+  ["sacrifice", "6×6・旗を譲る一局"], ["endgame", "9×9・あと2本の終盤戦"],
+  ["nineDeduction", "9×9・数字の推理"], ["fiveFlags", "9×9・五本先取"],
+  ["master", "9×9・名人戦"],
 ]);
 
 async function request(url, options) {
