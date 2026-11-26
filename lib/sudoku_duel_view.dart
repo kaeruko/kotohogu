@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'duel_move_effect.dart';
 import 'story_data.dart';
 import 'sudoku_duel.dart';
 
@@ -70,7 +71,10 @@ class SudokuDuelView extends StatefulWidget {
   State<SudokuDuelView> createState() => _SudokuDuelViewState();
 }
 
-class _SudokuDuelViewState extends State<SudokuDuelView> {
+class _SudokuDuelViewState extends State<SudokuDuelView>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _effectController;
+  DuelMoveEffect? _effect;
   final _random = Random();
   final _playedSizes = <DuelSize>{};
   DuelSize _size = DuelSize.mini;
@@ -85,6 +89,14 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   @override
   void initState() {
     super.initState();
+    _effectController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 650),
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        setState(() => _effect = null);
+      }
+    });
     _rival = widget.match?.rival;
     _game = widget.position;
     _scheduleComputer();
@@ -93,6 +105,18 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   @override
   void didUpdateWidget(SudokuDuelView old) {
     super.didUpdateWidget(old);
+    final before = old.position;
+    final after = widget.position;
+    final cell = after?.lastCell;
+    if (widget.onMove != null &&
+        before != null &&
+        after != null &&
+        before.size == after.size &&
+        cell != null &&
+        before.valueAt(cell) == 0 &&
+        after.valueAt(cell) != 0) {
+      _showMoveEffect(before, after);
+    }
     if (widget.onMove != null &&
         (widget.busy != old.busy ||
             widget.position?.lastCell != old.position?.lastCell)) {
@@ -103,6 +127,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
   @override
   void dispose() {
     _computerTurn?.cancel();
+    _effectController.dispose();
     super.dispose();
   }
 
@@ -118,7 +143,9 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
 
   void _start(DuelRival? rival) {
     _computerTurn?.cancel();
+    _effectController.stop();
     setState(() {
+      _effect = null;
       _rival = rival;
       _game = SudokuDuel.start(
         _size,
@@ -141,16 +168,49 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
     if (_hasNpc && game.turn == DuelPlayer.second) return;
     final next = game.play(selected, digit);
     if (next == null) {
-      setState(() => _wrongDigit = digit);
+      setState(() {
+        _wrongDigit = digit;
+        _showEffect(DuelMoveEffect(cell: selected, wrong: true));
+      });
       return;
     }
     _record(next);
   }
 
+  void _showEffect(DuelMoveEffect effect) {
+    _effectController.stop();
+    _effect = null;
+    if (MediaQuery.disableAnimationsOf(context)) return;
+    _effect = effect;
+    _effectController.forward(from: 0);
+  }
+
+  void _showMoveEffect(SudokuDuel before, SudokuDuel after) {
+    final cell = after.lastCell!;
+    final room = after.size.roomOf(cell);
+    final winner = after.score(DuelPlayer.first).compareTo(
+      after.score(DuelPlayer.second),
+    );
+    _showEffect(DuelMoveEffect(
+      cell: cell,
+      capturedRoom: before.flagAt(room) == null && after.flagAt(room) != null
+          ? room
+          : null,
+      targetRoom: after.isOver ? null : after.targetRoom,
+      freeChoice: !after.isOver && after.targetRoom == null,
+      victory: after.isOver && (_hasNpc ? winner > 0 : winner != 0),
+      opponent: _hasNpc && before.turn == DuelPlayer.second,
+    ));
+  }
+
   void _record(SudokuDuel next) {
     final save = widget.onMove;
+    final before = _position!;
     setState(() {
-      if (save == null) _game = next;
+      if (save == null) {
+        _game = next;
+        _showMoveEffect(before, next);
+      }
       _selected = null;
       _wrongDigit = null;
     });
@@ -359,16 +419,47 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
           ),
         ),
         const SizedBox(height: 6),
-        _DuelBoard(
-          game: game,
-          selected: selected,
-          playerName: _name,
-          onSelect: thinking || ended || widget.busy
-              ? null
-              : (cell) => setState(() {
-                  _selected = cell;
-                  _wrongDigit = null;
-                }),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Stack(
+              children: [
+                _DuelBoard(
+                  game: game,
+                  selected: selected,
+                  playerName: _name,
+                  onSelect: thinking || ended || widget.busy
+                      ? null
+                      : (cell) => setState(() {
+                          _selected = cell;
+                          _wrongDigit = null;
+                          if (_effect?.wrong == true) {
+                            _effectController.stop();
+                            _effect = null;
+                          }
+                        }),
+                ),
+                if (_effect case final effect?)
+                  if (!MediaQuery.disableAnimationsOf(context))
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: ExcludeSemantics(
+                          child: CustomPaint(
+                            key: ValueKey(effect.wrong
+                                ? 'duel-effect-wrong'
+                                : 'duel-effect-correct'),
+                            painter: DuelMoveEffectPainter(
+                              boardSize: game.size,
+                              effect: effect,
+                              progress: _effectController,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 8),
         if (ended && widget.onFinish != null)
@@ -384,7 +475,11 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
             label: const Text('もう一局'),
           ),
           TextButton(
-            onPressed: () => setState(() => _game = null),
+            onPressed: () => setState(() {
+              _effectController.stop();
+              _effect = null;
+              _game = null;
+            }),
             child: const Text('対戦相手・盤面をえらぶ'),
           ),
         ] else ...[
@@ -419,7 +514,23 @@ class _SudokuDuelViewState extends State<SudokuDuelView> {
                     onPressed: selected == null || thinking || widget.busy
                         ? null
                         : () => _enter(digit),
-                    child: Text('$digit', style: const TextStyle(fontSize: 22)),
+                    child: AnimatedBuilder(
+                      animation: _effectController,
+                      builder: (context, child) {
+                        final shake = _effect?.wrong == true &&
+                            _wrongDigit == digit &&
+                            !MediaQuery.disableAnimationsOf(context);
+                        final t = _effectController.value;
+                        return Transform.translate(
+                          offset: Offset(
+                            shake ? sin(t * pi * 8) * (1 - t) * 5 : 0,
+                            0,
+                          ),
+                          child: child,
+                        );
+                      },
+                      child: Text('$digit', style: const TextStyle(fontSize: 22)),
+                    ),
                   ),
                 ),
             ],
