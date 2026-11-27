@@ -553,7 +553,7 @@
           "text": "むかしのなかまもふ。ひさしぶりに会いたいなぁ"
         }
       ],
-      "resultImage": "story_result_08_genba_memory.png"
+      "resultImage": "story_result_08_genba_memory.webp"
     },
     {
       "id": "episode_09",
@@ -696,7 +696,7 @@
       "title": "きれいになる待ち時間",
       "area": "shopping",
       "unlockAt": 390,
-      "image": "story_008_cakeshop_consulting.webp",
+      "image": "story_014_salon_sudoku.webp",
       "clue": "髪も数字も、すっきり！",
       "result": "桜の美容室での待ち時間。おしゃべりさんと娘のネイリストは、数独を楽しみながら順番を待った。今日はどうやら湿気が強いみたい。",
       "dialogue": [
@@ -747,7 +747,7 @@
       "title": "ふわふわ大事件！",
       "area": "shopping",
       "unlockAt": 420,
-      "image": "story_009_cakeshop_free_sign.webp",
+      "image": "story_015_salon_fluffy_hair.webp",
       "clue": "ふくらみを生かして大変身！",
       "result": "湿気とドライヤーでおしゃべりさんの髪が大きくふくらんだ。でも、おしゃれさんが髪質を生かして整えると、かわいいふわふわカールに。今度は外のお客さんまで注目し始めた！",
       "dialogue": [
@@ -810,7 +810,7 @@
       "title": "みんなおそろい！？",
       "area": "shopping",
       "unlockAt": 450,
-      "image": "story_007_cakeshop_ledger_sudoku.webp",
+      "image": "story_016_salon_hairstyles.webp",
       "clue": "おしゃれの正解は一つじゃない",
       "result": "おしゃべりさんの髪型が評判になり、同じ髪型を希望する人が続々と美容室へ。おしゃれさんはそれぞれの好みや髪質に合わせてアレンジし、みんな笑顔で帰っていった。",
       "dialogue": [
