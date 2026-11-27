@@ -153,7 +153,7 @@ class _PracticePage extends StatefulWidget {
 }
 
 class _PracticePageState extends State<_PracticePage> {
-  late final Stopwatch _watch = Stopwatch()..start();
+  final _watch = Stopwatch();
   late final SudokuDuel _duel = widget.puzzle.duel();
   late final List<int> _board = List.of(widget.puzzle.givens);
   late final List<Set<int>> _notes = List.generate(_board.length, (_) => <int>{});
@@ -164,7 +164,7 @@ class _PracticePageState extends State<_PracticePage> {
   @override
   void initState() {
     super.initState();
-    _watch;
+    _watch.start();
   }
 
   void _enter(int digit) {
@@ -226,18 +226,43 @@ class _PracticePageState extends State<_PracticePage> {
             )),
             alignment: Alignment.center,
             padding: const EdgeInsets.all(2),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value != 0 ? '$value' : notes.join(' '),
-                style: TextStyle(
-                  fontSize: value == 0 ? 11 : 25,
-                  color: conflict ? const Color(0xFF9B2119) : fixed
-                      ? const Color(0xFF593A28) : const Color(0xFF21685B),
-                  fontWeight: fixed ? FontWeight.bold : FontWeight.w500,
-                ),
-              ),
-            ),
+            child: value == 0 && notes.isNotEmpty
+                ? Column(
+                    children: [
+                      for (var row = 0; row < size.boxRows; row++)
+                        Expanded(
+                          child: Row(
+                            children: [
+                              for (var column = 0; column < size.boxColumns; column++)
+                                Expanded(
+                                  child: Center(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        notes.contains(row * size.boxColumns + column + 1)
+                                            ? '${row * size.boxColumns + column + 1}' : '',
+                                        style: const TextStyle(fontSize: 12, color: Color(0xFF21685B)),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  )
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      value == 0 ? '' : '$value',
+                      style: TextStyle(
+                        fontSize: 25,
+                        color: conflict ? const Color(0xFF9B2119) : fixed
+                            ? const Color(0xFF593A28) : const Color(0xFF21685B),
+                        fontWeight: fixed ? FontWeight.bold : FontWeight.w500,
+                      ),
+                    ),
+                  ),
           ),
         ),
       ),
@@ -322,6 +347,7 @@ class _PracticePageState extends State<_PracticePage> {
         padding: const EdgeInsets.all(12),
         child: widget.mode == _Mode.solo ? _solo() : SudokuDuelView.dojo(
           position: _duel,
+          onDojoEnded: _watch.stop,
           onDojoFinish: (game) {
             final won = game.score(DuelPlayer.first) > game.score(DuelPlayer.second);
             Navigator.of(context).pop(won ? _watch.elapsed.inSeconds : null);

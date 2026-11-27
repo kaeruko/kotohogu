@@ -41,7 +41,65 @@ int solutions(DojoPuzzle puzzle) {
   return solve();
 }
 
+bool solvedBySingles(DojoPuzzle puzzle, {required bool hidden}) {
+  final n = puzzle.size.side;
+  final board = List.of(puzzle.givens);
+  final units = [
+    for (var i = 0; i < n; i++) [for (var j = 0; j < n; j++) i * n + j],
+    for (var i = 0; i < n; i++) [for (var j = 0; j < n; j++) j * n + i],
+    for (var i = 1; i <= n; i++) [for (var j = 0; j < n * n; j++) if (puzzle.size.roomOf(j) == i) j],
+  ];
+  while (board.contains(0)) {
+    final candidates = List.generate(board.length, (i) {
+      if (board[i] != 0) return <int>{};
+      final values = {for (var digit = 1; digit <= n; digit++) digit};
+      for (final unit in units) {
+        if (unit.contains(i)) {
+          for (final j in unit) {
+            values.remove(board[j]);
+          }
+        }
+      }
+      return values;
+    });
+    final single = candidates.indexWhere((values) => values.length == 1);
+    if (single >= 0) {
+      board[single] = candidates[single].single;
+      continue;
+    }
+    if (!hidden) return false;
+    var placed = false;
+    for (final unit in units) {
+      for (var digit = 1; digit <= n; digit++) {
+        final hits = unit.where((i) => candidates[i].contains(digit)).toList();
+        if (hits.length == 1) {
+          board[hits.single] = digit;
+          placed = true;
+          break;
+        }
+      }
+      if (placed) break;
+    }
+    if (!placed) return false;
+  }
+  return puzzle.isComplete(board);
+}
+
 void main() {
+  test('9x9 levels distinguish naked, hidden and more complex deductions', () {
+    for (var seed = 0; seed < 12; seed++) {
+      final random = Random(seed);
+      final middle = DojoPuzzle.generate(DojoLevel.intermediate, random);
+      final upper = DojoPuzzle.generate(DojoLevel.advanced, random);
+      expect(solvedBySingles(middle, hidden: false), isTrue);
+      expect(solvedBySingles(upper, hidden: false), isFalse);
+      expect(solvedBySingles(upper, hidden: true), isTrue);
+      for (final level in [DojoLevel.master, DojoLevel.oni]) {
+        expect(solvedBySingles(DojoPuzzle.generate(level, random), hidden: true), isFalse);
+      }
+    }
+  });
+
   test('each difficulty produces unique valid boards with all rooms playable', () {
     for (final level in DojoLevel.values) {
       final seen = <String>{};

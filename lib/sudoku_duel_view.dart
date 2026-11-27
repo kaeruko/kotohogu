@@ -52,6 +52,7 @@ class SudokuDuelView extends StatefulWidget {
       onMove = null,
       onFinish = null,
       onDojoFinish = null,
+      onDojoEnded = null,
       busy = false;
   const SudokuDuelView.story({
     super.key,
@@ -60,12 +61,13 @@ class SudokuDuelView extends StatefulWidget {
     required VoidCallback this.onFinish,
     this.onMove,
     this.busy = false,
-  }) : onDojoFinish = null;
+  }) : onDojoFinish = null, onDojoEnded = null;
 
   const SudokuDuelView.dojo({
     super.key,
     required SudokuDuel this.position,
     required ValueChanged<SudokuDuel> this.onDojoFinish,
+    required VoidCallback this.onDojoEnded,
   }) : match = null, onMove = null, onFinish = null, busy = false;
 
   final StoryDuel? match;
@@ -73,6 +75,7 @@ class SudokuDuelView extends StatefulWidget {
   final void Function(int cell, int digit)? onMove;
   final VoidCallback? onFinish;
   final ValueChanged<SudokuDuel>? onDojoFinish;
+  final VoidCallback? onDojoEnded;
   final bool busy;
 
   @override
@@ -222,6 +225,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
       _selected = null;
       _wrongDigit = null;
     });
+    if (next.isOver) widget.onDojoEnded?.call();
     if (save != null) {
       final cell = next.lastCell!;
       save(cell, next.valueAt(cell));

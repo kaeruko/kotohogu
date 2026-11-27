@@ -117,6 +117,21 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('Oshisho offers the dojo even without a conversation callback',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const MaterialApp(home: CommunityCenterRoom()));
+    await tester.tap(find.byKey(
+      const ValueKey('community-center-resident-031_kimono_fox')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(const ValueKey('community-center-open-dojo')), findsOneWidget);
+    expect(find.byKey(const ValueKey('community-center-master-talk')), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('community center animates only the exercise class',
       (tester) async {
     tester.view.physicalSize = const Size(430, 930);
