@@ -101,7 +101,8 @@ void main() {
         expect(hosted.last.$1.label, 'おやすみくん');
       } else {
         expect(hosted.isNotEmpty, isTrue);
-        expect(hosted.last.$1.label, 'おしゃれさん');
+        expect(hosted.last.$1.label,
+            index == 11 ? 'おしゃべりさん' : 'おしゃれさん');
       }
       expect(hosted.map((turn) => turn.$2), bundled.map((turn) => turn.$2));
       expect(hosted.map((turn) => turn.$1.label), bundled.map((turn) => turn.$1.label));
