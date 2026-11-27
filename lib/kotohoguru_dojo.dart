@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dojo_puzzle.dart';
+import 'duel_move_effect.dart';
 import 'resident_collection.dart';
 import 'sudoku_duel.dart';
 import 'sudoku_duel_view.dart';
@@ -59,7 +60,11 @@ class _KotohoguruDojoState extends State<KotohoguruDojo> {
     setState(() => _playing = true);
     try {
       final seconds = await Navigator.of(context).push<int>(
-        MaterialPageRoute(builder: (_) => _PracticePage(puzzle: puzzle, mode: mode)),
+        MaterialPageRoute<int>(
+          builder: (_) => mode == _Mode.solo
+              ? DojoPracticePage.solo(puzzle: puzzle)
+              : DojoPracticePage.duel(puzzle: puzzle),
+        ),
       );
       if (!mounted) return;
       if (seconds != null) {
@@ -143,16 +148,20 @@ class _KotohoguruDojoState extends State<KotohoguruDojo> {
   );
 }
 
-class _PracticePage extends StatefulWidget {
-  const _PracticePage({required this.puzzle, required this.mode});
+class DojoPracticePage extends StatefulWidget {
+  const DojoPracticePage.solo({super.key, required this.puzzle}) : _mode = _Mode.solo;
+  const DojoPracticePage.duel({super.key, required this.puzzle}) : _mode = _Mode.duel;
   final DojoPuzzle puzzle;
-  final _Mode mode;
+  final _Mode _mode;
 
   @override
-  State<_PracticePage> createState() => _PracticePageState();
+  State<DojoPracticePage> createState() => _PracticePageState();
 }
 
-class _PracticePageState extends State<_PracticePage> {
+class _PracticePageState extends State<DojoPracticePage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _effectController;
+  DuelMoveEffect? _effect;
   final _watch = Stopwatch();
   late final SudokuDuel _duel = widget.puzzle.duel();
   late final List<int> _board = List.of(widget.puzzle.givens);
@@ -165,22 +174,58 @@ class _PracticePageState extends State<_PracticePage> {
   void initState() {
     super.initState();
     _watch.start();
+    _effectController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 650),
+    )..addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        setState(() => _effect = null);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _watch.stop();
+    _effectController.dispose();
+    super.dispose();
+  }
+
+  void _clearEffect() {
+    _effectController.stop();
+    _effect = null;
+  }
+
+  void _showEffect(DuelMoveEffect effect) {
+    _clearEffect();
+    if (MediaQuery.disableAnimationsOf(context)) return;
+    _effect = effect;
+    _effectController.forward(from: 0);
   }
 
   void _enter(int digit) {
     final cell = _selected;
     if (cell == null || _complete || widget.puzzle.givens[cell] != 0) return;
     setState(() {
+      _clearEffect();
       if (_noteMode && digit != 0) {
         if (_board[cell] != 0) return;
         if (!_notes[cell].add(digit)) _notes[cell].remove(digit);
-      } else {
-        _board[cell] = digit;
-        _notes[cell].clear();
+        return;
       }
+      final changed = _board[cell] != digit;
+      _board[cell] = digit;
+      _notes[cell].clear();
       if (widget.puzzle.isComplete(_board)) {
         _complete = true;
         _watch.stop();
+      }
+      if (changed && digit != 0) {
+        _showEffect(DuelMoveEffect(
+          cell: cell,
+          wrong: digit != widget.puzzle.answer[cell],
+          victory: _complete,
+        ));
       }
     });
   }
@@ -204,17 +249,20 @@ class _PracticePageState extends State<_PracticePage> {
     final value = _board[cell];
     final selected = _selected == cell;
     final conflict = _conflict(cell);
+    final incorrect = !fixed && value != 0 && value != widget.puzzle.answer[cell];
+    final error = conflict || incorrect;
     final notes = _notes[cell].toList()..sort();
     const line = Color(0xFF66513C);
     return Semantics(
       key: ValueKey('dojo-cell-$cell'),
       label: '${cell ~/ size.side + 1}行${cell % size.side + 1}列、'
           '${value == 0 ? '空欄' : value}'
-          '${fixed ? '、固定' : ''}${notes.isEmpty ? '' : '、候補 ${notes.join(' ')}'}',
+          '${fixed ? '、固定' : ''}${incorrect ? '、不正解' : ''}'
+          '${notes.isEmpty ? '' : '、候補 ${notes.join(' ')}'}',
       selected: selected,
       button: !fixed && !_complete,
       child: Material(
-        color: conflict ? const Color(0xFFFFDFD9) : selected
+        color: error ? const Color(0xFFFFDFD9) : selected
             ? const Color(0xFFC8E8E0) : fixed
             ? const Color(0xFFF4E5C9) : Colors.white,
         child: InkWell(
@@ -257,7 +305,7 @@ class _PracticePageState extends State<_PracticePage> {
                       value == 0 ? '' : '$value',
                       style: TextStyle(
                         fontSize: 25,
-                        color: conflict ? const Color(0xFF9B2119) : fixed
+                        color: error ? const Color(0xFF9B2119) : fixed
                             ? const Color(0xFF593A28) : const Color(0xFF21685B),
                         fontWeight: fixed ? FontWeight.bold : FontWeight.w500,
                       ),
@@ -280,14 +328,34 @@ class _PracticePageState extends State<_PracticePage> {
           constraints: const BoxConstraints(maxWidth: 480),
           child: AspectRatio(
             aspectRatio: 1,
-            child: DecoratedBox(
-              decoration: BoxDecoration(border: Border.all(color: const Color(0xFF66513C), width: 2)),
-              child: GridView.count(
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: widget.puzzle.size.side,
-                children: [for (var i = 0; i < _board.length; i++) _cell(i)],
-              ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(border: Border.all(color: const Color(0xFF66513C), width: 2)),
+                  child: GridView.count(
+                    padding: EdgeInsets.zero,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: widget.puzzle.size.side,
+                    children: [for (var i = 0; i < _board.length; i++) _cell(i)],
+                  ),
+                ),
+                if (_effect case final effect?)
+                  if (!MediaQuery.disableAnimationsOf(context))
+                    IgnorePointer(
+                      child: ExcludeSemantics(
+                        child: CustomPaint(
+                          key: ValueKey(effect.wrong ? 'dojo-effect-wrong' : 'dojo-effect-correct'),
+                          painter: DuelMoveEffectPainter(
+                            boardSize: widget.puzzle.size,
+                            effect: effect,
+                            progress: _effectController,
+                            flatBoard: true,
+                          ),
+                        ),
+                      ),
+                    ),
+              ],
             ),
           ),
         ),
@@ -345,7 +413,7 @@ class _PracticePageState extends State<_PracticePage> {
     body: SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
-        child: widget.mode == _Mode.solo ? _solo() : SudokuDuelView.dojo(
+        child: widget._mode == _Mode.solo ? _solo() : SudokuDuelView.dojo(
           position: _duel,
           onDojoEnded: _watch.stop,
           onDojoFinish: (game) {

@@ -30,11 +30,13 @@ class DuelMoveEffectPainter extends CustomPainter {
     required this.boardSize,
     required this.effect,
     required this.progress,
+    this.flatBoard = false,
   }) : super(repaint: progress);
 
   final DuelSize boardSize;
   final DuelMoveEffect effect;
   final Animation<double> progress;
+  final bool flatBoard;
 
   static const _gold = Color(0xFFD99219);
   static const _cream = Color(0xFFFFE29A);
@@ -66,11 +68,11 @@ class DuelMoveEffectPainter extends CustomPainter {
     final row = effect.cell ~/ side;
     final column = effect.cell % side;
     final source = roomRect(boardSize.roomOf(effect.cell));
-    final cellWidth = (roomWidth - 8) / columns;
-    final cellHeight = (roomHeight - 32) / rows;
+    final cellWidth = flatBoard ? size.width / side : (roomWidth - 8) / columns;
+    final cellHeight = flatBoard ? size.height / side : (roomHeight - 32) / rows;
     final cellRect = Rect.fromLTWH(
-      source.left + 2 + (column % columns) * cellWidth,
-      source.top + 26 + (row % rows) * cellHeight,
+      flatBoard ? column * cellWidth : source.left + 2 + (column % columns) * cellWidth,
+      flatBoard ? row * cellHeight : source.top + 26 + (row % rows) * cellHeight,
       cellWidth,
       cellHeight,
     );
@@ -83,6 +85,12 @@ class DuelMoveEffectPainter extends CustomPainter {
     if (effect.wrong) {
       final opacity = (1 - t) * .85;
       final shift = sin(t * pi * 8) * (1 - t) * 3;
+      if (flatBoard) {
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(cellRect.deflate(1), const Radius.circular(3)),
+          Paint()..color = _rose.withValues(alpha: opacity * .20),
+        );
+      }
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           cellRect.deflate(2).shift(Offset(shift, 0)),
@@ -225,5 +233,6 @@ class DuelMoveEffectPainter extends CustomPainter {
   bool shouldRepaint(covariant DuelMoveEffectPainter oldDelegate) =>
       oldDelegate.effect != effect ||
       oldDelegate.boardSize != boardSize ||
+      oldDelegate.flatBoard != flatBoard ||
       oldDelegate.progress != progress;
 }
