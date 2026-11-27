@@ -11,6 +11,7 @@ from areas import load_areas, validate_areas
 ROOT = Path(__file__).resolve().parents[2] / "assets" / "story"
 DATA = ROOT / "story.json"
 MAX_JSON_BYTES = 256 * 1024
+# PNG remains supported for existing scene art; new story art uses WebP.
 IMAGE_NAME = re.compile(r"[a-z0-9][a-z0-9_-]{0,79}\.(?:png|webp)")
 EPISODE_ID = re.compile(r"[a-z][a-z0-9_]{0,47}")
 EPISODE_FIELDS = {

@@ -158,7 +158,7 @@ class StoryCmsTests(unittest.TestCase):
             with self.assertRaises(HTTPError) as missing:
                 urlopen(base + "/api/runtime/story" + suffix, timeout=5)
             self.assertEqual(missing.exception.code, 404)
-        self.assertEqual(len(doc["episodes"]), 11)
+        self.assertEqual(len(doc["episodes"]), 14)
         before = self.path.read_bytes()
         edited = copy.deepcopy(doc)
         edited["episodes"][0]["resultDialogue"][0]["text"] = "ぽむぽむ、できたぽむ！"

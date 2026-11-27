@@ -36,13 +36,13 @@ void main() {
       parseHostedStory(jsonEncode(story), base, residents);
 
   test(
-    'the hosted eleven-episode story pins its cast and artwork',
+    'the hosted fourteen-episode story pins its cast and artwork',
     () {
       final json = storyDocument();
       final catalog = parse(json);
       expect(catalog.baseUri, base);
       expect(catalog.title, json['title']);
-      expect(catalog.episodes.length, 11);
+      expect(catalog.episodes.length, 14);
       expect(catalog.episodes.length, _episodes(json).length);
       expect(catalog.episodes.first.id, storyEpisodes.first.id);
       final first = catalog.episodes.first.dialogue.first.$1;
@@ -96,9 +96,13 @@ void main() {
       } else if (index <= 7) {
         expect(hosted.isNotEmpty, isTrue);
         expect(hosted.last.$1.label, isIn(['およめさん', 'パティシエ']));
-      } else {
+      } else if (index <= 10) {
         expect(hosted.isNotEmpty, isTrue);
         expect(hosted.last.$1.label, 'おやすみくん');
+      } else {
+        expect(hosted.isNotEmpty, isTrue);
+        expect(hosted.last.$1.label,
+            index == 11 ? 'おしゃべりさん' : 'おしゃれさん');
       }
       expect(hosted.map((turn) => turn.$2), bundled.map((turn) => turn.$2));
       expect(hosted.map((turn) => turn.$1.label), bundled.map((turn) => turn.$1.label));
@@ -107,8 +111,8 @@ void main() {
 
   test('stamp arc ends before the Mosædo story begins', () {
     final catalog = parse(storyDocument());
-    expect(catalog.episodes.length, 11);
-    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360]);
+    expect(catalog.episodes.length, 14);
+    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450]);
     expect(catalog.episodes.map((e) => e.title), [
       'たいそうのはんこカード？',
       '木の下になにがある？',
@@ -121,12 +125,15 @@ void main() {
       'むかしのおしごと',
       'ひさしぶりの同僚',
       'まだまだこれから',
+      'きれいになる待ち時間',
+      'ふわふわ大事件！',
+      'みんなおそろい！？',
     ]);
     expect(catalog.episodes.first.clue, 'おおきな きのした');
     expect(catalog.episodes[1].clue, 'ほんとうにはんこカード！');
     expect(catalog.chapters.map((chapter) => chapter.title),
-        ['しばぽめ', 'モサエド', 'およめさん', 'おやすみクラブ']);
-    expect(catalog.chapters.map((chapter) => chapter.startIndex), [0, 3, 5, 8]);
+        ['しばぽめ', 'モサエド', 'およめさん', 'おやすみクラブ', 'おしゃれさんの美容室']);
+    expect(catalog.chapters.map((chapter) => chapter.startIndex), [0, 3, 5, 8, 11]);
     expect(catalog.chapters.map((chapter) => chapter.id),
         storyChapters.map((chapter) => chapter.id));
     final ending = catalog.episodes[2].resultDialogue;
@@ -158,7 +165,7 @@ void main() {
       ].join(' ');
       expect(allText, isNot(contains('コトホグマ')));
     }
-    final club = catalog.episodes.skip(8).toList();
+    final club = catalog.episodes.skip(8).take(3).toList();
     expect(club.map((episode) => episode.area.id), ['plaza', 'park', 'plaza']);
     expect(club[1].dialogue.any((turn) => turn.$1.label == 'げんばくん'), isTrue);
     expect(club[1].resultDialogue.any((turn) => turn.$1.label == 'げんばくん'), isTrue);
@@ -166,8 +173,14 @@ void main() {
     for (final episode in club) {
       expect(episode.dialogue.any((turn) => turn.$1.label == 'おやすみくん'), isTrue);
     }
-    for (final episode in catalog.episodes) {
-      expect(episode.size, 4);
+    final salon = catalog.episodes.skip(11).toList();
+    expect(salon.map((e) => e.size), [6, 6, 6]);
+    expect(salon.every((e) => e.dialogue.any((t) => t.$1.label == 'おしゃれさん')), isTrue);
+    expect(salon[0].dialogue.any((t) => t.$1.label == 'おしゃべりさん'), isTrue);
+    expect(salon[1].dialogue.any((t) => t.$1.label == 'ネイリスト'), isTrue);
+    expect(salon[2].resultDialogue.any((t) => t.$2.contains('正解は一つじゃない')), isTrue);
+    for (final (i, episode) in catalog.episodes.indexed) {
+      expect(episode.size, i < 11 ? 4 : 6);
     }
   });
 
@@ -182,7 +195,7 @@ void main() {
     final rewritten = storyDocument();
     final chapters = _episodes(rewritten);
     chapters.removeRange(2, chapters.length);
-    (rewritten['chapters'] as List).removeRange(1, 4);
+    (rewritten['chapters'] as List).removeRange(1, 5);
     final updated = parse(rewritten);
     expect(updated.episodes.length, 2);
     expect(updated.progressSignature, isNot(original.progressSignature));
