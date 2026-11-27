@@ -238,7 +238,9 @@ class _PracticePageState extends State<DojoPracticePage>
       if (i != cell && _board[i] == value &&
           (i ~/ size.side == cell ~/ size.side ||
            i % size.side == cell % size.side ||
-           size.roomOf(i) == size.roomOf(cell))) return true;
+           size.roomOf(i) == size.roomOf(cell))) {
+        return true;
+      }
     }
     return false;
   }
