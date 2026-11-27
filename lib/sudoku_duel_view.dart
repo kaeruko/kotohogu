@@ -51,6 +51,7 @@ class SudokuDuelView extends StatefulWidget {
       position = null,
       onMove = null,
       onFinish = null,
+      onDojoFinish = null,
       busy = false;
   const SudokuDuelView.story({
     super.key,
@@ -59,12 +60,19 @@ class SudokuDuelView extends StatefulWidget {
     required VoidCallback this.onFinish,
     this.onMove,
     this.busy = false,
-  });
+  }) : onDojoFinish = null;
+
+  const SudokuDuelView.dojo({
+    super.key,
+    required SudokuDuel this.position,
+    required ValueChanged<SudokuDuel> this.onDojoFinish,
+  }) : match = null, onMove = null, onFinish = null, busy = false;
 
   final StoryDuel? match;
   final SudokuDuel? position;
   final void Function(int cell, int digit)? onMove;
   final VoidCallback? onFinish;
+  final ValueChanged<SudokuDuel>? onDojoFinish;
   final bool busy;
 
   @override
@@ -97,7 +105,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
         setState(() => _effect = null);
       }
     });
-    _rival = widget.match?.rival;
+    _rival = widget.onDojoFinish == null ? widget.match?.rival : DuelRival.oshisho;
     _game = widget.position;
     _scheduleComputer();
   }
@@ -462,7 +470,13 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
           ),
         ),
         const SizedBox(height: 8),
-        if (ended && widget.onFinish != null)
+        if (ended && widget.onDojoFinish != null)
+          FilledButton(
+            key: const ValueKey('dojo-finish-duel'),
+            onPressed: () => widget.onDojoFinish!(game),
+            child: const Text('道場にもどる'),
+          )
+        else if (ended && widget.onFinish != null)
           FilledButton(
             key: const ValueKey('story-finish-duel'),
             onPressed: widget.busy ? null : widget.onFinish,

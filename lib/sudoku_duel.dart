@@ -142,6 +142,14 @@ class SudokuDuel {
     return game;
   }
 
+  /// A complete, validated puzzle from the independent dojo catalog.
+  factory SudokuDuel.dojo(DuelSize size, List<int> givens, List<int> answer) {
+    if (givens.length != size.side * size.side || answer.length != givens.length) {
+      throw ArgumentError('Invalid dojo board dimensions');
+    }
+    return SudokuDuel._startBoard(size, List.of(givens), List.of(answer));
+  }
+
   factory SudokuDuel._startBoard(
     DuelSize size,
     List<int> givens,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'facility_layout.dart';
+import 'kotohoguru_dojo.dart';
 import 'resident_collection.dart';
 import 'town_areas.dart';
 
@@ -85,10 +86,45 @@ class _CommunityCenterRoomState extends State<CommunityCenterRoom> {
 
   Future<void> _talk(TownResident resident) async {
     final callback = widget.onResident;
-    if (callback == null || _talking) return;
+    final isMaster = resident == TownResident.c031_kimono_fox;
+    if (_talking || (callback == null && !isMaster)) return;
     setState(() => _talking = true);
     try {
-      await callback(resident);
+      if (isMaster) {
+        final dojo = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('おししょう'),
+            content: const Text('ほほほ。今日はお話どすか？ それとも数独の稽古にしまひょか？'),
+            actions: [
+              if (callback != null)
+                TextButton(
+                  key: const ValueKey('community-center-master-talk'),
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('おはなし'),
+                ),
+              FilledButton(
+                key: const ValueKey('community-center-open-dojo'),
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('コトホグル道場'),
+              ),
+            ],
+          ),
+        );
+        if (!mounted || dojo == null) return;
+        if (dojo) {
+          await Navigator.of(context).push<void>(
+            MaterialPageRoute<void>(
+              settings: const RouteSettings(name: '/shopping/community-center/dojo'),
+              builder: (_) => const KotohoguruDojo(),
+            ),
+          );
+        } else if (callback != null) {
+          await callback(resident);
+        }
+      } else {
+        await callback!(resident);
+      }
     } finally {
       if (mounted) setState(() => _talking = false);
     }
@@ -96,19 +132,20 @@ class _CommunityCenterRoomState extends State<CommunityCenterRoom> {
 
   Widget _instructor(TownResident resident) {
     final station = facilityPlacement('community_center', resident.id);
+    final enabled = widget.onResident != null || resident == TownResident.c031_kimono_fox;
     return Positioned(
       left: station.x,
       top: station.y,
       width: station.size,
       height: station.size,
       child: Semantics(
-        button: widget.onResident != null,
+        button: enabled,
         label: '${resident.label}のおはなし',
         child: Tooltip(
           message: resident.label,
           child: InkWell(
             key: ValueKey('community-center-resident-${resident.id}'),
-            onTap: _talking || widget.onResident == null
+            onTap: _talking || !enabled
                 ? null : () => _talk(resident),
             child: Image.asset(
               _spriteAsset(resident),

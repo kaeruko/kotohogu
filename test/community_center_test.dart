@@ -103,6 +103,10 @@ void main() {
         lessThan(tester.getRect(attendee).center.dy));
     await tester.tap(flower);
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.byKey(const ValueKey('community-center-master-talk')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(exercise);
     await tester.pump();
     await tester.tap(attendee);
