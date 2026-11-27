@@ -179,7 +179,9 @@ void main() {
         }
         expect(forced, isNotEmpty, reason: episode.id);
         waves.add(forced.length);
-        for (final (cell, value) in forced) board[cell] = value;
+        for (final (cell, value) in forced) {
+          board[cell] = value;
+        }
       }
       expect(waves, [7, 9, 4], reason: episode.id);
       expect(episode.isSolved(board), isTrue);
