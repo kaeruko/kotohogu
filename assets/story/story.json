@@ -870,6 +870,210 @@
       "puzzle": "050103100206500000032501004020325000",
       "solution": "256143143256561432432561614325325614",
       "resultImage": "story_result_13_salon_smiles.webp"
+    },
+    {
+      "id": "episode_14",
+      "title": "ねるのネイルサロン",
+      "area": "shopping",
+      "unlockAt": 480,
+      "image": "story_014_salon_sudoku.webp",
+      "dialogue": [
+        {
+          "speaker": "050_nailist",
+          "text": "ママ、さっきの「ネイルもおそろい」、ほんとにやる？"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "もちろんよ！ ねるにお願いしたかったの"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "えへへ。ママの髪に似合うお花、描いてあげるね"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "あら、じゃあ手を動かさないようにしなくっちゃ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "その前に数独で一勝負しよ！ 今日のねる、負けないもん！"
+        }
+      ],
+      "duel": {
+        "player": "050_nailist",
+        "opponent": "051_dog_aunt"
+      },
+      "clue": "おそろいで、ちがう色",
+      "result": "第5章で約束したおそろいネイル。おしゃべりさんの指先に、ねるが選んだ小さなお花が咲いた。色は少し違うけれど、二人ともとても気に入ったみたい。",
+      "resultDialogue": [
+        {
+          "speaker": "051_dog_aunt",
+          "text": "あらまあ、ねるの勝ち！ ママ、すっかり夢中になっちゃった"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "えへへ。はい、ネイルもできたよ。ママは桜色！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "まあ、かわいい！ ねるの爪は桃色なのね"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "おそろいだけど、ちょっとちがうの。どっちもかわいいでしょ？"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "もちろん！ うちのネイリストさんは、世界一よ"
+        }
+      ],
+      "resultImage": "story_result_13_salon_smiles.webp"
+    },
+    {
+      "id": "episode_15",
+      "title": "まま、ねるかわいい？",
+      "area": "shopping",
+      "unlockAt": 510,
+      "image": "story_014_salon_sudoku.webp",
+      "dialogue": [
+        {
+          "speaker": "050_nailist",
+          "text": "まま……今日、お仕事でちょっと失敗しちゃった"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "そうだったの。話したくなったら、聞くわよ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "みんなはすぐできるのに、ねるだけ時間かかるの……"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "丁寧にやってるからこその時間もあるわよ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "でも、ままはなんでも上手だもん……"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "あら、数独はねるのほうがずっと上手よ。もう一局教えてくれる？"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "……うん。ねる、ままに教えてあげる"
+        }
+      ],
+      "duel": {
+        "player": "050_nailist",
+        "opponent": "051_dog_aunt"
+      },
+      "clue": "ままのそばは、あったかい",
+      "result": "家に帰ると、ねるは今日の失敗をぽつりぽつりと話し始めた。数独に勝てたことも、ママがそばにいてくれることも、今夜の小さな安心になった。",
+      "resultDialogue": [
+        {
+          "speaker": "051_dog_aunt",
+          "text": "また負けちゃった！ ねる先生、なかなか手ごわいわね"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "……まま、ねるかわいい？"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "かわいいわ。世界でいちばん大好きよ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "……なんにもできない日も？"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "もちろん。どんな日だって、大切なねるよ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "……えへへ。まま、ぎゅーして"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "はいはい、ぎゅーっ"
+        }
+      ]
+    },
+    {
+      "id": "episode_16",
+      "title": "ママとおでかけ",
+      "area": "shopping",
+      "unlockAt": 540,
+      "image": "story_003_shopping_clue.webp",
+      "dialogue": [
+        {
+          "speaker": "050_nailist",
+          "text": "まま、あのお店のワンピース、かわいい！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "ほんとねえ。ねるに似合いそう"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "ねるね、お仕事いっぱいできるようになったら、ままを温泉につれてくの"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "まあ！ それは楽しみねえ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "……でも、また失敗しちゃうかも"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "急がなくていいのよ。おでかけは今日だって楽しいもの"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "じゃあ、ねるが数独で勝ったら、ままにお茶をごちそうする！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "うふふ、それは負けられないわ！"
+        }
+      ],
+      "duel": {
+        "player": "050_nailist",
+        "opponent": "051_dog_aunt"
+      },
+      "clue": "つぎの、おやくそく",
+      "result": "休日の商店街。ねるはママにお茶をごちそうした。いつか旅行に連れていく約束も、次のおでかけの約束も、二人の楽しみになった。",
+      "resultDialogue": [
+        {
+          "speaker": "050_nailist",
+          "text": "やったあ！ ねるの勝ち！ ママ、お茶どうぞ！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "まあ、娘にごちそうしてもらえるなんて。ありがとう！"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "……ねる、ままを喜ばせたかったの"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "もう十分うれしいわよ。ねると一緒にいる時間が大好きだもの"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "……ねるも！ ままとおでかけするのがいちばん好き！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "ふふ。じゃあ、また一緒に来ましょうね"
+        }
+      ]
     }
   ],
   "chapters": [
@@ -897,6 +1101,12 @@
       "id": "oshare_salon",
       "title": "おしゃれさんの美容室",
       "startEpisodeId": "episode_11"
+    },
+    {
+      "id": "neru_mama",
+      "title": "ねるとママのおやくそく",
+      "startEpisodeId": "episode_14",
+      "duelStage": "crossRoom"
     }
   ]
 }

@@ -10,6 +10,7 @@ import 'package:future_lift/main.dart';
 import 'package:future_lift/oyasumi_config.g.dart';
 import 'package:future_lift/progress.dart';
 import 'package:future_lift/story_data.dart';
+import 'package:future_lift/story_duel_stage.dart';
 import 'package:future_lift/story_progress.dart';
 import 'package:future_lift/story_remote_config.dart';
 
@@ -36,13 +37,13 @@ void main() {
       parseHostedStory(jsonEncode(story), base, residents);
 
   test(
-    'the hosted fourteen-episode story pins its cast and artwork',
+    'the hosted seventeen-episode story pins its cast and artwork',
     () {
       final json = storyDocument();
       final catalog = parse(json);
       expect(catalog.baseUri, base);
       expect(catalog.title, json['title']);
-      expect(catalog.episodes.length, 14);
+      expect(catalog.episodes.length, 17);
       expect(catalog.episodes.length, _episodes(json).length);
       expect(catalog.episodes.first.id, storyEpisodes.first.id);
       final first = catalog.episodes.first.dialogue.first.$1;
@@ -79,7 +80,8 @@ void main() {
 
   test('each episode keeps its solved dialogue aligned with bundled data', () {
     final hostedEpisodes = parse(storyDocument()).episodes;
-    expect(hostedEpisodes.length, storyEpisodes.length);
+    expect(hostedEpisodes.length, 17);
+    expect(storyEpisodes.length, 14);
     for (var index = 0; index < storyEpisodes.length; index++) {
       final hosted = hostedEpisodes[index].resultDialogue;
       final bundled = storyEpisodes[index].resultDialogue;
@@ -111,8 +113,8 @@ void main() {
 
   test('stamp arc ends before the Mosædo story begins', () {
     final catalog = parse(storyDocument());
-    expect(catalog.episodes.length, 14);
-    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450]);
+    expect(catalog.episodes.length, 17);
+    expect(catalog.episodes.map((e) => e.unlockAt), [0, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450, 480, 510, 540]);
     expect(catalog.episodes.map((e) => e.title), [
       'たいそうのはんこカード？',
       '木の下になにがある？',
@@ -128,13 +130,16 @@ void main() {
       'きれいになる待ち時間',
       'ふわふわ大事件！',
       'みんなおそろい！？',
+      'ねるのネイルサロン',
+      'まま、ねるかわいい？',
+      'ママとおでかけ',
     ]);
     expect(catalog.episodes.first.clue, 'おおきな きのした');
     expect(catalog.episodes[1].clue, 'ほんとうにはんこカード！');
     expect(catalog.chapters.map((chapter) => chapter.title),
-        ['しばぽめ', 'モサエド', 'およめさん', 'おやすみクラブ', 'おしゃれさんの美容室']);
-    expect(catalog.chapters.map((chapter) => chapter.startIndex), [0, 3, 5, 8, 11]);
-    expect(catalog.chapters.map((chapter) => chapter.id),
+        ['しばぽめ', 'モサエド', 'およめさん', 'おやすみクラブ', 'おしゃれさんの美容室', 'ねるとママのおやくそく']);
+    expect(catalog.chapters.map((chapter) => chapter.startIndex), [0, 3, 5, 8, 11, 14]);
+    expect(catalog.chapters.take(storyChapters.length).map((chapter) => chapter.id),
         storyChapters.map((chapter) => chapter.id));
     final ending = catalog.episodes[2].resultDialogue;
     expect(ending.any((line) => line.$1.label == 'ごんすけ'), isTrue);
@@ -173,7 +178,7 @@ void main() {
     for (final episode in club) {
       expect(episode.dialogue.any((turn) => turn.$1.label == 'おやすみくん'), isTrue);
     }
-    final salon = catalog.episodes.skip(11).toList();
+    final salon = catalog.episodes.skip(11).take(3).toList();
     expect(salon.map((e) => e.size), [6, 6, 6]);
     expect(salon.every((e) => e.dialogue.any((t) => t.$1.label == 'おしゃれさん')), isTrue);
     expect(salon[0].dialogue.any((t) => t.$1.label == 'おしゃべりさん'), isTrue);
@@ -182,6 +187,27 @@ void main() {
     for (final (i, episode) in catalog.episodes.indexed) {
       expect(episode.size, i < 11 ? 4 : 6);
     }
+  });
+
+
+  test('chapter six uses a single duel rule with three distinct boards', () {
+    final catalog = parse(storyDocument());
+    final chapter = catalog.chapters.last;
+    final episodes = catalog.episodes.skip(14).toList();
+    expect(chapter.id, 'neru_mama');
+    expect(chapter.startIndex, 14);
+    expect(chapter.duelStage, StoryDuelStage.crossRoom);
+    expect(episodes.length, 3);
+    expect(episodes.map((episode) => episode.duel!.stage),
+        everyElement(StoryDuelStage.crossRoom));
+    expect(episodes.map((episode) => episode.duel!.variant).toList(), [0, 1, 2]);
+    expect(episodes.map((episode) => episode.duel!.player.label),
+        everyElement('ネイリスト'));
+    expect(episodes.map((episode) => episode.duel!.opponent.label),
+        everyElement('おしゃべりさん'));
+    expect(episodes.map((episode) => episode.size), everyElement(6));
+    expect(episodes.map((episode) => episode.puzzle).toSet().length, 3);
+    expect(episodes.map((episode) => episode.solution).toSet().length, 3);
   });
 
   test('text edits retain a signature and structural edits create a new edition', () {
@@ -195,7 +221,7 @@ void main() {
     final rewritten = storyDocument();
     final chapters = _episodes(rewritten);
     chapters.removeRange(2, chapters.length);
-    (rewritten['chapters'] as List).removeRange(1, 5);
+    (rewritten['chapters'] as List).removeRange(1, (rewritten['chapters'] as List).length);
     final updated = parse(rewritten);
     expect(updated.episodes.length, 2);
     expect(updated.progressSignature, isNot(original.progressSignature));
@@ -312,8 +338,8 @@ void main() {
   ) async {
     final body = storyDocument()..['title'] = '配信から更新した章';
     final episodes = _episodes(body);
-    final previous = episodes.last as Map<String, dynamic>;
-    final points = (previous['unlockAt'] as int) + 30;
+    final previous = episodes[13] as Map<String, dynamic>;
+    final points = (episodes.last['unlockAt'] as int) + 30;
     final index = episodes.length;
     episodes.add({
       ...previous,
