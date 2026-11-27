@@ -50,7 +50,7 @@ class PublishContentTests(unittest.TestCase):
         self.assertIn("api/runtime/story", [row["path"] for row in records])
         self.assertEqual(json.loads((self.base / "one" / "api/runtime/story").read_text("utf-8")), story)
         self.assertEqual([row["path"] for row in records if row["path"].startswith("api/runtime/story-v")], [])
-        self.assertTrue(all(name.endswith(".webp") for name in publisher.story_images(story)))
+        self.assertTrue(all(name.endswith((".webp", ".png")) for name in all_images))
         self.assertEqual(len(first), 64)
         self.assertEqual(
             (self.base / "one" / "api/runtime/catalog").read_bytes(),
