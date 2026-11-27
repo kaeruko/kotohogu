@@ -208,8 +208,17 @@ void main() {
     expect(episodes.map((episode) => episode.size), everyElement(6));
     expect(episodes.map((episode) => episode.puzzle).toSet().length, 3);
     expect(episodes.map((episode) => episode.solution).toSet().length, 3);
-    expect(episodes.map((episode) => episode.image).toSet().length, 3);
-    expect(episodes.every((episode) => episode.resultImage == episode.image), isTrue);
+    expect(episodes.map((episode) => episode.image).toList(), [
+      'story_017_neru_nails_before.webp',
+      'story_018_neru_home_before_v2.webp',
+      'story_019_neru_shopping_before.webp',
+    ]);
+    expect(episodes.map((episode) => episode.resultImage).toList(), [
+      'story_017_neru_nails_after.webp',
+      'story_018_neru_home_after_v2.webp',
+      'story_019_neru_shopping_after.webp',
+    ]);
+    expect(episodes.every((episode) => episode.image != episode.resultImage), isTrue);
   });
 
   test('text edits retain a signature and structural edits create a new edition', () {
