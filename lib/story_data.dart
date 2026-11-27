@@ -257,12 +257,16 @@ const _oshisho = StorySpeaker.local(TownResident.c031_kimono_fox);
 const _wife = StorySpeaker.local(TownResident.rabbit);
 const _pastry = StorySpeaker.local(TownResident.c047_patisie);
 const _advisor = StorySpeaker.local(TownResident.c048_advicer);
+const _beauty = StorySpeaker.local(TownResident.c035_beaty);
+const _nailist = StorySpeaker.local(TownResident.c050_nailist);
+const _talkative = StorySpeaker.local(TownResident.c051_dog_aunt);
 
 const storyChapters = <StoryChapter>[
   StoryChapter(id: 'shibapome', title: 'しばぽめ', startIndex: 0),
   StoryChapter(id: 'mosaedo', title: 'モサエド', startIndex: 3),
   StoryChapter(id: 'oyomesan', title: 'およめさん', startIndex: 5),
   StoryChapter(id: 'oyasumi_club', title: 'おやすみクラブ', startIndex: 8),
+  StoryChapter(id: 'oshare_salon', title: 'おしゃれさんの美容室', startIndex: 11),
 ];
 
 const bundledStory = StoryCatalog(
@@ -556,6 +560,82 @@ const storyEpisodes = <StoryEpisode>[
       (_oyasumi, 'あしたのことは、あしたかんがえるもふ〜'),
       (_frog, 'あはは、おやすみくんらしいね'),
       (_oyasumi, 'ぼくはまだまだこれからなんだ〜'),
+    ],
+  ),
+
+  StoryEpisode(
+    id: 'episode_11',
+    title: 'きれいになる待ち時間',
+    area: TownArea.shopping,
+    unlockAt: 390,
+    dialogue: [
+      (_talkative, '今日は早く着いちゃったわ。まだ順番よね？'),
+      (_nailist, 'ママ、待ってる間に数独をやってみる？'),
+      (_talkative, '数独？ 公民館でも流行ってるのよねえ'),
+      (_beauty, 'ふふ、待ち時間に一局どうぞ。わたしもつい解きたくなっちゃう'),
+      (_talkative, 'じゃあ挑戦！ 髪も数字もすっきりさせたいわ！'),
+    ],
+    puzzle: '000450006000230001001230340610600045',
+    solution: '123456456123234561561234345612612345',
+    clue: '髪も数字も、すっきり！',
+    result: '桜の美容室での待ち時間。おしゃべりさんと娘のネイリストは、数独を楽しみながら順番を待った。今日はどうやら湿気が強いみたい。',
+    resultDialogue: [
+      (_talkative, 'やった、解けた！ 頭を使ったら気分もしゃきっとしたわ'),
+      (_nailist, 'ママ、次はシャンプーね！'),
+      (_beauty, '今日は湿気が強いから、仕上げに気をつけましょうね'),
+      (_talkative, '湿気？ わたしの髪、すぐふくらんじゃうのよ〜'),
+    ],
+  ),
+  StoryEpisode(
+    id: 'episode_12',
+    title: 'ふわふわ大事件！',
+    area: TownArea.shopping,
+    unlockAt: 420,
+    dialogue: [
+      (_nailist, 'おしゃれさん、大変！ ママの髪を乾かしたら、ふわっふわに！'),
+      (_talkative, 'きゃー！ 鏡からはみ出しそうよ！'),
+      (_beauty, 'まあ、見事なボリュームね。今日は湿気でふくらみやすいの'),
+      (_nailist, 'ドライヤーの風で、もっとふくらんじゃった！'),
+      (_talkative, 'これじゃ桜の木と間違えられちゃうわ〜！'),
+      (_beauty, '大丈夫。髪の流れを整えて、ふわふわを生かしましょう'),
+      (_nailist, 'その前にひと休み！ タオルを巻いて、数独でも一局どう？'),
+    ],
+    puzzle: '000205000461602300050602023000540020',
+    solution: '461235235461612354354612123546546123',
+    clue: 'ふくらみを生かして大変身！',
+    result: '湿気とドライヤーでおしゃべりさんの髪が大きくふくらんだ。でも、おしゃれさんが髪質を生かして整えると、かわいいふわふわカールに。今度は外のお客さんまで注目し始めた！',
+    resultDialogue: [
+      (_talkative, '解けた！ あら、髪もだいぶ落ち着いたわね'),
+      (_beauty, '押さえつけるより、ふくらみを生かすと素敵ですよ'),
+      (_nailist, 'わあ！ ふわふわが、かわいいカールになった！'),
+      (_talkative, 'うれしい！ ……あら、窓の外で誰かがこちらを見ているわ'),
+      (_beauty, 'ふふ、素敵な髪型が目に留まったみたいね'),
+    ],
+  ),
+  StoryEpisode(
+    id: 'episode_13',
+    title: 'みんなおそろい！？',
+    area: TownArea.shopping,
+    unlockAt: 450,
+    dialogue: [
+      (_nailist, '大変！ お客さんがみんな、ママと同じ髪型の写真を持ってくるの！'),
+      (_talkative, 'ええっ、わたしの髪が流行しちゃった！？'),
+      (_beauty, '素敵なことね。でも、髪質もお好みも一人ひとり違うのよ'),
+      (_talkative, '同じ髪型じゃなくてもいいのかしら？'),
+      (_beauty, 'もちろん。前髪や毛先を少し変えるだけでも、その人らしくなるわ'),
+      (_nailist, 'じゃあ、仕上げを考えながら、今日も数独を一局！'),
+    ],
+    puzzle: '050103100206500000032501004020325000',
+    solution: '256143143256561432432561614325325614',
+    clue: 'おしゃれの正解は一つじゃない',
+    result: 'おしゃべりさんの髪型が評判になり、同じ髪型を希望する人が続々と美容室へ。おしゃれさんはそれぞれの好みや髪質に合わせてアレンジし、みんな笑顔で帰っていった。',
+    resultDialogue: [
+      (_nailist, '解けた！ お客さんもそれぞれ違う髪型で、みんなにっこり！'),
+      (_talkative, 'わたしも自分のふわふわが好きになったわ'),
+      (_beauty, '数字は入る場所が決まっていても、おしゃれの正解は一つじゃないの'),
+      (_nailist, 'ママ、今度はネイルもおそろいにする？'),
+      (_talkative, 'ふふ。あなたに似合う色も、一緒に探したいわね'),
+      (_beauty, 'それがいちばん素敵ね！'),
     ],
   ),
 ];

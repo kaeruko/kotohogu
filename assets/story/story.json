@@ -690,6 +690,183 @@
         }
       ],
       "resultImage": "story_result_10_oyasumi_future.webp"
+    },
+    {
+      "id": "episode_11",
+      "title": "きれいになる待ち時間",
+      "area": "shopping",
+      "unlockAt": 390,
+      "image": "story_008_cakeshop_consulting.webp",
+      "clue": "髪も数字も、すっきり！",
+      "result": "桜の美容室での待ち時間。おしゃべりさんと娘のネイリストは、数独を楽しみながら順番を待った。今日はどうやら湿気が強いみたい。",
+      "dialogue": [
+        {
+          "speaker": "051_dog_aunt",
+          "text": "今日は早く着いちゃったわ。まだ順番よね？"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "ママ、待ってる間に数独をやってみる？"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "数独？ 公民館でも流行ってるのよねえ"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "ふふ、待ち時間に一局どうぞ。わたしもつい解きたくなっちゃう"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "じゃあ挑戦！ 髪も数字もすっきりさせたいわ！"
+        }
+      ],
+      "resultDialogue": [
+        {
+          "speaker": "051_dog_aunt",
+          "text": "やった、解けた！ 頭を使ったら気分もしゃきっとしたわ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "ママ、次はシャンプーね！"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "今日は湿気が強いから、仕上げに気をつけましょうね"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "湿気？ わたしの髪、すぐふくらんじゃうのよ〜"
+        }
+      ],
+      "puzzle": "000450006000230001001230340610600045",
+      "solution": "123456456123234561561234345612612345"
+    },
+    {
+      "id": "episode_12",
+      "title": "ふわふわ大事件！",
+      "area": "shopping",
+      "unlockAt": 420,
+      "image": "story_009_cakeshop_free_sign.webp",
+      "clue": "ふくらみを生かして大変身！",
+      "result": "湿気とドライヤーでおしゃべりさんの髪が大きくふくらんだ。でも、おしゃれさんが髪質を生かして整えると、かわいいふわふわカールに。今度は外のお客さんまで注目し始めた！",
+      "dialogue": [
+        {
+          "speaker": "050_nailist",
+          "text": "おしゃれさん、大変！ ママの髪を乾かしたら、ふわっふわに！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "きゃー！ 鏡からはみ出しそうよ！"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "まあ、見事なボリュームね。今日は湿気でふくらみやすいの"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "ドライヤーの風で、もっとふくらんじゃった！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "これじゃ桜の木と間違えられちゃうわ〜！"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "大丈夫。髪の流れを整えて、ふわふわを生かしましょう"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "その前にひと休み！ タオルを巻いて、数独でも一局どう？"
+        }
+      ],
+      "resultDialogue": [
+        {
+          "speaker": "051_dog_aunt",
+          "text": "解けた！ あら、髪もだいぶ落ち着いたわね"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "押さえつけるより、ふくらみを生かすと素敵ですよ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "わあ！ ふわふわが、かわいいカールになった！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "うれしい！ ……あら、窓の外で誰かがこちらを見ているわ"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "ふふ、素敵な髪型が目に留まったみたいね"
+        }
+      ],
+      "puzzle": "000205000461602300050602023000540020",
+      "solution": "461235235461612354354612123546546123"
+    },
+    {
+      "id": "episode_13",
+      "title": "みんなおそろい！？",
+      "area": "shopping",
+      "unlockAt": 450,
+      "image": "story_007_cakeshop_ledger_sudoku.webp",
+      "clue": "おしゃれの正解は一つじゃない",
+      "result": "おしゃべりさんの髪型が評判になり、同じ髪型を希望する人が続々と美容室へ。おしゃれさんはそれぞれの好みや髪質に合わせてアレンジし、みんな笑顔で帰っていった。",
+      "dialogue": [
+        {
+          "speaker": "050_nailist",
+          "text": "大変！ お客さんがみんな、ママと同じ髪型の写真を持ってくるの！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "ええっ、わたしの髪が流行しちゃった！？"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "素敵なことね。でも、髪質もお好みも一人ひとり違うのよ"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "同じ髪型じゃなくてもいいのかしら？"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "もちろん。前髪や毛先を少し変えるだけでも、その人らしくなるわ"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "じゃあ、仕上げを考えながら、今日も数独を一局！"
+        }
+      ],
+      "resultDialogue": [
+        {
+          "speaker": "050_nailist",
+          "text": "解けた！ お客さんもそれぞれ違う髪型で、みんなにっこり！"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "わたしも自分のふわふわが好きになったわ"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "数字は入る場所が決まっていても、おしゃれの正解は一つじゃないの"
+        },
+        {
+          "speaker": "050_nailist",
+          "text": "ママ、今度はネイルもおそろいにする？"
+        },
+        {
+          "speaker": "051_dog_aunt",
+          "text": "ふふ。あなたに似合う色も、一緒に探したいわね"
+        },
+        {
+          "speaker": "035_beaty",
+          "text": "それがいちばん素敵ね！"
+        }
+      ],
+      "puzzle": "050103100206500000032501004020325000",
+      "solution": "256143143256561432432561614325325614"
     }
   ],
   "chapters": [
@@ -712,6 +889,11 @@
       "id": "oyasumi_club",
       "title": "おやすみクラブ",
       "startEpisodeId": "episode_08"
+    },
+    {
+      "id": "oshare_salon",
+      "title": "おしゃれさんの美容室",
+      "startEpisodeId": "episode_11"
     }
   ]
 }

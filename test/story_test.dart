@@ -69,13 +69,13 @@ void main() {
   );
 
   test(
-    'the eleven-episode story opens at its scene milestones',
+    'the fourteen-episode story opens at its scene milestones',
     () {
       var story = const StoryProgress.empty();
       final destinations = <TownArea>[];
       for (final (index, episode) in storyEpisodes.indexed) {
         final points = episode.unlockAt;
-        expect(points, [0, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360][index]);
+        expect(points, [0, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450][index]);
         if (index > 0) {
           expect(story.advanceDialogue(index, points - 10), same(story));
         }
@@ -106,14 +106,14 @@ void main() {
         expect(story.resumeIndex, index + 1);
       }
       expect(destinations, isEmpty);
-      expect(story.completed, 11);
+      expect(story.completed, 14);
     },
   );
 
-  test('four story chapters preserve the existing episode structure', () {
+  test('five story chapters preserve the existing episode structure', () {
     expect(storyChapters.map((chapter) => chapter.title),
-      ['しばぽめ', 'モサエド', 'およめさん', 'おやすみクラブ']);
-    expect(storyChapters.map((chapter) => chapter.startIndex), [0, 3, 5, 8]);
+      ['しばぽめ', 'モサエド', 'およめさん', 'おやすみクラブ', 'おしゃれさんの美容室']);
+    expect(storyChapters.map((chapter) => chapter.startIndex), [0, 3, 5, 8, 11]);
     expect(bundledStory.chapterIndexForEpisode(0), 0);
     expect(bundledStory.chapterIndexForEpisode(2), 0);
     expect(bundledStory.chapterIndexForEpisode(3), 1);
@@ -122,11 +122,13 @@ void main() {
     expect(bundledStory.chapterIndexForEpisode(7), 2);
     expect(bundledStory.chapterIndexForEpisode(8), 3);
     expect(bundledStory.chapterIndexForEpisode(10), 3);
-    expect(() => bundledStory.chapterIndexForEpisode(11), throwsRangeError);
+    expect(bundledStory.chapterIndexForEpisode(11), 4);
+    expect(bundledStory.chapterIndexForEpisode(13), 4);
+    expect(() => bundledStory.chapterIndexForEpisode(14), throwsRangeError);
   });
 
   test('Oyasumi Club memories introduce the renamed former coworker', () {
-    final oyasumi = storyEpisodes.skip(8).toList();
+    final oyasumi = storyEpisodes.skip(8).take(3).toList();
     expect(oyasumi.length, 3);
     expect(oyasumi.map((e) => e.title), [
       'むかしのおしごと',
@@ -142,6 +144,48 @@ void main() {
       for (final turn in episode.dialogue) turn.$2,
       for (final turn in episode.resultDialogue) turn.$2,
     ].join(' ').contains('もぐた')), isTrue);
+  });
+
+  test('salon chapter keeps 6x6 puzzle difficulty uniform with distinct layouts', () {
+    final salon = storyEpisodes.skip(11).toList();
+    expect(salon.length, 3);
+    expect(salon.map((episode) => episode.title), [
+      'きれいになる待ち時間',
+      'ふわふわ大事件！',
+      'みんなおそろい！？',
+    ]);
+    expect(salon.map((episode) => episode.unlockAt), [390, 420, 450]);
+    expect(salon.every((episode) => episode.area == TownArea.shopping), isTrue);
+    final blankLayouts = <String>{};
+    for (final episode in salon) {
+      expect(episode.size, 6);
+      expect(episode.puzzle.split('0').length - 1, 20);
+      blankLayouts.add(List.generate(36, (i) => episode.puzzle[i] == '0' ? '0' : '1').join());
+      final board = episode.initialBoard();
+      final waves = <int>[];
+      while (board.contains(0)) {
+        final forced = <(int, int)>[];
+        for (var cell = 0; cell < board.length; cell++) {
+          if (board[cell] != 0) continue;
+          final used = <int>{
+            for (var other = 0; other < board.length; other++)
+              if (episode.sharesGroup(cell, other)) board[other],
+          };
+          final candidates = [
+            for (var digit = 1; digit <= episode.size; digit++)
+              if (!used.contains(digit)) digit,
+          ];
+          if (candidates.length == 1) forced.add((cell, candidates.single));
+        }
+        expect(forced, isNotEmpty, reason: episode.id);
+        waves.add(forced.length);
+        for (final (cell, value) in forced) board[cell] = value;
+      }
+      expect(waves, [7, 9, 4], reason: episode.id);
+      expect(episode.isSolved(board), isTrue);
+    }
+    expect(blankLayouts.length, 3);
+    expect(salon.last.resultDialogue.any((turn) => turn.$2.contains('正解は一つじゃない')), isTrue);
   });
 
   test('every solved puzzle has a short story exchange', () {
@@ -572,7 +616,7 @@ void main() {
     }
 
     await tap('open-story');
-    expect(find.text('暗号 2 / 11'), findsOneWidget);
+    expect(find.text('暗号 2 / 14'), findsOneWidget);
     await tap('story-open-episode');
     for (final turn in storyEpisodes[2].resultDialogue) {
       expect(find.text(turn.$1.label), findsOneWidget);
@@ -584,12 +628,12 @@ void main() {
     // The grouped episode list may retain its prior scroll position.
     // Scroll back to the progress meter before checking its visible text.
     for (var attempt = 0;
-        attempt < 5 && find.text('暗号 3 / 11').evaluate().isEmpty;
+        attempt < 5 && find.text('暗号 3 / 14').evaluate().isEmpty;
         attempt++) {
       await tester.drag(find.byType(ListView).last, const Offset(0, 600));
       await tester.pumpAndSettle();
     }
-    expect(find.text('暗号 3 / 11'), findsOneWidget);
+    expect(find.text('暗号 3 / 14'), findsOneWidget);
     expect(find.text('数独道場破りでござる！'), findsWidgets);
     expect(Progress.decode(store.raw!).story.completed, 3);
     expect(Progress.decode(store.raw!).story.unreadClue, isFalse);
