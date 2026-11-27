@@ -876,7 +876,7 @@
       "title": "ねるのネイルサロン",
       "area": "shopping",
       "unlockAt": 480,
-      "image": "story_014_salon_sudoku.webp",
+      "image": "story_017_neru_nails.webp",
       "dialogue": [
         {
           "speaker": "050_nailist",
@@ -927,14 +927,14 @@
           "text": "もちろん！ うちのネイリストさんは、世界一よ"
         }
       ],
-      "resultImage": "story_result_13_salon_smiles.webp"
+      "resultImage": "story_017_neru_nails.webp"
     },
     {
       "id": "episode_15",
       "title": "まま、ねるかわいい？",
       "area": "shopping",
       "unlockAt": 510,
-      "image": "story_014_salon_sudoku.webp",
+      "image": "story_018_neru_home.webp",
       "dialogue": [
         {
           "speaker": "050_nailist",
@@ -1000,14 +1000,15 @@
           "speaker": "051_dog_aunt",
           "text": "はいはい、ぎゅーっ"
         }
-      ]
+      ],
+      "resultImage": "story_018_neru_home.webp"
     },
     {
       "id": "episode_16",
       "title": "ママとおでかけ",
       "area": "shopping",
       "unlockAt": 540,
-      "image": "story_003_shopping_clue.webp",
+      "image": "story_019_neru_shopping.webp",
       "dialogue": [
         {
           "speaker": "050_nailist",
@@ -1073,7 +1074,8 @@
           "speaker": "051_dog_aunt",
           "text": "ふふ。じゃあ、また一緒に来ましょうね"
         }
-      ]
+      ],
+      "resultImage": "story_019_neru_shopping.webp"
     }
   ],
   "chapters": [

@@ -208,6 +208,8 @@ void main() {
     expect(episodes.map((episode) => episode.size), everyElement(6));
     expect(episodes.map((episode) => episode.puzzle).toSet().length, 3);
     expect(episodes.map((episode) => episode.solution).toSet().length, 3);
+    expect(episodes.map((episode) => episode.image).toSet().length, 3);
+    expect(episodes.every((episode) => episode.resultImage == episode.image), isTrue);
   });
 
   test('text edits retain a signature and structural edits create a new edition', () {
