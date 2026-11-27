@@ -254,6 +254,7 @@ class _PracticePageState extends State<DojoPracticePage>
     final incorrect = !fixed && value != 0 && value != widget.puzzle.answer[cell];
     final error = conflict || incorrect;
     final notes = _notes[cell].toList()..sort();
+    final hasNotes = value == 0 && notes.isNotEmpty;
     const line = Color(0xFF66513C);
     return Semantics(
       key: ValueKey('dojo-cell-$cell'),
@@ -275,32 +276,9 @@ class _PracticePageState extends State<DojoPracticePage>
               bottom: BorderSide(color: line, width: (cell ~/ size.side + 1) % size.boxRows == 0 ? 2 : .5),
             )),
             alignment: Alignment.center,
-            padding: const EdgeInsets.all(2),
-            child: value == 0 && notes.isNotEmpty
-                ? Column(
-                    children: [
-                      for (var row = 0; row < size.boxRows; row++)
-                        Expanded(
-                          child: Row(
-                            children: [
-                              for (var column = 0; column < size.boxColumns; column++)
-                                Expanded(
-                                  child: Center(
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        notes.contains(row * size.boxColumns + column + 1)
-                                            ? '${row * size.boxColumns + column + 1}' : '',
-                                        style: const TextStyle(fontSize: 12, color: Color(0xFF21685B)),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  )
+            padding: EdgeInsets.all(hasNotes ? 0.5 : 2),
+            child: hasNotes
+                ? _CandidateNotes(digits: notes)
                 : FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
@@ -426,4 +404,57 @@ class _PracticePageState extends State<DojoPracticePage>
       ),
     ),
   );
+}
+
+/// Pack only the entered candidates, rather than reserving a slot for every
+/// possible digit. FittedBox keeps each glyph inside its share of the cell.
+class _CandidateNotes extends StatelessWidget {
+  const _CandidateNotes({required this.digits});
+
+  final List<int> digits;
+
+  @override
+  Widget build(BuildContext context) {
+    final count = digits.length;
+    final columns = count == 1 ? 1 : count <= 4 ? 2 : 3;
+    final rows = (count + columns - 1) ~/ columns;
+    final fontSize = count == 1 ? 22.0 : count == 2 ? 20.0 : count <= 4 ? 18.0 : 16.0;
+    return Column(
+      children: [
+        for (var row = 0; row < rows; row++)
+          Expanded(
+            child: Row(
+              children: [
+                for (var column = 0; column < columns; column++)
+                  Expanded(
+                    child: row * columns + column < count
+                        ? Center(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                '${digits[row * columns + column]}',
+                                key: ValueKey(
+                                  'dojo-note-${digits[row * columns + column]}',
+                                ),
+                                style: TextStyle(
+                                  fontSize: fontSize,
+                                  height: 1,
+                                  letterSpacing: 0,
+                                  color: const Color(0xFF37475B),
+                                  fontWeight: FontWeight.w600,
+                                  decoration: count == 1
+                                      ? TextDecoration.underline
+                                      : TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }
