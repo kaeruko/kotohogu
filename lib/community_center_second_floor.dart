@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'kotohoguru_dojo.dart';
+import 'online_duel_page.dart';
 
 /// Public hall's second floor. The hotspots follow the original 941×1672
-/// artwork, not device pixels. Online rooms and rankings are not yet connected.
+/// artwork, not device pixels. Rankings are not yet connected.
 class CommunityCenterSecondFloor extends StatelessWidget {
   const CommunityCenterSecondFloor({super.key});
 
@@ -89,11 +90,10 @@ class CommunityCenterSecondFloor extends StatelessWidget {
                   label: '待ち合わせ',
                   x: 65,
                   y: 935,
-                  onPressed: () => _notice(
-                    context,
-                    '待ち合わせ広場',
-                    'ここはともだちと待ち合わせる場所です。\n'
-                    'オンラインの待ち合わせ機能は準備中です。',
+                  onPressed: () => Navigator.of(context).push<void>(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const OnlineDuelPage(),
+                    ),
                   ),
                 ),
                 _spot(
@@ -106,13 +106,25 @@ class CommunityCenterSecondFloor extends StatelessWidget {
                     builder: (dialogContext) => AlertDialog(
                       title: const Text('対戦室'),
                       content: const Text(
-                        'ともだちとのオンライン対戦は準備中です。\n'
-                        '今はコトホグル道場でおししょうとお稽古できます。',
+                        'ともだちと対戦するか、道場でお稽古できます。\n'
+                        '待ち合わせ番号で参加・再開できます。',
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(dialogContext).pop(),
                           child: const Text('とじる'),
+                        ),
+                        FilledButton(
+                          key: const ValueKey('community-center-2f-open-online'),
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                            Navigator.of(context).push<void>(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const OnlineDuelPage(),
+                              ),
+                            );
+                          },
+                          child: const Text('ともだちと対戦'),
                         ),
                         FilledButton(
                           key: const ValueKey('community-center-2f-open-dojo'),

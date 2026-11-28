@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:future_lift/community_center_room.dart';
 import 'package:future_lift/community_center_second_floor.dart';
+import 'package:future_lift/online_duel_page.dart';
 
 void main() {
   test('second floor uses the renamed balcony artwork', () {
@@ -31,12 +32,12 @@ void main() {
 
     await tap('community-center-2f-meeting');
     expect(find.text('待ち合わせ広場'), findsOneWidget);
-    expect(find.textContaining('オンラインの待ち合わせ機能は準備中'), findsOneWidget);
-    await tester.tap(find.text('とじる'));
+    expect(find.byType(OnlineDuelPage), findsOneWidget);
+    await tester.pageBack();
     await tester.pumpAndSettle();
 
     await tap('community-center-2f-battle');
-    expect(find.textContaining('オンライン対戦は準備中'), findsOneWidget);
+    expect(key('community-center-2f-open-online'), findsOneWidget);
     expect(key('community-center-2f-open-dojo'), findsOneWidget);
     await tester.tap(find.text('とじる'));
     await tester.pumpAndSettle();
