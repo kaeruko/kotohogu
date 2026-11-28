@@ -1058,7 +1058,6 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                           progress: progress,
                           onMissions: () => _selectPage(1),
                           onTown: () => _selectPage(2),
-                          onStory: _openStory,
                           onResident: _showDialogue,
                           debugTownResidents: _debugTownResidents,
                         ),
@@ -1210,6 +1209,39 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                             ),
                           ),
                           const SizedBox(height: 18),
+                          Card(
+                            color: const Color(0xFFFFEAC6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              side: const BorderSide(color: Color(0xFFB28B62)),
+                            ),
+                            child: ListTile(
+                              key: const ValueKey('menu-story'),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8,
+                              ),
+                              leading: const Icon(
+                                Icons.menu_book_rounded,
+                                size: 36,
+                                color: Color(0xFF895331),
+                              ),
+                              title: const Text(
+                                'ストーリー',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  color: ink,
+                                ),
+                              ),
+                              subtitle: const Text(
+                                'みんなのまちの小さなお話',
+                                style: TextStyle(color: ink),
+                              ),
+                              trailing: const Icon(Icons.chevron_right, color: ink),
+                              onTap: controller.busy ? null : _openStory,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
                           Card(
                             child: ListTile(
                               key: const ValueKey('menu-change-name'),

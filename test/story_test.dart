@@ -301,7 +301,7 @@ void main() {
   });
 
   testWidgets(
-    'home story resumes dialogue, a board and the unread clear result',
+    'menu story resumes dialogue, a board and the unread clear result',
     (tester) async {
       tester.view.physicalSize = const Size(360, 720);
       tester.view.devicePixelRatio = 1;
@@ -331,7 +331,9 @@ void main() {
       }
 
       Future<void> open() async {
-        await tap('open-story');
+        expect(find.byKey(const ValueKey('open-story')), findsNothing);
+        await tap('footer-menu');
+        await tap('menu-story');
         await tap('story-open-episode');
       }
 
@@ -416,7 +418,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const ValueKey('open-story')));
+      await tester.tap(find.byKey(const ValueKey('footer-menu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('menu-story')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('story-open-episode')));
       await tester.pumpAndSettle();
@@ -617,7 +621,8 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    await tap('open-story');
+    await tap('footer-menu');
+    await tap('menu-story');
     expect(find.text('暗号 2 / 14'), findsOneWidget);
     await tap('story-open-episode');
     for (final turn in storyEpisodes[2].resultDialogue) {

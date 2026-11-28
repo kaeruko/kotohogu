@@ -403,7 +403,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('open-story')));
+    await tester.tap(find.byKey(const ValueKey('footer-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('menu-story')));
     await tester.pumpAndSettle();
     expect(find.text(hosted.title), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('story-open-episode')));
