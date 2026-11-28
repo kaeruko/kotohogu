@@ -8333,6 +8333,83 @@
         "text": "パタカラ体操ね！ 唇を使う「パ」、舌先を使う「タ」、舌の奥を使う「カ」、舌を丸める「ラ」。一音ずつ8回繰り返して、それを2セット。お口や舌を動かす練習になるそうよ。わたしも無理のない範囲でやっているの。"
       },
       "closing": "パパパパ、タタタタ……。ふふっ、いつまでもおいしくお茶を飲みたいものねぇ。体操だけで済ませず、むせることもちゃんと相談しておくわ。"
+    },
+    {
+      "id": "055_traveler_003",
+      "residentId": "055_traveler",
+      "text": "毎年、血液検査も胃カメラも受けているんだ。膵臓の病気も、それでわかるのかな？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "site",
+          "siteId": "town"
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "004_neko"
+        }
+      ],
+      "reply": {
+        "residentId": "004_neko",
+        "text": "胃カメラは胃の内側を見る検査だよ。膵臓は胃の裏側にあるから、普通の胃カメラでは見えないんだ。血液検査や腫瘍マーカーも、早期の膵臓がんでは異常が出ないことがあるんだよ。"
+      },
+      "closing": "そうかぁ。毎年異常なしでも、膵臓まで調べられたとは限らないんだね。"
+    },
+    {
+      "id": "055_traveler_004",
+      "residentId": "055_traveler",
+      "text": "じゃあ、腹部エコーはどうなんだい？",
+      "priority": 40,
+      "once": true,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "site",
+          "siteId": "town"
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "004_neko"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "055_traveler_003"
+        }
+      ],
+      "reply": {
+        "residentId": "004_neko",
+        "text": "膵臓も調べられる検査だよ。ただ、胃や腸のガスに邪魔されて、特に膵臓の尾のほうが見えにくいことがあるんだ。"
+      },
+      "closing": "そういえば、検査結果に『描出不良』って書いてあったことがあるなぁ。"
+    },
+    {
+      "id": "055_traveler_005",
+      "residentId": "055_traveler",
+      "text": "せんせい、腹部エコーの結果に『描出不良』って書いてあったら、どういう意味なんだい？",
+      "priority": 40,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "site",
+          "siteId": "town"
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "004_neko"
+        },
+        {
+          "type": "seenDialogue",
+          "dialogueId": "055_traveler_004"
+        }
+      ],
+      "reply": {
+        "residentId": "004_neko",
+        "text": "異常がなかったという意味ではなく、十分に見えなかったという意味なんだ。必要に応じて別の検査をすることもあるから、相談しておくといいね。症状のない人全員に勧められる膵臓がん検診は、まだ確立されていないんだよ。"
+      },
+      "closing": "なるほどねぇ。検査結果は、異常の有無だけじゃなく、どこまで調べられたのかも大切なんだね。"
     }
   ]
 }

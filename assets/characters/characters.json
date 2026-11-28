@@ -359,7 +359,7 @@
       "label": "たびじろう",
       "profile": "緑の上着と小さなかばんが目印の、旅好きな犬。杖を手に、気になる道をゆっくり歩く。遠くに出かける日も、近くでひと休みする日も好き。旅先で見つけた景色の話を聞かせてくれる。",
       "artFolder": "055_traveler",
-      "nextDialogueNumber": 3,
+      "nextDialogueNumber": 6,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"
