@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'community_center_second_floor.dart';
 import 'facility_layout.dart';
 import 'kotohoguru_dojo.dart';
 import 'resident_collection.dart';
@@ -186,6 +187,27 @@ class _CommunityCenterRoomState extends State<CommunityCenterRoom> {
                         resident != familyOutingMother)
                       _instructor(resident),
                 ],
+              ),
+            ),
+          ),
+        ),
+        SafeArea(
+          child: Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: FilledButton.tonalIcon(
+                key: const ValueKey('community-center-open-second-floor'),
+                onPressed: _talking ? null : () => Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    settings: const RouteSettings(
+                      name: '/shopping/community-center/2f',
+                    ),
+                    builder: (_) => const CommunityCenterSecondFloor(),
+                  ),
+                ),
+                icon: const Icon(Icons.stairs),
+                label: const Text('2階へ'),
               ),
             ),
           ),
