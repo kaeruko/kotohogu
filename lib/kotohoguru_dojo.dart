@@ -264,7 +264,9 @@ class _KotohoguruDojoState extends State<KotohoguruDojo> {
                           ),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.fromLTRB(24, 13, 16, 13),
+                          // Keep text inside the inner border, clear of the tail
+                          // and the ornamental corners of the speech artwork.
+                          padding: EdgeInsets.fromLTRB(36, 22, 26, 24),
                           child: Text(
                             'ほほほ。今日はどんな稽古にしまひょ？\nむずかしいのも、やさしいのも、好きに選んでおくれやす。',
                             style: TextStyle(
