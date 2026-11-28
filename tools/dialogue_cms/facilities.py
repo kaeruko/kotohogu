@@ -43,10 +43,10 @@ def validate(doc):
             if not 80<=size<=400 or x<0 or y<0 or x+size>room['width'] or y+size>room['height']:
                 raise ValueError('キャラ全体が背景内に収まる位置にしてください')
         if room['owner'] not in ids: raise ValueError('開放条件の店主は配置から外せません')
-        # The clinic is a town area, with exactly these two ownership-gated
-        # staff members. An arbitrary CMS addition would never appear in town.
-        if room['id']=='hospital' and [p['residentId'] for p in rows] != ['004_neko','024_nurse']:
-            raise ValueError('診療所の配置はせんせいとナースさんの2人に固定されています')
+        # Keep the clinic's configured staff and patients aligned with the
+        # town outing preview. Each resident remains ownership-gated.
+        if room['id']=='hospital' and [p['residentId'] for p in rows] != ['004_neko','024_nurse','007_hitsuji','043_senior_cat','055_traveler']:
+            raise ValueError('診療所の配置はスタッフ2人と患者さん3人に固定されています')
     return doc
 
 def load():

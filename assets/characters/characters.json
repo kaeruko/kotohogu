@@ -370,7 +370,7 @@
       "label": "おちゃねこ",
       "profile": "花柄の羽織と湯のみが目印のねこ。お茶をいれて、窓の外の景色をぼんやり眺めるのが好き。まちで会うと、このあいだ見つけた花や小鳥の話をしてくれる。",
       "artFolder": "043_senior_cat",
-      "nextDialogueNumber": 10,
+      "nextDialogueNumber": 11,
       "inGacha": true,
       "walkInTown": true,
       "homeAreaId": "plaza"

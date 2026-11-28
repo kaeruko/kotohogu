@@ -8310,6 +8310,29 @@
       "once": false,
       "logic": "all",
       "conditions": []
+    },
+    {
+      "id": "043_senior_cat_010",
+      "residentId": "043_senior_cat",
+      "text": "最近、お茶を飲んでむせることが増えてねぇ。今日はせんせいに相談しに来たの。お口の体操もあるんですってね。",
+      "priority": 40,
+      "once": false,
+      "logic": "all",
+      "conditions": [
+        {
+          "type": "townTogether",
+          "otherResidentId": "007_hitsuji"
+        },
+        {
+          "type": "townTogether",
+          "otherResidentId": "004_neko"
+        }
+      ],
+      "reply": {
+        "residentId": "007_hitsuji",
+        "text": "パタカラ体操ね！ 唇を使う「パ」、舌先を使う「タ」、舌の奥を使う「カ」、舌を丸める「ラ」。一音ずつ8回繰り返して、それを2セット。お口や舌を動かす練習になるそうよ。わたしも無理のない範囲でやっているの。"
+      },
+      "closing": "パパパパ、タタタタ……。ふふっ、いつまでもおいしくお茶を飲みたいものねぇ。体操だけで済ませず、むせることもちゃんと相談しておくわ。"
     }
   ]
 }
