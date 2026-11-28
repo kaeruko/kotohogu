@@ -1,0 +1,29 @@
+name: Duel API checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/aws/duel*'
+      - 'tools/aws/deploy_duel.py'
+      - 'tools/aws/test_duel_api.py'
+      - 'lib/sudoku_duel.dart'
+      - '.github/workflows/duel-api.yml'
+  pull_request:
+    paths:
+      - 'tools/aws/duel*'
+      - 'tools/aws/deploy_duel.py'
+      - 'tools/aws/test_duel_api.py'
+      - 'lib/sudoku_duel.dart'
+      - '.github/workflows/duel-api.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tools/aws -p 'test_duel_api.py' -v
