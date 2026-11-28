@@ -73,7 +73,34 @@ flutter:
     - assets/story/story_002_park_tree.webp
     - assets/story/story_003_shopping_clue.webp
     - assets/story/kotohogu_story_ui/
-    - assets/kotohoggle/
+    - assets/kotohoggle/dojo_level_advanced.webp
+    - assets/kotohoggle/dojo_level_beginner.webp
+    - assets/kotohoggle/dojo_level_entry.webp
+    - assets/kotohoggle/dojo_level_expert.webp
+    - assets/kotohoggle/dojo_level_intermediate.webp
+    - assets/kotohoggle/dojo_level_master.webp
+    - assets/kotohoggle/dojo_level_panel.webp
+    - assets/kotohoggle/dojo_play_button.webp
+    - assets/kotohoggle/dojo_speech_panel.webp
+    - assets/kotohoggle/dojo_tab_normal.webp
+    - assets/kotohoggle/dojo_tab_selected.webp
+    - assets/kotohoggle/sudoku_bg_paper.webp
+    - assets/kotohoggle/sudoku_board_frame.webp
+    - assets/kotohoggle/sudoku_deco_confetti.webp
+    - assets/kotohoggle/sudoku_deco_leaves_left.webp
+    - assets/kotohoggle/sudoku_deco_leaves_right.webp
+    - assets/kotohoggle/sudoku_header_wood.webp
+    - assets/kotohoggle/sudoku_info_panel.webp
+    - assets/kotohoggle/sudoku_num_button_1.webp
+    - assets/kotohoggle/sudoku_num_button_2.webp
+    - assets/kotohoggle/sudoku_num_button_3.webp
+    - assets/kotohoggle/sudoku_num_button_4.webp
+    - assets/kotohoggle/sudoku_num_button_5.webp
+    - assets/kotohoggle/sudoku_num_button_6.webp
+    - assets/kotohoggle/sudoku_num_button_7.webp
+    - assets/kotohoggle/sudoku_num_button_8.webp
+    - assets/kotohoggle/sudoku_num_button_9.webp
+    - assets/kotohoggle/sudoku_quest_panel.webp
     - assets/gacya/parts/
     - assets/dialogues/dialogues.json
     - assets/gacya/bg.png

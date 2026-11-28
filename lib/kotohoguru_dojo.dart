@@ -81,71 +81,251 @@ class _KotohoguruDojoState extends State<KotohoguruDojo> {
     }
   }
 
+  void _selectMode(_Mode mode) {
+    if (_playing || _mode == mode) return;
+    setState(() {
+      _mode = mode;
+      _records = _load(mode);
+    });
+  }
+
+  Widget _modeTab(_Mode mode, String label) {
+    final selected = _mode == mode;
+    return Expanded(
+      child: Semantics(
+        selected: selected,
+        button: true,
+        child: Material(
+          color: Colors.transparent,
+          child: Ink(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  'assets/kotohoggle/dojo_tab_${selected ? 'selected' : 'normal'}.webp',
+                ),
+                fit: BoxFit.fill,
+              ),
+            ),
+            child: InkWell(
+              key: ValueKey('dojo-mode-${mode.name}'),
+              borderRadius: BorderRadius.circular(12),
+              onTap: _playing ? null : () => _selectMode(mode),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (selected) ...[
+                      const Icon(Icons.check_rounded, size: 19, color: sudokuInk),
+                      const SizedBox(width: 3),
+                    ],
+                    Flexible(
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: sudokuInk,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // The enum values are save keys. Keep them unchanged; only map the
+  // filenames for the last two icons (mountain and oni) explicitly.
+  String _levelIcon(DojoLevel level) => switch (level) {
+    DojoLevel.entry => 'entry',
+    DojoLevel.beginner => 'beginner',
+    DojoLevel.intermediate => 'intermediate',
+    DojoLevel.advanced => 'advanced',
+    DojoLevel.master => 'expert',
+    DojoLevel.oni => 'master',
+  };
+
+  Widget _levelCard(DojoLevel level, (int, int) record) {
+    final (count, best) = record;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: Ink(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/kotohoggle/dojo_level_panel.webp'),
+              fit: BoxFit.fill,
+            ),
+          ),
+          child: InkWell(
+            key: ValueKey('dojo-level-${level.name}'),
+            borderRadius: BorderRadius.circular(12),
+            onTap: _playing ? null : () => _play(level),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(19, 12, 15, 14),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          level.label,
+                          style: const TextStyle(
+                            fontSize: 23,
+                            height: 1.15,
+                            fontWeight: FontWeight.w900,
+                            color: sudokuInk,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          level.description,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: sudokuInk,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          '${_mode == _Mode.solo ? 'クリア' : '勝利'} ${count}回'
+                          '${count == 0 ? '' : '　最速 ${_time(best)}'}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: sudokuInk,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Image.asset(
+                    'assets/kotohoggle/dojo_level_${_levelIcon(level)}.webp',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.contain,
+                    excludeFromSemantics: true,
+                  ),
+                  const SizedBox(width: 5),
+                  Opacity(
+                    opacity: _playing ? .45 : 1,
+                    child: Image.asset(
+                      'assets/kotohoggle/dojo_play_button.webp',
+                      width: 44,
+                      height: 44,
+                      fit: BoxFit.contain,
+                      excludeFromSemantics: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: sudokuAppBar(context, 'コトホグル道場'),
-    body: SudokuPaperBackground(child: SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Row(
-            children: [
-              Image.asset(TownResident.c031_kimono_fox.idleAsset,
-                  width: 70, height: 70, excludeFromSemantics: true),
-              const SizedBox(width: 12),
-              const Expanded(child: Text('ほほほ。今日はどんな稽古にしまひょ？\nむずかしいのも、やさしいのも、好きに選んでおくれやす。')),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SegmentedButton<_Mode>(
-            segments: const [
-              ButtonSegment(value: _Mode.solo, label: Text('ひとり数独')),
-              ButtonSegment(value: _Mode.duel, label: Text('旗取り対戦')),
-            ],
-            selected: {_mode},
-            onSelectionChanged: _playing ? null : (selection) => setState(() {
-              _mode = selection.single;
-              _records = _load(_mode);
-            }),
-          ),
-          const SizedBox(height: 8),
-          Text(_mode == _Mode.solo
-              ? 'すべての空欄を埋めよう。候補のメモも使えます。'
-              : 'おししょうとの旗取り。数字で相手を送り、部屋の最後のマスを埋めて旗を取ろう。'),
-          const SizedBox(height: 8),
-          FutureBuilder<Map<DojoLevel, (int, int)>>(
-            future: _records,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text('道場の記録を読み込めませんでした。\n${snapshot.error}');
-              }
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final records = snapshot.requireData;
-              return Column(
-                children: [
-                  for (final level in DojoLevel.values)
-                    Card(
-                      child: ListTile(
-                        key: ValueKey('dojo-level-${level.name}'),
-                        title: Text(level.label, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        subtitle: Text(
-                          '${level.description}\n'
-                          '${_mode == _Mode.solo ? 'クリア' : '勝利'} ${records[level]!.$1}回'
-                          '${records[level]!.$1 == 0 ? '' : '　最速 ${_time(records[level]!.$2)}'}',
+    body: SudokuPaperBackground(
+      child: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 16),
+              children: [
+                Row(
+                  children: [
+                    Image.asset(
+                      TownResident.c031_kimono_fox.idleAsset,
+                      width: 62,
+                      height: 72,
+                      fit: BoxFit.contain,
+                      excludeFromSemantics: true,
+                    ),
+                    const SizedBox(width: 2),
+                    const Expanded(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/kotohoggle/dojo_speech_panel.webp'),
+                            fit: BoxFit.fill,
+                          ),
                         ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: _playing ? null : () => _play(level),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(24, 13, 16, 13),
+                          child: Text(
+                            'ほほほ。今日はどんな稽古にしまひょ？\nむずかしいのも、やさしいのも、好きに選んでおくれやす。',
+                            style: TextStyle(
+                              color: sudokuInk,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              height: 1.35,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                ],
-              );
-            },
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    _modeTab(_Mode.solo, 'ひとり数独'),
+                    const SizedBox(width: 3),
+                    _modeTab(_Mode.duel, '旗取り対戦'),
+                  ],
+                ),
+                const SizedBox(height: 9),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    _mode == _Mode.solo
+                        ? 'すべての空欄を埋めよう。候補のメモも使えます。'
+                        : 'おししょうとの旗取り。数字で相手を送り、部屋の最後のマスを埋めて旗を取ろう。',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: sudokuInk,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FutureBuilder<Map<DojoLevel, (int, int)>>(
+                  future: _records,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('道場の記録を読み込めませんでした。\n${snapshot.error}');
+                    }
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final records = snapshot.requireData;
+                    return Column(
+                      children: [
+                        for (final level in DojoLevel.values)
+                          _levelCard(level, records[level]!),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
-    )),
+    ),
   );
 }
 
