@@ -90,7 +90,7 @@ class CommunityCenterSecondFloor extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         title: const Text('たびじろう'),
         content: const Text(
-          'おともだちと待ち合わせかい？\\n'
+          'おともだちと待ち合わせかい？\n'
           '待ち合わせ番号があれば、ここから行けるよ。',
         ),
         actions: [
