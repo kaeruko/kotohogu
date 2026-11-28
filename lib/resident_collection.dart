@@ -153,9 +153,9 @@ enum TownResident {
   // ignore: constant_identifier_names
   c049_koara("049_koara", "コアラちゃん", "049_koara", true, true, "素朴でちょっとぽちゃっとした、のんびり屋のコアラの女の子。ユーカリとおひるねが好き。作業所に通っていて、公民館ではアクセサリーを売ることもある。気弱で遠慮がちだけど、なにもしていないと言われると「ちがうもん……」と小さく反論する。かえるくんの彼女で、おやすみくんと似ていると言われるのはちょっと不本意。", "park", archived: false),
   // ignore: constant_identifier_names
-  c055_traveler("055_traveler", "たびすけ", "055_traveler", true, true, "緑の上着と小さなかばんが目印の、旅好きな犬。杖を手に、気になる道をゆっくり歩く。遠くに出かける日も、近くでひと休みする日も好き。旅先で見つけた景色の話を聞かせてくれる。", "plaza", archived: false),
+  c055_traveler("055_traveler", "たびじろう", "055_traveler", true, true, "緑の上着と小さなかばんが目印の、旅好きな犬。杖を手に、気になる道をゆっくり歩く。遠くに出かける日も、近くでひと休みする日も好き。旅先で見つけた景色の話を聞かせてくれる。", "plaza", archived: false),
   // ignore: constant_identifier_names
-  c043_senior_cat("043_senior_cat", "こよみさん", "043_senior_cat", true, true, "花柄の羽織と湯のみが目印のねこ。お茶をいれて、窓の外の景色をぼんやり眺めるのが好き。まちで会うと、このあいだ見つけた花や小鳥の話をしてくれる。", "plaza", archived: false)
+  c043_senior_cat("043_senior_cat", "おちゃねこ", "043_senior_cat", true, true, "花柄の羽織と湯のみが目印のねこ。お茶をいれて、窓の外の景色をぼんやり眺めるのが好き。まちで会うと、このあいだ見つけた花や小鳥の話をしてくれる。", "plaza", archived: false)
   // END CMS RESIDENTS
   ;
 
