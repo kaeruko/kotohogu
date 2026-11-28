@@ -36,10 +36,11 @@ class StoryCmsTests(unittest.TestCase):
     def test_new_chapter_duels_require_a_stage_and_do_not_edit_the_old_catalog(self):
         original = self.loaded()
         draft = copy.deepcopy(original)
-        episode = copy.deepcopy(draft["episodes"][-1])
+        episode = copy.deepcopy(next(row for row in reversed(draft["episodes"])
+                                     if "puzzle" in row and "solution" in row))
         for field in ("puzzle", "solution"):
             del episode[field]
-        episode.update(id="future_duel", unlockAt=episode["unlockAt"] + 30,
+        episode.update(id="future_duel", unlockAt=draft["episodes"][-1]["unlockAt"] + 30,
                        duel={"player": "001_shiba", "opponent": "038_lion_lady"})
         draft["episodes"].append(episode)
         chapter = {"id": "future", "title": "追加章", "startEpisodeId": episode["id"]}
@@ -158,7 +159,9 @@ class StoryCmsTests(unittest.TestCase):
             with self.assertRaises(HTTPError) as missing:
                 urlopen(base + "/api/runtime/story" + suffix, timeout=5)
             self.assertEqual(missing.exception.code, 404)
-        self.assertEqual(len(doc["episodes"]), 14)
+        self.assertGreaterEqual(len(doc["episodes"]), 1)
+        self.assertEqual([row["id"] for row in doc["episodes"]],
+                         [row["id"] for row in self.loaded()["episodes"]])
         before = self.path.read_bytes()
         edited = copy.deepcopy(doc)
         edited["episodes"][0]["resultDialogue"][0]["text"] = "ぽむぽむ、できたぽむ！"
