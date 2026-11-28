@@ -73,6 +73,7 @@ flutter:
     - assets/story/story_002_park_tree.webp
     - assets/story/story_003_shopping_clue.webp
     - assets/story/kotohogu_story_ui/
+    - assets/kotohoggle/
     - assets/gacya/parts/
     - assets/dialogues/dialogues.json
     - assets/gacya/bg.png

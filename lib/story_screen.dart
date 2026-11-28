@@ -4,6 +4,7 @@ import 'progress.dart';
 import 'story_data.dart';
 import 'story_remote_config.dart' show storyImagePath;
 import 'sudoku_duel_view.dart';
+import 'sudoku_ui.dart';
 import 'town_areas.dart';
 
 const _paper = Color(0xFFFFF9ED);
@@ -1026,7 +1027,9 @@ class _StoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: _paper,
-    appBar: AppBar(
+    appBar: contentKey == const ValueKey('story-duel')
+        ? sudokuAppBar(context, title)
+        : AppBar(
       toolbarHeight: 70,
       titleSpacing: 0,
       leadingWidth: 68,
@@ -1059,13 +1062,15 @@ class _StoryPage extends StatelessWidget {
       )),
     ),
     body: DecoratedBox(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/story/kotohogu_story_ui/story_paper_tile.png'),
-          fit: BoxFit.none,
-          repeat: ImageRepeat.repeat,
-        ),
-      ),
+      decoration: contentKey == const ValueKey('story-duel')
+          ? sudokuBackground
+          : const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/story/kotohogu_story_ui/story_paper_tile.png'),
+                fit: BoxFit.none,
+                repeat: ImageRepeat.repeat,
+              ),
+            ),
       child: SafeArea(
         top: false,
         child: Center(
@@ -1073,7 +1078,9 @@ class _StoryPage extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 560),
             child: ListView(
               key: contentKey,
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+              padding: contentKey == const ValueKey('story-duel')
+                  ? const EdgeInsets.fromLTRB(4, 8, 4, 24)
+                  : const EdgeInsets.fromLTRB(16, 10, 16, 24),
               children: [
                 for (final (index, child) in children.indexed) ...[
                   if (index != 0) const SizedBox(height: 12),

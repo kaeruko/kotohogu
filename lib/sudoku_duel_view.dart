@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 import 'duel_move_effect.dart';
 import 'story_data.dart';
 import 'sudoku_duel.dart';
+import 'sudoku_ui.dart';
 
 const _roomMarks = ['', '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨'];
 const _ink = Color(0xFF593A28);
 const _green = Color(0xFF21685B);
 const _rust = Color(0xFF96482D);
-const _line = Color(0xFFB8A78C);
-const _parchment = Color(0xFFF4EAD7);
+const _line = sudokuRule;
+const _parchment = sudokuGiven;
 
 extension _RivalProfile on DuelRival {
   String get style => switch (this) {
@@ -370,10 +371,8 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
           if (match.stage case final stage?)
             Text('${stage.label}　${stage.objective}'),
         ],
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
+        SudokuInfoPanel(
+          child: Row(
               children: [
                 if (widget.match case final match?) ...[
                   _castPortrait(match.player, 44),
@@ -416,8 +415,11 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
                   ),
                 ),
               ],
-            ),
           ),
+        ),
+        SudokuProgressBar(
+          completed: [for (var room = 1; room <= game.size.side; room++) if (game.flagAt(room) != null) room].length,
+          total: game.size.side,
         ),
         const SizedBox(height: 6),
         Semantics(
@@ -433,8 +435,8 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
         const SizedBox(height: 6),
         Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: Stack(
+            constraints: const BoxConstraints(maxWidth: 496),
+            child: SudokuBoardFrame(child: Stack(
               children: [
                 _DuelBoard(
                   game: game,
@@ -470,7 +472,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
                       ),
                     ),
               ],
-            ),
+            )),
           ),
         ),
         const SizedBox(height: 8),
@@ -525,10 +527,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
                   width: 48,
                   child: FilledButton.tonal(
                     key: ValueKey('duel-digit-$digit'),
-                    style: FilledButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(48, 48),
-                    ),
+                    style: sudokuDigitStyle(),
                     onPressed: selected == null || thinking || widget.busy
                         ? null
                         : () => _enter(digit),
@@ -547,7 +546,7 @@ class _SudokuDuelViewState extends State<SudokuDuelView>
                           child: child,
                         );
                       },
-                      child: Text('$digit', style: const TextStyle(fontSize: 22)),
+                      child: SudokuDigitFace(digit: digit, enabled: selected != null && !thinking && !widget.busy),
                     ),
                   ),
                 ),
@@ -617,7 +616,7 @@ class _DuelBoard extends StatelessWidget {
           Container(
             width: double.infinity,
             height: 24,
-            color: highlighted ? color : _parchment,
+            color: highlighted ? color : const Color(0xFFDDB98B),
             alignment: Alignment.center,
             child: Semantics(
               label:
@@ -686,7 +685,7 @@ class _DuelBoard extends StatelessWidget {
             ? const Color(0xFFFFD89B)
             : game.isGiven(cell)
             ? _parchment
-            : Colors.white,
+            : sudokuPaper,
         child: InkWell(
           onTap: tap,
           child: Container(

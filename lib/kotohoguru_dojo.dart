@@ -9,6 +9,7 @@ import 'duel_move_effect.dart';
 import 'resident_collection.dart';
 import 'sudoku_duel.dart';
 import 'sudoku_duel_view.dart';
+import 'sudoku_ui.dart';
 
 enum _Mode { solo, duel }
 
@@ -82,8 +83,8 @@ class _KotohoguruDojoState extends State<KotohoguruDojo> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('コトホグル道場')),
-    body: SafeArea(
+    appBar: sudokuAppBar(context, 'コトホグル道場'),
+    body: SudokuPaperBackground(child: SafeArea(
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -144,7 +145,7 @@ class _KotohoguruDojoState extends State<KotohoguruDojo> {
           ),
         ],
       ),
-    ),
+    )),
   );
 }
 
@@ -255,7 +256,7 @@ class _PracticePageState extends State<DojoPracticePage>
     final error = conflict || incorrect;
     final notes = _notes[cell].toList()..sort();
     final hasNotes = value == 0 && notes.isNotEmpty;
-    const line = Color(0xFF66513C);
+    const line = sudokuRule;
     return Semantics(
       key: ValueKey('dojo-cell-$cell'),
       label: '${cell ~/ size.side + 1}行${cell % size.side + 1}列、'
@@ -267,7 +268,7 @@ class _PracticePageState extends State<DojoPracticePage>
       child: Material(
         color: error ? const Color(0xFFFFDFD9) : selected
             ? const Color(0xFFC8E8E0) : fixed
-            ? const Color(0xFFF4E5C9) : Colors.white,
+            ? sudokuGiven : sudokuPaper,
         child: InkWell(
           onTap: fixed || _complete ? null : () => setState(() => _selected = cell),
           child: Container(
@@ -302,11 +303,15 @@ class _PracticePageState extends State<DojoPracticePage>
     children: [
       Text(_complete ? 'お見事どす！ ようできはりましたなぁ。'
           : '行・列・部屋に1〜${widget.puzzle.size.side}をひとつずつ。'),
-      const SizedBox(height: 12),
+      SudokuProgressBar(
+        completed: [for (var i = 0; i < _board.length; i++) if (_board[i] == widget.puzzle.answer[i]) i].length,
+        total: _board.length,
+      ),
+      const SizedBox(height: 4),
       Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: AspectRatio(
+          constraints: const BoxConstraints(maxWidth: 496),
+          child: SudokuBoardFrame(child: AspectRatio(
             aspectRatio: 1,
             child: Stack(
               fit: StackFit.expand,
@@ -337,7 +342,7 @@ class _PracticePageState extends State<DojoPracticePage>
                     ),
               ],
             ),
-          ),
+          )),
         ),
       ),
       const SizedBox(height: 12),
@@ -360,9 +365,9 @@ class _PracticePageState extends State<DojoPracticePage>
                 width: 48,
                 child: FilledButton.tonal(
                   key: ValueKey('dojo-digit-$digit'),
-                  style: FilledButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(48, 48)),
+                  style: sudokuDigitStyle(),
                   onPressed: _selected == null ? null : () => _enter(digit),
-                  child: Text('$digit', style: const TextStyle(fontSize: 22)),
+                  child: SudokuDigitFace(digit: digit, enabled: _selected != null),
                 ),
               ),
           ],
@@ -389,10 +394,10 @@ class _PracticePageState extends State<DojoPracticePage>
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text('道場・${widget.puzzle.level.label}')),
-    body: SafeArea(
+    appBar: sudokuAppBar(context, '道場・${widget.puzzle.level.label}'),
+    body: SudokuPaperBackground(child: SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(4, 8, 4, 12),
         child: widget._mode == _Mode.solo ? _solo() : SudokuDuelView.dojo(
           position: _duel,
           onDojoEnded: _watch.stop,
@@ -402,7 +407,7 @@ class _PracticePageState extends State<DojoPracticePage>
           },
         ),
       ),
-    ),
+    )),
   );
 }
 

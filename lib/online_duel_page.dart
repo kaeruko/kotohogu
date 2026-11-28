@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'online_duel_api.dart';
+import 'sudoku_ui.dart';
 
 /// Private mobile trial. One saved match per installation.
 class OnlineDuelPage extends StatefulWidget {
@@ -221,7 +222,9 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
     ],
   );
 
-  Widget _board(OnlineDuelState state) => AspectRatio(
+  Widget _board(OnlineDuelState state) => Center(child: ConstrainedBox(
+    constraints: const BoxConstraints(maxWidth: 496),
+    child: SudokuBoardFrame(child: AspectRatio(
     aspectRatio: 1,
     child: GridView.count(
       physics: const NeverScrollableScrollPhysics(),
@@ -230,17 +233,18 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
         for (var cell = 0; cell < 16; cell++) _cell(state, cell),
       ],
     ),
-  );
+  )),));
 
   Widget _cell(OnlineDuelState state, int cell) {
     final room = OnlineDuelState.roomOf(cell);
     final captured = state.flags[room - 1];
     final selected = _selected == cell;
     final available = state.canPlay(cell);
-    final color = selected ? Colors.amber.shade300
-        : captured == 'first' ? Colors.blue.shade100
-        : captured == 'second' ? Colors.pink.shade100
-        : available ? Colors.green.shade100 : Colors.grey.shade100;
+    final color = selected ? const Color(0xFFFFD89B)
+        : captured == 'first' ? const Color(0xFFC6E3D2)
+        : captured == 'second' ? const Color(0xFFF1C7B5)
+        : available ? const Color(0xFFE1ECD1)
+        : state.givens[cell] == '0' ? sudokuPaper : sudokuGiven;
     return Semantics(
       label: '第${room}部屋、${cell ~/ 4 + 1}行${cell % 4 + 1}列、${state.board[cell] == '0' ? '空欄' : state.board[cell]}',
       button: available,
@@ -251,17 +255,17 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
           decoration: BoxDecoration(
             color: color,
             border: Border(
-              top: BorderSide(width: cell ~/ 4 % 2 == 0 ? 2 : .5),
-              left: BorderSide(width: cell % 2 == 0 ? 2 : .5),
-              right: BorderSide(width: cell % 4 == 3 ? 2 : .5),
-              bottom: BorderSide(width: cell ~/ 4 == 3 ? 2 : .5),
+              top: BorderSide(color: sudokuRule, width: cell ~/ 4 % 2 == 0 ? 2 : .5),
+              left: BorderSide(color: sudokuRule, width: cell % 2 == 0 ? 2 : .5),
+              right: BorderSide(color: sudokuRule, width: cell % 4 == 3 ? 2 : .5),
+              bottom: BorderSide(color: sudokuRule, width: cell ~/ 4 == 3 ? 2 : .5),
             ),
           ),
           child: Stack(
             alignment: Alignment.center,
             children: [
               Text(state.board[cell] == '0' ? '' : state.board[cell],
-                  style: TextStyle(fontSize: 30, color: Colors.black87,
+                  style: TextStyle(fontSize: 30, color: sudokuInk,
                     fontWeight: state.givens[cell] == '0' ? FontWeight.normal : FontWeight.bold)),
               if (cell ~/ 4 % 2 == 0 && cell % 2 == 0)
                 Positioned(top: 2, left: 4, child: Text('$room${state.bonusRoom == room ? '🍓' : ''}',
@@ -304,7 +308,11 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
             'finished' => '${state.winner == state.yourSide ? 'あなたの勝ち！' : '相手の勝ち'}${state.finishReason == 'resigned' ? '（降参）' : ''}',
             _ => throw StateError('Unexpected room status'),
           }, style: const TextStyle(fontSize: 18)),
-          const SizedBox(height: 8),
+          SudokuProgressBar(
+            completed: state.flags.where((flag) => flag == 'first' || flag == 'second').length,
+            total: 4,
+          ),
+          const SizedBox(height: 4),
           _board(state),
           const SizedBox(height: 12),
           if (state.status == 'choosing_bonus' && state.yourSide == 'second')
@@ -324,9 +332,10 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
                   padding: const EdgeInsets.all(3),
                   child: FilledButton(
                     key: ValueKey('online-duel-digit-$digit'),
+                    style: sudokuDigitStyle(),
                     onPressed: enabled && _selected != null && state.canPlay(_selected!)
                         ? () => _run(() async => _accept(await _api.move(state, _token!, _selected!, digit))) : null,
-                    child: Text('$digit', style: const TextStyle(fontSize: 22)),
+                    child: SudokuDigitFace(digit: digit, enabled: enabled && _selected != null && state.canPlay(_selected!)),
                   ),
                 )),
             ]),
@@ -345,12 +354,12 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
   Widget build(BuildContext context) => PopScope(
     canPop: !_busy,
     child: Scaffold(
-    appBar: AppBar(title: Text(_state?.status == 'playing' || _state?.status == 'finished' ? '対戦室' : '待ち合わせ広場')),
-    body: SafeArea(
+    appBar: sudokuAppBar(context, _state?.status == 'playing' || _state?.status == 'finished' ? '対戦室' : '待ち合わせ広場'),
+    body: SudokuPaperBackground(child: SafeArea(
       child: kIsWeb ? const Center(child: Text('オンライン対戦は現在スマホ版で試験中です。'))
       : !_loaded ? const Center(child: CircularProgressIndicator())
       : ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
         children: [
           if (_busy) const LinearProgressIndicator(),
           if (_error != null) ...[
@@ -364,7 +373,7 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
           const Text('試験版・4×4のみ。部屋は作成から24時間有効です。画面を閉じても保存した部屋から再開できます。'),
         ],
       ),
-    ),
+    )),
     ),
   );
 }
