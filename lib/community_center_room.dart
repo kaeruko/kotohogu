@@ -21,6 +21,9 @@ class CommunityCenterRoom extends StatefulWidget {
   static const backgroundAsset =
       'assets/kotohogu/community_center_background.png';
 
+  static const backAsset = 'assets/kotohogu/community_center_back.webp';
+  static const upstairsAsset = 'assets/kotohogu/community_center_upstairs.webp';
+
   /// A room-only animation variant of the existing 051_dog_aunt resident.
   static const kneeExerciseSpriteFolder =
       'assets/characters/051_dog_aunt_knee_exercise';
@@ -186,28 +189,40 @@ class _CommunityCenterRoomState extends State<CommunityCenterRoom> {
                     if (!widget.hideShoppingMother ||
                         resident != familyOutingMother)
                       _instructor(resident),
-                ],
-              ),
-            ),
-          ),
-        ),
-        SafeArea(
-          child: Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: FilledButton.tonalIcon(
-                key: const ValueKey('community-center-open-second-floor'),
-                onPressed: _talking ? null : () => Navigator.of(context).push<void>(
-                  MaterialPageRoute<void>(
-                    settings: const RouteSettings(
-                      name: '/shopping/community-center/2f',
+                  // Keep the stair sign anchored to the artwork, including
+                  // when BoxFit.cover crops the sides on tall phones.
+                  Positioned(
+                    left: 335,
+                    top: 190,
+                    width: 170,
+                    height: 140,
+                    child: Semantics(
+                      label: '2階へ',
+                      button: true,
+                      enabled: !_talking,
+                      child: GestureDetector(
+                        key: const ValueKey('community-center-open-second-floor'),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _talking ? null : () => Navigator.of(context).push<void>(
+                          MaterialPageRoute<void>(
+                            settings: const RouteSettings(
+                              name: '/shopping/community-center/2f',
+                            ),
+                            builder: (_) => const CommunityCenterSecondFloor(),
+                          ),
+                        ),
+                        child: Opacity(
+                          opacity: _talking ? .45 : 1,
+                          child: Image.asset(
+                            CommunityCenterRoom.upstairsAsset,
+                            fit: BoxFit.contain,
+                            excludeFromSemantics: true,
+                          ),
+                        ),
+                      ),
                     ),
-                    builder: (_) => const CommunityCenterSecondFloor(),
                   ),
-                ),
-                icon: const Icon(Icons.stairs),
-                label: const Text('2階へ'),
+                ],
               ),
             ),
           ),
@@ -217,11 +232,21 @@ class _CommunityCenterRoomState extends State<CommunityCenterRoom> {
             alignment: Alignment.topLeft,
             child: Padding(
               padding: const EdgeInsets.all(14),
-              child: FilledButton.tonalIcon(
-                key: const ValueKey('community-center-return-shopping'),
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('商店街にもどる'),
+              child: Semantics(
+                label: '商店街にもどる',
+                button: true,
+                child: GestureDetector(
+                  key: const ValueKey('community-center-return-shopping'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Image.asset(
+                    CommunityCenterRoom.backAsset,
+                    width: 144,
+                    height: 48,
+                    fit: BoxFit.contain,
+                    excludeFromSemantics: true,
+                  ),
+                ),
               ),
             ),
           ),

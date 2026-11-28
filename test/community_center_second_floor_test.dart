@@ -27,6 +27,18 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    for (final (id, asset) in [
+      ('community-center-return-shopping', CommunityCenterRoom.backAsset),
+      ('community-center-open-second-floor', CommunityCenterRoom.upstairsAsset),
+    ]) {
+      final image = tester.widget<Image>(
+        find.descendant(of: key(id), matching: find.byType(Image)),
+      );
+      expect((image.image as AssetImage).assetName, asset);
+      expect(File(asset).existsSync(), isTrue);
+      expect(key(id).hitTestable(), findsOneWidget);
+    }
+
     await tap('community-center-open-second-floor');
     expect(find.byType(CommunityCenterSecondFloor), findsOneWidget);
     expect(key('community-center-2f-background'), findsOneWidget);
