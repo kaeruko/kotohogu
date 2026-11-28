@@ -195,7 +195,7 @@ class _KotohoguruDojoState extends State<KotohoguruDojo> {
                           ),
                         ),
                         Text(
-                          '${_mode == _Mode.solo ? 'クリア' : '勝利'} ${count}回'
+                          '${_mode == _Mode.solo ? 'クリア' : '勝利'} $count回'
                           '${count == 0 ? '' : '　最速 ${_time(best)}'}',
                           style: const TextStyle(
                             fontSize: 13,

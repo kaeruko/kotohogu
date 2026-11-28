@@ -107,7 +107,9 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
     final state = _state;
     if (!_active || _error != null || _busy || state == null ||
         state.status == 'finished' || state.myTurn ||
-        (state.status == 'choosing_bonus' && state.yourSide == 'second')) return;
+        (state.status == 'choosing_bonus' && state.yourSide == 'second')) {
+      return;
+    }
     _poll = Timer(const Duration(seconds: 3), () => unawaited(_refresh()));
   }
 
@@ -152,12 +154,14 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
 
   Future<void> _forget() => _run(() async {
     await _prefs.remove(_saveKey);
-    if (mounted) setState(() {
-      _code = _token = null;
-      _state = null;
-      _selected = null;
-      _input.clear();
-    });
+    if (mounted) {
+      setState(() {
+        _code = _token = null;
+        _state = null;
+        _selected = null;
+        _input.clear();
+      });
+    }
   });
 
   Future<bool?> _confirm(String title, String detail, String action) =>
@@ -246,7 +250,7 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
         : available ? const Color(0xFFE1ECD1)
         : state.givens[cell] == '0' ? sudokuPaper : sudokuGiven;
     return Semantics(
-      label: '第${room}部屋、${cell ~/ 4 + 1}行${cell % 4 + 1}列、${state.board[cell] == '0' ? '空欄' : state.board[cell]}',
+      label: '第$room部屋、${cell ~/ 4 + 1}行${cell % 4 + 1}列、${state.board[cell] == '0' ? '空欄' : state.board[cell]}',
       button: available,
       child: InkWell(
         key: ValueKey('online-duel-cell-$cell'),
@@ -322,7 +326,7 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
                   key: ValueKey('online-duel-bonus-$room'),
                   onPressed: enabled ? () => _run(() async =>
                       _accept(await _api.bonus(state, _token!, room))) : null,
-                  child: Text('第${room}部屋'),
+                  child: Text('第$room部屋'),
                 ),
             ]),
           if (state.status == 'playing')
