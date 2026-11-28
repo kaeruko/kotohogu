@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'kotohoguru_dojo.dart';
 import 'online_duel_page.dart';
+import 'resident_collection.dart';
 
 /// Public hall's second floor. The hotspots follow the original 941×1672
 /// artwork, not device pixels. Rankings are not yet connected.
@@ -27,25 +28,105 @@ class CommunityCenterSecondFloor extends StatelessWidget {
     ),
   );
 
-  Widget _spot({
+  // The hall staff are fixed here, independent of the player's gacha collection.
+  Widget _resident({
     required String id,
     required String label,
+    required TownResident resident,
     required double x,
     required double y,
     required VoidCallback onPressed,
   }) => Positioned(
     left: x,
     top: y,
-    width: 300,
-    height: 108,
-    child: FilledButton.tonal(
-      key: ValueKey('community-center-2f-$id'),
-      style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        textStyle: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600),
+    width: 240,
+    height: 230,
+    child: Semantics(
+      button: true,
+      label: '${resident.label}、$label',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: ValueKey('community-center-2f-$id'),
+          borderRadius: BorderRadius.circular(20),
+          onTap: onPressed,
+          child: Column(
+            children: [
+              Expanded(
+                child: Image.asset(
+                  resident.idleAsset,
+                  fit: BoxFit.contain,
+                  excludeFromSemantics: true,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFEAC6),
+                  border: Border.all(color: const Color(0xFF9A6039), width: 3),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 31,
+                    height: 1.15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF593A28),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      onPressed: onPressed,
-      child: Text(label, textAlign: TextAlign.center),
+    ),
+  );
+
+  Future<void> _meeting(BuildContext context) async {
+    final open = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('たびじろう'),
+        content: const Text(
+          'おともだちと待ち合わせかい？\\n'
+          '待ち合わせ番号があれば、ここから行けるよ。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('とじる'),
+          ),
+          FilledButton(
+            key: const ValueKey('community-center-2f-open-meeting'),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('待ち合わせ広場へ'),
+          ),
+        ],
+      ),
+    );
+    if (open != true || !context.mounted) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(builder: (_) => const OnlineDuelPage()),
+    );
+  }
+
+  Widget _stairs(BuildContext context) => Positioned(
+    left: 295,
+    top: 55,
+    width: 175,
+    height: 220,
+    child: Semantics(
+      button: true,
+      label: '1階へ',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: const ValueKey('community-center-2f-stairs'),
+          onTap: () => Navigator.of(context).pop(),
+        ),
+      ),
     ),
   );
 
@@ -78,36 +159,29 @@ class CommunityCenterSecondFloor extends StatelessWidget {
                     excludeFromSemantics: true,
                   ),
                 ),
-                _spot(
-                  id: 'stairs',
-                  label: '1階へ',
-                  x: 230,
-                  y: 235,
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                _spot(
+                _stairs(context),
+                _resident(
                   id: 'meeting',
                   label: '待ち合わせ',
-                  x: 65,
-                  y: 935,
-                  onPressed: () => Navigator.of(context).push<void>(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const OnlineDuelPage(),
-                    ),
-                  ),
+                  resident: TownResident.c055_traveler,
+                  x: 95,
+                  y: 790,
+                  onPressed: () => _meeting(context),
                 ),
-                _spot(
+                _resident(
                   id: 'battle',
                   label: '対戦室',
-                  x: 540,
-                  y: 675,
+                  resident: TownResident.c032_miner,
+                  x: 585,
+                  y: 550,
                   onPressed: () => showDialog<void>(
                     context: context,
                     builder: (dialogContext) => AlertDialog(
-                      title: const Text('対戦室'),
+                      title: const Text('げんばくん'),
                       content: const Text(
-                        'ともだちと対戦するか、道場でお稽古できます。\n'
-                        '待ち合わせ番号で参加・再開できます。',
+                        'よーし、勝負の準備はできてるよ！\n'
+                        'ともだちと対戦する？ それとも道場でお稽古する？\n'
+                        '待ち合わせ番号で参加・再開できるよ。',
                       ),
                       actions: [
                         TextButton(
@@ -142,16 +216,31 @@ class CommunityCenterSecondFloor extends StatelessWidget {
                     ),
                   ),
                 ),
-                _spot(
+                _resident(
                   id: 'ranking',
                   label: '掲示板',
-                  x: 540,
-                  y: 1140,
+                  resident: TownResident.c048_advicer,
+                  x: 585,
+                  y: 1010,
                   onPressed: () => _notice(
                     context,
-                    'ランキング・お知らせ',
-                    'みんなの対戦記録やお知らせを掲示する場所です。\n'
+                    'しんだんし',
+                    'ここは対戦記録やお知らせの掲示板です。\n'
+                    '勝った回数だけでなく、続けた回数にも価値がありますよ。\n'
                     'オンラインランキングは準備中です。',
+                  ),
+                ),
+                _resident(
+                  id: 'rest',
+                  label: 'ひと休み',
+                  resident: TownResident.c053_penguin_lady,
+                  x: 350,
+                  y: 1265,
+                  onPressed: () => _notice(
+                    context,
+                    'はるまちさん',
+                    'あら、今日もにぎやかね。\n'
+                    '勝負の前にも後にも、ひと息ついていってね。',
                   ),
                 ),
               ],
