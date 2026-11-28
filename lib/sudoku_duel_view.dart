@@ -599,7 +599,7 @@ class _DuelBoard extends StatelessWidget {
     final side = game.size.side;
     final room = band * (side ~/ columns) + stack + 1;
     final owner = game.flagAt(room);
-    final bonus = game.stage?.doubleRoom == room;
+    final bonus = game.bonusRoom == room;
     final active =
         !game.isOver &&
         game.hasSpace(room) &&

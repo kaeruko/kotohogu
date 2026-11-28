@@ -67,8 +67,9 @@ class SudokuDuel {
     this.turn,
     this.targetRoom,
     this.lastCell,
-    this.stage,
-  );
+    this.stage, {
+    this.humanBonusRoom,
+  });
 
   /// Without a shuffle the mini game opens on the introductory position.
   /// Swapping digits, bands and rows within bands preserves a unique solution.
@@ -150,11 +151,29 @@ class SudokuDuel {
     return SudokuDuel._startBoard(size, List.of(givens), List.of(answer));
   }
 
+  /// A preverified four-room human match. The caller must obtain the bonus
+  /// room from the second player before starting; no CPU or story catalog is used.
+  factory SudokuDuel.humanMini({required int bonusRoom}) {
+    RangeError.checkValueInInterval(bonusRoom, 1, 4, 'bonusRoom');
+    const puzzle = '1004301020034020';
+    const solution = '1234341221434321';
+    List<int> digits(String text) => [
+      for (final unit in text.codeUnits) unit - 48,
+    ];
+    return SudokuDuel._startBoard(
+      DuelSize.mini,
+      digits(puzzle),
+      digits(solution),
+      humanBonusRoom: bonusRoom,
+    );
+  }
+
   factory SudokuDuel._startBoard(
     DuelSize size,
     List<int> givens,
     List<int> answer, {
     StoryDuelStage? stage,
+    int? humanBonusRoom,
   }) {
     final blanks = List.filled(size.side, 0);
     for (var cell = 0; cell < givens.length; cell++) {
@@ -171,6 +190,7 @@ class SudokuDuel {
       blanks.first == 0 ? null : 1,
       null,
       stage,
+      humanBonusRoom: humanBonusRoom,
     );
   }
 
@@ -184,20 +204,25 @@ class SudokuDuel {
   final int? targetRoom;
   final int? lastCell;
   final StoryDuelStage? stage;
+  final int? humanBonusRoom;
+
+  int? get bonusRoom => humanBonusRoom ?? stage?.doubleRoom;
 
   int valueAt(int cell) => _board[cell];
   bool isGiven(int cell) => _givens[cell] != 0;
   DuelPlayer? flagAt(int room) => _flags[room - 1];
   bool hasSpace(int room) => _blanks[room - 1] > 0;
   int score(DuelPlayer player) {
-    final bonus = stage?.doubleRoom;
+    final bonus = bonusRoom;
     return _flags.where((owner) => owner == player).length +
         (bonus != null && flagAt(bonus) == player ? 1 : 0);
   }
 
   bool get isOver {
     if (!_blanks.any((count) => count > 0)) return true;
-    final target = stage?.firstTo ?? (size == DuelSize.classic ? 5 : null);
+    final target = humanBonusRoom != null
+        ? 3
+        : stage?.firstTo ?? (size == DuelSize.classic ? 5 : null);
     return target != null &&
         (score(DuelPlayer.first) >= target ||
             score(DuelPlayer.second) >= target);
@@ -243,6 +268,7 @@ class SudokuDuel {
       blanks[digit - 1] == 0 ? null : digit,
       cell,
       stage,
+      humanBonusRoom: humanBonusRoom,
     );
   }
 
@@ -250,6 +276,9 @@ class SudokuDuel {
   int get _strongDepth => size == DuelSize.mini ? _board.length : 3;
 
   SudokuDuel computerMove(DuelRival? rival, Random random) {
+    if (humanBonusRoom != null) {
+      throw StateError('A human duel cannot use a computer move');
+    }
     if (isOver) throw StateError('The duel has already ended');
     final choices = legalCells.toList()..shuffle(random);
     if (stage case final authored?) {
