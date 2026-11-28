@@ -574,25 +574,38 @@ class _DuelBoard extends StatelessWidget {
   Widget build(BuildContext context) => Center(
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 480),
-      child: Column(
-        children: [
-          for (var band = 0; band < game.size.side ~/ game.size.boxRows; band++)
-            Row(
-              children: [
-                for (
-                  var stack = 0;
-                  stack < game.size.side ~/ game.size.boxColumns;
-                  stack++
-                )
-                  Expanded(child: _room(band, stack)),
-              ],
-            ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final side = game.size.side;
+          final columns = game.size.boxColumns;
+          final across = side ~/ columns;
+          // Room margins and borders remain 2 + 2 on each side.
+          final cellWidth = (constraints.maxWidth / across - 8) / columns;
+          // Keep 9x9 compact enough for the keypad; use spare height for
+          // the smaller boards without making existing cells shorter.
+          final cellHeight = switch (side) {
+            4 => cellWidth.clamp(50.0, 64.0).toDouble(),
+            6 => cellWidth.clamp(36.0, 52.0).toDouble(),
+            9 => 36.0,
+            _ => throw StateError('Unexpected duel board size: $side'),
+          };
+          return Column(
+            children: [
+              for (var band = 0; band < side ~/ game.size.boxRows; band++)
+                Row(
+                  children: [
+                    for (var stack = 0; stack < across; stack++)
+                      Expanded(child: _room(band, stack, cellHeight)),
+                  ],
+                ),
+            ],
+          );
+        },
       ),
     ),
   );
 
-  Widget _room(int band, int stack) {
+  Widget _room(int band, int stack, double cellHeight) {
     final rows = game.size.boxRows;
     final columns = game.size.boxColumns;
     final side = game.size.side;
@@ -653,6 +666,7 @@ class _DuelBoard extends StatelessWidget {
                     child: _cell(
                       (band * rows + y) * side + stack * columns + x,
                       active,
+                      cellHeight,
                     ),
                   ),
               ],
@@ -662,7 +676,7 @@ class _DuelBoard extends StatelessWidget {
     );
   }
 
-  Widget _cell(int cell, bool activeRoom) {
+  Widget _cell(int cell, bool activeRoom, double cellHeight) {
     final side = game.size.side;
     final digit = game.valueAt(cell);
     final active = selected == cell;
@@ -689,7 +703,7 @@ class _DuelBoard extends StatelessWidget {
         child: InkWell(
           onTap: tap,
           child: Container(
-            height: side == 4 ? 50 : 36,
+            height: cellHeight,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               border: Border.all(
