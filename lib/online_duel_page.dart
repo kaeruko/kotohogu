@@ -242,7 +242,7 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
         : captured == 'second' ? Colors.pink.shade100
         : available ? Colors.green.shade100 : Colors.grey.shade100;
     return Semantics(
-      label: '第$room部屋、${cell ~/ 4 + 1}行${cell % 4 + 1}列、${state.board[cell] == '0' ? '空欄' : state.board[cell]}',
+      label: '第${room}部屋、${cell ~/ 4 + 1}行${cell % 4 + 1}列、${state.board[cell] == '0' ? '空欄' : state.board[cell]}',
       button: available,
       child: InkWell(
         key: ValueKey('online-duel-cell-$cell'),
@@ -314,7 +314,7 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
                   key: ValueKey('online-duel-bonus-$room'),
                   onPressed: enabled ? () => _run(() async =>
                       _accept(await _api.bonus(state, _token!, room))) : null,
-                  child: Text('第$room部屋'),
+                  child: Text('第${room}部屋'),
                 ),
             ]),
           if (state.status == 'playing')
@@ -342,7 +342,9 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => PopScope(
+    canPop: !_busy,
+    child: Scaffold(
     appBar: AppBar(title: Text(_state?.status == 'playing' || _state?.status == 'finished' ? '対戦室' : '待ち合わせ広場')),
     body: SafeArea(
       child: kIsWeb ? const Center(child: Text('オンライン対戦は現在スマホ版で試験中です。'))
@@ -362,6 +364,7 @@ class _OnlineDuelPageState extends State<OnlineDuelPage> with WidgetsBindingObse
           const Text('試験版・4×4のみ。部屋は作成から24時間有効です。画面を閉じても保存した部屋から再開できます。'),
         ],
       ),
+    ),
     ),
   );
 }
