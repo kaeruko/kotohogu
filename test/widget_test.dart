@@ -285,7 +285,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('footer-consultation')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('consultation-page')), findsOneWidget);
-    expect(displayedAsset(), 'assets/kotohogu/village_background_001.png');
+    expect(displayedAsset(), 'assets/kotohogu/village_background.png');
     expect(tester.widget<Image>(wallpaper).fit, BoxFit.cover);
     expect(tester.getRect(wallpaper).contains(
         tester.getCenter(find.byType(GachaHud))), isTrue);
@@ -642,7 +642,7 @@ void main() {
     expect(background.image, isA<AssetImage>());
     expect(
       (background.image as AssetImage).assetName,
-      'assets/kotohogu/town_background_001.jpg',
+      'assets/kotohogu/town_background.jpg',
     );
     expect(background.fit, BoxFit.cover);
     await tester.tap(find.byKey(const ValueKey('resident-0')));

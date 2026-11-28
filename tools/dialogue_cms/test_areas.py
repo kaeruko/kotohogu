@@ -19,7 +19,7 @@ class TownAreaCmsTests(unittest.TestCase):
         library = areas['areas'][4]
         self.assertEqual(library['id'], 'library')
         self.assertEqual(library['unlockAt'], 390)
-        self.assertEqual(library['backgroundAsset'], 'assets/kotohogu/library_background_001.png')
+        self.assertEqual(library['backgroundAsset'], 'assets/kotohogu/library_background.png')
         self.assertIn('library("library",', generate_town_areas(DART.read_text(encoding='utf-8'), areas))
 
     def test_area_name_description_and_threshold_generate_flutter(self):

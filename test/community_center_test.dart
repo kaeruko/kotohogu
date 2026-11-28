@@ -31,7 +31,7 @@ void main() {
     expect(flower.y + flower.size, lessThan(1000));
     expect(exercise.y + exercise.size, lessThan(1000));
     expect(CommunityCenterRoom.backgroundAsset,
-        'assets/kotohogu/community_center_background_001.png');
+        'assets/kotohogu/community_center_background.png');
     expect(File(CommunityCenterRoom.backgroundAsset).existsSync(), isTrue);
   });
 

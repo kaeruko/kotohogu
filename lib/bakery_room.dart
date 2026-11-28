@@ -9,7 +9,7 @@ class BakeryRoom extends StatefulWidget {
 
   final List<TownResident> ownedResidents;
 
-  static const backgroundAsset = 'assets/kotohogu/backaly_background_001.png';
+  static const backgroundAsset = 'assets/kotohogu/backaly_background.png';
   final Future<void> Function(TownResident)? onResident;
 
   @override

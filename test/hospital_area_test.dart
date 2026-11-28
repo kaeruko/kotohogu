@@ -189,7 +189,7 @@ void main() {
     expect(find.text('2 / 2'), findsOneWidget);
     final background = tester.widget<Image>(find.byKey(const ValueKey('town-background')));
     expect((background.image as AssetImage).assetName,
-        'assets/kotohogu/hospital_background_001.png');
+        'assets/kotohogu/hospital_background.png');
     await tester.tap(find.byKey(const ValueKey('town-area-previous')));
     await tester.pump();
     expect(area, TownArea.plaza);

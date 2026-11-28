@@ -8,12 +8,12 @@ import 'resident_collection.dart';
 /// The user's selected area is UI-only; no progress save migration is required.
 enum TownArea {
   // BEGIN CMS TOWN AREAS
-  plaza("plaza", "中央ひろば", "みんなが集まるまちの中心。", 0, "assets/kotohogu/town_background_001.jpg", 768, 1376),
-  park("park", "ふれあい公園", "お散歩やおしゃべりを楽しむ場所。", 90, "assets/kotohogu/park_background_001.png", 768, 1376),
-  shopping("shopping", "ことほぎ商店街", "お店と仕事の話が聞こえてくる通り。", 180, "assets/kotohogu/street_background_001.png", 768, 1376),
-  village("village", "のんびり里", "畑とおうちで、それぞれのペースで暮らす場所。", 300, "assets/kotohogu/village_background_001.png", 941, 1672),
-  library("library", "ことほぎ図書館", "本を読んだり、学んだり、静かに過ごせる場所。", 390, "assets/kotohogu/library_background_001.png", 941, 1671),
-  hospital("hospital", "びょういん", "せんせいがみんなを迎える、花に囲まれた動物病院。", 0, "assets/kotohogu/hospital_background_001.png", 941, 1672);
+  plaza("plaza", "中央ひろば", "みんなが集まるまちの中心。", 0, "assets/kotohogu/town_background.jpg", 768, 1376),
+  park("park", "ふれあい公園", "お散歩やおしゃべりを楽しむ場所。", 90, "assets/kotohogu/park_background.png", 768, 1376),
+  shopping("shopping", "ことほぎ商店街", "お店と仕事の話が聞こえてくる通り。", 180, "assets/kotohogu/street_background.png", 768, 1376),
+  village("village", "のんびり里", "畑とおうちで、それぞれのペースで暮らす場所。", 300, "assets/kotohogu/village_background.png", 941, 1672),
+  library("library", "ことほぎ図書館", "本を読んだり、学んだり、静かに過ごせる場所。", 390, "assets/kotohogu/library_background.png", 941, 1671),
+  hospital("hospital", "びょういん", "せんせいがみんなを迎える、花に囲まれた動物病院。", 0, "assets/kotohogu/hospital_background.png", 941, 1672);
   // END CMS TOWN AREAS
 
   const TownArea(this.id, this.label, this.description, this.unlockAt,

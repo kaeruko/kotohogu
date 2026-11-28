@@ -18,13 +18,13 @@ void main() {
     expect(TownArea.fromId('shopping'), TownArea.shopping);
     expect(TownArea.fromId('library'), TownArea.library);
     expect(TownArea.library.backgroundAsset,
-        'assets/kotohogu/library_background_001.png');
+        'assets/kotohogu/library_background.png');
     expect(TownArea.park.backgroundAsset,
-        'assets/kotohogu/park_background_001.png');
+        'assets/kotohogu/park_background.png');
     expect(TownArea.plaza.backgroundAsset,
-        'assets/kotohogu/town_background_001.jpg');
+        'assets/kotohogu/town_background.jpg');
     expect(TownArea.shopping.backgroundAsset,
-        'assets/kotohogu/street_background_001.png');
+        'assets/kotohogu/street_background.png');
     expect(() => TownArea.fromId('invalid'), throwsFormatException);
     expect(TownArea.plaza.isUnlocked(0), true);
     expect(TownArea.park.isUnlocked(89), false);
@@ -509,7 +509,7 @@ void main() {
   });
 
   test('shopping PNG uses its declared 768x1376 source dimensions', () {
-    final file = File('assets/kotohogu/street_background_001.png');
+    final file = File('assets/kotohogu/street_background.png');
     expect(file.existsSync(), isTrue);
     final dims = _imageDimensions(file.readAsBytesSync());
     expect(dims.$1, TownArea.shopping.sourceWidth);

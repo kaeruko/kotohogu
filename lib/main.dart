@@ -1191,7 +1191,7 @@ class _FutureLiftHomeState extends State<FutureLiftHome>
                           ),
                         ],
                       ),
-                      backgroundAsset: 'assets/kotohogu/village_background_001.png',
+                      backgroundAsset: 'assets/kotohogu/village_background.png',
                     )
                   : _page == 6
                   ? _pageWithSharedHeader(

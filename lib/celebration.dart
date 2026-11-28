@@ -80,7 +80,7 @@ class _CelebrationState extends State<Celebration>
       children: [
         Positioned.fill(
           child: Image.asset(
-            'assets/kotohogu/park_background_001.png',
+            'assets/kotohogu/park_background.png',
             key: const ValueKey('celebration-background'),
             fit: BoxFit.cover,
             excludeFromSemantics: true,

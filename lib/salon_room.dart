@@ -17,7 +17,7 @@ class SalonRoom extends StatefulWidget {
     this.previewUnownedResidents = false,
   });
 
-  static const backgroundAsset = 'assets/kotohogu/salon_background_001.jpg';
+  static const backgroundAsset = 'assets/kotohogu/salon_background.jpg';
   static const host = TownResident.c035_beaty;
 
   /// Uses the same CMS-backed conversations and seen-ID tracking as town NPCs.

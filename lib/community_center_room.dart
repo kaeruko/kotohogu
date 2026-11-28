@@ -18,7 +18,7 @@ class CommunityCenterRoom extends StatefulWidget {
   });
 
   static const backgroundAsset =
-      'assets/kotohogu/community_center_background_001.png';
+      'assets/kotohogu/community_center_background.png';
 
   /// A room-only animation variant of the existing 051_dog_aunt resident.
   static const kneeExerciseSpriteFolder =

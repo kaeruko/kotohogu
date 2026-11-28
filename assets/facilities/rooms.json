@@ -4,7 +4,7 @@
     {
       "id": "salon",
       "label": "桜の美容室",
-      "background": "assets/kotohogu/salon_background_001.jpg",
+      "background": "assets/kotohogu/salon_background.jpg",
       "width": 941,
       "height": 1672,
       "owner": "035_beaty",
@@ -30,7 +30,7 @@
     {
       "id": "bakery",
       "label": "洋菓子店",
-      "background": "assets/kotohogu/backaly_background_001.png",
+      "background": "assets/kotohogu/backaly_background.png",
       "width": 937,
       "height": 1679,
       "owner": "047_patisie",
@@ -46,7 +46,7 @@
     {
       "id": "community_center",
       "label": "ことほぎ公民館",
-      "background": "assets/kotohogu/community_center_background_001.png",
+      "background": "assets/kotohogu/community_center_background.png",
       "width": 941,
       "height": 1672,
       "owner": "031_kimono_fox",
@@ -82,7 +82,7 @@
     {
       "id": "hospital",
       "label": "びょういん",
-      "background": "assets/kotohogu/hospital_background_001.png",
+      "background": "assets/kotohogu/hospital_background.png",
       "width": 941,
       "height": 1672,
       "owner": "004_neko",

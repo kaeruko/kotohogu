@@ -12,7 +12,7 @@ class FacilityScaleTests(unittest.TestCase):
         self.assertEqual(salon["spriteSize"], 230)
         self.assertEqual(bakery["spriteSize"], 235)
         self.assertEqual(center["spriteSize"], 150)
-        self.assertEqual(center["background"], "assets/kotohogu/community_center_background_001.png")
+        self.assertEqual(center["background"], "assets/kotohogu/community_center_background.png")
         self.assertEqual((center["width"], center["height"]), (941, 1672))
         self.assertEqual([p["residentId"] for p in center["placements"]],
                          ["031_kimono_fox", "037_tora", "051_dog_aunt",
@@ -20,7 +20,7 @@ class FacilityScaleTests(unittest.TestCase):
         self.assertLess(center["placements"][0]["x"] + center["spriteSize"],
                         center["placements"][1]["x"])
         self.assertEqual(hospital["label"], "びょういん")
-        self.assertEqual(hospital["background"], "assets/kotohogu/hospital_background_001.png")
+        self.assertEqual(hospital["background"], "assets/kotohogu/hospital_background.png")
         self.assertEqual((hospital["width"], hospital["height"]), (941, 1672))
         self.assertEqual(hospital["owner"], "004_neko")
         self.assertEqual(hospital["spriteSize"], 125)

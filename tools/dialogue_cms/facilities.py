@@ -8,10 +8,10 @@ ROOT=Path(__file__).resolve().parents[2]
 DATA=ROOT/'assets/facilities/rooms.json'
 DART=ROOT/'lib/facility_config.g.dart'
 FIXED={
- 'salon':dict(label='桜の美容室',background='assets/kotohogu/salon_background_001.jpg',width=941,height=1672,owner='035_beaty'),
- 'bakery':dict(label='洋菓子店',background='assets/kotohogu/backaly_background_001.png',width=937,height=1679,owner='047_patisie'),
- 'community_center':dict(label='ことほぎ公民館',background='assets/kotohogu/community_center_background_001.png',width=941,height=1672,owner='031_kimono_fox'),
- 'hospital':dict(label='びょういん',background='assets/kotohogu/hospital_background_001.png',width=941,height=1672,owner='004_neko'),
+ 'salon':dict(label='桜の美容室',background='assets/kotohogu/salon_background.jpg',width=941,height=1672,owner='035_beaty'),
+ 'bakery':dict(label='洋菓子店',background='assets/kotohogu/backaly_background.png',width=937,height=1679,owner='047_patisie'),
+ 'community_center':dict(label='ことほぎ公民館',background='assets/kotohogu/community_center_background.png',width=941,height=1672,owner='031_kimono_fox'),
+ 'hospital':dict(label='びょういん',background='assets/kotohogu/hospital_background.png',width=941,height=1672,owner='004_neko'),
 }
 
 def validate(doc):
