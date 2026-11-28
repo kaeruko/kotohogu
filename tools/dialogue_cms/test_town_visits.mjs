@@ -85,6 +85,16 @@ test('salon membership is the only editable resident placement exception',()=>{
   assert.equal(owner.homeAreaId,'salon');
 });
 
+test('clinic staff and patients join only after opening',()=>{
+  const locations=new Map();
+  const noDraw=()=>{throw Error('Clinic placement must not draw');};
+  for(const id of ['024_nurse','007_hitsuji','043_senior_cat','055_traveler']){
+    assert.equal(destination(resident(id),['plaza'],locations,false,()=>0),'plaza');
+    assert.equal(destination(resident(id),['plaza','hospital'],locations,false,noDraw),'hospital');
+  }
+  assert.equal(destination(resident('001_shiba'),['plaza','hospital'],locations,false,()=>.99),'plaza');
+});
+
 test('Pochakun uses library after unlock and random outings before unlock',()=>{
   const residentTanuki=resident('054_tanuki','library');
   const locations=new Map();

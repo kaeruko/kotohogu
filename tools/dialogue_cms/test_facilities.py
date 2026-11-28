@@ -25,7 +25,7 @@ class FacilityScaleTests(unittest.TestCase):
         self.assertEqual(hospital["owner"], "004_neko")
         self.assertEqual(hospital["spriteSize"], 125)
         self.assertEqual([p["residentId"] for p in hospital["placements"]],
-                         ["004_neko", "024_nurse"])
+                         ["004_neko", "024_nurse", "007_hitsuji", "043_senior_cat", "055_traveler"])
         self.assertLess(hospital["placements"][0]["x"] + hospital["spriteSize"],
                         hospital["placements"][1]["x"])
         for room in (salon, bakery, center, hospital):
@@ -44,7 +44,7 @@ class FacilityScaleTests(unittest.TestCase):
 
     def test_clinic_staff_membership_is_not_silently_ignored(self):
         doc = copy.deepcopy(facilities.load())
-        doc["facilities"][-1]["placements"].pop()
+        doc["facilities"][-1]["placements"].pop(1)
         with self.assertRaisesRegex(ValueError, "診療所の配置"):
             facilities.validate(doc)
         doc = copy.deepcopy(facilities.load())

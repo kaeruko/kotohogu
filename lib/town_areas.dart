@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'facility_layout.dart';
 import 'marche.dart';
 import 'resident_collection.dart';
 
@@ -152,9 +153,10 @@ class TownVisit {
       throw RangeError.value(lifetimePoints, 'lifetimePoints', 'Must be >= 0');
     }
     if (residentId == TownResident.cat.id) return TownArea.hospital;
-    // The nurse joins the clinic once its doctor has opened it.
-    // Before opening, she can still visit ordinary unlocked neighborhoods.
-    if (hospitalOpen && residentId == TownResident.c024_nurse.id) {
+    // Configured clinic visitors join the doctor once the clinic opens.
+    // Before opening, they can still visit ordinary unlocked neighborhoods.
+    if (hospitalOpen && facilityPlacements('hospital')
+        .any((placement) => placement.residentId == residentId)) {
       return TownArea.hospital;
     }
     if (homeAreaId == 'salon') return null;

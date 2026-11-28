@@ -12,11 +12,13 @@ void main() {
     final doctor = facilityPlacement('hospital', TownResident.cat.id);
     final nurse = facilityPlacement('hospital', TownResident.c024_nurse.id);
     expect(facilityPlacements('hospital').map((p) => p.residentId),
-        [TownResident.cat.id, TownResident.c024_nurse.id]);
+        [TownResident.cat.id, TownResident.c024_nurse.id,
+         TownResident.c007_hitsuji.id, TownResident.c043_senior_cat.id,
+         TownResident.c055_traveler.id]);
     expect(doctor.size, 125);
     expect(nurse.size, doctor.size);
     expect(doctor.x + doctor.size, lessThan(nurse.x));
-    for (final staff in [doctor, nurse]) {
+    for (final staff in facilityPlacements('hospital')) {
       expect(staff.x, greaterThanOrEqualTo(0));
       expect(staff.y, greaterThanOrEqualTo(0));
       expect(staff.x + staff.size, lessThanOrEqualTo(
@@ -61,6 +63,23 @@ void main() {
       expect(areaResidents([doctor, nurse], area,
           lifetimePoints: 300, visit: open), isEmpty);
     }
+  });
+
+  test('owned patients visit the clinic once it opens, without duplication', () {
+    const patients = [TownResident.c007_hitsuji, TownResident.c043_senior_cat,
+        TownResident.c055_traveler];
+    final visit = TownVisit(random: ScriptedTownRandom([0, 0, 0, 0]));
+    expect(areaResidents(patients, TownArea.plaza,
+        lifetimePoints: 0, visit: visit), patients);
+    expect(areaResidents(patients, TownArea.hospital,
+        lifetimePoints: 0, visit: visit), isEmpty);
+    final owned = [TownResident.cat, ...patients, TownResident.shiba];
+    expect(areaResidents(owned, TownArea.hospital,
+        lifetimePoints: 0, visit: visit), [TownResident.cat, ...patients]);
+    expect(areaResidents(owned, TownArea.plaza,
+        lifetimePoints: 0, visit: visit), [TownResident.shiba]);
+    expect(areaResidents([TownResident.cat, patients.first], TownArea.hospital,
+        lifetimePoints: 0, visit: visit), [TownResident.cat, patients.first]);
   });
 
   testWidgets('clinic staff stand in separate rooms and can be tapped',

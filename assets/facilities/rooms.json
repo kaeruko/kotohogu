@@ -97,6 +97,21 @@
           "residentId": "024_nurse",
           "x": 615,
           "y": 355
+        },
+        {
+          "residentId": "007_hitsuji",
+          "x": 175,
+          "y": 750
+        },
+        {
+          "residentId": "043_senior_cat",
+          "x": 405,
+          "y": 750
+        },
+        {
+          "residentId": "055_traveler",
+          "x": 635,
+          "y": 750
         }
       ]
     }

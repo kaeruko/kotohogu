@@ -905,6 +905,7 @@ function renderAreaEditor(){
 function previewOutingArea(resident,unlockedIds,destinations,marcheOpen,random=Math.random){
   if(resident.homeAreaId==="salon"||!resident.walkInTown)return null;
   if(resident.id==="004_neko")return "hospital";
+  if(unlockedIds.includes("hospital")&&["024_nurse","007_hitsuji","043_senior_cat","055_traveler"].includes(resident.id))return "hospital";
   unlockedIds=unlockedIds.filter(id=>id!=="hospital");
   if(["054_tanuki","020_yagi"].includes(resident.id)&&unlockedIds.includes("library"))return "library";
   if(marcheOpen&&resident.id==="041_pig_middle")return "plaza";
